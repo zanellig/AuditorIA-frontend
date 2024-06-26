@@ -14,10 +14,12 @@ import {
 } from "@/components/ui/navigation-menu"
 import { ModeToggle } from "./mode-toggle"
 
+import PerfilDeUsuario from "@/components/PerfilDeUsuario"
+
 const components: { title: string; href: string; description: string }[] = [
   {
     title: "Audios Neotel",
-    href: "/docs/primitives/hover-card",
+    href: "/",
     description: "Pendiente de documentación por Ing. Bouzon.",
   },
   {
@@ -41,7 +43,7 @@ const components: { title: string; href: string; description: string }[] = [
 export default function Navbar() {
   return (
     <NavigationMenu>
-      <NavigationMenuList className="flex w-full max-w-screen-lg mx-auto">
+      <NavigationMenuList className="flex w-full max-w-screen-lg mx-auto gap-3">
         <NavigationMenuItem>
           <NavigationMenuTrigger>¿Qué podés hacer?</NavigationMenuTrigger>
           <NavigationMenuContent>
@@ -92,6 +94,9 @@ export default function Navbar() {
         </NavigationMenuItem>
         <NavigationMenuItem>
           <ModeToggle />
+        </NavigationMenuItem>
+        <NavigationMenuItem>
+          <PerfilDeUsuario />
         </NavigationMenuItem>
       </NavigationMenuList>
     </NavigationMenu>
