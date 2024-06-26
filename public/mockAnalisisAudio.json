@@ -1,0 +1,1354 @@
+{
+  "segments": [
+    {
+      "text": " Contact Center, buenas tardes, mi nombre es Alejo.",
+      "start": 4.85,
+      "end": 6.712,
+      "channel": "R",
+      "analysis": {
+        "sentiment": "NEU",
+        "sentiment_probas": {
+          "NEG": 0.0385487824678421,
+          "NEU": 0.9116348624229431,
+          "POS": 0.049816325306892395
+        },
+        "emotion": "others",
+        "emotion_probas": {
+          "others": 0.988865315914154,
+          "joy": 0.0025152931921184063,
+          "sadness": 0.0018288034480065107,
+          "anger": 0.0015908099012449384,
+          "surprise": 0.002590509597212076,
+          "disgust": 0.0010040516499429941,
+          "fear": 0.0016051610000431538
+        },
+        "hate_speech": "",
+        "hate_speech_probas": {
+          "hateful": 0.018650155514478683,
+          "targeted": 0.008393913507461548,
+          "aggressive": 0.009196448139846325
+        }
+      }
+    },
+    {
+      "text": "¿Con quién tengo el gusto?",
+      "start": 6.732,
+      "end": 7.793,
+      "channel": "R",
+      "analysis": {
+        "sentiment": "NEU",
+        "sentiment_probas": {
+          "NEG": 0.05779983103275299,
+          "NEU": 0.8830307126045227,
+          "POS": 0.059169474989175797
+        },
+        "emotion": "others",
+        "emotion_probas": {
+          "others": 0.9880139827728271,
+          "joy": 0.007681579794734716,
+          "sadness": 0.00142973056063056,
+          "anger": 0.0002744419907685369,
+          "surprise": 0.001682543777860701,
+          "disgust": 0.00037930667167529464,
+          "fear": 0.0005384917603805661
+        },
+        "hate_speech": "",
+        "hate_speech_probas": {
+          "hateful": 0.03232033550739288,
+          "targeted": 0.008987654000520706,
+          "aggressive": 0.010787294246256351
+        }
+      }
+    },
+    {
+      "text": " Hola, Alejo.",
+      "start": 8.36,
+      "end": 8.78,
+      "channel": "L",
+      "analysis": {
+        "sentiment": "NEU",
+        "sentiment_probas": {
+          "NEG": 0.0821855366230011,
+          "NEU": 0.5318002104759216,
+          "POS": 0.3860142230987549
+        },
+        "emotion": "others",
+        "emotion_probas": {
+          "others": 0.8066114187240601,
+          "joy": 0.10045657306909561,
+          "sadness": 0.04505111277103424,
+          "anger": 0.005693008191883564,
+          "surprise": 0.028531838208436966,
+          "disgust": 0.007218071725219488,
+          "fear": 0.006437975447624922
+        },
+        "hate_speech": "",
+        "hate_speech_probas": {
+          "hateful": 0.024602064862847328,
+          "targeted": 0.012052325531840324,
+          "aggressive": 0.012817159295082092
+        }
+      }
+    },
+    {
+      "text": "Yo soy la doctora Verónica Vázquez de Cito San Isidro.",
+      "start": 8.8,
+      "end": 11.543,
+      "channel": "L",
+      "analysis": {
+        "sentiment": "NEU",
+        "sentiment_probas": {
+          "NEG": 0.029202980920672417,
+          "NEU": 0.838781476020813,
+          "POS": 0.13201554119586945
+        },
+        "emotion": "others",
+        "emotion_probas": {
+          "others": 0.9957846999168396,
+          "joy": 0.0020894999615848064,
+          "sadness": 0.0003745432186406106,
+          "anger": 0.00020471515017561615,
+          "surprise": 0.0009351471089757979,
+          "disgust": 0.00017484999261796474,
+          "fear": 0.0004364968335721642
+        },
+        "hate_speech": "",
+        "hate_speech_probas": {
+          "hateful": 0.01754513569176197,
+          "targeted": 0.011762822978198528,
+          "aggressive": 0.0070475023239851
+        }
+      }
+    },
+    {
+      "text": "Un gusto, doctora, ¿en qué la puedo ayudar?",
+      "start": 12.156,
+      "end": 13.858,
+      "channel": "R",
+      "analysis": {
+        "sentiment": "NEU",
+        "sentiment_probas": {
+          "NEG": 0.042166829109191895,
+          "NEU": 0.714087188243866,
+          "POS": 0.24374601244926453
+        },
+        "emotion": "others",
+        "emotion_probas": {
+          "others": 0.9318435788154602,
+          "joy": 0.05104507505893707,
+          "sadness": 0.005040653515607119,
+          "anger": 0.0013317125849425793,
+          "surprise": 0.005213520023971796,
+          "disgust": 0.002142457291483879,
+          "fear": 0.003383035771548748
+        },
+        "hate_speech": "",
+        "hate_speech_probas": {
+          "hateful": 0.2240668684244156,
+          "targeted": 0.07799910008907318,
+          "aggressive": 0.05422944948077202
+        }
+      }
+    },
+    {
+      "text": "Está bloqueada mi contraseña para entrar recién entro a trabajar y está bloqueada.",
+      "start": 15.065,
+      "end": 19.949,
+      "channel": "L",
+      "analysis": {
+        "sentiment": "NEG",
+        "sentiment_probas": {
+          "NEG": 0.8828304409980774,
+          "NEU": 0.11319303512573242,
+          "POS": 0.0039765844121575356
+        },
+        "emotion": "others",
+        "emotion_probas": {
+          "others": 0.9652842879295349,
+          "joy": 0.0010456275194883347,
+          "sadness": 0.006975091993808746,
+          "anger": 0.0033825449645519257,
+          "surprise": 0.014864134602248669,
+          "disgust": 0.0022767328191548586,
+          "fear": 0.006171526852995157
+        },
+        "hate_speech": "",
+        "hate_speech_probas": {
+          "hateful": 0.09818138182163239,
+          "targeted": 0.031100507825613022,
+          "aggressive": 0.05146273970603943
+        }
+      }
+    },
+    {
+      "text": "Entiendo.",
+      "start": 19.462,
+      "end": 19.822,
+      "channel": "R",
+      "analysis": {
+        "sentiment": "NEU",
+        "sentiment_probas": {
+          "NEG": 0.21658512949943542,
+          "NEU": 0.42543214559555054,
+          "POS": 0.35798266530036926
+        },
+        "emotion": "others",
+        "emotion_probas": {
+          "others": 0.846846878528595,
+          "joy": 0.05122469738125801,
+          "sadness": 0.06323007494211197,
+          "anger": 0.006822279654443264,
+          "surprise": 0.02205803245306015,
+          "disgust": 0.00346767227165401,
+          "fear": 0.006350446026772261
+        },
+        "hate_speech": "",
+        "hate_speech_probas": {
+          "hateful": 0.046846479177474976,
+          "targeted": 0.020673394203186035,
+          "aggressive": 0.029112523421645164
+        }
+      }
+    },
+    {
+      "text": "Entiendo, si me aguarda un instante, sí, me estaré verificando en el sistema.",
+      "start": 20.643,
+      "end": 25.207,
+      "channel": "R",
+      "analysis": {
+        "sentiment": "NEU",
+        "sentiment_probas": {
+          "NEG": 0.020251013338565826,
+          "NEU": 0.8982781171798706,
+          "POS": 0.08147089183330536
+        },
+        "emotion": "others",
+        "emotion_probas": {
+          "others": 0.9894881248474121,
+          "joy": 0.0008824851829558611,
+          "sadness": 0.0023113021161407232,
+          "anger": 0.0014450246235355735,
+          "surprise": 0.003148397197946906,
+          "disgust": 0.0006069840164855123,
+          "fear": 0.002117726020514965
+        },
+        "hate_speech": "",
+        "hate_speech_probas": {
+          "hateful": 0.02416658215224743,
+          "targeted": 0.008969506248831749,
+          "aggressive": 0.011419683694839478
+        }
+      }
+    },
+    {
+      "text": "Bueno.",
+      "start": 25.713,
+      "end": 25.953,
+      "channel": "L",
+      "analysis": {
+        "sentiment": "NEU",
+        "sentiment_probas": {
+          "NEG": 0.12485669553279877,
+          "NEU": 0.4848802089691162,
+          "POS": 0.390263170003891
+        },
+        "emotion": "others",
+        "emotion_probas": {
+          "others": 0.8337328433990479,
+          "joy": 0.08704753965139389,
+          "sadness": 0.022399108856916428,
+          "anger": 0.007751939818263054,
+          "surprise": 0.03860006853938103,
+          "disgust": 0.003995144739747047,
+          "fear": 0.006473338231444359
+        },
+        "hate_speech": "",
+        "hate_speech_probas": {
+          "hateful": 0.05266100913286209,
+          "targeted": 0.014667595736682415,
+          "aggressive": 0.035994041711091995
+        }
+      }
+    },
+    {
+      "text": "Mientras tanto, me podría indicar si estaba intentando ingresar al Windows o al...",
+      "start": 26.608,
+      "end": 32.513,
+      "channel": "R",
+      "analysis": {
+        "sentiment": "NEU",
+        "sentiment_probas": {
+          "NEG": 0.08357922732830048,
+          "NEU": 0.9004552960395813,
+          "POS": 0.015965525060892105
+        },
+        "emotion": "others",
+        "emotion_probas": {
+          "others": 0.9905943870544434,
+          "joy": 0.0004743378085549921,
+          "sadness": 0.0026905236300081015,
+          "anger": 0.0005868537118658423,
+          "surprise": 0.003343278542160988,
+          "disgust": 0.0005051555926911533,
+          "fear": 0.001805416657589376
+        },
+        "hate_speech": "",
+        "hate_speech_probas": {
+          "hateful": 0.026703134179115295,
+          "targeted": 0.010972950607538223,
+          "aggressive": 0.013597734272480011
+        }
+      }
+    },
+    {
+      "text": "No, directamente sí al Windows.",
+      "start": 32.418,
+      "end": 34.74,
+      "channel": "L",
+      "analysis": {
+        "sentiment": "NEU",
+        "sentiment_probas": {
+          "NEG": 0.19694307446479797,
+          "NEU": 0.756010115146637,
+          "POS": 0.047046784311532974
+        },
+        "emotion": "others",
+        "emotion_probas": {
+          "others": 0.980726957321167,
+          "joy": 0.00267205573618412,
+          "sadness": 0.004468650557100773,
+          "anger": 0.0050537255592644215,
+          "surprise": 0.0036243735812604427,
+          "disgust": 0.001691373996436596,
+          "fear": 0.0017628488130867481
+        },
+        "hate_speech": "",
+        "hate_speech_probas": {
+          "hateful": 0.04309376701712608,
+          "targeted": 0.01069676037877798,
+          "aggressive": 0.02468082867562771
+        }
+      }
+    },
+    {
+      "text": "No puedo entrar.",
+      "start": 35.14,
+      "end": 35.601,
+      "channel": "L",
+      "analysis": {
+        "sentiment": "NEG",
+        "sentiment_probas": {
+          "NEG": 0.7978319525718689,
+          "NEU": 0.18753021955490112,
+          "POS": 0.014637824147939682
+        },
+        "emotion": "others",
+        "emotion_probas": {
+          "others": 0.8581876754760742,
+          "joy": 0.012960280291736126,
+          "sadness": 0.02232184261083603,
+          "anger": 0.006132032256573439,
+          "surprise": 0.07750432938337326,
+          "disgust": 0.00467674620449543,
+          "fear": 0.018217070028185844
+        },
+        "hate_speech": "",
+        "hate_speech_probas": {
+          "hateful": 0.03994360193610191,
+          "targeted": 0.011818772181868553,
+          "aggressive": 0.02461324632167816
+        }
+      }
+    },
+    {
+      "text": "Y después en el teléfono me tira...",
+      "start": 35.701,
+      "end": 37.322,
+      "channel": "L",
+      "analysis": {
+        "sentiment": "NEG",
+        "sentiment_probas": {
+          "NEG": 0.6248663663864136,
+          "NEU": 0.3592979609966278,
+          "POS": 0.01583561673760414
+        },
+        "emotion": "others",
+        "emotion_probas": {
+          "others": 0.9272233247756958,
+          "joy": 0.009745582938194275,
+          "sadness": 0.016924118623137474,
+          "anger": 0.019083676859736443,
+          "surprise": 0.011757777072489262,
+          "disgust": 0.009942678734660149,
+          "fear": 0.0053227622993290424
+        },
+        "hate_speech": "",
+        "hate_speech_probas": {
+          "hateful": 0.29058578610420227,
+          "targeted": 0.21748259663581848,
+          "aggressive": 0.14741329848766327
+        }
+      }
+    },
+    {
+      "text": " Error de contraseña en el mail.",
+      "start": 38.328,
+      "end": 40.509,
+      "channel": "L",
+      "analysis": {
+        "sentiment": "NEG",
+        "sentiment_probas": {
+          "NEG": 0.7366519570350647,
+          "NEU": 0.25312936305999756,
+          "POS": 0.010218673385679722
+        },
+        "emotion": "others",
+        "emotion_probas": {
+          "others": 0.9738060832023621,
+          "joy": 0.0012849129270762205,
+          "sadness": 0.004326643887907267,
+          "anger": 0.0037575068417936563,
+          "surprise": 0.009725164622068405,
+          "disgust": 0.0017001661472022533,
+          "fear": 0.005399580113589764
+        },
+        "hate_speech": "",
+        "hate_speech_probas": {
+          "hateful": 0.01775945909321308,
+          "targeted": 0.010915864259004593,
+          "aggressive": 0.01340393628925085
+        }
+      }
+    },
+    {
+      "text": "Se ve que se me venció la contraseña, supongo.",
+      "start": 40.569,
+      "end": 46.612,
+      "channel": "L",
+      "analysis": {
+        "sentiment": "NEG",
+        "sentiment_probas": {
+          "NEG": 0.6837072968482971,
+          "NEU": 0.3079962432384491,
+          "POS": 0.008296443149447441
+        },
+        "emotion": "others",
+        "emotion_probas": {
+          "others": 0.9764689207077026,
+          "joy": 0.0010942368535324931,
+          "sadness": 0.004546418320387602,
+          "anger": 0.0008724629296921194,
+          "surprise": 0.01146699022501707,
+          "disgust": 0.0009402912692166865,
+          "fear": 0.004610707052052021
+        },
+        "hate_speech": "",
+        "hate_speech_probas": {
+          "hateful": 0.02135438844561577,
+          "targeted": 0.011496443301439285,
+          "aggressive": 0.012533200904726982
+        }
+      }
+    },
+    {
+      "text": "No sé qué pasó.",
+      "start": 47.633,
+      "end": 48.313,
+      "channel": "L",
+      "analysis": {
+        "sentiment": "NEG",
+        "sentiment_probas": {
+          "NEG": 0.5071033239364624,
+          "NEU": 0.42489445209503174,
+          "POS": 0.06800223141908646
+        },
+        "emotion": "others",
+        "emotion_probas": {
+          "others": 0.8776965737342834,
+          "joy": 0.008096186444163322,
+          "sadness": 0.08172395080327988,
+          "anger": 0.00225429586134851,
+          "surprise": 0.01875898241996765,
+          "disgust": 0.002214822918176651,
+          "fear": 0.009255217388272285
+        },
+        "hate_speech": "",
+        "hate_speech_probas": {
+          "hateful": 0.046894315630197525,
+          "targeted": 0.022148173302412033,
+          "aggressive": 0.027246730402112007
+        }
+      }
+    },
+    {
+      "text": "No me acepta ni para entrar los mails ni desde el teléfono.",
+      "start": 50.214,
+      "end": 53.175,
+      "channel": "L",
+      "analysis": {
+        "sentiment": "NEG",
+        "sentiment_probas": {
+          "NEG": 0.9055540561676025,
+          "NEU": 0.08879350870847702,
+          "POS": 0.005652452353388071
+        },
+        "emotion": "others",
+        "emotion_probas": {
+          "others": 0.8359583616256714,
+          "joy": 0.0022826383356004953,
+          "sadness": 0.016550838947296143,
+          "anger": 0.11134281754493713,
+          "surprise": 0.010463789105415344,
+          "disgust": 0.014336593449115753,
+          "fear": 0.009064977057278156
+        },
+        "hate_speech": "",
+        "hate_speech_probas": {
+          "hateful": 0.0757322832942009,
+          "targeted": 0.019792424514889717,
+          "aggressive": 0.04437989741563797
+        }
+      }
+    },
+    {
+      "text": " ahora si entiendo le comento ya desbloqueé el usuario si desea corroborar de ingresar nuevamente yo la guardo exacto excelente bien yo la guardo en la línea si hasta corroborar que pueda ingresar si",
+      "start": 50.252,
+      "end": 75.745,
+      "channel": "R",
+      "analysis": {
+        "sentiment": "NEU",
+        "sentiment_probas": {
+          "NEG": 0.010633292607963085,
+          "NEU": 0.761206328868866,
+          "POS": 0.22816041111946106
+        },
+        "emotion": "others",
+        "emotion_probas": {
+          "others": 0.9918832778930664,
+          "joy": 0.0034419475123286247,
+          "sadness": 0.0009095254936255515,
+          "anger": 0.0005678243469446898,
+          "surprise": 0.002441974123939872,
+          "disgust": 0.0003193375887349248,
+          "fear": 0.000436211412306875
+        },
+        "hate_speech": "",
+        "hate_speech_probas": {
+          "hateful": 0.0820191279053688,
+          "targeted": 0.01805717870593071,
+          "aggressive": 0.02776668220758438
+        }
+      }
+    },
+    {
+      "text": "A ver.",
+      "start": 58.798,
+      "end": 59.098,
+      "channel": "L",
+      "analysis": {
+        "sentiment": "NEU",
+        "sentiment_probas": {
+          "NEG": 0.145276740193367,
+          "NEU": 0.6514797210693359,
+          "POS": 0.20324350893497467
+        },
+        "emotion": "others",
+        "emotion_probas": {
+          "others": 0.8856658339500427,
+          "joy": 0.060932308435440063,
+          "sadness": 0.017337234690785408,
+          "anger": 0.004772321321070194,
+          "surprise": 0.022524740546941757,
+          "disgust": 0.0021832240745425224,
+          "fear": 0.0065842424519360065
+        },
+        "hate_speech": "",
+        "hate_speech_probas": {
+          "hateful": 0.0560256652534008,
+          "targeted": 0.014765207655727863,
+          "aggressive": 0.040197670459747314
+        }
+      }
+    },
+    {
+      "text": "Pongo la misma de siempre.",
+      "start": 61.239,
+      "end": 62.36,
+      "channel": "L",
+      "analysis": {
+        "sentiment": "NEG",
+        "sentiment_probas": {
+          "NEG": 0.8036060929298401,
+          "NEU": 0.17832255363464355,
+          "POS": 0.018071286380290985
+        },
+        "emotion": "others",
+        "emotion_probas": {
+          "others": 0.9555424451828003,
+          "joy": 0.021009599789977074,
+          "sadness": 0.010125660337507725,
+          "anger": 0.006896347273141146,
+          "surprise": 0.004106173757463694,
+          "disgust": 0.0013680224074050784,
+          "fear": 0.0009517095168121159
+        },
+        "hate_speech": "",
+        "hate_speech_probas": {
+          "hateful": 0.2633248269557953,
+          "targeted": 0.132555291056633,
+          "aggressive": 0.10988931357860565
+        }
+      }
+    },
+    {
+      "text": " Ah, que expiró y debe cambiarla.",
+      "start": 65.695,
+      "end": 67.376,
+      "channel": "L",
+      "analysis": {
+        "sentiment": "NEU",
+        "sentiment_probas": {
+          "NEG": 0.22203300893306732,
+          "NEU": 0.7570635676383972,
+          "POS": 0.020903483033180237
+        },
+        "emotion": "others",
+        "emotion_probas": {
+          "others": 0.9733288884162903,
+          "joy": 0.0010709160706028342,
+          "sadness": 0.003365066135302186,
+          "anger": 0.0011935828952118754,
+          "surprise": 0.018173806369304657,
+          "disgust": 0.0009330256725661457,
+          "fear": 0.0019347034394741058
+        },
+        "hate_speech": "",
+        "hate_speech_probas": {
+          "hateful": 0.18203969299793243,
+          "targeted": 0.05104409158229828,
+          "aggressive": 0.040176406502723694
+        }
+      }
+    },
+    {
+      "text": "Ah, listo.",
+      "start": 67.536,
+      "end": 68.336,
+      "channel": "L",
+      "analysis": {
+        "sentiment": "POS",
+        "sentiment_probas": {
+          "NEG": 0.06577184796333313,
+          "NEU": 0.4327538311481476,
+          "POS": 0.5014743804931641
+        },
+        "emotion": "others",
+        "emotion_probas": {
+          "others": 0.9182984828948975,
+          "joy": 0.03646678850054741,
+          "sadness": 0.012225211597979069,
+          "anger": 0.004264501389116049,
+          "surprise": 0.022726967930793762,
+          "disgust": 0.0025407413486391306,
+          "fear": 0.003477246966212988
+        },
+        "hate_speech": "",
+        "hate_speech_probas": {
+          "hateful": 0.03961876034736633,
+          "targeted": 0.011794681660830975,
+          "aggressive": 0.017657626420259476
+        }
+      }
+    },
+    {
+      "text": "Ah, bueno, bueno, perfecto.",
+      "start": 69.057,
+      "end": 70.217,
+      "channel": "L",
+      "analysis": {
+        "sentiment": "POS",
+        "sentiment_probas": {
+          "NEG": 0.028458617627620697,
+          "NEU": 0.2954553961753845,
+          "POS": 0.6760860681533813
+        },
+        "emotion": "others",
+        "emotion_probas": {
+          "others": 0.9556198716163635,
+          "joy": 0.02097243256866932,
+          "sadness": 0.004067861009389162,
+          "anger": 0.0025009820237755775,
+          "surprise": 0.012995208613574505,
+          "disgust": 0.0016841957112774253,
+          "fear": 0.002159496769309044
+        },
+        "hate_speech": "",
+        "hate_speech_probas": {
+          "hateful": 0.04185719043016434,
+          "targeted": 0.009029170498251915,
+          "aggressive": 0.016641857102513313
+        }
+      }
+    },
+    {
+      "text": "Entonces ahora arranco sola ya.",
+      "start": 70.237,
+      "end": 71.498,
+      "channel": "L",
+      "analysis": {
+        "sentiment": "NEU",
+        "sentiment_probas": {
+          "NEG": 0.10352672636508942,
+          "NEU": 0.8462159633636475,
+          "POS": 0.050257354974746704
+        },
+        "emotion": "others",
+        "emotion_probas": {
+          "others": 0.9665747284889221,
+          "joy": 0.013134324923157692,
+          "sadness": 0.006011493504047394,
+          "anger": 0.0010162227554246783,
+          "surprise": 0.011472584679722786,
+          "disgust": 0.0007875537849031389,
+          "fear": 0.0010031993733718991
+        },
+        "hate_speech": "",
+        "hate_speech_probas": {
+          "hateful": 0.0472588948905468,
+          "targeted": 0.009670677594840527,
+          "aggressive": 0.01975398138165474
+        }
+      }
+    },
+    {
+      "text": "Con las dudas.",
+      "start": 73.759,
+      "end": 74.339,
+      "channel": "L",
+      "analysis": {
+        "sentiment": "NEU",
+        "sentiment_probas": {
+          "NEG": 0.4257972538471222,
+          "NEU": 0.5100736618041992,
+          "POS": 0.0641290619969368
+        },
+        "emotion": "others",
+        "emotion_probas": {
+          "others": 0.5386976599693298,
+          "joy": 0.03827103599905968,
+          "sadness": 0.1309604048728943,
+          "anger": 0.009432719089090824,
+          "surprise": 0.10641827434301376,
+          "disgust": 0.006868986878544092,
+          "fear": 0.16935087740421295
+        },
+        "hate_speech": "",
+        "hate_speech_probas": {
+          "hateful": 0.19415822625160217,
+          "targeted": 0.01140780933201313,
+          "aggressive": 0.0644456073641777
+        }
+      }
+    },
+    {
+      "text": " Le comento igualmente que la clave debe ser alfanumérica, debe contener al menos una mayúscula, números y letras, y no debe contener datos personales, como nombres o calles.",
+      "start": 78.897,
+      "end": 89.686,
+      "channel": "R",
+      "analysis": {
+        "sentiment": "NEU",
+        "sentiment_probas": {
+          "NEG": 0.08255700021982193,
+          "NEU": 0.860404372215271,
+          "POS": 0.057038601487874985
+        },
+        "emotion": "others",
+        "emotion_probas": {
+          "others": 0.9955577254295349,
+          "joy": 0.0008187632774934173,
+          "sadness": 0.0013276361860334873,
+          "anger": 0.001253943657502532,
+          "surprise": 0.00038004611269570887,
+          "disgust": 0.00020120829867664725,
+          "fear": 0.0004607276350725442
+        },
+        "hate_speech": "",
+        "hate_speech_probas": {
+          "hateful": 0.03436189889907837,
+          "targeted": 0.004900155123323202,
+          "aggressive": 0.01366968173533678
+        }
+      }
+    },
+    {
+      "text": "Yo la guardo, usted verifique si quiere, mientras que se cambia la clave y el sistema le confirma, una vez que le confirme puede corroborar el correo celular.",
+      "start": 89.706,
+      "end": 102.618,
+      "channel": "R",
+      "analysis": {
+        "sentiment": "NEU",
+        "sentiment_probas": {
+          "NEG": 0.027122225612401962,
+          "NEU": 0.9037492871284485,
+          "POS": 0.06912843883037567
+        },
+        "emotion": "others",
+        "emotion_probas": {
+          "others": 0.9929706454277039,
+          "joy": 0.0014457607176154852,
+          "sadness": 0.0013792244717478752,
+          "anger": 0.001432122546248138,
+          "surprise": 0.0013085441896691918,
+          "disgust": 0.0005889906315132976,
+          "fear": 0.0008746765670366585
+        },
+        "hate_speech": "",
+        "hate_speech_probas": {
+          "hateful": 0.08440996706485748,
+          "targeted": 0.023182779550552368,
+          "aggressive": 0.032253656536340714
+        }
+      }
+    },
+    {
+      "text": "A ver, creo que ya está.",
+      "start": 90.467,
+      "end": 91.868,
+      "channel": "L",
+      "analysis": {
+        "sentiment": "NEU",
+        "sentiment_probas": {
+          "NEG": 0.1602191925048828,
+          "NEU": 0.7096686363220215,
+          "POS": 0.13011223077774048
+        },
+        "emotion": "others",
+        "emotion_probas": {
+          "others": 0.9851202368736267,
+          "joy": 0.003104456700384617,
+          "sadness": 0.003368648001924157,
+          "anger": 0.0008237029542215168,
+          "surprise": 0.006177186034619808,
+          "disgust": 0.0005021580727770925,
+          "fear": 0.0009035923867486417
+        },
+        "hate_speech": "",
+        "hate_speech_probas": {
+          "hateful": 0.017925646156072617,
+          "targeted": 0.009060694836080074,
+          "aggressive": 0.012763561680912971
+        }
+      }
+    },
+    {
+      "text": " Ya está.",
+      "start": 101.374,
+      "end": 101.874,
+      "channel": "L",
+      "analysis": {
+        "sentiment": "NEU",
+        "sentiment_probas": {
+          "NEG": 0.17048904299736023,
+          "NEU": 0.6192362308502197,
+          "POS": 0.21027472615242004
+        },
+        "emotion": "others",
+        "emotion_probas": {
+          "others": 0.8887463808059692,
+          "joy": 0.04562467709183693,
+          "sadness": 0.02621925063431263,
+          "anger": 0.009513502940535545,
+          "surprise": 0.023919474333524704,
+          "disgust": 0.0027499250136315823,
+          "fear": 0.003226746106520295
+        },
+        "hate_speech": "",
+        "hate_speech_probas": {
+          "hateful": 0.03182007372379303,
+          "targeted": 0.012588386423885822,
+          "aggressive": 0.02083243615925312
+        }
+      }
+    },
+    {
+      "text": "Sí, sí, ya está.",
+      "start": 102.294,
+      "end": 104.275,
+      "channel": "L",
+      "analysis": {
+        "sentiment": "NEU",
+        "sentiment_probas": {
+          "NEG": 0.07981651276350021,
+          "NEU": 0.5368906259536743,
+          "POS": 0.38329291343688965
+        },
+        "emotion": "others",
+        "emotion_probas": {
+          "others": 0.9645606279373169,
+          "joy": 0.018249699845910072,
+          "sadness": 0.004938523750752211,
+          "anger": 0.00252965628169477,
+          "surprise": 0.0068428185768425465,
+          "disgust": 0.001205815700814128,
+          "fear": 0.0016728364862501621
+        },
+        "hate_speech": "",
+        "hate_speech_probas": {
+          "hateful": 0.03201115503907204,
+          "targeted": 0.011860421858727932,
+          "aggressive": 0.017164669930934906
+        }
+      }
+    },
+    {
+      "text": "Ya me lo aceptó.",
+      "start": 104.295,
+      "end": 105.576,
+      "channel": "L",
+      "analysis": {
+        "sentiment": "NEU",
+        "sentiment_probas": {
+          "NEG": 0.04315605387091637,
+          "NEU": 0.5362037420272827,
+          "POS": 0.4206402599811554
+        },
+        "emotion": "others",
+        "emotion_probas": {
+          "others": 0.9193555116653442,
+          "joy": 0.022216787561774254,
+          "sadness": 0.019180044531822205,
+          "anger": 0.004328524693846703,
+          "surprise": 0.027101997286081314,
+          "disgust": 0.003817287739366293,
+          "fear": 0.003999801818281412
+        },
+        "hate_speech": "",
+        "hate_speech_probas": {
+          "hateful": 0.08005641400814056,
+          "targeted": 0.042162083089351654,
+          "aggressive": 0.024399248883128166
+        }
+      }
+    },
+    {
+      "text": "Excelente.",
+      "start": 106.181,
+      "end": 106.581,
+      "channel": "R",
+      "analysis": {
+        "sentiment": "POS",
+        "sentiment_probas": {
+          "NEG": 0.028718095272779465,
+          "NEU": 0.12790079414844513,
+          "POS": 0.8433810472488403
+        },
+        "emotion": "joy",
+        "emotion_probas": {
+          "others": 0.01969117671251297,
+          "joy": 0.9649010896682739,
+          "sadness": 0.0016284241573885083,
+          "anger": 0.000764419964980334,
+          "surprise": 0.010392799973487854,
+          "disgust": 0.0015285074478015304,
+          "fear": 0.001093634171411395
+        },
+        "hate_speech": "",
+        "hate_speech_probas": {
+          "hateful": 0.03675064817070961,
+          "targeted": 0.014873804524540901,
+          "aggressive": 0.02545854076743126
+        }
+      }
+    },
+    {
+      "text": "Bueno, Bárbaro, gracias.",
+      "start": 106.776,
+      "end": 107.917,
+      "channel": "L",
+      "analysis": {
+        "sentiment": "POS",
+        "sentiment_probas": {
+          "NEG": 0.037565670907497406,
+          "NEU": 0.2678098976612091,
+          "POS": 0.6946244239807129
+        },
+        "emotion": "others",
+        "emotion_probas": {
+          "others": 0.7320736646652222,
+          "joy": 0.21814368665218353,
+          "sadness": 0.0050322264432907104,
+          "anger": 0.004660746548324823,
+          "surprise": 0.03078198805451393,
+          "disgust": 0.004585441667586565,
+          "fear": 0.004722314886748791
+        },
+        "hate_speech": "",
+        "hate_speech_probas": {
+          "hateful": 0.03101257234811783,
+          "targeted": 0.010190790519118309,
+          "aggressive": 0.016688460484147072
+        }
+      }
+    },
+    {
+      "text": " ¿Hay algo más en lo que la pueda ayudar, doctora?",
+      "start": 108.382,
+      "end": 110.344,
+      "channel": "R",
+      "analysis": {
+        "sentiment": "NEU",
+        "sentiment_probas": {
+          "NEG": 0.05365297570824623,
+          "NEU": 0.8315306901931763,
+          "POS": 0.1148163303732872
+        },
+        "emotion": "others",
+        "emotion_probas": {
+          "others": 0.9935615062713623,
+          "joy": 0.0006603181245736778,
+          "sadness": 0.0014347864780575037,
+          "anger": 0.0005266873049549758,
+          "surprise": 0.0025876329746097326,
+          "disgust": 0.00037102538044564426,
+          "fear": 0.0008581612491980195
+        },
+        "hate_speech": "",
+        "hate_speech_probas": {
+          "hateful": 0.3425625264644623,
+          "targeted": 0.16609030961990356,
+          "aggressive": 0.10666560381650925
+        }
+      }
+    },
+    {
+      "text": "No, recién estoy entrando, así que espero que no necesite nada más.",
+      "start": 110.658,
+      "end": 113.52,
+      "channel": "L",
+      "analysis": {
+        "sentiment": "POS",
+        "sentiment_probas": {
+          "NEG": 0.01035900879651308,
+          "NEU": 0.35782137513160706,
+          "POS": 0.6318196058273315
+        },
+        "emotion": "others",
+        "emotion_probas": {
+          "others": 0.9864545464515686,
+          "joy": 0.006996944081038237,
+          "sadness": 0.0028295579832047224,
+          "anger": 0.00038116969517432153,
+          "surprise": 0.0018630787963047624,
+          "disgust": 0.0005008721491321921,
+          "fear": 0.0009739066590555012
+        },
+        "hate_speech": "",
+        "hate_speech_probas": {
+          "hateful": 0.015759505331516266,
+          "targeted": 0.00661123264580965,
+          "aggressive": 0.010051324963569641
+        }
+      }
+    },
+    {
+      "text": "Bueno, en cualquier caso no hay problema, así se puede volver a comunicar, nosotros la estaremos asistiendo.",
+      "start": 113.826,
+      "end": 117.769,
+      "channel": "R",
+      "analysis": {
+        "sentiment": "NEU",
+        "sentiment_probas": {
+          "NEG": 0.01572772115468979,
+          "NEU": 0.7059021592140198,
+          "POS": 0.2783701717853546
+        },
+        "emotion": "others",
+        "emotion_probas": {
+          "others": 0.9887937903404236,
+          "joy": 0.0020921905525028706,
+          "sadness": 0.0028549751732498407,
+          "anger": 0.00200599804520607,
+          "surprise": 0.0019512661965563893,
+          "disgust": 0.0009495202684774995,
+          "fear": 0.001352246617898345
+        },
+        "hate_speech": "",
+        "hate_speech_probas": {
+          "hateful": 0.10213875025510788,
+          "targeted": 0.028532112017273903,
+          "aggressive": 0.028674568980932236
+        }
+      }
+    },
+    {
+      "text": "Bueno, muchas gracias.",
+      "start": 118.262,
+      "end": 119.302,
+      "channel": "L",
+      "analysis": {
+        "sentiment": "POS",
+        "sentiment_probas": {
+          "NEG": 0.030048273503780365,
+          "NEU": 0.19843629002571106,
+          "POS": 0.7715153694152832
+        },
+        "emotion": "others",
+        "emotion_probas": {
+          "others": 0.47424378991127014,
+          "joy": 0.46893393993377686,
+          "sadness": 0.012151774019002914,
+          "anger": 0.006412507966160774,
+          "surprise": 0.0252756979316473,
+          "disgust": 0.00582977756857872,
+          "fear": 0.007152584847062826
+        },
+        "hate_speech": "",
+        "hate_speech_probas": {
+          "hateful": 0.025194015353918076,
+          "targeted": 0.009286902844905853,
+          "aggressive": 0.015469464473426342
+        }
+      }
+    },
+    {
+      "text": "Le agradezco a usted por comunicarse, le daría una breve encuesta así de satisfacción para evaluar mi atención y le deseo una muy buena tarde.",
+      "start": 119.55,
+      "end": 125.455,
+      "channel": "R",
+      "analysis": {
+        "sentiment": "POS",
+        "sentiment_probas": {
+          "NEG": 0.0029601731803268194,
+          "NEU": 0.061338845640420914,
+          "POS": 0.9357010126113892
+        },
+        "emotion": "others",
+        "emotion_probas": {
+          "others": 0.8009721636772156,
+          "joy": 0.19080443680286407,
+          "sadness": 0.0018077809363603592,
+          "anger": 0.0011323727667331696,
+          "surprise": 0.002435284899547696,
+          "disgust": 0.00127659912686795,
+          "fear": 0.0015713358297944069
+        },
+        "hate_speech": "",
+        "hate_speech_probas": {
+          "hateful": 0.013963606208562851,
+          "targeted": 0.008789305575191975,
+          "aggressive": 0.011191198602318764
+        }
+      }
+    },
+    {
+      "text": "Bueno, perfecto.",
+      "start": 123.484,
+      "end": 125.165,
+      "channel": "L",
+      "analysis": {
+        "sentiment": "POS",
+        "sentiment_probas": {
+          "NEG": 0.055800504982471466,
+          "NEU": 0.4133097529411316,
+          "POS": 0.5308897495269775
+        },
+        "emotion": "others",
+        "emotion_probas": {
+          "others": 0.8972234129905701,
+          "joy": 0.06530226022005081,
+          "sadness": 0.00985652394592762,
+          "anger": 0.003965721465647221,
+          "surprise": 0.01747179962694645,
+          "disgust": 0.002625751541927457,
+          "fear": 0.0035545090213418007
+        },
+        "hate_speech": "",
+        "hate_speech_probas": {
+          "hateful": 0.031599972397089005,
+          "targeted": 0.009935352951288223,
+          "aggressive": 0.019592810422182083
+        }
+      }
+    },
+    {
+      "text": "Bueno, muchas gracias igualmente.",
+      "start": 125.985,
+      "end": 127.326,
+      "channel": "L",
+      "analysis": {
+        "sentiment": "POS",
+        "sentiment_probas": {
+          "NEG": 0.009702049195766449,
+          "NEU": 0.12891076505184174,
+          "POS": 0.8613871932029724
+        },
+        "emotion": "joy",
+        "emotion_probas": {
+          "others": 0.4171690344810486,
+          "joy": 0.5552763938903809,
+          "sadness": 0.008262223564088345,
+          "anger": 0.003992588724941015,
+          "surprise": 0.006150275003165007,
+          "disgust": 0.004521004389971495,
+          "fear": 0.004628506023436785
+        },
+        "hate_speech": "",
+        "hate_speech_probas": {
+          "hateful": 0.018732985481619835,
+          "targeted": 0.007995536550879478,
+          "aggressive": 0.009655263274908066
+        }
+      }
+    },
+    {
+      "text": " Lo invitamos a participar de una breve encuesta de calidad de tres preguntas en una escala del 5 al 1, donde 5 es completamente satisfecho y 1 completamente insatisfecho.",
+      "start": 130.163,
+      "end": 142.027,
+      "channel": "R",
+      "analysis": {
+        "sentiment": "NEU",
+        "sentiment_probas": {
+          "NEG": 0.028436673805117607,
+          "NEU": 0.8708115816116333,
+          "POS": 0.10075173527002335
+        },
+        "emotion": "others",
+        "emotion_probas": {
+          "others": 0.9956856966018677,
+          "joy": 0.0011135978857055306,
+          "sadness": 0.001023956690914929,
+          "anger": 0.0003443114401306957,
+          "surprise": 0.00114166468847543,
+          "disgust": 0.00022862940386403352,
+          "fear": 0.0004622770065907389
+        },
+        "hate_speech": "",
+        "hate_speech_probas": {
+          "hateful": 0.018774453550577164,
+          "targeted": 0.005434688180685043,
+          "aggressive": 0.009416395798325539
+        }
+      }
+    },
+    {
+      "text": "¿Cuán satisfecho está usted con el tiempo de espera para... ¿Cómo califica usted el compromiso e interés del representante?",
+      "start": 143.607,
+      "end": 150.829,
+      "channel": "R",
+      "analysis": {
+        "sentiment": "NEU",
+        "sentiment_probas": {
+          "NEG": 0.10051549226045609,
+          "NEU": 0.7808904051780701,
+          "POS": 0.11859414726495743
+        },
+        "emotion": "others",
+        "emotion_probas": {
+          "others": 0.9891126751899719,
+          "joy": 0.00264095701277256,
+          "sadness": 0.0009138208697549999,
+          "anger": 0.0005077433888800442,
+          "surprise": 0.005588635802268982,
+          "disgust": 0.0003946414799429476,
+          "fear": 0.0008415831835009158
+        },
+        "hate_speech": "",
+        "hate_speech_probas": {
+          "hateful": 0.01996920257806778,
+          "targeted": 0.006536833476275206,
+          "aggressive": 0.007722639944404364
+        }
+      }
+    },
+    {
+      "text": "Si tuviera que elegir al mismo representante para la atención de sus llamadas,",
+      "start": 151.83,
+      "end": 155.591,
+      "channel": "R",
+      "analysis": {
+        "sentiment": "NEU",
+        "sentiment_probas": {
+          "NEG": 0.06590515375137329,
+          "NEU": 0.8644970059394836,
+          "POS": 0.06959778815507889
+        },
+        "emotion": "others",
+        "emotion_probas": {
+          "others": 0.9935018420219421,
+          "joy": 0.0020161173306405544,
+          "sadness": 0.0010746460175141692,
+          "anger": 0.0006040556472726166,
+          "surprise": 0.0017787287943065166,
+          "disgust": 0.000381025776732713,
+          "fear": 0.0006435196264646947
+        },
+        "hate_speech": "",
+        "hate_speech_probas": {
+          "hateful": 0.1511860191822052,
+          "targeted": 0.015330477617681026,
+          "aggressive": 0.0334688276052475
+        }
+      }
+    },
+    {
+      "text": " ¿Cuán satisfecho estaría con esa opción?",
+      "start": 156.218,
+      "end": 157.883,
+      "channel": "R",
+      "analysis": {
+        "sentiment": "NEU",
+        "sentiment_probas": {
+          "NEG": 0.0863618403673172,
+          "NEU": 0.793175458908081,
+          "POS": 0.12046273797750473
+        },
+        "emotion": "others",
+        "emotion_probas": {
+          "others": 0.8583210706710815,
+          "joy": 0.036341916769742966,
+          "sadness": 0.01138454582542181,
+          "anger": 0.0010351609671488404,
+          "surprise": 0.08282291144132614,
+          "disgust": 0.002733547007665038,
+          "fear": 0.007360870484262705
+        },
+        "hate_speech": "",
+        "hate_speech_probas": {
+          "hateful": 0.09763798117637634,
+          "targeted": 0.01998778246343136,
+          "aggressive": 0.017269017174839973
+        }
+      }
+    },
+    {
+      "text": "Gracias por comunicarte con BIT.",
+      "start": 159.046,
+      "end": 160.651,
+      "channel": "R",
+      "analysis": {
+        "sentiment": "POS",
+        "sentiment_probas": {
+          "NEG": 0.01989011839032173,
+          "NEU": 0.2688223123550415,
+          "POS": 0.7112875580787659
+        },
+        "emotion": "others",
+        "emotion_probas": {
+          "others": 0.9822532534599304,
+          "joy": 0.008017521351575851,
+          "sadness": 0.0019384276820346713,
+          "anger": 0.0024799725506454706,
+          "surprise": 0.002298494800925255,
+          "disgust": 0.0013104105601087213,
+          "fear": 0.0017018807120621204
+        },
+        "hate_speech": "",
+        "hate_speech_probas": {
+          "hateful": 0.02370871789753437,
+          "targeted": 0.0160090122371912,
+          "aggressive": 0.013423144817352295
+        }
+      }
+    }
+  ]
+}
