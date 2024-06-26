@@ -12,6 +12,7 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu"
+import { ModeToggle } from "./mode-toggle"
 
 const components: { title: string; href: string; description: string }[] = [
   {
@@ -40,33 +41,30 @@ const components: { title: string; href: string; description: string }[] = [
 export default function Navbar() {
   return (
     <NavigationMenu>
-      <NavigationMenuList>
+      <NavigationMenuList className="flex w-full max-w-screen-lg mx-auto">
         <NavigationMenuItem>
-          <NavigationMenuTrigger>Getting started</NavigationMenuTrigger>
+          <NavigationMenuTrigger>¿Qué podés hacer?</NavigationMenuTrigger>
           <NavigationMenuContent>
-            <ul className='grid gap-3 p-4 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]'>
-              <li className='row-span-3'>
+            <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
+              <li className="row-span-3">
                 <NavigationMenuLink asChild>
-                  <a
-                    className='flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md'
-                    href='/'
-                  >
-                    <div className='mb-2 text-lg font-medium'>AuditorIA</div>
-                    <p className='text-sm leading-tight text-muted-foreground'>
+                  <span className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md">
+                    <div className="mb-2 text-lg font-medium">AuditorIA</div>
+                    <p className="text-sm leading-tight text-muted-foreground">
                       Web app para visualizar transcripciones y análisis de
                       sentimiento.
                     </p>
-                  </a>
+                  </span>
                 </NavigationMenuLink>
               </li>
-              <ListItem href='/docs' title='Introduction'>
-                Re-usable components built using Radix UI and Tailwind CSS.
+              <ListItem href="/" title="Pendiente">
+                Descripción pendiente.
               </ListItem>
-              <ListItem href='/docs/installation' title='Installation'>
-                How to install dependencies and structure your app.
+              <ListItem href="/" title="Pendiente">
+                Descripción pendiente.
               </ListItem>
-              <ListItem href='/docs/primitives/typography' title='Typography'>
-                Styles for headings, paragraphs, lists...etc
+              <ListItem href="/" title="Pendiente">
+                Descripción pendiente.
               </ListItem>
             </ul>
           </NavigationMenuContent>
@@ -74,8 +72,8 @@ export default function Navbar() {
         <NavigationMenuItem>
           <NavigationMenuTrigger>Utilidades</NavigationMenuTrigger>
           <NavigationMenuContent>
-            <ul className='grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] '>
-              {components.map(component => (
+            <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
+              {components.map((component) => (
                 <ListItem
                   key={component.title}
                   title={component.title}
@@ -89,8 +87,11 @@ export default function Navbar() {
         </NavigationMenuItem>
         <NavigationMenuItem>
           <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-            Documentation
+            Contactanos
           </NavigationMenuLink>
+        </NavigationMenuItem>
+        <NavigationMenuItem>
+          <ModeToggle />
         </NavigationMenuItem>
       </NavigationMenuList>
     </NavigationMenu>
@@ -112,8 +113,8 @@ const ListItem = React.forwardRef<
           )}
           {...props}
         >
-          <div className='text-sm font-medium leading-none'>{title}</div>
-          <p className='line-clamp-2 text-sm leading-snug text-muted-foreground'>
+          <div className="text-sm font-medium leading-none">{title}</div>
+          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
             {children}
           </p>
         </a>
