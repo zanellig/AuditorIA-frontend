@@ -1,4 +1,4 @@
-import Login from "@/components/Login"
+import Login from "@/components/auth/Login"
 
 export default function LoginScreen() {
   return <Login />

@@ -23,9 +23,12 @@ import {
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { DropdownMenuArrow } from "@radix-ui/react-dropdown-menu"
+
+import { useAuth } from "@/contexts/AuthContext"
 
 export default function PerfilDeUsuario() {
+  const { logout } = useAuth()
+
   const { openDialog, handleDialogOpen, handleDialogClose } = useDialog()
 
   const handleMenuItemClick = (event: React.MouseEvent) => {
@@ -59,7 +62,10 @@ export default function PerfilDeUsuario() {
         </DropdownMenuItem>
 
         <DropdownMenuSeparator />
-        <DropdownMenuItem className={dropdownMenuStyle("text-red-500")}>
+        <DropdownMenuItem
+          className={dropdownMenuStyle("text-red-500")}
+          onClick={logout}
+        >
           Cerrar sesión
         </DropdownMenuItem>
 
