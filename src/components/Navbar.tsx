@@ -12,9 +12,10 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu"
-import { ModeToggle } from "./mode-toggle"
+import { ModeToggle } from "./ModeToggle"
 
 import PerfilDeUsuario from "@/components/PerfilDeUsuario"
+import { DialogProvider } from "@/contexts/dialog-context"
 
 const components: { title: string; href: string; description: string }[] = [
   {
@@ -59,13 +60,13 @@ export default function Navbar() {
                   </span>
                 </NavigationMenuLink>
               </li>
-              <ListItem href="/" title="Pendiente">
+              <ListItem href="/" title="Proximamente...">
                 Descripción pendiente.
               </ListItem>
-              <ListItem href="/" title="Pendiente">
+              <ListItem href="/" title="Proximamente...">
                 Descripción pendiente.
               </ListItem>
-              <ListItem href="/" title="Pendiente">
+              <ListItem href="/" title="Proximamente...">
                 Descripción pendiente.
               </ListItem>
             </ul>
@@ -96,7 +97,9 @@ export default function Navbar() {
           <ModeToggle />
         </NavigationMenuItem>
         <NavigationMenuItem>
-          <PerfilDeUsuario />
+          <DialogProvider>
+            <PerfilDeUsuario />
+          </DialogProvider>
         </NavigationMenuItem>
       </NavigationMenuList>
     </NavigationMenu>

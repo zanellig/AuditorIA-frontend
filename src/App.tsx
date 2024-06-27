@@ -1,4 +1,4 @@
-import "./App.css"
+import "@/styles/App.css"
 
 import Navbar from "@/components/Navbar"
 import Login from "@/components/Login"
