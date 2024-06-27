@@ -1,22 +1,16 @@
 import "@/styles/App.css"
+import router from "@/router/Routes"
 
-import Navbar from "@/components/Navbar"
-import Login from "@/components/Login"
+import { RouterProvider } from "react-router-dom"
+import { AuthProvider } from "./contexts/AuthContext"
 
 function App() {
   return (
-    <>
-      {/* if authenticated */}
-      {(false && <Login />) || (
-        <div className="p-4 w-full flex flex-row justify-between">
-          <a href="/" className="text-xl font-italic font-bold">
-            AuditorIA
-          </a>
-          <Navbar />
-        </div>
-      )}
-      {/* else */}
-    </>
+    <AuthProvider>
+      <div className="app-container">
+        <RouterProvider router={router} />
+      </div>
+    </AuthProvider>
   )
 }
 

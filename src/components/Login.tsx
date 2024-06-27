@@ -1,3 +1,6 @@
+import { z } from "zod"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
 import {
   Card,
   CardContent,
@@ -9,8 +12,32 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
+import AltModeToggle from "./AltModeToggle"
+import { useAuth } from "@/contexts/AuthContext"
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form"
+import LoginSchema from "@/utils/validation/LoginSchema"
 
 export default function Login() {
+  const { login } = useAuth()
+  const form = useForm({
+    resolver: zodResolver(LoginSchema),
+  })
+
+  const onSubmit = (data: z.infer<typeof LoginSchema> | any) => {
+    login(data.username, data.password)
+  }
+
+  const redirectToRegister = () => {
+    window.location.href = "/register"
+  }
+
   return (
     <div className="flex h-screen w-screen items-center justify-center">
       <Card className="w-[350px]">
@@ -21,41 +48,60 @@ export default function Login() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid w-full items-center gap-4">
-            <form
-              action="POST"
-              className="grid w-full gap-4"
-              onSubmit={(e) => e.preventDefault()}
-            >
-              <div className="flex flex-col space-y-1.5">
-                <Label htmlFor="username">Usuario</Label>
-                <Input
-                  id="username"
-                  placeholder="Ingresá tu usuario"
-                  autoComplete="false"
+          <div className="grid w-full gap-4">
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-4"
+              >
+                <FormField
+                  control={form.control}
+                  name="username"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Usuario</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Ingresá tu usuario" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </div>
-              <div className="flex flex-col space-y-1.5">
-                <Label htmlFor="password">Contraseña</Label>
-                <Input
-                  id="contraseña"
-                  placeholder="Ingresá tu contraseña"
-                  type="password"
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Contraseña</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="password"
+                          placeholder="Ingresá tu contraseña"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </div>
-            </form>
-
-            <a
-              href="/register"
-              className="text-sm text-muted-foreground hover:text-accent-foreground"
-            >
-              Para registrarte hacé click acá
-            </a>
+                <CardFooter className="flex justify-between px-0">
+                  <Button
+                    variant="outline"
+                    onClick={redirectToRegister}
+                    className="w-full mr-2"
+                  >
+                    Registrate
+                  </Button>
+                  <Button type="submit" className="w-full ml-2">
+                    Ingresar
+                  </Button>
+                </CardFooter>
+              </form>
+            </Form>
           </div>
         </CardContent>
-        <CardFooter className="flex justify-between">
-          <Button variant="outline">Cancelar</Button>
-          <Button>Ingresar</Button>
+        <CardFooter>
+          <AltModeToggle />
         </CardFooter>
       </Card>
     </div>
