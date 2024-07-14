@@ -81,4 +81,6 @@ export default async function Dashboard() {
   }
 }
 
-//  Limitar por campaña o días
+// TODO: Limitar por campaña o días
+// TODO: <DONE!> Hacer dinámica la ruta donde se encuentren los audios
+// TODO?: Cargar lista de campañas para automatizar transcripción y análisis de sentiment
