@@ -79,10 +79,14 @@ export default function DataTable<TData, TValue>({
       <div className='rounded-md border'>
         <Table>
           <TableHeader>
+            <TableRow>{/* TODO: Add checkbox */}</TableRow>
             {table.getHeaderGroups().map(headerGroup => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map(header => (
-                  <TableHead key={header.id} className='text-left'>
+                  <TableHead
+                    key={header.id}
+                    className='text-left p-1.5 text-sm font-normal'
+                  >
                     {header.isPlaceholder
                       ? null
                       : flexRender(
@@ -100,6 +104,7 @@ export default function DataTable<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  className='hover:bg-secondary p-2'
                 >
                   {row.getVisibleCells().map((cell, i) => (
                     <TableCell
@@ -107,7 +112,7 @@ export default function DataTable<TData, TValue>({
                       className={
                         i === row.getVisibleCells().length - 1
                           ? "text-end"
-                          : "text-start"
+                          : "text-start" + " "
                       }
                     >
                       {flexRender(

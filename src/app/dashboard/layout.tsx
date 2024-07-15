@@ -10,3 +10,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     </>
   )
 }
+
+/**
+ * TODO: add breadcrumbs for navigation
+ * https://ui.shadcn.com/docs/components/breadcrumb
+ */

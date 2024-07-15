@@ -37,20 +37,30 @@ async function getMockAllTasks() {
 export default async function Page() {
   // const searchParams = useSearchParams()
   // const search = searchParams.get("search")
-
+  let transcriptionBodyTemp: TranscriptionType | null = null
+  if (!!transcriptionBodyTemp) return <Loading />
   const transcriptionBody: TranscriptionType = await getMockTranscription()
   const allTranscriptions = await getMockAllTasks()
-  const audioFileName = transcriptionBody.metadata.file_name
+  /**
+   * Here the audioFileName is going to be always the same until we implement fetching.
+   * This is because the file's metadata is always the same even though the UUID passed is queried correctly.
+   */
+  const audioFileName = transcriptionBody?.metadata.file_name
 
-  const matchedTranscription: Task = allTranscriptions.find(
-    (t: Task) => t.file_name === audioFileName
-  )
+  const matchedTranscription: Task = allTranscriptions.find((t: Task) => {
+    // console.log(
+    //   "Transcripción de la lista: " + { ...t },
+    //   "Transcripción original: " + audioFileName
+    // )
+    return t.file_name === audioFileName
+  })
   const UUID: Task["identifier"] = matchedTranscription.identifier
 
   /**
    * UNCOMMENT TO SHOW LOADING
    */
   // return <Loading />
+  if (transcriptionBody?.status === "processing") return <Loading />
 
   return <Transcription transcriptionBody={transcriptionBody} UUID={UUID} />
 }

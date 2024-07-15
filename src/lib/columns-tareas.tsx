@@ -27,13 +27,19 @@ import DeleteButton from "@/components/DeleteButton"
 import type { Status } from "@/lib/tasks"
 
 import { GLOBAL_ICON_SIZE } from "@/lib/consts"
+import Link from "next/link"
 
 function renderMarker(status: Status) {
   switch (status) {
     case "completed":
       return <CircleCheck size={GLOBAL_ICON_SIZE} className='text-green-500' />
     case "processing":
-      return <CircleDashed size={GLOBAL_ICON_SIZE} className='text-muted' />
+      return (
+        <CircleDashed
+          size={GLOBAL_ICON_SIZE}
+          className='text-muted-foreground'
+        />
+      )
     case "failed":
       return <CircleAlert size={GLOBAL_ICON_SIZE} className='text-red-500' />
   }
@@ -54,9 +60,10 @@ function capitalizeFirstLetter(status: Status): string {
 }
 
 export const columns: ColumnDef<Task>[] = [
-  // {
-  //   accessorKey: "metadata.",
-  // },
+  /**
+   * TODO: add a ID column with a Badge component showing the type of task
+   * TODO: Función para seleccionar UUID con un toggle, y seleccionar masivamente. Si no está seleccionado e igual se toca ELIMINAR, mandar a eliminar el UUID
+   */
 
   {
     accessorKey: "status",
@@ -109,7 +116,7 @@ export const columns: ColumnDef<Task>[] = [
             onClick={() => {
               column.toggleSorting(column.getIsSorted() === "asc")
             }}
-            className='flex flex-row justify-between items-center text-start space-x-2 w-fit'
+            className='flex flex-row justify-between items-center text-start space-x-2 w-fit rounded-sm hover:text-primary hover:cursor-pointer hover:bg-secondary p-2'
           >
             Nombre del archivo {renderArrow(column.getIsSorted())}
           </div>
@@ -135,16 +142,13 @@ export const columns: ColumnDef<Task>[] = [
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align='end'>
-              <DropdownMenuItem
-                className='font-bold'
-                onClick={() => {
-                  if (tarea.status === "completed") {
-                    redirectToTranscription(tarea.identifier)
-                  }
-                }}
-              >
-                {/* Agregar <Link> a la transcripción con su ID */}
-                Ir a la transcripción
+              <DropdownMenuItem className='font-bold'>
+                <Link
+                  href={`/dashboard/transcription?search=${tarea.identifier}`}
+                  className='w-full h-full cursor-default'
+                >
+                  Ir a la transcripción
+                </Link>
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => navigator.clipboard.writeText(tarea.identifier)}
@@ -184,10 +188,4 @@ export function obtenerMesLocale(mes: number): string {
     "Diciembre",
   ]
   return meses[mes - 1]
-}
-
-// TODO: Función para seleccionar UUID con un toggle, y seleccionar masivamente. Si no está seleccionado e igual se toca ELIMINAR, mandar a eliminar el UUID
-
-function redirectToTranscription(identifier: string) {
-  window.location.href = `/dashboard/transcription?search=${identifier}`
 }

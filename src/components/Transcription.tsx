@@ -14,6 +14,7 @@ function sentimentStyle(sentiment: SentimentType) {
   }
 }
 const BASIC_STYLE = " flex text-sm rounded-md p-2 gap-2 "
+
 export default function Transcription({
   transcriptionBody,
   UUID,
@@ -70,6 +71,9 @@ export default function Transcription({
  * surprise -> 😮
  */
 
+/**
+ *  TODO: Esto es horrible y hay que cambiarlo
+ */
 export function renderBoxesBySpeaker(
   segment: Segment,
   i: number,
@@ -81,13 +85,13 @@ export function renderBoxesBySpeaker(
         <>
           <Emoji segment={segment} />
           <TextContainer segment={segment} />
-          <EmotionBox segment={segment} />
+          <EmotionBox />
         </>
       )
     case "SPEAKER_01":
       return (
         <>
-          <EmotionBox segment={segment} />
+          <EmotionBox />
           <TextContainer segment={segment} />
           <Emoji segment={segment} />
         </>
@@ -111,18 +115,18 @@ export function ChatBox({
   const sentiment = analysis.sentiment
 
   switch (speaker) {
-    case "SPEAKER_01":
-      return (
-        <>
-          <TextBox text={text} start={start} end={end} />
-          <SentimentMarker sentiment={sentiment} />
-        </>
-      )
     case "SPEAKER_00":
       return (
         <>
           <SentimentMarker sentiment={sentiment} />
           <TextBox text={text} start={start} end={end} />
+        </>
+      )
+    case "SPEAKER_01":
+      return (
+        <>
+          <TextBox text={text} start={start} end={end} />
+          <SentimentMarker sentiment={sentiment} />
         </>
       )
   }
@@ -137,47 +141,28 @@ export function TextBox({
   start: Segment["start"]
   end: Segment["end"]
 }) {
-  function secondsToHMS(seconds: number) {
-    const hours = Math.floor(seconds / 3600)
-    const minutes = Math.floor((seconds % 3600) / 60)
-    const remainingSeconds = seconds % 60
-    return { hours, minutes, seconds: remainingSeconds }
-  }
-
-  function formatTimestamp({
-    hours,
-    minutes,
-    seconds,
-  }: {
-    hours: number
-    minutes: number
-    seconds: number
-  }) {
-    let formattedTime = ""
-    if (hours > 0) {
-      formattedTime += `${hours}h `
-    }
-    if (minutes > 0) {
-      formattedTime += `${minutes}m `
-    }
-    formattedTime += `${seconds.toFixed(2)}s`
-    return formattedTime.trim()
-  }
-
-  function getCallTimestamp(start: Segment["start"], end: Segment["end"]) {
-    const startTime = secondsToHMS(start)
-    const endTime = secondsToHMS(end)
-    return `( ${formatTimestamp(startTime)} - ${formatTimestamp(endTime)} )`
-  }
-
   return (
     <div className='flex flex-col justify-between gap-2'>
       {text}
       <div className='text-xs text-muted-foreground'>
-        {getCallTimestamp(start, end)}
+        <Timestamp {...{ start: start, end: end }} />
+        {/* {getCallTimestamp(start, end)} */}
       </div>
     </div>
   )
+}
+
+// converted to component
+export function Timestamp({
+  start,
+  end,
+}: {
+  start: Segment["start"]
+  end: Segment["end"]
+}) {
+  const startTime = secondsToHMS(start)
+  const endTime = secondsToHMS(end)
+  return `( ${formatTimestamp(startTime)} - ${formatTimestamp(endTime)} )`
 }
 
 export function SentimentMarker({ sentiment }: { sentiment: SentimentType }) {
@@ -200,7 +185,7 @@ export function Emoji({ segment }: { segment: Segment }) {
   )
 }
 
-export function EmotionBox({ segment }: { segment: Segment }) {
+export function EmotionBox() {
   return (
     <div className={BASIC_STYLE + "flex-row justify-between items-center"}>
       <Button variant='outline' className='w-fit p-2'>
@@ -251,4 +236,31 @@ export function getEmojiForEmotion(emotion: Segment["analysis"]["emotion"]) {
   }
 
   return emoji
+}
+
+export function secondsToHMS(seconds: number) {
+  const hours = Math.floor(seconds / 3600)
+  const minutes = Math.floor((seconds % 3600) / 60)
+  const remainingSeconds = seconds % 60
+  return { hours, minutes, seconds: remainingSeconds }
+}
+
+export function formatTimestamp({
+  hours,
+  minutes,
+  seconds,
+}: {
+  hours: number
+  minutes: number
+  seconds: number
+}) {
+  let formattedTime = ""
+  if (hours > 0) {
+    formattedTime += `${hours}h `
+  }
+  if (minutes > 0) {
+    formattedTime += `${minutes}m `
+  }
+  formattedTime += `${seconds.toFixed(2)}s`
+  return formattedTime.trim()
 }

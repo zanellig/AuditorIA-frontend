@@ -9,28 +9,28 @@ import { promises as fs } from "node:fs"
 import path from "node:path"
 
 /**
- * SIN USAR HASTA QUE SE LEVANTE LA API
+ * SIN USAR HASTA QUE SE LEVANTE LA API / MANDAR A PRODUCCIÓN
  */
-// async function getTasks() {
-//   const url = `${_urlBase}${_tasksPath}`
+async function getTasks() {
+  const url = `${_urlBase}${_tasksPath}`
 
-//   const response = await fetch(url, {
-//     headers: {
-//       "Access-Control-Allow-Origin": "*",
-//       "Content-Type": "application/json",
-//     },
-//     method: "GET",
-//     next: {
-//       revalidate: 5,
-//     },
-//   })
-//   if (!response.ok) {
-//     throw new Error(response.statusText)
-//   }
-//   const jsonRes = await response.json()
+  const response = await fetch(url, {
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Content-Type": "application/json",
+    },
+    method: "GET",
+    next: {
+      revalidate: 5,
+    },
+  })
+  if (!response.ok) {
+    throw new Error(response.statusText)
+  }
+  const jsonRes = await response.json()
 
-//   return jsonRes.tasks as Tasks
-// }
+  return jsonRes.tasks as Tasks
+}
 
 async function getMockAllTasks(): Promise<Tasks> {
   const TASKS_FILE_PATH = path.join(
