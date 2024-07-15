@@ -8,18 +8,18 @@
     "created_at": "2024-07-12T14:30:00Z"
   },
   {
-    "identifier": "unique-uuid",
+    "identifier": "unique-uuid-failed",
     "status": "failed",
     "task_type": "transcribe",
-    "file_name": "audio_file.mp3",
+    "file_name": "audio_file_failed.mp3",
     "language": "es",
     "created_at": "2024-07-12T14:30:00Z"
   },
   {
-    "identifier": "unique-uuid",
+    "identifier": "unique-uuid-processing",
     "status": "processing",
     "task_type": "transcribe",
-    "file_name": "audio_file.mp3",
+    "file_name": "audio_file_processing.mp3",
     "language": "es",
     "created_at": "2024-07-12T14:30:00Z"
   },
