@@ -55,29 +55,35 @@ function renderArrow(sorted: false | "asc" | "desc") {
   }
 }
 
-function capitalizeFirstLetter(status: Status): string {
-  return status.charAt(0).toUpperCase() + status.slice(1)
-}
-
 export const columns: ColumnDef<Task>[] = [
   /**
    * TODO: add a ID column with a Badge component showing the type of task
    * TODO: Función para seleccionar UUID con un toggle, y seleccionar masivamente. Si no está seleccionado e igual se toca ELIMINAR, mandar a eliminar el UUID
    */
+  {
+    accessorKey: "identifier",
+    header: () => {
+      return <div className='text-start'>ID</div>
+    },
+    cell: ({ row }) => {
+      return (
+        <div className=''>{row.original.identifier as Task["identifier"]}</div>
+      )
+    },
+  },
 
   {
     accessorKey: "status",
     header: () => {
-      return <div className='text-start ml-4'>Estado</div>
+      return <div className='text-start'>Estado</div>
     },
     cell: ({ row }) => {
-      const capitalizedStatus = capitalizeFirstLetter(
-        row.original.status as Status
-      )
       return (
-        <div className='ml-4 flex flex-row justify-between items-center text-primary text-start space-x-2 w-fit'>
+        <div className='flex flex-row justify-between items-center text-primary text-start space-x-2 w-fit'>
           {renderMarker(row.original.status)}
-          <div className='font-bold'>{capitalizedStatus}</div>
+          <div className='font-bold capitalize'>
+            {row.original.status as Status}
+          </div>
         </div>
       )
     },
