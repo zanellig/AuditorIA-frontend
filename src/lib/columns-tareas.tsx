@@ -17,7 +17,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
@@ -139,40 +138,38 @@ export const columns: ColumnDef<Task>[] = [
       const tarea = row.original
 
       return (
-        <div className='mr-4'>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant='ghost' className='h-8 w-8 p-0'>
-                <span className='sr-only'>Abrir menu</span>
-                <MoreHorizontal size={GLOBAL_ICON_SIZE} />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align='end'>
-              <DropdownMenuItem className='font-bold'>
-                <Link
-                  href={`/dashboard/transcription?search=${tarea.identifier}`}
-                  className='w-full h-full cursor-default'
-                >
-                  Ir a la transcripción
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => navigator.clipboard.writeText(tarea.identifier)}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant='ghost' className='h-8 w-8 p-0 '>
+              <span className='sr-only'>Abrir menu</span>
+              <MoreHorizontal size={GLOBAL_ICON_SIZE} />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align='end'>
+            <DropdownMenuItem className='font-bold'>
+              <Link
+                href={`/dashboard/transcription?search=${tarea.identifier}`}
+                className='w-full h-full cursor-default'
               >
-                Copiar ID
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => navigator.clipboard.writeText(tarea.file_name)}
-              >
-                Copiar nombre del archivo
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <DeleteButton id={tarea.identifier} />
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+                Ir a la transcripción
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => navigator.clipboard.writeText(tarea.identifier)}
+            >
+              Copiar ID
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => navigator.clipboard.writeText(tarea.file_name)}
+            >
+              Copiar nombre del archivo
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>
+              <DeleteButton id={tarea.identifier} />
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       )
     },
   },
