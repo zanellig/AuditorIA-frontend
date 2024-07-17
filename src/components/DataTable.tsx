@@ -3,8 +3,6 @@ import { useState } from "react"
 
 // import { useDebounce, useDebouncedCallback } from "use-debounce"
 
-import { cn } from "@/lib/utils"
-
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -25,24 +23,10 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
 
 import {
   ChevronRightIcon,
@@ -65,6 +49,8 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from "./ui/dropdown-menu"
+import { Task } from "@/lib/tasks"
+import DeleteButton from "./DeleteButton"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -116,40 +102,33 @@ export default function DataTable<TData, TValue>({
       return (
         <>
           {table.getRowModel().rows.map(row => (
-            <>
-              <TableRow
-                key={row.id}
-                data-state={row.getIsSelected() && "selected"}
-                className='hover:bg-secondary p-2'
-              >
-                <TableCell className='text-center'>
-                  <Checkbox
-                    id={row.id}
-                    checked={row.getIsSelected()}
-                    onCheckedChange={value => row.toggleSelected(!!value)}
-                  >
-                    <span className='sr-only'>Select item {row.id}</span>
-                  </Checkbox>
+            <TableRow
+              key={`row-${row.id}`}
+              data-state={row.getIsSelected() && "selected"}
+              className='hover:bg-secondary p-2'
+            >
+              <TableCell className='text-center'>
+                <Checkbox
+                  id={row.id}
+                  checked={row.getIsSelected()}
+                  onCheckedChange={value => row.toggleSelected(!!value)}
+                >
+                  <span className='sr-only'>Select item {row.id}</span>
+                </Checkbox>
+              </TableCell>
+              {row.getVisibleCells().map((cell, i) => (
+                <TableCell
+                  key={`cell-${cell.id}`}
+                  className={
+                    i === row.getVisibleCells().length - 1
+                      ? "text-end"
+                      : "text-start" + " "
+                  }
+                >
+                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </TableCell>
-                {row.getVisibleCells().map((cell, i) => (
-                  <>
-                    <TableCell
-                      key={cell.id}
-                      className={
-                        i === row.getVisibleCells().length - 1
-                          ? "text-end"
-                          : "text-start" + " "
-                      }
-                    >
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  </>
-                ))}
-              </TableRow>
-            </>
+              ))}
+            </TableRow>
           ))}
         </>
       )
@@ -166,41 +145,7 @@ export default function DataTable<TData, TValue>({
 
   return (
     <>
-      <div className='flex py-4 items-center w-full justify-between'>
-        <Input
-          placeholder='Buscar transcripción por nombre de archivo...'
-          value={
-            (table.getColumn("file_name")?.getFilterValue() as string) ?? ""
-          }
-          onChange={event =>
-            table.getColumn("file_name")?.setFilterValue(event.target.value)
-          }
-          className='max-w-sm h-8'
-        />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant='outline'
-              className='mr-auto ml-2 h-8 w-fit space-x-1 font-medium border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground rounded-md text-xs border-dashed '
-            >
-              <CirclePlus size={GLOBAL_ICON_SIZE} />
-              <span>Estado</span>
-            </Button>
-          </DropdownMenuTrigger>
-        </DropdownMenu>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant='secondary'
-              className=' h-8 w-fit space-x-2 font-normal'
-              onClick={event => event.stopPropagation()}
-            >
-              <span>Acciones en masa</span>
-              <Pencil1Icon />
-            </Button>
-          </DropdownMenuTrigger>
-        </DropdownMenu>
-      </div>
+      <TableActions table={table} />
       <div className='rounded-md border'>
         <Table>
           <TableHeader>
@@ -222,7 +167,7 @@ export default function DataTable<TData, TValue>({
                 </TableHead>
                 {headerGroup.headers.map(header => (
                   <TableHead
-                    key={header.id}
+                    key={`header-${header.id}`}
                     className='text-left p-1.5 text-sm font-normal'
                   >
                     {header.isPlaceholder
@@ -246,7 +191,7 @@ export default function DataTable<TData, TValue>({
           {table.getFilteredRowModel().rows.length} filas seleccionadas.
         </div>
 
-        {/* test componente de pagination 2 */}
+        {/* componente de pagination */}
         <div className='flex flex-row flex-1 font-bold items-center'>
           <span className='text-sm '>Tareas por página </span>
           <DropdownMenu>
@@ -288,15 +233,11 @@ export default function DataTable<TData, TValue>({
 
               {pageSizeOptions.map(pageSize => (
                 <DropdownMenuItem
-                  key={pageSize}
+                  key={"page-size-" + pageSize}
                   onClick={() => {
                     table.setPageSize(pageSize)
                     setInputValue("")
                   }}
-                  // onSelect={currentValue => {
-                  //   table.setPageSize(Number(currentValue))
-                  //   // setOpen(false)
-                  // }}
                 >
                   <div className='flex flex-row items-center justify-between w-full h-full'>
                     <div className='flex-1'>{pageSize}</div>
@@ -311,53 +252,6 @@ export default function DataTable<TData, TValue>({
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-        {/* componente de pagination
-        <div className='flex flex-row flex-1 font-bold items-center'>
-          <span className='text-sm '>Tareas por página </span>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant='outline'
-                role='combobox'
-                // aria-expanded={open}
-                className='ml-2 w-fit justify-between'
-              >
-                {pagination.pageSize}
-                <CaretSortIcon className='ml-2 shrink-0 opacity-50' />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className='w-[200px] p-0'>
-              <Command>
-                <CommandInput placeholder='Cantidad de filas...' />
-                <CommandEmpty>No se encontró tamaño.</CommandEmpty>
-                <CommandList>
-                  <CommandGroup>
-                    {pageSizeOptions.map(pageSize => (
-                      <CommandItem
-                        key={pageSize}
-                        value={String(pageSize)}
-                        onSelect={currentValue => {
-                          table.setPageSize(Number(currentValue))
-                          // setOpen(false)
-                        }}
-                      >
-                        <CheckIcon
-                          className={cn(
-                            "mr-2 h-4 w-4",
-                            pagination.pageSize === pageSize
-                              ? "opacity-100"
-                              : "opacity-0"
-                          )}
-                        />
-                        {pageSize}
-                      </CommandItem>
-                    ))}
-                  </CommandGroup>
-                </CommandList>
-              </Command>
-            </PopoverContent>
-          </Popover>
-        </div> */}
 
         {/* componente de pagination count */}
         <div className='items-center text-sm font-bold pr-2'>
@@ -366,8 +260,8 @@ export default function DataTable<TData, TValue>({
           <span> de </span>
           <span>{table.getPageCount()}</span>
         </div>
-        {/* componente botonera pagination */}
 
+        {/* componente botonera pagination */}
         <Button
           variant='outline'
           size='sm'
@@ -402,5 +296,134 @@ export default function DataTable<TData, TValue>({
         </Button>
       </div>
     </>
+  )
+}
+
+export function TableActions({ table }: { table: any }) {
+  return (
+    <div className='flex py-4 items-center w-full justify-between'>
+      <Input
+        placeholder='Filtrar transcripciones...'
+        value={
+          (table.getColumn("identifier")?.getFilterValue() as string) ?? ""
+        }
+        onChange={event =>
+          table.getColumn("identifier")?.setFilterValue(event.target.value)
+        }
+        className='max-w-sm h-8'
+      />
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant='outline'
+            className='mr-auto ml-2 h-8 w-fit space-x-1 font-medium border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground rounded-md text-xs border-dashed '
+          >
+            <CirclePlus size={GLOBAL_ICON_SIZE} />
+            <span>Estado</span>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuItem></DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          {/* TODO: implementar funcionalidad */}
+          <Button
+            variant='outline'
+            className=' h-8 w-fit space-x-2 font-normal'
+            onClick={event => event.stopPropagation()}
+            disabled={
+              !table.getIsSomeRowsSelected() && !table.getIsAllRowsSelected()
+            }
+          >
+            <span>Acciones sobre celdas seleccionadas</span>
+            <Pencil1Icon />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuItem
+            onClick={() => {
+              console.log(
+                table.getSelectedRowModel().rows.map(r => r.original.identifier)
+              )
+            }}
+          >
+            Reintentar transcripción
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => {
+              let UUIDsACopiar: Task["identifier"][] = []
+              let UUIDs: Task["identifier"] = ""
+              table
+                .getSelectedRowModel()
+                .rows.map(r => UUIDsACopiar.push(r.original.identifier))
+
+              UUIDs = UUIDsACopiar.join(", ")
+
+              navigator.clipboard.writeText(UUIDs)
+            }}
+          >
+            Copiar IDs
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => {
+              let archivosACopiar: Task["file_name"][] = []
+              let fileNames: Task["file_name"] = ""
+              table
+                .getSelectedRowModel()
+                .rows.map(r => archivosACopiar.push(r.original.file_name))
+
+              fileNames = archivosACopiar.join(", ")
+
+              navigator.clipboard.writeText(fileNames)
+            }}
+          >
+            Copiar nombres de archivo
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => {
+              alert(
+                `Está a punto de abrir ${
+                  table.getSelectedRowModel().rows.length
+                } pestañas`
+              )
+            }}
+          >
+            Abrir en nueva pestaña
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onClick={() => {
+              console.log(
+                table
+                  .getSelectedRowModel()
+                  .rows.map(r => `borrar: ${r.original.identifier}`)
+              )
+            }}
+            className='mx-2 my-1.5 p-0'
+          >
+            <DeleteButton
+              ids={table
+                .getSelectedRowModel()
+                .rows.map(r => r.original.identifier)}
+            />
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          {/* TODO: implementar funcionalidad */}
+          <Button
+            variant='outline'
+            className='ml-2 h-8 w-fit space-x-2 font-normal'
+            onClick={event => event.stopPropagation()}
+          >
+            <span>Vista</span>
+            <MixerHorizontalIcon />
+          </Button>
+        </DropdownMenuTrigger>
+      </DropdownMenu>
+    </div>
   )
 }
