@@ -28,8 +28,8 @@ export default function Transcription({
     speaker: Segment["speaker"]
   ) {
     return (
-      <div className='flex flex-row space-x-2' key={i}>
-        {renderBoxesBySpeaker(segment, i, speaker)}
+      <div className='flex flex-row space-x-2'>
+        {renderBoxesBySpeaker(segment, speaker)}
       </div>
     )
   }
@@ -41,17 +41,15 @@ export default function Transcription({
           Transcripción de llamado ID <span className='font-bold'>{UUID}</span>{" "}
         </div>
         {transcriptionBody.result.segments.map((segment: Segment, i) => {
-          // console.log(segment.analysis.emotion_probas)
           let speaker = segment.speaker
 
           return (
-            <>
-              <div
-                className={speaker === "SPEAKER_01" ? "self-end" : "self-start"}
-              >
-                {renderAnalysisWithSegment(segment, i, speaker)}
-              </div>
-            </>
+            <div
+              key={`${speaker}-segment-${i}`}
+              className={speaker === "SPEAKER_01" ? "self-end" : "self-start"}
+            >
+              {renderAnalysisWithSegment(segment, i, speaker)}
+            </div>
           )
         })}
       </div>
@@ -76,7 +74,6 @@ export default function Transcription({
  */
 export function renderBoxesBySpeaker(
   segment: Segment,
-  i: number,
   speaker: Segment["speaker"]
 ) {
   switch (speaker) {
@@ -264,3 +261,4 @@ export function formatTimestamp({
   formattedTime += `${seconds.toFixed(2)}s`
   return formattedTime.trim()
 }
+
