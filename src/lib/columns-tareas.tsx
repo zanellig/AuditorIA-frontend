@@ -66,7 +66,9 @@ export const columns: ColumnDef<Task>[] = [
     },
     cell: ({ row }) => {
       return (
-        <div className=''>{row.original.identifier as Task["identifier"]}</div>
+        <div key={`check-${row.original.identifier}`}>
+          {row.original.identifier as Task["identifier"]}
+        </div>
       )
     },
   },
