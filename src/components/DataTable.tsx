@@ -4,6 +4,7 @@ import { useState } from "react"
 // import { useDebounce, useDebouncedCallback } from "use-debounce"
 
 import {
+  Column,
   ColumnDef,
   ColumnFiltersState,
   SortingState,
@@ -97,52 +98,6 @@ export default function DataTable<TData, TValue>({
     onPaginationChange: setPagination,
   })
 
-  function renderRows() {
-    if (table.getRowModel().rows?.length) {
-      return (
-        <>
-          {table.getRowModel().rows.map(row => (
-            <TableRow
-              key={`row-${row.id}`}
-              data-state={row.getIsSelected() && "selected"}
-              className='hover:bg-secondary p-2'
-            >
-              <TableCell className='text-center'>
-                <Checkbox
-                  id={row.id}
-                  checked={row.getIsSelected()}
-                  onCheckedChange={value => row.toggleSelected(!!value)}
-                >
-                  <span className='sr-only'>Select item {row.id}</span>
-                </Checkbox>
-              </TableCell>
-              {row.getVisibleCells().map((cell, i) => (
-                <TableCell
-                  key={`cell-${cell.id}`}
-                  className={
-                    i === row.getVisibleCells().length - 1
-                      ? "text-end"
-                      : "text-start" + " "
-                  }
-                >
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </TableCell>
-              ))}
-            </TableRow>
-          ))}
-        </>
-      )
-    } else {
-      return (
-        <TableRow>
-          <TableCell colSpan={columns.length} className='h-24 text-center'>
-            No se encontraron tareas...
-          </TableCell>
-        </TableRow>
-      )
-    }
-  }
-
   return (
     <>
       <TableActions table={table} />
@@ -181,7 +136,9 @@ export default function DataTable<TData, TValue>({
               </TableRow>
             ))}
           </TableHeader>
-          <TableBody>{renderRows()}</TableBody>
+          <TableBody>
+            <TableRows table={table} columns={columns} />
+          </TableBody>
         </Table>
       </div>
 
@@ -253,14 +210,6 @@ export default function DataTable<TData, TValue>({
           </DropdownMenu>
         </div>
 
-        {/* componente de pagination count */}
-        <div className='items-center text-sm font-bold pr-2'>
-          <span>Página </span>
-          <span>{table.getState().pagination.pageIndex + 1}</span>
-          <span> de </span>
-          <span>{table.getPageCount()}</span>
-        </div>
-
         {/* componente botonera pagination */}
         <Button
           variant='outline'
@@ -278,6 +227,14 @@ export default function DataTable<TData, TValue>({
         >
           <ChevronLeftIcon />
         </Button>
+        {/* componente de pagination count */}
+        {/* TODO: cambiar por botones con numero de pagina navegables */}
+        <div className='items-center text-sm font-bold pr-2'>
+          <span>Página </span>
+          <span>{table.getState().pagination.pageIndex + 1}</span>
+          <span> de </span>
+          <span>{table.getPageCount()}</span>
+        </div>
         <Button
           variant='outline'
           size='sm'
@@ -298,8 +255,8 @@ export default function DataTable<TData, TValue>({
     </>
   )
 }
-
 export function TableActions({ table }: { table: any }) {
+  "use client"
   return (
     <div className='flex py-4 items-center w-full justify-between'>
       <Input
@@ -360,8 +317,21 @@ export function TableActions({ table }: { table: any }) {
                 .rows.map(r => UUIDsACopiar.push(r.original.identifier))
 
               UUIDs = UUIDsACopiar.join(", ")
-
-              navigator.clipboard.writeText(UUIDs)
+              if (typeof window !== "undefined" && navigator.clipboard) {
+                // Safe to use navigator.clipboard.writeText
+                navigator.clipboard
+                  .writeText(UUIDs)
+                  .then(() => {
+                    console.log("Text copied to clipboard")
+                  })
+                  .catch(err => {
+                    console.error("Failed to copy text to clipboard", err)
+                  })
+              } else {
+                console.warn(
+                  "Clipboard API not supported or not running in client-side"
+                )
+              }
             }}
           >
             Copiar IDs
@@ -375,8 +345,21 @@ export function TableActions({ table }: { table: any }) {
                 .rows.map(r => archivosACopiar.push(r.original.file_name))
 
               fileNames = archivosACopiar.join(", ")
-
-              navigator.clipboard.writeText(fileNames)
+              if (typeof window !== "undefined" && navigator.clipboard) {
+                // Safe to use navigator.clipboard.writeText
+                navigator.clipboard
+                  .writeText(fileNames)
+                  .then(() => {
+                    console.log("Text copied to clipboard")
+                  })
+                  .catch(err => {
+                    console.error("Failed to copy text to clipboard", err)
+                  })
+              } else {
+                console.warn(
+                  "Clipboard API not supported or not running in client-side"
+                )
+              }
             }}
           >
             Copiar nombres de archivo
@@ -426,4 +409,56 @@ export function TableActions({ table }: { table: any }) {
       </DropdownMenu>
     </div>
   )
+}
+export function TableRows({
+  table,
+  columns,
+}: {
+  table: any
+  columns: ColumnDef<any, any>[]
+}) {
+  "use client"
+  if (table.getRowModel().rows?.length) {
+    return (
+      <>
+        {table.getRowModel().rows.map(row => (
+          <TableRow
+            key={`row-${row.id}`}
+            data-state={row.getIsSelected() && "selected"}
+            className='hover:bg-secondary p-2'
+          >
+            <TableCell className='text-center'>
+              <Checkbox
+                id={row.id}
+                checked={row.getIsSelected()}
+                onCheckedChange={value => row.toggleSelected(!!value)}
+              >
+                <span className='sr-only'>Select item {row.id}</span>
+              </Checkbox>
+            </TableCell>
+            {row.getVisibleCells().map((cell, i) => (
+              <TableCell
+                key={`cell-${cell.id}`}
+                className={
+                  i === row.getVisibleCells().length - 1
+                    ? "text-end"
+                    : "text-start" + " "
+                }
+              >
+                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+              </TableCell>
+            ))}
+          </TableRow>
+        ))}
+      </>
+    )
+  } else {
+    return (
+      <TableRow>
+        <TableCell colSpan={columns.length} className='h-24 text-center'>
+          No se encontraron tareas...
+        </TableCell>
+      </TableRow>
+    )
+  }
 }

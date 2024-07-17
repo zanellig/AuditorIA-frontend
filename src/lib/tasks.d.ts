@@ -199,6 +199,45 @@ type PATCHSegment = {
   end: 8.43
 }
 
+/**
+ * url = 'http://10.20.30.30:8000/speech-to-text'
+    params = {
+        'language': language,
+        'task': task,
+        'model': model,
+        'device': device,
+        'device_index': 0,
+        'threads': 0,
+        'batch_size': 10,
+        'compute_type': 'float16',
+        'interpolate_method': 'nearest',
+        'return_char_alignments': 'false',
+        'min_speakers': 1,
+        'max_speakers': 2,
+        'beam_size': 10,
+        'patience': 1,
+        'length_penalty': 1,
+        'temperatures': 0,
+        'compression_ratio_threshold': 2.4,
+        'log_prob_threshold': -1,
+        'no_speech_threshold': 0.6,
+        'suppress_tokens': -1,
+        'suppress_numerals': 'false',
+        'vad_onset': 0.5,
+        'vad_offset': 0.363
+    }
+
+response = requests.post(url, params=params, headers=headers, files=files)
+ */
+
+/**
+ * curl -X 'POST' \
+  'http://10.20.30.30:8000/speech-to-text?language=es&task=transcribe&model=large-v3&device=cuda&device_index=0&threads=0&batch_size=8&compute_type=float16&interpolate_method=nearest&return_char_alignments=false&beam_size=5&patience=1&length_penalty=1&temperatures=0&compression_ratio_threshold=2.4&log_prob_threshold=-1&no_speech_threshold=0.6&suppress_tokens=-1&suppress_numerals=false&vad_onset=0.5&vad_offset=0.363' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: multipart/form-data' \
+  -F 'file=@1165762801-15293972-20240614093259.mp3;type=audio/mpeg'
+ */
+
 // {
 //   "status": "Completo",
 //   "result": {
