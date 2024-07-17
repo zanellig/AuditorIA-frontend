@@ -54,7 +54,7 @@ function renderArrow(sorted: false | "asc" | "desc") {
   }
 }
 
-export const columns: ColumnDef<Task>[] = [
+export const columns: ColumnDef<Task | null>[] = [
   /**
    * TODO: add a ID column with a Badge component showing the type of task
    * TODO: Función para seleccionar UUID con un toggle, y seleccionar masivamente. Si no está seleccionado e igual se toca ELIMINAR, mandar a eliminar el UUID
@@ -66,8 +66,8 @@ export const columns: ColumnDef<Task>[] = [
     },
     cell: ({ row }) => {
       return (
-        <div key={`check-${row.original.identifier}`}>
-          {row.original.identifier as Task["identifier"]}
+        <div key={`check-${row.original?.identifier}`}>
+          {row.original?.identifier as Task["identifier"]}
         </div>
       )
     },
@@ -81,9 +81,9 @@ export const columns: ColumnDef<Task>[] = [
     cell: ({ row }) => {
       return (
         <div className='flex flex-row justify-between items-center text-primary text-start space-x-2 w-fit'>
-          {renderMarker(row.original.status)}
+          {renderMarker(row.original?.status as Status)}
           <div className='font-bold capitalize'>
-            {row.original.status as Status}
+            {row.original?.status as Status}
           </div>
         </div>
       )
@@ -93,7 +93,7 @@ export const columns: ColumnDef<Task>[] = [
     accessorKey: "created_at",
     header: () => <div>Fecha</div>,
     cell: ({ row }) => {
-      const date = new Date(row.original.created_at)
+      const date = new Date(row.original?.created_at as Task["created_at"])
       const mes = obtenerMesLocale(date.getMonth())
 
       return <div>{`${date.getDate()} de ${mes} de ${date.getFullYear()}`}</div>
@@ -103,7 +103,7 @@ export const columns: ColumnDef<Task>[] = [
     accessorKey: "created_at",
     header: () => <div>Hora</div>,
     cell: ({ row }) => {
-      const date = new Date(row.original.created_at)
+      const date = new Date(row.original?.created_at as Task["created_at"])
       const hora = date.toLocaleTimeString("es-US", {
         hour: "2-digit",
         minute: "2-digit",
@@ -131,7 +131,7 @@ export const columns: ColumnDef<Task>[] = [
       )
     },
     cell: ({ row }) => {
-      return <div>{row.original.file_name.toLocaleUpperCase()}</div>
+      return <div>{row.original?.file_name.toLocaleUpperCase()}</div>
     },
   },
   {
@@ -150,25 +150,33 @@ export const columns: ColumnDef<Task>[] = [
           <DropdownMenuContent align='end'>
             <DropdownMenuItem className='font-bold'>
               <Link
-                href={`/dashboard/transcription?search=${tarea.identifier}`}
+                href={`/dashboard/transcription?search=${tarea?.identifier}`}
                 className='w-full h-full cursor-default'
               >
                 Ir a la transcripción
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(tarea.identifier)}
+              onClick={() =>
+                navigator.clipboard.writeText(
+                  tarea?.identifier as Task["identifier"]
+                )
+              }
             >
               Copiar ID
             </DropdownMenuItem>
             <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(tarea.file_name)}
+              onClick={() =>
+                navigator.clipboard.writeText(
+                  tarea?.file_name as Task["identifier"]
+                )
+              }
             >
               Copiar nombre del archivo
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
-              <DeleteButton id={tarea.identifier} />
+              <DeleteButton id={tarea?.identifier} />
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
