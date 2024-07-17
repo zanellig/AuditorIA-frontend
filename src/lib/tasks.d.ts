@@ -172,6 +172,33 @@ export type HateSpeechProbas = {
   aggressive: number
 }
 
+// MOCK request a PATCH segment
+type PATCHSegment = {
+  action: "modify"
+  modification_type?:
+    | "text"
+    | "speaker"
+    | "sentiment"
+    | "emotion"
+    | "hate_speech"
+  task_type: "transcription" // NOT NULL
+  segment_index: 3
+  identifier: "uuid_del_task" // NOT NULL
+  requester: "gonzalo.zanelli" | "ID_NEOTEL" // NOT NULL
+  authorizer: "agustin.bouzon" | null
+  status: "pending_authorization"
+  text_original?: "Hola me caduco con Lucas"
+  text_updated?: "Hola me comunico con Lucas"
+  emotion_original?: "joy"
+  emotion_updated?: "fear"
+  sentiment_original?: "POS"
+  sentiment_updated?: "NEG"
+  speaker_original?: "SPEAKER_00"
+  speaker_updated?: "SPEAKER_01"
+  start: 6.02
+  end: 8.43
+}
+
 // {
 //   "status": "Completo",
 //   "result": {
