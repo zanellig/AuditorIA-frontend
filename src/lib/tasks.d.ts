@@ -8,13 +8,7 @@ export type Task = {
   created_at: Fecha
 }
 
-type Status =
-  | "completed"
-  | "processing"
-  | "failed"
-  | "COMPLETED"
-  | "PROCESSING"
-  | "FAILED"
+type Status = "completed" | "processing" | "failed" | "Analyzed" | "analyzed"
 type Language = "en" | "es"
 type IDNeomirror = string
 type Fecha = string

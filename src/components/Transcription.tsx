@@ -1,7 +1,14 @@
-import { TranscriptionType, Segment, SentimentType, Task } from "@/lib/tasks"
+"use client"
+
+import { Segment, SentimentType, Task, TranscriptionType } from "@/lib/tasks"
 import { Button } from "@/components/ui/button"
 import { MessageCircleQuestion } from "lucide-react"
 import { GLOBAL_ICON_SIZE } from "@/lib/consts"
+import { getTranscription } from "@/app/actions"
+import { useSearchParams } from "next/navigation"
+import { useEffect, useState } from "react"
+import LoadingScreen from "./LoadingScreen"
+import DashboardSkeleton from "./skeletons/DashboardSkeleton"
 
 function sentimentStyle(sentiment: SentimentType) {
   switch (sentiment) {
@@ -15,16 +22,25 @@ function sentimentStyle(sentiment: SentimentType) {
 }
 const BASIC_STYLE = " flex text-sm rounded-md p-2 gap-2 "
 
-export default function Transcription({
-  transcriptionBody,
-  UUID,
-}: {
-  transcriptionBody: TranscriptionType
-  UUID: Task["identifier"]
-}) {
+export default async function Transcription() {
+  const searchParams = useSearchParams()
+  const UUID: Task["identifier"] | null = searchParams.get("search")
+
+  const [transcription, setTranscription] = useState<TranscriptionType | null>(
+    null
+  )
+  useEffect(() => {
+    const updateTs = async () => {
+      const updatedTranscription = await getTranscription(UUID)
+      console.log(updatedTranscription)
+      setTranscription(updatedTranscription)
+    }
+
+    updateTs()
+  }, [])
+
   function renderAnalysisWithSegment(
     segment: Segment,
-    i: number,
     speaker: Segment["speaker"]
   ) {
     return (
@@ -34,13 +50,17 @@ export default function Transcription({
     )
   }
 
+  if (!transcription) return <DashboardSkeleton />
+
   return (
     <>
+      {console.log(transcription)}
       <div className='flex flex-col space-y-2 w-full'>
         <div className='text-lg '>
           Transcripción de llamado ID <span className='font-bold'>{UUID}</span>{" "}
         </div>
-        {transcriptionBody.result.segments.map((segment: Segment, i) => {
+
+        {transcription?.result.segments.map((segment: Segment, i: number) => {
           let speaker = segment.speaker
 
           return (
@@ -48,7 +68,7 @@ export default function Transcription({
               key={`${speaker}-segment-${i}`}
               className={speaker === "SPEAKER_01" ? "self-end" : "self-start"}
             >
-              {renderAnalysisWithSegment(segment, i, speaker)}
+              {renderAnalysisWithSegment(segment, speaker)}
             </div>
           )
         })}
@@ -261,4 +281,3 @@ export function formatTimestamp({
   formattedTime += `${seconds.toFixed(2)}s`
   return formattedTime.trim()
 }
-

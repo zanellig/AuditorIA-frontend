@@ -31,6 +31,7 @@ import Link from "next/link"
 function renderMarker(status: Status) {
   switch (status) {
     case "completed":
+    case "analyzed":
       return <CircleCheck size={GLOBAL_ICON_SIZE} className='text-green-500' />
     case "processing":
       return (
@@ -138,6 +139,16 @@ export const columns: ColumnDef<Task | null>[] = [
     id: "actions",
     cell: ({ row }) => {
       const tarea = row.original
+
+      // {
+      //   "identifier": "9b5113b1-47f4-4850-a978-3df81dc95489",
+      //   "status": "Analyzed",
+      //   "task_type": "full_process",
+      //   "file_name": "12410-14726091-20240307133302.mp3",
+      //   "language": "es",
+      //   "audio_duration": 785.58,
+      //   "created_at": "2024-07-17T04:47:22"
+      // }
 
       return (
         <DropdownMenu>

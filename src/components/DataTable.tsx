@@ -302,7 +302,9 @@ export function TableActions({ table }: { table: any }) {
           <DropdownMenuItem
             onClick={() => {
               console.log(
-                table.getSelectedRowModel().rows.map(r => r.original.identifier)
+                table
+                  .getSelectedRowModel()
+                  .rows.map((r: any) => r.original.identifier)
               )
             }}
           >
@@ -314,7 +316,7 @@ export function TableActions({ table }: { table: any }) {
               let UUIDs: Task["identifier"] = ""
               table
                 .getSelectedRowModel()
-                .rows.map(r => UUIDsACopiar.push(r.original.identifier))
+                .rows.map((r: any) => UUIDsACopiar.push(r.original.identifier))
 
               UUIDs = UUIDsACopiar.join(", ")
               if (typeof window !== "undefined" && navigator.clipboard) {
@@ -342,7 +344,9 @@ export function TableActions({ table }: { table: any }) {
               let fileNames: Task["file_name"] = ""
               table
                 .getSelectedRowModel()
-                .rows.map(r => archivosACopiar.push(r.original.file_name))
+                .rows.map((r: any) =>
+                  archivosACopiar.push(r.original.file_name)
+                )
 
               fileNames = archivosACopiar.join(", ")
               if (typeof window !== "undefined" && navigator.clipboard) {
@@ -381,7 +385,7 @@ export function TableActions({ table }: { table: any }) {
               console.log(
                 table
                   .getSelectedRowModel()
-                  .rows.map(r => `borrar: ${r.original.identifier}`)
+                  .rows.map((r: any) => `borrar: ${r.original.identifier}`)
               )
             }}
             className='mx-2 my-1.5 p-0'
@@ -389,7 +393,7 @@ export function TableActions({ table }: { table: any }) {
             <DeleteButton
               ids={table
                 .getSelectedRowModel()
-                .rows.map(r => r.original.identifier)}
+                .rows.map((r: any) => r.original.identifier)}
             />
           </DropdownMenuItem>
         </DropdownMenuContent>
@@ -421,7 +425,7 @@ export function TableRows({
   if (table.getRowModel().rows?.length) {
     return (
       <>
-        {table.getRowModel().rows.map(row => (
+        {table.getRowModel().rows.map((row: any) => (
           <TableRow
             key={`row-${row.id}`}
             data-state={row.getIsSelected() && "selected"}
@@ -436,7 +440,7 @@ export function TableRows({
                 <span className='sr-only'>Select item {row.id}</span>
               </Checkbox>
             </TableCell>
-            {row.getVisibleCells().map((cell, i) => (
+            {row.getVisibleCells().map((cell: any, i: number) => (
               <TableCell
                 key={`cell-${cell.id}`}
                 className={
