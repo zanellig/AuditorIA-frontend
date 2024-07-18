@@ -23,21 +23,33 @@ function sentimentStyle(sentiment: SentimentType) {
 const BASIC_STYLE = " flex text-sm rounded-md p-2 gap-2 "
 
 export default async function Transcription() {
+  const [UUID, setUUID] = useState<Task["identifier"]>("")
   const searchParams = useSearchParams()
-  const UUID: Task["identifier"] | null = searchParams.get("search")
+
+  useEffect(() => {
+    const search = searchParams.get("search")
+    if (search) {
+      setUUID(search)
+    }
+  }, [searchParams])
 
   const [transcription, setTranscription] = useState<TranscriptionType | null>(
     null
   )
+
   useEffect(() => {
     const updateTs = async () => {
-      const updatedTranscription = await getTranscription(UUID)
-      console.log(updatedTranscription)
-      setTranscription(updatedTranscription)
+      if (UUID) {
+        try {
+          const updatedTranscription = await getTranscription(UUID)
+          setTranscription(updatedTranscription)
+        } catch (error) {
+          console.error("Failed to fetch transcription:", error)
+        }
+      }
     }
-
     updateTs()
-  }, [])
+  }, [UUID])
 
   function renderAnalysisWithSegment(
     segment: Segment,
@@ -50,11 +62,10 @@ export default async function Transcription() {
     )
   }
 
-  if (!transcription) return <DashboardSkeleton />
+  // if (!transcription) return <TranscritionSkeleton />
 
   return (
     <>
-      {console.log(transcription)}
       <div className='flex flex-col space-y-2 w-full'>
         <div className='text-lg '>
           Transcripción de llamado ID <span className='font-bold'>{UUID}</span>{" "}

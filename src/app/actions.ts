@@ -45,5 +45,5 @@ export async function getTranscription(
     throw new Error(response.statusText)
   }
   const jsonRes = await response.json()
-  return jsonRes.task as TranscriptionType
+  return jsonRes as TranscriptionType
 }
