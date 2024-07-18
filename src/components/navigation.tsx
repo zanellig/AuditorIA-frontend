@@ -11,6 +11,7 @@ import { ModeToggle } from "./ModeToggle"
 import { useScroll } from "@/components/ScrollProvider"
 import { ChevronLeft } from "lucide-react"
 import { NAVIGATION_ICON_SIZE } from "@/lib/consts"
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
 
 export default function NavigationButtons() {
   /**
@@ -46,7 +47,7 @@ export default function NavigationButtons() {
   }, [pathname])
 
   return (
-    <>
+    <div>
       <div
         className={`fixed top-0 left-0 p-4 transition-all duration-500 transform ${
           showButtons
@@ -62,15 +63,25 @@ export default function NavigationButtons() {
           </Link>
         ) : null}
       </div>
-      <div
-        className={`fixed top-0 right-0 p-4  transition-all duration-500 transform ${
-          showButtons
-            ? "opacity-100 translate-x-0"
-            : "opacity-0 translate-x-4 pointer-events-none"
-        }`}
-      >
-        <ModeToggle />
+      <div className='flex flex-row fixed top-0 right-0 p-4 space-x-4'>
+        <Avatar
+          className={`transition-all duration-500 ${
+            showButtons ? "translate-x-0" : "translate-x-12"
+          }`}
+        >
+          <AvatarImage src='https://github.com/zanellig.png' />
+          <AvatarFallback>GZ</AvatarFallback>
+        </Avatar>
+        <div
+          className={`transition-all duration-500 transform ${
+            showButtons
+              ? "opacity-100 translate-x-0"
+              : "opacity-0 translate-x-4 pointer-events-none"
+          }`}
+        >
+          <ModeToggle />
+        </div>
       </div>
-    </>
+    </div>
   )
 }

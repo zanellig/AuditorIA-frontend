@@ -66,23 +66,26 @@ export default async function Transcription() {
 
   return (
     <>
-      <div className='flex flex-col space-y-2 w-full'>
-        <div className='text-lg '>
-          Transcripción de llamado ID <span className='font-bold'>{UUID}</span>{" "}
+      <div className='container'>
+        <div className='flex flex-col space-y-2 w-full'>
+          <div className='text-lg '>
+            Transcripción de llamado ID{" "}
+            <span className='font-bold'>{UUID}</span>{" "}
+          </div>
+
+          {transcription?.result.segments.map((segment: Segment, i: number) => {
+            let speaker = segment.speaker
+
+            return (
+              <div
+                key={`${speaker}-segment-${i}`}
+                className={speaker === "SPEAKER_01" ? "self-end" : "self-start"}
+              >
+                {renderAnalysisWithSegment(segment, speaker)}
+              </div>
+            )
+          })}
         </div>
-
-        {transcription?.result.segments.map((segment: Segment, i: number) => {
-          let speaker = segment.speaker
-
-          return (
-            <div
-              key={`${speaker}-segment-${i}`}
-              className={speaker === "SPEAKER_01" ? "self-end" : "self-start"}
-            >
-              {renderAnalysisWithSegment(segment, speaker)}
-            </div>
-          )
-        })}
       </div>
     </>
   )
