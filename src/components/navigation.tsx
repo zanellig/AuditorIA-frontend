@@ -69,7 +69,8 @@ export default function NavigationButtons() {
             showButtons ? "translate-x-0" : "translate-x-12"
           }`}
         >
-          <AvatarImage src='https://github.com/zanellig.png' />
+          {/* aca le pueden poner su avatar de github (o cualquier imagen que quieran), si lo cambian asegúrense de no meter este archivo en el commit */}
+          <AvatarImage src='https://github.com/zanellig.png' />{" "}
           <AvatarFallback>GZ</AvatarFallback>
         </Avatar>
         <div
