@@ -1,9 +1,17 @@
 "use server"
-import { Tasks, Task, TranscriptionType } from "@/lib/tasks"
-import { _urlBase, _tasksPath, _transcriptPath } from "@/lib/api/paths"
+import { Tasks, Task, TranscriptionType, Records } from "@/lib/types"
+import {
+  _urlBase,
+  _tasksPath,
+  _transcriptPath,
+  _APIEstable,
+  _APICanary,
+  _recordsPath,
+  _urlCanary,
+} from "@/lib/api/paths"
 
 export async function getTasks(): Promise<Tasks> {
-  const url = `${_urlBase}${_tasksPath}`
+  const url = `${_urlBase}${_APIEstable}${_tasksPath}`
 
   const response = await fetch(url, {
     headers: {
@@ -19,6 +27,7 @@ export async function getTasks(): Promise<Tasks> {
     throw new Error(response.statusText)
   }
   const jsonRes = await response.json()
+
   return jsonRes.tasks as Tasks
 }
 
@@ -29,7 +38,24 @@ export async function getTranscription(
     throw new Error("Task identifier not provided")
   }
 
-  const url = `${_urlBase}${_transcriptPath}/${id}`
+  const url = `${_urlBase}${_APIEstable}${_transcriptPath}/${id}`
+
+  const response = await fetch(url, {
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Content-Type": "application/json",
+    },
+    method: "GET",
+  })
+  if (!response.ok) {
+    throw new Error(response.statusText)
+  }
+  const jsonRes = await response.json()
+  return jsonRes as TranscriptionType
+}
+
+export async function getRecords(): Promise<Records> {
+  const url = `${_urlCanary}${_APICanary}${_recordsPath}`
 
   const response = await fetch(url, {
     headers: {
@@ -45,5 +71,5 @@ export async function getTranscription(
     throw new Error(response.statusText)
   }
   const jsonRes = await response.json()
-  return jsonRes as TranscriptionType
+  return jsonRes.records as Records
 }
