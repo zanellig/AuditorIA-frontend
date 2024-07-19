@@ -1,12 +1,13 @@
 import NavigationButtons from "@/components/navigation"
 import { ScrollProvider } from "@/components/ScrollProvider"
+import { ReactNode } from "react"
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default function Layout({ children }: { children: ReactNode }) {
   return (
     <>
       <ScrollProvider>
-        <div id='main' className='flex flex-col mt-10'>
-          <NavigationButtons />
+        <div id='main' className='mt-10'>
+          <NavigationButtons className='bg-red-500' />
           {children}
         </div>
       </ScrollProvider>
