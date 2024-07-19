@@ -8,6 +8,39 @@ export type Task = {
   created_at: Fecha
 }
 
+type Record = {
+  id: string
+  fecha: string
+  IDLLAMADA: string
+  IDAPLICACION: string
+  USUARIO: string
+  ANI_TELEFONO: string
+  GRABACION: string
+  DIRECCION: string
+  INICIO: Date
+  FIN: Date
+  SECTOT: string
+  URL: string
+}
+type Records = Record[]
+
+/**
+ * {
+ *     "id": 1,
+ *     "fecha": 20240129,
+ *     "IDLLAMADA": 14426759,
+ *     "IDAPLICACION": 162,
+ *     "USUARIO": 1634,
+ *     "ANI_TELEFONO": 11207,
+ *     "GRABACION": "11207-14426759-20240129083342.mp3",
+ *     "DIRECCION": "ENTRANTE",
+ *     "INICIO": "2024-01-29 08:33:42.533",
+ *     "FIN": "2024-01-29 08:36:28.240",
+ *     "SECTOT": 166,
+ *     "URL": "\\\\10.20.30.*2\\Compartido\\FTP\\NEOTEL\\2024\\01\\29\\11207-14426759-20240129083342.mp3"
+ *   },
+ */
+
 type Status = "completed" | "processing" | "failed" | "Analyzed" | "analyzed"
 type Language = "en" | "es"
 type IDNeomirror = string
