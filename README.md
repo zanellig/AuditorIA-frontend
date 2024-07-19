@@ -61,8 +61,8 @@
   npm run dev
 ```
 
-[!IMPORTANT]
-Si nos sale el error de que ya existe un listen en el puerto 3001 seguimos los siguientes pasos
+> [!IMPORTANT]
+> Si nos sale el error de que ya existe un listen en el puerto 3001 seguimos los siguientes pasos
 
 ```bash
 $ npm run dev
