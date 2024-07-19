@@ -1,36 +1,106 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# auditorIA
 
-## Getting Started
+## Como correr en desarrollo
 
-First, run the development server:
+1.0. Nos aseguramos de tener la versión correcta de Node.js
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+  $ node -v
+  > v22.2.0
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+> Personalmente utilizo [**Node Version Manager**](https://github.com/coreybutler/nvm-windows) en Windows para manejar las versiones de Node, por lo que voy a mostrar cómo hacerlo con este software.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1.1. Chequeamos qué versión tenemos activa (lo mismo que `node -v`)
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+```bash
+  $ nvm current
+  > v22.2.0
 
-## Learn More
+```
 
-To learn more about Next.js, take a look at the following resources:
+1.2. Si tenemos una versión antigua o no compatible, instalaremos la **22.2.0**
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+  $ nvm install 22.2.0 [arch = 32 | 64]
+  > Downloading node.js version 22.2.0 (64-bit)...
+  > Extracting node and npm...
+  > Complete
+  > npm v10.7.0 installed successfully.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+  > Installation complete. If you want to use this version, type
+  > nvm use 22.2.0
+```
 
-## Deploy on Vercel
+1.3.0. Corroboramos que estamos usando nvm
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+  $ nvm on
+  > nvm enabled
+  > Now using node v20.15.1 (64-bit)
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+1.3.1. Cambiaremos a la versión instalada si teníamos otra
+
+```bash
+  $ nvm use 22.2.0
+  > Now using node v22.2.0 (64-bit)
+```
+
+2. Nos dirigimos a la ruta donde se encuentra el repositorio e instalamos las dependencias
+
+```bash
+  z auditorIA
+  npm install
+```
+
+3. Abrimos el proyecto en modo dev para ver los cambios en tiempo real
+
+```bash
+
+  npm run dev
+```
+
+[!IMPORTANT]
+Si nos sale el error de que ya existe un listen en el puerto 3001 seguimos los siguientes pasos
+
+```bash
+$ npm run dev
+
+> next@0.1.0 dev
+> next dev --port 3001
+
+ ⨯ Failed to start server
+Error: listen EADDRINUSE: address already in use :::3001
+    at Server.setupListenHandle [as _listen2] (node:net:1898:16)
+    at listenInCluster (node:net:1946:12)
+    at Server.listen (node:net:2044:7)
+    [...]
+    at process.emit (node:events:520:28) {
+  code: 'EADDRINUSE',
+  errno: -4091,
+  syscall: 'listen',
+  address: '::',
+  port: 3001
+}
+```
+
+Podemos correr el siguiente comando en PowerShell
+
+```pwsh
+  Get-Process -Id (Get-NetTCPConnection -LocalPort 3001).OwningProcess
+```
+
+Si encontramos el siguiente output, diciéndonos que hay un proceso de Node escuchando ese puerto
+
+```bash
+  NPM(K)    PM(M)      WS(M)     CPU(s)      Id  SI ProcessName
+  ------    -----      -----     ------      --  -- -----------
+      195   610,96     292,90      12,39   12852   1 node
+```
+
+Podemos proceder a cerrarlo
+
+```pwsh
+  taskkill /PID [id del proceso] /F
+```
