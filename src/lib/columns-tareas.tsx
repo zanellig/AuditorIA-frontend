@@ -1,7 +1,7 @@
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
-import { Task } from "@/lib/tasks"
+import { Task } from "@/lib/types"
 
 import {
   ArrowUpDown,
@@ -21,12 +21,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-import DeleteButton from "@/components/DeleteButton"
+import DeleteButton from "@/components/delete-button"
 
-import type { Status } from "@/lib/tasks"
+import type { Status } from "@/lib/types"
 
 import { GLOBAL_ICON_SIZE } from "@/lib/consts"
 import Link from "next/link"
+import { obtenerMesLocale } from "./utils"
 
 function renderMarker(status: Status) {
   switch (status) {
@@ -132,7 +133,7 @@ export const columns: ColumnDef<Task | null>[] = [
       )
     },
     cell: ({ row }) => {
-      return <div>{row.original?.file_name.toLocaleUpperCase()}</div>
+      return <div>{row.original?.file_name}</div>
     },
   },
   {
@@ -186,8 +187,20 @@ export const columns: ColumnDef<Task | null>[] = [
               Copiar nombre del archivo
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <DeleteButton id={tarea?.identifier} />
+            <DropdownMenuItem
+              onClick={e => {
+                e.preventDefault()
+                const event = new MouseEvent("click", {
+                  bubbles: true,
+                  cancelable: true,
+                  view: window,
+                })
+                document
+                  .getElementById(`delete-button-${tarea?.identifier}`)
+                  ?.dispatchEvent(event)
+              }}
+            >
+              <DeleteButton identifier={tarea?.identifier} />
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -195,21 +208,3 @@ export const columns: ColumnDef<Task | null>[] = [
     },
   },
 ]
-
-export function obtenerMesLocale(mes: number): string {
-  const meses = [
-    "Enero",
-    "Febrero",
-    "Marzo",
-    "Abril",
-    "Mayo",
-    "Junio",
-    "Julio",
-    "Agosto",
-    "Septiembre",
-    "Octubre",
-    "Noviembre",
-    "Diciembre",
-  ]
-  return meses[mes - 1]
-}

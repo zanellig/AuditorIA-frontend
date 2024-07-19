@@ -9,24 +9,40 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { Task } from "@/lib/tasks"
+import { Task } from "@/lib/types"
+import { cn } from "@/lib/utils"
 
 export default function DeleteButton({
-  id,
+  identifier,
   ids,
+  className,
 }: {
-  id?: Task["identifier"]
+  identifier?: Task["identifier"]
   ids?: Task["identifier"][]
+  className?: string
 }) {
   /**
    * TODO: Implement deletion API call
    * https://tasks.office.com/linksolution.com.ar/Home/Task/BYl9VJs82kec_NdGE_7RlWUAJYii?Type=TaskLink&Channel=Link&CreatedTime=638566702346980000
    */
   return (
-    <div onClick={e => e.stopPropagation()} className='w-full h-full'>
+    <div
+      className='w-full h-full'
+      onClick={e => {
+        e.stopPropagation()
+      }}
+    >
       <AlertDialog>
-        <AlertDialogTrigger className='w-full h-full text-start cursor-default'>
-          <span className='text-destructive'>Eliminar</span>
+        <AlertDialogTrigger asChild>
+          <div
+            className={cn(
+              "w-full h-full text-start cursor-default text-destructive ",
+              className
+            )}
+            id={`delete-button-${identifier}`}
+          >
+            Eliminar
+          </div>
         </AlertDialogTrigger>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -49,8 +65,8 @@ export default function DeleteButton({
               onClick={() => {
                 if (ids) {
                   console.log(ids)
-                } else if (id) {
-                  console.log(id)
+                } else if (identifier) {
+                  console.log(identifier)
                 }
               }}
             >

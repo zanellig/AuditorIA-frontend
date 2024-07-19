@@ -1,14 +1,19 @@
 "use client"
 
-import { Segment, SentimentType, Task, TranscriptionType } from "@/lib/tasks"
+import { Segment, SentimentType, Task, TranscriptionType } from "@/lib/types"
 import { Button } from "@/components/ui/button"
 import { MessageCircleQuestion } from "lucide-react"
 import { GLOBAL_ICON_SIZE } from "@/lib/consts"
-import { getTranscription } from "@/app/actions"
+import { getTranscription } from "@/lib/actions"
 import { useSearchParams } from "next/navigation"
 import { useEffect, useState } from "react"
-import LoadingScreen from "./LoadingScreen"
-import DashboardSkeleton from "./skeletons/DashboardSkeleton"
+import LoadingScreen from "./loading-screen"
+import DashboardSkeleton from "./skeletons/dashboard-skeleton"
+
+/**
+ * PUEDE HABER MAS DE DOS SPEAKERS.
+ * FUNCION PARA SELECCIONAR self_align DEPENDIENDO DEL INPUT DEL USUARIO POR SPEAKER
+ */
 
 function sentimentStyle(sentiment: SentimentType) {
   switch (sentiment) {
@@ -73,18 +78,22 @@ export default async function Transcription() {
             <span className='font-bold'>{UUID}</span>{" "}
           </div>
 
-          {transcription?.result.segments.map((segment: Segment, i: number) => {
-            let speaker = segment.speaker
+          {transcription?.result?.segments.map(
+            (segment: Segment, i: number) => {
+              let speaker = segment.speaker
 
-            return (
-              <div
-                key={`${speaker}-segment-${i}`}
-                className={speaker === "SPEAKER_01" ? "self-end" : "self-start"}
-              >
-                {renderAnalysisWithSegment(segment, speaker)}
-              </div>
-            )
-          })}
+              return (
+                <div
+                  key={`${speaker}-segment-${i}`}
+                  className={
+                    speaker === "SPEAKER_01" ? "self-end" : "self-start"
+                  }
+                >
+                  {renderAnalysisWithSegment(segment, speaker)}
+                </div>
+              )
+            }
+          )}
         </div>
       </div>
     </>

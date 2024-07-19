@@ -1,7 +1,8 @@
-"use client" // COMENTADO HASTA QUE SE LEVANTE LA API
-import type { Tasks, Task } from "@/lib/tasks"
-import TablaTareas from "@/components/TablaTareas"
-import EnvioDeTareas from "@/components/EnvioDeTareas"
+// "use client" // COMENTADO HASTA QUE SE LEVANTE LA API
+import type { Tasks, Task } from "@/lib/types"
+import TablaTareas from "@/components/tabla-tareas"
+import EnvioDeTareas from "@/components/envio-de-tareas"
+import TablaRecords from "@/components/tabla-records"
 
 import { Suspense } from "react"
 
@@ -48,11 +49,11 @@ export default function Dashboard() {
 
   return (
     <>
-      <div className='flex flex-row'>
-        <div className='container'>
-          <TablaTareas />
-        </div>
-        <div className='container w-fit'>
+      <div className='flex flex-col w-full h-full'>
+        <TablaTareas />
+
+        <div className='flex flex-row w-full'>
+          <TablaRecords />
           <EnvioDeTareas />
         </div>
       </div>

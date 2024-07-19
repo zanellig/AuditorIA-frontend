@@ -6,14 +6,20 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 
 import { Button } from "./ui/button"
-import { ModeToggle } from "./ModeToggle"
+import { ModeToggle } from "./mode-toggle"
 
 import { useScroll } from "@/components/ScrollProvider"
 import { ChevronLeft } from "lucide-react"
 import { NAVIGATION_ICON_SIZE } from "@/lib/consts"
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
 
-export default function NavigationButtons() {
+import { cn } from "@/lib/utils"
+
+export default function NavigationButtons({
+  className,
+}: {
+  className?: string
+}) {
   /**
    * TODO: dynamic render the back to dashboard button when NOT in dashboard
    *https://tasks.office.com/linksolution.com.ar/Home/Task/NJ_2S_7cj0qHo9Bzv0OyEWUAMyX3?Type=TaskLink&Channel=Link&CreatedTime=638566708070090000
@@ -47,7 +53,7 @@ export default function NavigationButtons() {
   }, [pathname])
 
   return (
-    <div>
+    <div className={cn("w-fit h-fit absolute z-50", className)}>
       <div
         className={`fixed top-0 left-0 p-4 transition-all duration-500 transform ${
           showButtons
