@@ -1,9 +1,11 @@
 "use client"
 import { useEffect } from "react"
-import { Button } from "../ui/button"
+import { Button } from "@/components/ui/button"
 import { RefreshCw } from "lucide-react"
-import NavigationButtons from "../navigation"
+import NavigationButtons from "@/components/navigation"
 import { GLOBAL_ICON_SIZE } from "@/lib/consts"
+import TitleH1 from "@/components/typography/titleH1"
+import ParagraphP from "@/components/typography/paragraphP"
 
 export default function ErrorScreen({
   error,
@@ -21,18 +23,16 @@ export default function ErrorScreen({
       <NavigationButtons />
       <div className='flex flex-col max-w-2xl my-auto mx-auto pt-16'>
         <div className='flex flex-col items-start space-y-5'>
-          <h1 className='scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl'>
-            ¡Ha ocurrido un error! 😯
-          </h1>
-          <p className='leading-7 [&:not(:first-child)]:mt-6'>
+          <TitleH1>¡Ha ocurrido un error! 😯</TitleH1>
+          <ParagraphP>
             Contacte a su administrador de IT y otorgue el siguiente código de
             error:
-          </p>
+          </ParagraphP>
           <div>
             <code className='relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold'>
-              {error?.message}
-              {error?.digest ? ` (${error.digest})` : ""}
-              {error?.stack ? `\n${error.stack.slice(0, 255)}...` : ""}
+              {error?.message + "\n"}
+              {error?.digest ? ` (digest: ${error.digest})\n` : "\n"}
+              {error?.stack ? `\n${error.stack.slice(0, 512)}...` : ""}
             </code>
           </div>
           <Button

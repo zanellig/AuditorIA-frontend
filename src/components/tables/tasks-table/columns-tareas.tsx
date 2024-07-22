@@ -27,7 +27,7 @@ import type { Status } from "@/lib/types"
 
 import { GLOBAL_ICON_SIZE } from "@/lib/consts"
 import Link from "next/link"
-import { obtenerMesLocale } from "./utils"
+import { obtenerMesLocale } from "../../../lib/utils"
 
 function renderMarker(status: Status) {
   switch (status) {
@@ -97,15 +97,6 @@ export const columns: ColumnDef<Task | null>[] = [
     cell: ({ row }) => {
       const date = new Date(row.original?.created_at as Task["created_at"])
       const mes = obtenerMesLocale(date.getMonth())
-
-      return <div>{`${date.getDate()} de ${mes} de ${date.getFullYear()}`}</div>
-    },
-  },
-  {
-    accessorKey: "created_at",
-    header: () => <div>Hora</div>,
-    cell: ({ row }) => {
-      const date = new Date(row.original?.created_at as Task["created_at"])
       const hora = date.toLocaleTimeString("es-US", {
         hour: "2-digit",
         minute: "2-digit",
@@ -113,9 +104,26 @@ export const columns: ColumnDef<Task | null>[] = [
         hour12: false,
       })
 
-      return <div>{hora}</div>
+      return (
+        <div>{`${date.getDate()} de ${mes} de ${date.getFullYear()} ${hora}`}</div>
+      )
     },
   },
+  // {
+  //   accessorKey: "created_at",
+  //   header: () => <div>Hora</div>,
+  //   cell: ({ row }) => {
+  //     const date = new Date(row.original?.created_at as Task["created_at"])
+  //     const hora = date.toLocaleTimeString("es-US", {
+  //       hour: "2-digit",
+  //       minute: "2-digit",
+  //       second: "2-digit",
+  //       hour12: false,
+  //     })
+
+  //     return <div>{hora}</div>
+  //   },
+  // },
   {
     accessorKey: "file_name",
     header: ({ column }) => {
@@ -162,7 +170,7 @@ export const columns: ColumnDef<Task | null>[] = [
           <DropdownMenuContent align='end'>
             <DropdownMenuItem className='font-bold'>
               <Link
-                href={`/dashboard/transcription?search=${tarea?.identifier}`}
+                href={`/dashboard/transcription/${tarea?.identifier}`}
                 className='w-full h-full cursor-default'
               >
                 Ir a la transcripción

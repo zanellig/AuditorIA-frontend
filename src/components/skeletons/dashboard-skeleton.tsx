@@ -5,15 +5,22 @@ export default function DashboardSkeleton() {
   return (
     <>
       <div className='flex flex-col space-y-10'>
-        <Skeleton className='h-8 rounded-xl w-[300px] bg-secondary' />
+        <div className='flex flex-row space-x-2 items-center w-full justify-between'>
+          <Skeleton className='h-8 rounded-xl w-[300px] bg-secondary' />
+          <div className='flex flex-row space-x-2 ml-auto'>
+            <Skeleton className='h-6 rounded-xl w-[200px] bg-secondary' />
+            <Skeleton className='h-6 rounded-xl w-[100px] bg-secondary' />
+          </div>
+        </div>
+
         <div className='flex flex-col space-y-10'>
           <RowSkeleton />
           <RowSkeleton />
           <RowSkeleton />
           <RowSkeleton />
           <RowSkeleton />
-          <PaginationSkeleton />
         </div>
+        <PaginationSkeleton />
       </div>
     </>
   )
@@ -34,10 +41,14 @@ function RowSkeleton() {
 
 function PaginationSkeleton() {
   return (
-    <div className='flex justify-end flex-row space-x-5'>
-      <SinglePaginationButtonSkeleton />
-      <SinglePaginationButtonSkeleton />
-      <SinglePaginationButtonSkeleton />
+    <div className='flex flex-row justify-between items-center'>
+      <Skeleton className='h-5 w-[500px] rounded-xl bg-secondary' />
+      <Skeleton className='h-5 w-[200px] rounded-xl bg-secondary' />
+      <div className='flex justify-end flex-row space-x-5'>
+        <SinglePaginationButtonSkeleton />
+        <SinglePaginationButtonSkeleton />
+        <SinglePaginationButtonSkeleton />
+      </div>
     </div>
   )
 }

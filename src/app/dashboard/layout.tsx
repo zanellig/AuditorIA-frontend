@@ -6,8 +6,8 @@ export default function Layout({ children }: { children: ReactNode }) {
   return (
     <>
       <ScrollProvider>
-        <div id='main' className='mt-10'>
-          <NavigationButtons className='bg-red-500' />
+        <div id='main' className='mt-10 w-full h-full'>
+          <NavigationButtons />
           {children}
         </div>
       </ScrollProvider>

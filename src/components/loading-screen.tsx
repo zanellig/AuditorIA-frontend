@@ -12,16 +12,17 @@ export default function LoadingScreen() {
 
   return (
     <>
-      <div className='h-[40rem] w-full bg-background flex flex-col items-center justify-center overflow-hidden rounded-md text-center'>
-        <div className='relative w-[80rem] h-[30rem] rounded-3xl overflow-hidden shadow-'>
+      <div className='h-[500px] bg-background flex flex-col items-center justify-center text-center'>
+        <div className='relative w-full h-full rounded-3xl overflow-hidden my-auto'>
           {/* Core component */}
           <SparklesCore
             id='tsparticles-loading'
             background='transparent'
             minSize={0.4}
-            maxSize={4}
-            particleDensity={15}
+            maxSize={2.5}
+            particleDensity={30}
             particleColor={particleColor}
+            className='w-full h-full'
           />
 
           {/* Radial Gradient to prevent sharp edges */}

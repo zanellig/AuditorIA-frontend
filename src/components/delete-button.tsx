@@ -61,7 +61,7 @@ export default function DeleteButton({
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogAction
-              className='font-bold hover:text-destructive hover:outline-1 hover:-outline-offset-1 hover:outline hover:outline-destructive  hover:bg-transparent'
+              className='font-bold bg-destructive text-primary hover:text-destructive hover:outline-1 hover:-outline-offset-1 hover:outline hover:outline-destructive  hover:bg-transparent'
               onClick={() => {
                 if (ids) {
                   console.log(ids)

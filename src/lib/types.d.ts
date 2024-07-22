@@ -8,21 +8,21 @@ export type Task = {
   created_at: Fecha
 }
 
-type Record = {
-  id: string
-  fecha: string
-  IDLLAMADA: string
-  IDAPLICACION: string
-  USUARIO: string
-  ANI_TELEFONO: string
+export type Recording = {
+  id: number
+  fecha: number
+  IDLLAMADA: number | string
+  IDAPLICACION: number
+  USUARIO: number
+  ANI_TELEFONO: number
   GRABACION: string
   DIRECCION: string
   INICIO: Date
   FIN: Date
-  SECTOT: string
+  SECTOT: number
   URL: string
 }
-type Records = Record[]
+export type Recordings = Recording[]
 
 /**
  * {

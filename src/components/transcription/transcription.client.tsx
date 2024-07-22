@@ -1,19 +1,16 @@
 "use client"
 
-import { Segment, SentimentType, Task, TranscriptionType } from "@/lib/types"
+import { useState, useEffect } from "react"
+import { Segment, SentimentType, TranscriptionType, Task } from "@/lib/types"
 import { Button } from "@/components/ui/button"
 import { MessageCircleQuestion } from "lucide-react"
 import { GLOBAL_ICON_SIZE } from "@/lib/consts"
-import { getTranscription } from "@/lib/actions"
 import { useSearchParams } from "next/navigation"
-import { useEffect, useState } from "react"
-import LoadingScreen from "./loading-screen"
-import DashboardSkeleton from "./skeletons/dashboard-skeleton"
 
-/**
- * PUEDE HABER MAS DE DOS SPEAKERS.
- * FUNCION PARA SELECCIONAR self_align DEPENDIENDO DEL INPUT DEL USUARIO POR SPEAKER
- */
+interface TranscriptionClientProps {
+  transcription: TranscriptionType
+  taskId: Task["identifier"]
+}
 
 function sentimentStyle(sentiment: SentimentType) {
   switch (sentiment) {
@@ -25,10 +22,14 @@ function sentimentStyle(sentiment: SentimentType) {
       return "bg-red-500"
   }
 }
+
 const BASIC_STYLE = " flex text-sm rounded-md p-2 gap-2 "
 
-export default async function Transcription() {
-  const [UUID, setUUID] = useState<Task["identifier"]>("")
+const TranscriptionClient = ({
+  transcription,
+  taskId,
+}: TranscriptionClientProps) => {
+  const [UUID, setUUID] = useState<Task["identifier"]>(taskId)
   const searchParams = useSearchParams()
 
   useEffect(() => {
@@ -37,24 +38,6 @@ export default async function Transcription() {
       setUUID(search)
     }
   }, [searchParams])
-
-  const [transcription, setTranscription] = useState<TranscriptionType | null>(
-    null
-  )
-
-  useEffect(() => {
-    const updateTs = async () => {
-      if (UUID) {
-        try {
-          const updatedTranscription = await getTranscription(UUID)
-          setTranscription(updatedTranscription)
-        } catch (error) {
-          console.error("Failed to fetch transcription:", error)
-        }
-      }
-    }
-    updateTs()
-  }, [UUID])
 
   function renderAnalysisWithSegment(
     segment: Segment,
@@ -67,14 +50,12 @@ export default async function Transcription() {
     )
   }
 
-  // if (!transcription) return <TranscritionSkeleton />
-
   return (
     <>
-      <div className='container'>
+      <div className='container mt-10'>
         <div className='flex flex-col space-y-2 w-full'>
-          <div className='text-lg '>
-            Transcripción de llamado ID{" "}
+          <div className='text-lg'>
+            Transcripción de llamado ID{" "}
             <span className='font-bold'>{UUID}</span>{" "}
           </div>
 
@@ -94,6 +75,9 @@ export default async function Transcription() {
               )
             }
           )}
+        </div>
+        <div id='DEBUG-INFO-FOR-DEV-ONLY' className='container'>
+          <code>{JSON.stringify(transcription)}</code>
         </div>
       </div>
     </>
@@ -123,17 +107,17 @@ export function renderBoxesBySpeaker(
     case "SPEAKER_00":
       return (
         <>
-          <Emoji segment={segment} />
+          {segment.analysis ? <Emoji segment={segment} /> : null}
           <TextContainer segment={segment} />
-          <EmotionBox />
+          {segment.analysis ? <EmotionBox /> : null}
         </>
       )
     case "SPEAKER_01":
       return (
         <>
-          <EmotionBox />
+          {segment.analysis ? <EmotionBox /> : null}
           <TextContainer segment={segment} />
-          <Emoji segment={segment} />
+          {segment.analysis ? <Emoji segment={segment} /> : null}
         </>
       )
   }
@@ -152,13 +136,19 @@ export function ChatBox({
   end: Segment["end"]
   analysis: Segment["analysis"]
 }) {
-  const sentiment = analysis.sentiment
-
+  let sentiment
+  if (!!analysis?.sentiment) {
+    sentiment = analysis.sentiment
+  }
   switch (speaker) {
     case "SPEAKER_00":
       return (
         <>
-          <SentimentMarker sentiment={sentiment} />
+          {sentiment ? (
+            <SentimentMarker sentiment={sentiment as SentimentType} />
+          ) : (
+            <></>
+          )}
           <TextBox text={text} start={start} end={end} />
         </>
       )
@@ -166,7 +156,11 @@ export function ChatBox({
       return (
         <>
           <TextBox text={text} start={start} end={end} />
-          <SentimentMarker sentiment={sentiment} />
+          {sentiment ? (
+            <SentimentMarker sentiment={sentiment as SentimentType} />
+          ) : (
+            <></>
+          )}
         </>
       )
   }
@@ -186,7 +180,6 @@ export function TextBox({
       {text}
       <div className='text-xs text-muted-foreground'>
         <Timestamp {...{ start: start, end: end }} />
-        {/* {getCallTimestamp(start, end)} */}
       </div>
     </div>
   )
@@ -304,3 +297,5 @@ export function formatTimestamp({
   formattedTime += `${seconds.toFixed(2)}s`
   return formattedTime.trim()
 }
+
+export default TranscriptionClient

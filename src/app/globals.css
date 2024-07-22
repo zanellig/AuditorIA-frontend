@@ -53,13 +53,13 @@
   * {
     @apply border-border;
   }
-  /* FOR DEV ONLY */
-  *:hover {
-    outline: 1px blue solid;
-  }
   body {
     @apply bg-background text-foreground;
   }
+  /* FOR DEV ONLY */
+  /* *:hover {
+    outline: 1px blue solid;
+  } */
 
   input::-webkit-outer-spin-button,
   input::-webkit-inner-spin-button {

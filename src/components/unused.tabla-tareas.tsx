@@ -1,18 +1,24 @@
 "use client"
-import DataTable from "@/components/data-table"
-import { columns } from "@/lib/columns-tareas"
-import { getTasks } from "@/lib/actions"
+
 import { useEffect, useState } from "react"
+import { headers } from "next/headers"
+import { getTasks } from "@/lib/actions"
+
+import DataTable from "@/components/tables/table-core/data-table"
+import { columns } from "@/components/tables/tasks-table/columns-tareas"
 import { Tasks } from "@/lib/types"
 import DashboardSkeleton from "./skeletons/dashboard-skeleton"
-import TableContainer from "./table-core/table-container"
+import TableContainer from "./tables/table-core/table-container"
 import SubtitleH2 from "./typography/subtitleH2"
 
 export default async function TablaTareas() {
+  const headersList = headers()
+  const origin = headersList.get("origin")
+
   const [tasks, setTasks] = useState<Tasks | null>(null)
   useEffect(() => {
     const updateTasks = async () => {
-      getTasks().then(updatedTasks => {
+      getTasks(origin as string).then(updatedTasks => {
         setTasks(updatedTasks)
         console.log(updatedTasks)
       })

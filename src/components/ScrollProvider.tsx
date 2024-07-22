@@ -8,7 +8,6 @@ export const ScrollProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     const handleScroll = () => {
-      console.log(window.scrollY)
       setScrollY(window.scrollY)
     }
 

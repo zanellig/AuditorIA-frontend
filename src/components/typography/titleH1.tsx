@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils"
 import type React from "react"
-export default function SubtitleH2({
+export default function TitleH1({
   children,
   className,
 }: {
@@ -8,13 +8,13 @@ export default function SubtitleH2({
   className?: string
 }) {
   return (
-    <h2
+    <h1
       className={cn(
-        "scroll-m-20 pb-4 text-3xl font-semibold tracking-tight first:mt-0",
+        "scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl",
         className
       )}
     >
       {children}
-    </h2>
+    </h1>
   )
 }

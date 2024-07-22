@@ -1,5 +1,5 @@
 "use client"
-import { useState } from "react"
+import { ReactNode, useState } from "react"
 
 import {
   ColumnDef,
@@ -12,6 +12,7 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
+  Table as ReactTableInstance,
 } from "@tanstack/react-table"
 
 import { Button } from "@/components/ui/button"
@@ -46,16 +47,16 @@ import {
   DropdownMenuTrigger,
   DropdownMenuItem,
   DropdownMenuSeparator,
-} from "./ui/dropdown-menu"
-import DeleteButton from "./delete-button"
-
-import type { Task, Record } from "@/lib/types"
+} from "@/components/ui/dropdown-menu"
+import DeleteButton from "@/components/delete-button"
 
 interface DataTableProps<TData, TValue, DataType> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   type: DataType
 }
+
+const POSSIBLE_TYPES = ["tasks", "records"]
 
 export default function DataTable<TData, TValue, DataType>({
   columns,
@@ -79,7 +80,7 @@ export default function DataTable<TData, TValue, DataType>({
 
   const pageSizeOptions = [10, 20, 30, 40, 50]
 
-  const table = useReactTable({
+  const table: ReactTableInstance<TData> = useReactTable({
     columns,
     data,
     getCoreRowModel: getCoreRowModel(),
@@ -101,7 +102,10 @@ export default function DataTable<TData, TValue, DataType>({
   return (
     <>
       <div className=''>
-        <TableActions table={table} type={type} />
+        <TableActions
+          table={table as ReactTableInstance<TData>}
+          type={type as string}
+        />
         <div className='rounded-md border'>
           <Table>
             <TableHeader>
@@ -140,7 +144,11 @@ export default function DataTable<TData, TValue, DataType>({
               ))}
             </TableHeader>
             <TableBody>
-              <TableRows table={table} columns={columns} />
+              <TableRows
+                table={table as ReactTableInstance<TData>}
+                columns={columns}
+                type={type as string}
+              />
             </TableBody>
           </Table>
         </div>
@@ -263,24 +271,50 @@ export default function DataTable<TData, TValue, DataType>({
     </>
   )
 }
-export function TableActions({ table, type }: { table: any; type: string }) {
-  "use client"
-  return (
-    <div className='flex py-4 items-center w-full justify-between'>
+
+interface SearchInputProps<TData> {
+  table: ReactTableInstance<TData>
+  type?: string
+}
+
+export function SearchInput<TData>({ table, type }: SearchInputProps<TData>) {
+  if (type === "tasks") {
+    return (
       <Input
-        placeholder='Filtrar...'
-        value={
-          type === "tasks"
-            ? (table.getColumn("identifier")?.getFilterValue() as string)
-            : (table.getColumn("IDLLAMADA")?.getFilterValue() as string)
-        }
+        placeholder='Filtrar por ID...'
+        value={table.getColumn("identifier")?.getFilterValue() as string}
         onChange={event => {
-          type === "tasks"
-            ? table.getColumn("identifier")?.setFilterValue(event.target.value)
-            : table.getColumn("IDLLAMADA")?.setFilterValue(event.target.value)
+          table.getColumn("identifier")?.setFilterValue(event.target.value)
         }}
         className='max-w-sm h-8'
       />
+    )
+  }
+
+  if (type === "records") {
+    return (
+      <Input
+        placeholder='Filtrar por ID de llamado...'
+        value={table.getColumn("IDLLAMADA")?.getFilterValue() as string}
+        onChange={event => {
+          table.getColumn("IDLLAMADA")?.setFilterValue(event.target.value)
+        }}
+        className='max-w-sm h-8'
+      />
+    )
+  }
+}
+
+interface TableActionsProps<TData> {
+  table: ReactTableInstance<TData>
+  type?: string
+}
+
+export function TableActions<TData>({ table, type }: TableActionsProps<TData>) {
+  "use client"
+  return (
+    <div className='flex pb-2 items-center w-full justify-between'>
+      <SearchInput table={table} type={type} />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
@@ -288,7 +322,7 @@ export function TableActions({ table, type }: { table: any; type: string }) {
             className='mr-auto ml-2 h-8 w-fit space-x-1 font-medium border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground rounded-md text-xs border-dashed '
           >
             <CirclePlus size={GLOBAL_ICON_SIZE} />
-            <span>Estado</span>
+            <span>{type === "tasks" ? "Estado" : "Usuario"}</span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
@@ -334,7 +368,7 @@ export function TableActions({ table, type }: { table: any; type: string }) {
                   UUIDsACopiar.push(r.original.identifier)
                 }
                 if (!!r.original.id) {
-                  UUIDsACopiar.push(r.original.id)
+                  UUIDsACopiar.push(r.original.IDLLAMADA)
                 }
               })
 
@@ -445,13 +479,18 @@ export function TableActions({ table, type }: { table: any; type: string }) {
     </div>
   )
 }
-export function TableRows({
+
+interface TableRowsProps<TData> {
+  table: ReactTableInstance<TData>
+  columns: ColumnDef<TData, any>[]
+  type?: string
+}
+
+export function TableRows<TData>({
   table,
   columns,
-}: {
-  table: any
-  columns: ColumnDef<any, any>[]
-}) {
+  type,
+}: TableRowsProps<TData>) {
   "use client"
   if (table.getRowModel().rows?.length) {
     return (
@@ -462,7 +501,7 @@ export function TableRows({
             data-state={row.getIsSelected() && "selected"}
             className='hover:bg-secondary p-2'
           >
-            <TableCell className='text-center'>
+            <TableCell>
               <Checkbox
                 id={row.id}
                 checked={row.getIsSelected()}
@@ -471,8 +510,8 @@ export function TableRows({
                 <span className='sr-only'>Select item {row.id}</span>
               </Checkbox>
             </TableCell>
-            {row.getVisibleCells().map((cell: any, i: number) => (
-              <TableCell key={`cell-${cell.id}`} className='text-start'>
+            {row.getVisibleCells().map((cell: any) => (
+              <TableCell key={`cell-${cell.id}`}>
                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
               </TableCell>
             ))}
@@ -484,7 +523,8 @@ export function TableRows({
     return (
       <TableRow>
         <TableCell colSpan={columns.length} className='h-24 text-center'>
-          No se encontraron {``}...
+          No se encontraron {type === "tasks" ? "tareas" : "grabaciones"}
+          ...
         </TableCell>
       </TableRow>
     )
