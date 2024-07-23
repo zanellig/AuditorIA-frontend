@@ -1,5 +1,5 @@
 "use client"
-import { ReactNode, useState } from "react"
+import { useState } from "react"
 
 import {
   ColumnDef,
@@ -49,20 +49,23 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
 import DeleteButton from "@/components/delete-button"
+import { cn } from "@/lib/utils"
 
-interface DataTableProps<TData, TValue, DataType> {
+interface DataTableProps<TData, TValue, DataType, classNameType> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   type: DataType
+  className?: classNameType
 }
 
-const POSSIBLE_TYPES = ["tasks", "records"]
+// const POSSIBLE_TYPES = ["tasks", "records"]
 
 export default function DataTable<TData, TValue, DataType>({
   columns,
   data,
   type,
-}: DataTableProps<TData, TValue, DataType>) {
+  className,
+}: DataTableProps<TData, TValue, string, string>) {
   // Filtering
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
 
@@ -101,7 +104,7 @@ export default function DataTable<TData, TValue, DataType>({
 
   return (
     <>
-      <div className=''>
+      <div className={cn("", className)}>
         <TableActions
           table={table as ReactTableInstance<TData>}
           type={type as string}
@@ -161,7 +164,12 @@ export default function DataTable<TData, TValue, DataType>({
 
           {/* componente de pagination */}
           <div className='flex flex-row flex-1 font-bold items-center'>
-            <span className='text-sm'>{`${type}`} por página </span>
+            <span className='text-sm'>
+              <span className='capitalize'>
+                {`${type === "tasks" ? "Tareas" : "Grabaciones"} `}
+              </span>
+              por página{" "}
+            </span>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -179,7 +187,9 @@ export default function DataTable<TData, TValue, DataType>({
                     type='number'
                     inputMode='numeric'
                     pattern='[0-9]*'
-                    placeholder={`Cantidad de ${type}...`}
+                    placeholder={`Cantidad de ${
+                      type === "tasks" ? "tareas" : "grabaciones"
+                    }...`}
                     className='w-full text-sm text-left border-0 focus-visible:ring-0'
                     value={inputValue}
                     onChange={event => {
@@ -364,10 +374,10 @@ export function TableActions<TData>({ table, type }: TableActionsProps<TData>) {
               let UUIDsACopiar: string[] = []
               let UUIDs: string = ""
               table.getSelectedRowModel().rows.map((r: any) => {
-                if (!!r.original.identifier) {
+                if (r.original?.identifier) {
                   UUIDsACopiar.push(r.original.identifier)
                 }
-                if (!!r.original.id) {
+                if (r.original?.id) {
                   UUIDsACopiar.push(r.original.IDLLAMADA)
                 }
               })
@@ -397,10 +407,10 @@ export function TableActions<TData>({ table, type }: TableActionsProps<TData>) {
               let archivosACopiar: string[] = []
               let fileNames: string = ""
               table.getSelectedRowModel().rows.map((r: any) => {
-                if (!!r.original.file_name) {
+                if (r.original?.file_name) {
                   archivosACopiar.push(r.original.file_name)
                 }
-                if (!!r.original.GRABACION) {
+                if (r.original?.GRABACION) {
                   archivosACopiar.push(r.original.GRABACION)
                 }
               })

@@ -6,12 +6,12 @@ import TitleH1 from "@/components/typography/titleH1"
 import ParagraphP from "@/components/typography/paragraphP"
 import SubtitleH2 from "@/components/typography/subtitleH2"
 
-export default async function TablaRecords() {
+export default async function TablaRecordings() {
   const grabaciones = new RecordingsAPI(_urlCanary, _recordsPath)
   let recordings
   try {
     recordings = await grabaciones.getRecords(true)
-  } catch (error) {
+  } catch (error: any) {
     return (
       <div className='flex flex-col space-y-10'>
         <TitleH1>¡Ha ocurrido un error cargando la lista de audios! 😯</TitleH1>
@@ -28,10 +28,10 @@ export default async function TablaRecords() {
           </SubtitleH2>
         ) : null}
         <code>
-          {"Message: " + error.message + "\n"}
+          {"Message: " + error.message}
           <br />
           <br />
-          {"Stack: " + error.stack + "\n"}
+          {"Stack: " + error.stack}
         </code>
       </div>
     )

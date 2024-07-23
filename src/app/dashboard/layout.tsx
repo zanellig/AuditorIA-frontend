@@ -1,6 +1,7 @@
 import NavigationButtons from "@/components/navigation"
 import { ScrollProvider } from "@/components/ScrollProvider"
-import { ReactNode } from "react"
+import React from "react"
+import type { ReactNode } from "react"
 
 export default function Layout({ children }: { children: ReactNode }) {
   return (

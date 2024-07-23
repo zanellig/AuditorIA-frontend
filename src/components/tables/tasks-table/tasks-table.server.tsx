@@ -6,12 +6,12 @@ import TitleH1 from "@/components/typography/titleH1"
 import ParagraphP from "@/components/typography/paragraphP"
 import SubtitleH2 from "@/components/typography/subtitleH2"
 
-export default async function TablaTareas() {
+export default async function TablaTasks() {
   const tasks = new TasksAPI(_urlBase, _tasksPath)
   let allTasks
   try {
     allTasks = await tasks.getTasks(true)
-  } catch (error) {
+  } catch (error: any) {
     return (
       <div className='flex flex-col space-y-10'>
         <TitleH1>¡Ha ocurrido un error cargando la lista de tareas! 😯</TitleH1>

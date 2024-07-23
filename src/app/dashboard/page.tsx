@@ -1,7 +1,6 @@
-import type { Tasks, Task } from "@/lib/types"
-import TablaTareas from "@/components/tables/tasks-table/tasks-table.server"
+import TablaTasks from "@/components/tables/tasks-table/tasks-table.server"
 import EnvioDeTareas from "@/components/envio-de-tareas"
-import TablaRecordsServer from "@/components/tables/records-table/records-table.server"
+import TablaRecordings from "@/components/tables/records-table/recordings-table.server"
 
 import { Suspense } from "react"
 import DashboardSkeleton from "@/components/skeletons/dashboard-skeleton"
@@ -16,22 +15,21 @@ export default function Dashboard() {
 
   return (
     <>
-      <div className='flex flex-col w-full h-full'>
+      <div className='flex flex-col w-full h-full p-2'>
+        <EnvioDeTareas className='mx-auto' />
         <TableContainer>
           <SubtitleH2>Tareas</SubtitleH2>
           <Suspense fallback={<DashboardSkeleton />}>
-            <TablaTareas />
+            <TablaTasks />
           </Suspense>
         </TableContainer>
-        <div className='flex flex-row w-full'>
-          <TableContainer>
-            <SubtitleH2>Grabaciones</SubtitleH2>
-            <Suspense fallback={<DashboardSkeleton />}>
-              <TablaRecordsServer />
-            </Suspense>
-          </TableContainer>
-          <EnvioDeTareas />
-        </div>
+
+        <TableContainer className='w-full'>
+          <SubtitleH2>Grabaciones</SubtitleH2>
+          <Suspense fallback={<DashboardSkeleton />}>
+            <TablaRecordings />
+          </Suspense>
+        </TableContainer>
       </div>
     </>
   )

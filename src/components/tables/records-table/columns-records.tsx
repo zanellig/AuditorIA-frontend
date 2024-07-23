@@ -1,39 +1,48 @@
 "use client"
-import { useOptimistic } from "react"
 import { ColumnDef } from "@tanstack/react-table"
-import type { Task, Recording, Status } from "@/lib/types"
+import type { Recording } from "@/lib/types"
 
 import {
   ArrowUpDown,
-  MoreHorizontal,
-  CircleCheck,
-  CircleDashed,
-  CircleAlert,
   ArrowDown,
   ArrowUp,
   BrainCircuitIcon,
-  NfcIcon,
   CaptionsIcon,
   InfoIcon,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-
-import DeleteButton from "@/components/delete-button"
-import Transcription from "@/components/unused.transcription"
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet"
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 import { GLOBAL_ICON_SIZE } from "@/lib/consts"
-import Link from "next/link"
 import { obtenerMesLocale } from "@/lib/utils"
-import { RecordingsAPI, TasksAPI, TranscriptionsAPI } from "@/lib/actions"
-import { _urlBase } from "@/lib/api/paths"
+import { RecordingsAPI, TranscriptionsAPI } from "@/lib/actions"
+import { _urlBase, _urlCanary } from "@/lib/api/paths"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import ParagraphP from "@/components/typography/paragraphP"
 
 // function renderMarker(status: Status) {
 //   switch (status) {
@@ -73,7 +82,7 @@ export const columns: ColumnDef<Recording | null>[] = [
       return <div>Detalles</div>
     },
     cell: ({ row }) => {
-      if (!!row.original) {
+      if (row.original) {
         row.original.IDLLAMADA = String(row.original.IDLLAMADA)
       }
       return (
@@ -164,7 +173,7 @@ export const columns: ColumnDef<Recording | null>[] = [
   },
   {
     accessorKey: "URL",
-    header: ({ column }) => {
+    header: () => {
       return <div className='text-center'>Acciones</div>
     },
     cell: ({ row }) => {
@@ -175,22 +184,120 @@ export const columns: ColumnDef<Recording | null>[] = [
 
       return (
         <div className='flex flex-row space-x-2  justify-center'>
-          <Button
-            id={`button-transcribe-${row.original?.URL}`}
-            variant='outline'
-            onClick={event => {
-              event.preventDefault()
-              // transcribeTaskAPI.createTask(row.original?.URL as string)
-            }}
-          >
-            <CaptionsIcon size={GLOBAL_ICON_SIZE + 4} strokeWidth={2} />
-          </Button>
-          <Button variant='outline'>
-            <BrainCircuitIcon size={GLOBAL_ICON_SIZE + 4} strokeWidth={2} />
-          </Button>
-          <Button variant='outline'>
-            <NfcIcon size={GLOBAL_ICON_SIZE + 4} strokeWidth={2} />
-          </Button>
+          <Sheet>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <SheetTrigger asChild>
+                    <Button
+                      id={`button-deploy-transcribe-${row.original?.URL}`}
+                      variant='outline'
+                    >
+                      <CaptionsIcon
+                        size={GLOBAL_ICON_SIZE + 4}
+                        strokeWidth={2}
+                      />
+                    </Button>
+                  </SheetTrigger>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <ParagraphP>Transcribir audio</ParagraphP>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            <SheetContent side={"left"} className='flex flex-col'>
+              <SheetHeader>
+                <SheetTitle>
+                  <div className='flex flex-row text-start items-center space-x-2'>
+                    <CaptionsIcon /> <span>Opciones de transcripción</span>
+                  </div>
+                </SheetTitle>
+                <SheetDescription>
+                  Si conoce estas opciones, puede seleccionar los parámetros que
+                  le parezcan convenientes. En caso de no saber lo que
+                  significan estas casillas, puede dejarlas vacías.
+                </SheetDescription>
+              </SheetHeader>
+              <Select>
+                <Label htmlFor='language'>Idioma</Label>
+                <SelectTrigger className='w-[250px]'>
+                  <SelectValue
+                    id='language'
+                    placeholder='Seleccione el idioma...'
+                  />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectItem value='es'>Español</SelectItem>
+                    <SelectItem value='en'>Inglés</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+              <Select>
+                <Label htmlFor='task-type'>Tipo de tarea</Label>
+                <SelectTrigger className='w-[250px]'>
+                  <SelectValue
+                    id='task-type'
+                    placeholder='Seleccione el tipo de tarea...'
+                  />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectItem value='transcribe'>Transcribir</SelectItem>
+                    <SelectItem value='align'>Alinear transcripción</SelectItem>
+                    <SelectItem value='diarize'>Separar canales</SelectItem>
+                    <SelectItem value='combine'>
+                      Separar canales y transcribir
+                    </SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+              <Select>
+                <Label htmlFor='model'>Modelo</Label>
+                <SelectTrigger className='w-[250px]'>
+                  <SelectValue
+                    id='model'
+                    placeholder='Seleccione el modelo de IA...'
+                  />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectItem value='large-v3'>
+                      <span className='font-bold'>Large V3 </span>
+                      <span className='font-thin'> (recomendado)</span>
+                    </SelectItem>
+                    <SelectItem value='tiny'>Tiny</SelectItem>
+                    <SelectItem value='tiny.en'>Tiny EN</SelectItem>
+                    <SelectItem value='base'>Base</SelectItem>
+                    <SelectItem value='base.en'>Base EN</SelectItem>
+                    <SelectItem value='small'>Small</SelectItem>
+                    <SelectItem value='small.en'>Small EN</SelectItem>
+                    <SelectItem value='medium'>Medium</SelectItem>
+                    <SelectItem value='medium.en'>Medium EN</SelectItem>
+                    <SelectItem value='large'>Large</SelectItem>
+                    <SelectItem value='large-v1'>Large V1</SelectItem>
+                    <SelectItem value='large-v2'>Large V2</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+              <Button>Iniciar tarea</Button>
+            </SheetContent>
+          </Sheet>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant='outline'>
+                  <BrainCircuitIcon
+                    size={GLOBAL_ICON_SIZE + 4}
+                    strokeWidth={2}
+                  />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <ParagraphP>Analizar sentimiento</ParagraphP>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
       )
     },

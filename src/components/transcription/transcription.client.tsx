@@ -137,7 +137,7 @@ export function ChatBox({
   analysis: Segment["analysis"]
 }) {
   let sentiment
-  if (!!analysis?.sentiment) {
+  if (analysis?.sentiment) {
     sentiment = analysis.sentiment
   }
   switch (speaker) {

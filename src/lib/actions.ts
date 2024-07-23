@@ -6,13 +6,8 @@ import type {
   Recording,
   Recordings,
 } from "@/lib/types"
-import {
-  _urlBase,
-  _urlCanary,
-  _recordsPath,
-  _tasksPath,
-  _transcriptPath,
-} from "@/lib/api/paths"
+
+import { _urlBase, _urlCanary } from "@/lib/api/paths"
 
 class FetchAPIConfig {
   public static ACCEPTED_ORIGINS = [_urlBase, _urlCanary]
@@ -50,11 +45,11 @@ class GenericAPI {
     body?: any,
     options?: { revalidate?: boolean }
   ): Promise<T> {
-    const fetchOptions: RequestInit = {
+    const fetchOptions: any = {
       headers,
       method,
     }
-    if (!!body) {
+    if (body) {
       fetchOptions.body = JSON.stringify(body)
     }
     if (options?.revalidate) {
@@ -156,7 +151,7 @@ class TasksAPI extends GenericAPI {
 
   public async createTask(
     nasUrl?: string,
-    file?: BinaryData,
+    file?: string,
     revalidate?: boolean
   ): Promise<Task> {
     const headers = HeadersUtil.getHeaders(this.baseUrl)
@@ -201,7 +196,6 @@ class TasksAPI extends GenericAPI {
     ids: Task["identifier"][],
     revalidate?: boolean
   ): Promise<boolean[]> {
-    const headers = HeadersUtil.getHeaders(this.baseUrl)
     const deletePromises = ids.map(id => this.deleteTask(id, revalidate))
     return Promise.all(deletePromises)
   }
@@ -279,7 +273,6 @@ class RecordingsAPI extends GenericAPI {
     ids: string[],
     revalidate?: boolean
   ): Promise<boolean[]> {
-    const headers = HeadersUtil.getHeaders(this.baseUrl)
     const deletePromises = ids.map(id => this.deleteRecord(id, revalidate))
     return Promise.all(deletePromises)
   }
@@ -301,75 +294,15 @@ class TranscriptionsAPI extends GenericAPI {
       : `${this.baseUrl}${this.path}`
   }
 
-  public async getTranscriptions(
-    revalidate?: boolean
-  ): Promise<TranscriptionType[]> {
-    const headers = HeadersUtil.getHeaders(this.baseUrl)
-    const url = this.constructUrl()
-    return this.get<TranscriptionType[]>(url, headers, { revalidate })
-  }
-
-  public async getTranscription(
-    id: Task["identifier"],
-    revalidate?: boolean
-  ): Promise<TranscriptionType> {
-    const headers = HeadersUtil.getHeaders(this.baseUrl)
-    const url = this.constructUrl(id)
-    return this.get<TranscriptionType>(url, headers, { revalidate })
-  }
-
   public async createTranscription(
-    transcription: TranscriptionType,
+    body?: Record<string, string>,
     revalidate?: boolean
   ): Promise<TranscriptionType> {
     const headers = HeadersUtil.getHeaders(this.baseUrl)
     const url = this.constructUrl()
-    return this.post<TranscriptionType>(url, headers, transcription, {
+    return this.post(url, headers, body, {
       revalidate,
     })
-  }
-
-  public async updateTranscription(
-    id: Task["identifier"],
-    transcription: Partial<TranscriptionType>,
-    revalidate?: boolean
-  ): Promise<TranscriptionType> {
-    const headers = HeadersUtil.getHeaders(this.baseUrl)
-    const url = this.constructUrl(id)
-    return this.put<TranscriptionType>(url, headers, transcription, {
-      revalidate,
-    })
-  }
-
-  public async patchTranscription(
-    id: Task["identifier"],
-    transcription: Partial<TranscriptionType>,
-    revalidate?: boolean
-  ): Promise<TranscriptionType> {
-    const headers = HeadersUtil.getHeaders(this.baseUrl)
-    const url = this.constructUrl(id)
-    return this.patch<TranscriptionType>(url, headers, transcription, {
-      revalidate,
-    })
-  }
-
-  public async deleteTranscription(
-    id: Task["identifier"],
-    revalidate?: boolean
-  ): Promise<boolean> {
-    const headers = HeadersUtil.getHeaders(this.baseUrl)
-    const url = this.constructUrl(id)
-    return this.delete<boolean>(url, headers, { revalidate })
-  }
-
-  public async deleteTranscriptions(
-    ids: Task["identifier"][],
-    revalidate?: boolean
-  ): Promise<boolean[]> {
-    const deletePromises = ids.map(id =>
-      this.deleteTranscription(id, revalidate)
-    )
-    return Promise.all(deletePromises)
   }
 }
 

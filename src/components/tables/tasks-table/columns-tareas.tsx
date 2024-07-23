@@ -169,12 +169,12 @@ export const columns: ColumnDef<Task | null>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align='end'>
             <DropdownMenuItem className='font-bold'>
-              <Link
+              <a
                 href={`/dashboard/transcription/${tarea?.identifier}`}
                 className='w-full h-full cursor-default'
               >
                 Ir a la transcripción
-              </Link>
+              </a>
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() =>
