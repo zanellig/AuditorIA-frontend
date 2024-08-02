@@ -1,9 +1,5 @@
 "use client"
 
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
-
 import { Button } from "@/components/ui/button"
 import {
   Form,
@@ -16,6 +12,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { toast } from "@/components/ui/use-toast"
+import { ToastAction } from "@/components/ui/toast"
 import {
   Card,
   CardContent,
@@ -24,45 +21,53 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
-import SubtitleH2 from "./typography/subtitleH2"
-import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons"
+import SubtitleH2 from "@/components/typography/subtitleH2"
+import { ChevronRightIcon } from "@radix-ui/react-icons"
 import { useState } from "react"
 
-const FormSchema = z.object({
-  username: z.string().min(2, {
-    message: "Username must be at least 2 characters.",
-  }),
-})
-
 export default function EnvioDeTareas({ className }: { className?: string }) {
-  const [isDeployed, changeDeployed] = useState(true)
+  const [isDeployed, changeDeployed] = useState(false)
+  const TRANSITION_DURATION = "duration-300"
 
   return (
     <div
       className={cn(
-        "bg-popover z-50 self-center top-1/2 -translate-y-1/2 fixed flex flex-row rounded-md py-8 transition-all duration-500",
+        "bg-popover border z-50 self-center top-1/2 -translate-y-1/2 fixed flex flex-row rounded-md py-8 transition-all",
+        TRANSITION_DURATION,
         className,
-        isDeployed ? "right-2" : "-right-[350px]"
+        isDeployed ? "right-2" : "-right-[370px]"
       )}
     >
       <DeployCardButton
         isDeployed={isDeployed}
         changeDeployed={changeDeployed}
       />
+
       <div
         className={cn(
-          "duration-500",
+          TRANSITION_DURATION,
           isDeployed ? "opacity-100" : "opacity-50"
         )}
       >
         <SubtitleH2>Subir archivos</SubtitleH2>
-        <Card className='w-[350px] h-[600px]'>
-          <CardHeader>
-            <CardTitle>Title</CardTitle>
-            <CardDescription>Description</CardDescription>
-          </CardHeader>
-          <CardContent>Content</CardContent>
-        </Card>
+        {/* Esto tiene que ser un form */}
+        <div className='pt-2 w-[350px] h-[600px]'>
+          <Button
+            onClick={() => {
+              toast({
+                title: "Se envió la tarea",
+                description: "UUID-LOOKS-LIKE-THIS",
+                action: (
+                  <ToastAction altText='Copia el ID de la tarea enviada'>
+                    Copiar ID
+                  </ToastAction>
+                ),
+              })
+            }}
+          >
+            Click me
+          </Button>
+        </div>
       </div>
     </div>
   )
@@ -80,7 +85,12 @@ export function DeployCardButton({
   return (
     <Button
       variant='ghost'
-      className={cn("rounded-xl mr-2 self-center", className)}
+      className={cn(
+        "hover:bg-background rounded-xl self-center transition-all py-16 px-2 mr-4 w-fit",
+        className,
+        "duration-500",
+        isDeployed ? "opacity-100" : "opacity-50"
+      )}
       onClick={e => {
         e.preventDefault()
         changeDeployed(!isDeployed)

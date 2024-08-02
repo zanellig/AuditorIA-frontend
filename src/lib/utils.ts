@@ -22,3 +22,35 @@ export function obtenerMesLocale(mes: number): string {
   ]
   return meses[mes]
 }
+
+export function secondsToHMS(seconds: number) {
+  const hours = Math.floor(seconds / 3600)
+  const minutes = Math.floor((seconds % 3600) / 60)
+  const remainingSeconds = seconds % 60
+  return { hours, minutes, seconds: remainingSeconds }
+}
+
+export function formatTimestamp(
+  {
+    hours,
+    minutes,
+    seconds,
+  }: {
+    hours: number
+    minutes: number
+    seconds: number
+  },
+  concat: boolean
+) {
+  let formattedTime = ""
+  if (hours > 0) {
+    formattedTime += `${hours}h `
+  }
+  if (minutes > 0) {
+    formattedTime += `${minutes}m `
+  }
+  if (Number(seconds.toFixed(0)) > 0) {
+    formattedTime += `${concat ? seconds.toFixed(0) : seconds.toFixed(2)}s`
+  }
+  return formattedTime.trim()
+}

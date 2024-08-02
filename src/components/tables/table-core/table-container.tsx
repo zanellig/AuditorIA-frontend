@@ -10,7 +10,7 @@ export default function TableContainer({
   return (
     <div
       className={cn(
-        "container m-0 flex flex-col w-full h-full px-2 pt-4 max-w-[1440px]",
+        "container m-0 flex flex-col w-full h-full px-2 pt-4 max-w-[1770px]",
         className
       )}
     >

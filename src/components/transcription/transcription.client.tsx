@@ -1,11 +1,39 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { Segment, SentimentType, TranscriptionType, Task } from "@/lib/types"
+import Link from "next/link"
+import {
+  Segment,
+  SentimentType,
+  TranscriptionType,
+  Task,
+  Status,
+} from "@/lib/types"
+
 import { Button } from "@/components/ui/button"
-import { MessageCircleQuestion } from "lucide-react"
+import {
+  Drawer,
+  DrawerTrigger,
+  DrawerContent,
+  DrawerClose,
+  DrawerHeader,
+  DrawerFooter,
+  DrawerTitle,
+} from "@/components/ui/drawer"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+import { useToast } from "@/components/ui/use-toast"
+
+import { ChevronLeft, ClipboardIcon, MessageCircleQuestion } from "lucide-react"
+
 import { GLOBAL_ICON_SIZE } from "@/lib/consts"
-import { useSearchParams } from "next/navigation"
+import { cn, secondsToHMS, formatTimestamp } from "@/lib/utils"
+
+import TitleH1 from "@/components/typography/titleH1"
+import SubtitleH2 from "@/components/typography/subtitleH2"
 
 interface TranscriptionClientProps {
   transcription: TranscriptionType
@@ -29,15 +57,7 @@ const TranscriptionClient = ({
   transcription,
   taskId,
 }: TranscriptionClientProps) => {
-  const [UUID, setUUID] = useState<Task["identifier"]>(taskId)
-  const searchParams = useSearchParams()
-
-  useEffect(() => {
-    const search = searchParams.get("search")
-    if (search) {
-      setUUID(search)
-    }
-  }, [searchParams])
+  const { toast } = useToast()
 
   function renderAnalysisWithSegment(
     segment: Segment,
@@ -52,40 +72,90 @@ const TranscriptionClient = ({
 
   return (
     <>
-      <div className='container mt-10'>
-        <div className='flex flex-col space-y-2 w-full'>
-          <div className='text-lg'>
-            Transcripción de llamado ID{" "}
-            <span className='font-bold'>{UUID}</span>{" "}
-          </div>
+      {transcription.status === "failed" ||
+      transcription.status === "pending" ||
+      transcription.status === "processing" ? (
+        <TranscriptionNotReady status={transcription.status} />
+      ) : null}
 
-          {transcription?.result?.segments.map(
-            (segment: Segment, i: number) => {
-              let speaker = segment.speaker
-
-              return (
-                <div
-                  key={`${speaker}-segment-${i}`}
-                  className={
-                    speaker === "SPEAKER_01" ? "self-end" : "self-start"
-                  }
+      <div className={cn("flex flex-col space-y-2 py-10 pl-4 pr-16")}>
+        <div className='flex flex-row items-center space-x-4 self-center'>
+          <SubtitleH2>
+            Transcripción de llamado con ID
+            <span className='font-bold'> {taskId}</span>
+          </SubtitleH2>
+          <Tooltip>
+            <TooltipProvider>
+              <TooltipTrigger asChild>
+                <Button
+                  variant='outline'
+                  onClick={() => {
+                    toast({ title: "Se copió el ID", description: taskId })
+                    navigator.clipboard.writeText(taskId)
+                  }}
                 >
-                  {renderAnalysisWithSegment(segment, speaker)}
-                </div>
-              )
-            }
-          )}
+                  <ClipboardIcon size={GLOBAL_ICON_SIZE} />
+                </Button>
+              </TooltipTrigger>
+            </TooltipProvider>
+            <TooltipContent>Copiar ID</TooltipContent>
+          </Tooltip>
         </div>
-        <div id='DEBUG-INFO-FOR-DEV-ONLY' className='container'>
-          <code>{JSON.stringify(transcription)}</code>
-        </div>
+
+        {transcription?.result?.segments.map((segment: Segment, i: number) => {
+          let speaker = segment.speaker
+          if (speaker) {
+            return (
+              <div
+                key={`${speaker}-segment-${i}`}
+                className={speaker === "SPEAKER_01" ? "self-end" : "self-start"}
+              >
+                {renderAnalysisWithSegment(segment, speaker)}
+              </div>
+            )
+          }
+          return null
+        })}
       </div>
+      {/* <div id='DEBUG-INFO-FOR-DEV-ONLY' className='container'>
+        <code>{JSON.stringify(transcription)}</code>
+      </div> */}
     </>
   )
 }
 
-// TODO: <DONE!> implement unique keys with index
-
+export function TranscriptionNotReady({ status }: { status: Status }) {
+  console.log(status)
+  if (status === "failed" || "pending" || "processing") {
+    return (
+      <Drawer open={true}>
+        <DrawerTrigger />
+        <DrawerContent className='focus:border focus:outline-none'>
+          <DrawerHeader>
+            <DrawerTitle className='mx-auto'>
+              <TitleH1>
+                Esta tarea{" "}
+                {status === "failed"
+                  ? "falló"
+                  : "no está lista para ser visualizada"}
+                .
+              </TitleH1>
+            </DrawerTitle>
+          </DrawerHeader>
+          <DrawerFooter>
+            <DrawerClose asChild>
+              <Link href={"/dashboard"}>
+                <Button variant='outline' className='w-full'>
+                  <ChevronLeft /> Volver al dashboard
+                </Button>
+              </Link>
+            </DrawerClose>
+          </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
+    )
+  }
+}
 /**
  * joy -> 😀
  * fear -> 😱
@@ -97,7 +167,7 @@ const TranscriptionClient = ({
  */
 
 /**
- *  TODO: Esto es horrible y hay que cambiarlo
+ *  FIXME: Esto es horrible y hay que cambiarlo
  */
 export function renderBoxesBySpeaker(
   segment: Segment,
@@ -185,7 +255,6 @@ export function TextBox({
   )
 }
 
-// converted to component
 export function Timestamp({
   start,
   end,
@@ -195,7 +264,10 @@ export function Timestamp({
 }) {
   const startTime = secondsToHMS(start)
   const endTime = secondsToHMS(end)
-  return `( ${formatTimestamp(startTime)} - ${formatTimestamp(endTime)} )`
+  return `( ${formatTimestamp(startTime, false)} - ${formatTimestamp(
+    endTime,
+    false
+  )} )`
 }
 
 export function SentimentMarker({ sentiment }: { sentiment: SentimentType }) {
@@ -269,33 +341,6 @@ export function getEmojiForEmotion(emotion: Segment["analysis"]["emotion"]) {
   }
 
   return emoji
-}
-
-export function secondsToHMS(seconds: number) {
-  const hours = Math.floor(seconds / 3600)
-  const minutes = Math.floor((seconds % 3600) / 60)
-  const remainingSeconds = seconds % 60
-  return { hours, minutes, seconds: remainingSeconds }
-}
-
-export function formatTimestamp({
-  hours,
-  minutes,
-  seconds,
-}: {
-  hours: number
-  minutes: number
-  seconds: number
-}) {
-  let formattedTime = ""
-  if (hours > 0) {
-    formattedTime += `${hours}h `
-  }
-  if (minutes > 0) {
-    formattedTime += `${minutes}m `
-  }
-  formattedTime += `${seconds.toFixed(2)}s`
-  return formattedTime.trim()
 }
 
 export default TranscriptionClient

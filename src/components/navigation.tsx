@@ -64,7 +64,7 @@ export default function NavigationButtons({
         {!isDashboard ? (
           <Link href='/dashboard'>
             <Button variant='outline' className='p-2 bg-popover'>
-              <ChevronLeft size={NAVIGATION_ICON_SIZE} /> Volver al dashboard
+              <ChevronLeft size={NAVIGATION_ICON_SIZE} />
             </Button>
           </Link>
         ) : null}

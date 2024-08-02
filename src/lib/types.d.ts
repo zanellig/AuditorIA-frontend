@@ -1,11 +1,17 @@
 export type Tasks = Task[]
 export type Task = {
-  identifier: IDNeomirror
+  identifier: TaskUUID
   status: Status
   task_type: string
   file_name: Filename
   language: Language
+  audio_duration: number
   created_at: Fecha
+}
+
+export type TaskPOSTResponse = {
+  identifier: TaskUUID
+  status: Status
 }
 
 export type Recording = {
@@ -24,13 +30,22 @@ export type Recording = {
 }
 export type Recordings = Recording[]
 
-type Status = "completed" | "processing" | "failed" | "Analyzed" | "analyzed"
+export enum Status {
+  Completed = "completed",
+  Processing = "processing",
+  Failed = "failed",
+  CAPSAnalyzed = "Analyzed",
+  Analyzed = "analyzed",
+  Pending = "pending",
+}
 type Language = "en" | "es"
-type IDNeomirror = string
-type Fecha = string
+type TaskUUID = string
+type Fecha = Date
 type Filename = string
 
-// IMPORTANT
+/**
+ * No utilizado
+ */
 export type GenericRequest = {
   task_type: string
   language: string
@@ -43,6 +58,20 @@ export type GenericRequest = {
   analyze_sentiment: boolean // false
 }
 
+export enum Method {
+  Get = "GET",
+  Post = "POST",
+  Put = "PUT",
+  Patch = "PATCH",
+  Delete = "DELETE",
+}
+export interface FetchOptions {
+  headers: Record<string, string>
+  method: Methods
+  body?: string
+  next?: NextFetchRequestConfig
+}
+
 export type SentimentType = "NEG" | "NEU" | "POS"
 
 export type Segment = {
@@ -50,7 +79,7 @@ export type Segment = {
   text: string
   start: number
   speaker: string
-  analysis: SegmentAnalysisProperties
+  analysis?: SegmentAnalysisProperties
 }
 
 export type TranscriptionType = {
@@ -127,4 +156,9 @@ export type HateSpeechProbas = {
   hateful: number
   targeted: number
   aggressive: number
+}
+
+export type PaginationModel = {
+  pageIndex: number
+  pageSize: number
 }

@@ -11,6 +11,7 @@ import {
   CircleAlert,
   ArrowDown,
   ArrowUp,
+  BrainCircuitIcon,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -18,16 +19,27 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
+  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { useToast } from "@/components/ui/use-toast"
 
 import DeleteButton from "@/components/delete-button"
 
-import type { Status } from "@/lib/types"
+import type { Recording, Status } from "@/lib/types"
 
 import { GLOBAL_ICON_SIZE } from "@/lib/consts"
+import { obtenerMesLocale } from "@/lib/utils"
+
+import { secondsToHMS, formatTimestamp } from "@/lib/utils"
 import Link from "next/link"
-import { obtenerMesLocale } from "../../../lib/utils"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+import ParagraphP from "@/components/typography/paragraphP"
+import ButtonBorderMagic from "@/components/ui/button-border-magic"
 
 function renderMarker(status: Status) {
   switch (status) {
@@ -60,6 +72,7 @@ export const columns: ColumnDef<Task | null>[] = [
   /**
    * TODO: add a ID column with a Badge component showing the type of task
    * TODO: Función para seleccionar UUID con un toggle, y seleccionar masivamente. Si no está seleccionado e igual se toca ELIMINAR, mandar a eliminar el UUID
+   * TODO: agregar data del promedio análisis si existe y estilar condicionalmente por threshold : osea si el task_type es el que corresponde al análisis, renderizar un row{} con los datos
    */
   {
     accessorKey: "identifier",
@@ -145,9 +158,23 @@ export const columns: ColumnDef<Task | null>[] = [
     },
   },
   {
+    accessorKey: "audio_duration",
+    header: ({ column }) => {
+      return <div>Duración</div>
+    },
+    cell: ({ row }) => {
+      const timestamp = secondsToHMS(
+        row.original?.audio_duration as Task["audio_duration"]
+      )
+      const formattedTS = formatTimestamp(timestamp, true)
+      return <div>{formattedTS}</div>
+    },
+  },
+  {
     id: "actions",
     cell: ({ row }) => {
       const tarea = row.original
+      const { toast } = useToast()
 
       // {
       //   "identifier": "9b5113b1-47f4-4850-a978-3df81dc95489",
@@ -160,58 +187,80 @@ export const columns: ColumnDef<Task | null>[] = [
       // }
 
       return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant='ghost' className='h-8 w-8 p-0 '>
-              <span className='sr-only'>Abrir menu</span>
-              <MoreHorizontal size={GLOBAL_ICON_SIZE} />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align='end'>
-            <DropdownMenuItem className='font-bold'>
-              <a
-                href={`/dashboard/transcription/${tarea?.identifier}`}
-                className='w-full h-full cursor-default'
+        <div className='flex flex-row justify-end space-x-2'>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant='ghost' className='h-8 w-8 p-0 '>
+                <span className='sr-only'>Abrir menu</span>
+                <MoreHorizontal size={GLOBAL_ICON_SIZE} />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align='end'>
+              <DropdownMenuItem className='p-0'>
+                <ButtonBorderMagic className='w-full h-full text-start'>
+                  Analizar
+                </ButtonBorderMagic>
+              </DropdownMenuItem>
+
+              <DropdownMenuSeparator />
+
+              <DropdownMenuItem className='font-bold'>
+                <Link
+                  href={`dashboard/transcription/${tarea?.identifier}`}
+                  className='w-full h-full cursor-default'
+                >
+                  Ir a la transcripción
+                </Link>
+              </DropdownMenuItem>
+
+              <DropdownMenuItem
+                onClick={() => {
+                  navigator.clipboard.writeText(
+                    tarea?.identifier as Task["identifier"]
+                  )
+                  toast({
+                    title: "ID copiado",
+                    description: tarea?.identifier,
+                  })
+                }}
               >
-                Ir a la transcripción
-              </a>
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() =>
-                navigator.clipboard.writeText(
-                  tarea?.identifier as Task["identifier"]
-                )
-              }
-            >
-              Copiar ID
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() =>
-                navigator.clipboard.writeText(
-                  tarea?.file_name as Task["identifier"]
-                )
-              }
-            >
-              Copiar nombre del archivo
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={e => {
-                e.preventDefault()
-                const event = new MouseEvent("click", {
-                  bubbles: true,
-                  cancelable: true,
-                  view: window,
-                })
-                document
-                  .getElementById(`delete-button-${tarea?.identifier}`)
-                  ?.dispatchEvent(event)
-              }}
-            >
-              <DeleteButton identifier={tarea?.identifier} />
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+                Copiar ID
+              </DropdownMenuItem>
+
+              <DropdownMenuItem
+                onClick={() => {
+                  navigator.clipboard.writeText(
+                    tarea?.file_name as Task["identifier"]
+                  )
+                  toast({
+                    title: "Nombre de archivo copiado",
+                    description: tarea?.file_name,
+                  })
+                }}
+              >
+                Copiar nombre del archivo
+              </DropdownMenuItem>
+
+              <DropdownMenuSeparator />
+
+              <DropdownMenuItem
+                onClick={e => {
+                  e.preventDefault()
+                  const event = new MouseEvent("click", {
+                    bubbles: true,
+                    cancelable: true,
+                    view: window,
+                  })
+                  document
+                    .getElementById(`delete-button-${tarea?.identifier}`)
+                    ?.dispatchEvent(event)
+                }}
+              >
+                <DeleteButton identifier={tarea?.identifier} />
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       )
     },
   },
