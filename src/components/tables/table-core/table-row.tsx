@@ -27,7 +27,7 @@ export default function TableRows<TData>({
           <TableRow
             key={`row-${row.id}`}
             data-state={row.getIsSelected() && "selected"}
-            className='hover:bg-secondary p-2'
+            className='p-2'
           >
             <TableCell>
               <Checkbox

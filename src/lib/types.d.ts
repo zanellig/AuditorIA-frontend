@@ -11,7 +11,7 @@ export type Task = {
 
 export type TaskPOSTResponse = {
   identifier: TaskUUID
-  status: Status
+  message: string
 }
 
 export type Recording = {
@@ -38,6 +38,7 @@ export enum Status {
   Analyzed = "analyzed",
   Pending = "pending",
 }
+
 type Language = "en" | "es"
 type TaskUUID = string
 type Fecha = Date

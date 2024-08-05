@@ -20,6 +20,7 @@ import DeleteButton from "@/components/delete-button"
 import SearchInput from "@/components/tables/table-core/search-input"
 
 import { useToast } from "@/components/ui/use-toast"
+import SeleccionadorEstadoUsuario from "@/components/tables/table-core/seleccionador-estado-usuario"
 
 interface TableActionsProps<TData> {
   table: ReactTableInstance<TData>
@@ -35,7 +36,7 @@ export default function TableActions<TData>({
   return (
     <div className='flex pb-2 items-center w-full justify-between'>
       <SearchInput table={table} type={type} />
-      <DropdownMenu>
+      {/* <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
             variant='outline'
@@ -48,7 +49,9 @@ export default function TableActions<TData>({
         <DropdownMenuContent>
           <DropdownMenuItem>WIP</DropdownMenuItem>
         </DropdownMenuContent>
-      </DropdownMenu>
+      </DropdownMenu> */}
+
+      <SeleccionadorEstadoUsuario table={table} type={type} />
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>

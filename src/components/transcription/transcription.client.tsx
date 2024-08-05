@@ -77,6 +77,7 @@ const TranscriptionClient = ({
       transcription.status === "processing" ? (
         <TranscriptionNotReady status={transcription.status} />
       ) : null}
+      <TranscriptionNotReady status={transcription.status} />
 
       <div className={cn("flex flex-col space-y-2 py-10 pl-4 pr-16")}>
         <div className='flex flex-row items-center space-x-4 self-center'>

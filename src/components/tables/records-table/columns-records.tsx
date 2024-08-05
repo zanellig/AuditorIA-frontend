@@ -26,6 +26,7 @@ import { Label } from "@/components/ui/label"
 import ParagraphP from "@/components/typography/paragraphP"
 import TranscriptionButton from "@/components/tables/records-table/transcription-button.server"
 import Link from "next/link"
+import { Badge } from "@/components/ui/badge"
 
 // function renderMarker(status: Status) {
 //   switch (status) {
@@ -62,7 +63,7 @@ export const columns: ColumnDef<Recording | null>[] = [
   {
     accessorKey: "IDLLAMADA",
     header: () => {
-      return <div>Detalles</div>
+      return <div>Ticket</div>
     },
     cell: ({ row }) => {
       if (row.original) {
@@ -71,15 +72,18 @@ export const columns: ColumnDef<Recording | null>[] = [
       return (
         <div
           key={`check-${row.original?.IDLLAMADA}`}
-          className='flex flex-row items-center justify-start w-fit'
+          className='flex flex-row items-center justify-start w-fit space-x-2'
         >
+          <Badge className='capitalize' variant={"outline"}>
+            {row.original?.DIRECCION.toLocaleLowerCase()}
+          </Badge>
+          {/* <InfoIcon
+            className='ml-2 mr-0 inline-block'
+            size={GLOBAL_ICON_SIZE}
+          /> */}
           <div className='w-20'>
             {row.original?.IDLLAMADA as Recording["IDLLAMADA"]}
           </div>
-          <InfoIcon
-            className='ml-2 mr-0 inline-block'
-            size={GLOBAL_ICON_SIZE}
-          />
         </div>
       )
     },
@@ -114,6 +118,17 @@ export const columns: ColumnDef<Recording | null>[] = [
       )
     },
   },
+  // {
+  //   accessorKey: "DIRECCION",
+  //   header: () => <div>Dirección</div>,
+  //   cell: ({ row }) => {
+  //     return (
+  //       <div className='capitalize'>
+  //         {row.original?.DIRECCION.toLocaleLowerCase()}
+  //       </div>
+  //     )
+  //   },
+  // },
   {
     accessorKey: "INICIO",
     header: () => <div>Fecha</div>,

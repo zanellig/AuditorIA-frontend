@@ -9,7 +9,7 @@ import SubtitleH2 from "@/components/typography/subtitleH2"
 export default async function TablaTasks() {
   let allTasks
   try {
-    allTasks = await getTasks(_urlBase, "/task/all", true)
+    allTasks = await getTasks(_urlBase, _tasksPath, true)
   } catch (error: any) {
     return (
       <div className='flex flex-col space-y-10'>

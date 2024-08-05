@@ -42,7 +42,8 @@ const config = {
         },
         success: {
           DEFAULT: "var(--success)",
-          foregroung: "var(--success-foreground)",
+          foreground: "var(--success-foreground)",
+          secondary: "var(--success-secondary)",
         },
         muted: {
           DEFAULT: "var(--muted)",

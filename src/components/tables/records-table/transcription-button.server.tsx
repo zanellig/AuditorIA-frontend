@@ -48,12 +48,30 @@ import { createTask } from "@/lib/actions"
 import { _transcriptPath, _urlBase } from "@/lib/api/paths"
 import { useToast } from "@/components/ui/use-toast"
 
-export async function POSTTask(url: string) {
-  const response = await createTask(_urlBase, "/speech-to-text", url)
+export async function POSTTask(
+  url: string,
+  fileName: Recording["GRABACION"],
+  params: any
+) {
+  const response = await createTask(
+    _urlBase,
+    "/speech-to-text",
+    url,
+    {
+      language: "es",
+      task_type: "transcribe",
+      model: "large-v3",
+    },
+    null,
+    false,
+    fileName
+  )
   return response
 }
 
 export default function TranscriptionButton({ row }: { row: Row<Recording> }) {
+  const { toast } = useToast()
+
   const formSchema = z.object({
     language: z.enum(["es", "en"], {
       required_error: "Por favor seleccione un idioma.",
@@ -110,7 +128,7 @@ export default function TranscriptionButton({ row }: { row: Row<Recording> }) {
       // })
       // console.log(response)
 
-      const res = await POSTTask(row.original.URL)
+      const res = await POSTTask(row.original.URL, row.original.GRABACION)
 
       toast({
         variant: "default",
@@ -134,8 +152,6 @@ export default function TranscriptionButton({ row }: { row: Row<Recording> }) {
       title: "Por favor revise los campos ingresados.",
     })
   }
-
-  const { toast } = useToast()
 
   const handleCloseClick = (e: SyntheticEvent) => {
     if (isSubmitting) {

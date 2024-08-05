@@ -9,6 +9,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import { deleteTask, deleteTasks } from "@/lib/actions"
+import { _transcriptPath, _urlBase } from "@/lib/api/paths"
 import { Task } from "@/lib/types"
 import { cn } from "@/lib/utils"
 
@@ -64,9 +66,11 @@ export default function DeleteButton({
               className='font-bold bg-destructive text-primary hover:text-destructive hover:outline-1 hover:-outline-offset-1 hover:outline hover:outline-destructive  hover:bg-transparent'
               onClick={() => {
                 if (ids) {
-                  console.log(ids)
+                  console.info(ids)
+                  deleteTasks(_urlBase, _transcriptPath, ids, true)
                 } else if (identifier) {
-                  console.log(identifier)
+                  console.info(identifier)
+                  deleteTask(_urlBase, _transcriptPath, identifier, true)
                 }
               }}
             >

@@ -26,6 +26,8 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
 
+import { actionRevalidatePath } from "@/lib/actions"
+
 export default function Pagination<TData>({
   table,
   type,
@@ -121,7 +123,10 @@ export default function Pagination<TData>({
       <Button
         variant='outline'
         size='sm'
-        onClick={() => table.firstPage()}
+        onClick={() => {
+          table.firstPage()
+          actionRevalidatePath("/dashboard")
+        }}
         disabled={!table.getCanPreviousPage()}
       >
         <DoubleArrowLeftIcon />
@@ -129,7 +134,10 @@ export default function Pagination<TData>({
       <Button
         variant='outline'
         size='sm'
-        onClick={() => table.previousPage()}
+        onClick={() => {
+          table.previousPage()
+          actionRevalidatePath("/dashboard")
+        }}
         disabled={!table.getCanPreviousPage()}
       >
         <ChevronLeftIcon />
@@ -145,7 +153,10 @@ export default function Pagination<TData>({
       <Button
         variant='outline'
         size='sm'
-        onClick={() => table.nextPage()}
+        onClick={() => {
+          table.nextPage()
+          actionRevalidatePath("/dashboard")
+        }}
         disabled={!table.getCanNextPage()}
       >
         <ChevronRightIcon />
@@ -153,7 +164,10 @@ export default function Pagination<TData>({
       <Button
         variant='outline'
         size='sm'
-        onClick={() => table.lastPage()}
+        onClick={() => {
+          table.lastPage()
+          actionRevalidatePath("/dashboard")
+        }}
         disabled={!table.getCanNextPage()}
       >
         <DoubleArrowRightIcon />
