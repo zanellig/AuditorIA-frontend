@@ -1,5 +1,5 @@
 "use client"
-import ErrorScreen from "@/components/error-handlers/error-screen"
+import ErrorScreen from "@/components/error/error-screen"
 
 export default function Error({
   error,

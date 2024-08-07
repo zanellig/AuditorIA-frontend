@@ -23,15 +23,20 @@ import {
 import { CirclePlus } from "lucide-react"
 import { GLOBAL_ICON_SIZE } from "@/lib/consts"
 import { Recording, Task, Status } from "@/lib/types"
+import { cn } from "@/lib/utils"
 
 interface SeleccionadorProps<TData> {
   table: ReactTableInstance<TData>
   type?: string
+  className?: string
+  operadores: Array<number | Status>
 }
 
 export default function SeleccionadorEstadoUsuario<TData>({
   table,
   type,
+  className,
+  operadores,
 }: SeleccionadorProps<TData>) {
   const [open, setOpen] = React.useState(false)
   const isDesktop = useMediaQuery("(min-width: 768px)")
@@ -45,7 +50,10 @@ export default function SeleccionadorEstadoUsuario<TData>({
         <PopoverTrigger asChild>
           <Button
             variant='outline'
-            className='w-fit justify-start border-dashed space-x-2 text-sm mr-auto ml-0'
+            className={cn(
+              "h-8 w-fit justify-start border-dashed space-x-2 text-sm mr-auto ml-0",
+              className
+            )}
           >
             <CirclePlus size={GLOBAL_ICON_SIZE} />
             <span>
@@ -63,6 +71,7 @@ export default function SeleccionadorEstadoUsuario<TData>({
             setSelectedValue={setSelectedValue}
             table={table}
             type={type}
+            operadores={operadores}
           />
         </PopoverContent>
       </Popover>
@@ -93,6 +102,7 @@ export default function SeleccionadorEstadoUsuario<TData>({
             setSelectedValue={setSelectedValue}
             table={table}
             type={type}
+            operadores={operadores}
           />
         </div>
       </DrawerContent>
@@ -105,24 +115,14 @@ function StatusList<TData>({
   setSelectedValue,
   table,
   type,
+  operadores,
 }: {
   setOpen: (open: boolean) => void
   setSelectedValue: (value: Task["status"] | Recording["USUARIO"]) => void
   table: ReactTableInstance<TData>
   type?: string
+  operadores: Set<number | Status>
 }) {
-  const rowModel = table.getRowModel()
-  const rows = rowModel.rows
-  const operadores = new Set<number | Status>()
-
-  for (const row of rows) {
-    if (type === "records") {
-      operadores.add(row.getValue("USUARIO") as number)
-    } else if (type === "tasks") {
-      operadores.add(row.getValue("status") as Status)
-    }
-  }
-
   return (
     <Command>
       <CommandInput placeholder='Filtrar' />

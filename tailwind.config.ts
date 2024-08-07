@@ -39,6 +39,7 @@ const config = {
         destructive: {
           DEFAULT: "var(--destructive)",
           foreground: "var(--destructive-foreground)",
+          secondary: "var(--destructive-secondary)",
         },
         success: {
           DEFAULT: "var(--success)",

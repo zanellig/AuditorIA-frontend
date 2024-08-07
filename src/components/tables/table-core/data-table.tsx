@@ -30,13 +30,14 @@ import TableRows from "@/components/tables/table-core/table-row"
 import TableActions from "@/components/tables/table-core/table-actions"
 import Pagination from "@/components/tables/table-core/pagination"
 
-import type { PaginationModel } from "@/lib/types"
+import type { PaginationModel, Recordings } from "@/lib/types"
 
-interface DataTableProps<TData, TValue, DataType, classNameType> {
+interface DataTableProps<TData, TValue, DataType, classNameType, Recordings> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   type: DataType
   className?: classNameType
+  recordings?: Recordings
 }
 
 export default function DataTable<TData, TValue, DataType>({
@@ -44,7 +45,8 @@ export default function DataTable<TData, TValue, DataType>({
   data,
   type,
   className,
-}: DataTableProps<TData, TValue, string, string>) {
+  recordings,
+}: DataTableProps<TData, TValue, string, string, Recordings>) {
   // Filtering
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
 
@@ -83,6 +85,7 @@ export default function DataTable<TData, TValue, DataType>({
         <TableActions
           table={table as ReactTableInstance<TData>}
           type={type as string}
+          recordings={recordings}
         />
         <div className='rounded-md border'>
           <Table>

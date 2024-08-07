@@ -69,7 +69,7 @@ export enum Method {
 export interface FetchOptions {
   headers: Record<string, string>
   method: Methods
-  body?: string
+  body?: any
   next?: NextFetchRequestConfig
 }
 
@@ -162,4 +162,46 @@ export type HateSpeechProbas = {
 export type PaginationModel = {
   pageIndex: number
   pageSize: number
+}
+
+export type EmotionValues = {
+  pos: number[]
+  neu: number[]
+  neg: number[]
+}
+export type SentimentValues = {
+  joy: number[]
+  fear: number[]
+  anger: number[]
+  others: number[]
+  disgust: number[]
+}
+
+export type HateValues = {
+  hateful: number[]
+  targeted: number[]
+  aggressive: number[]
+}
+export type EmotionMedian = {
+  pos: number
+  neu: number
+  neg: number
+}
+export type SentimentMedian = {
+  joy: number
+  fear: number
+  anger: number
+  others: number
+  disgust: number
+}
+export type HateSpeechMedian = {
+  hateful: number
+  targeted: number
+  aggressive: number
+}
+
+export interface Medians {
+  emotionMedian: EmotionMedian
+  sentimentMedian: SentimentMedian
+  hateSpeechMedian: HateSpeechMedian
 }

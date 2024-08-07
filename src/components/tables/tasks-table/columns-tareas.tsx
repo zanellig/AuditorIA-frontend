@@ -40,6 +40,7 @@ import {
 } from "@/components/ui/tooltip"
 import ParagraphP from "@/components/typography/paragraphP"
 import ButtonBorderMagic from "@/components/ui/button-border-magic"
+import { revalidatePath } from "next/cache"
 
 function renderMarker(status: Status) {
   switch (status) {
@@ -175,6 +176,7 @@ export const columns: ColumnDef<Task | null>[] = [
     cell: ({ row }) => {
       const tarea = row.original
       const { toast } = useToast()
+      const taskURL = `dashboard/transcription/${tarea?.identifier}`
 
       // {
       //   "identifier": "9b5113b1-47f4-4850-a978-3df81dc95489",
@@ -197,7 +199,10 @@ export const columns: ColumnDef<Task | null>[] = [
             </DropdownMenuTrigger>
             <DropdownMenuContent align='end'>
               <DropdownMenuItem className='p-0'>
-                <ButtonBorderMagic className='w-full h-full text-start'>
+                <ButtonBorderMagic
+                  className='w-full h-full text-start'
+                  id={row.original?.identifier}
+                >
                   Analizar
                 </ButtonBorderMagic>
               </DropdownMenuItem>
@@ -205,10 +210,7 @@ export const columns: ColumnDef<Task | null>[] = [
               <DropdownMenuSeparator />
 
               <DropdownMenuItem className='font-bold'>
-                <Link
-                  href={`dashboard/transcription/${tarea?.identifier}`}
-                  className='w-full h-full cursor-default'
-                >
+                <Link href={taskURL} className='w-full h-full cursor-default'>
                   Ir a la transcripción
                 </Link>
               </DropdownMenuItem>

@@ -47,6 +47,8 @@ import type { Recording } from "@/lib/types"
 import { createTask } from "@/lib/actions"
 import { _transcriptPath, _urlBase } from "@/lib/api/paths"
 import { useToast } from "@/components/ui/use-toast"
+import { ToastAction } from "@/components/ui/toast"
+import { handleCopyToClipboard } from "@/lib/utils"
 
 export async function POSTTask(
   url: string,
@@ -57,11 +59,7 @@ export async function POSTTask(
     _urlBase,
     "/speech-to-text",
     url,
-    {
-      language: "es",
-      task_type: "transcribe",
-      model: "large-v3",
-    },
+    params,
     null,
     false,
     fileName
@@ -101,6 +99,10 @@ export default function TranscriptionButton({ row }: { row: Row<Recording> }) {
         invalid_type_error: "",
       }
     ),
+    device: z.enum(["cuda", "cpu"], {
+      required_error: "Por favor seleccione un dispositivo.",
+      invalid_type_error: "",
+    }),
   })
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -112,44 +114,74 @@ export default function TranscriptionButton({ row }: { row: Row<Recording> }) {
     setIsSubmitting(true)
     toast({
       variant: "success",
-      title: "¡Se ha enviado la tarea al servidor exitosamente!",
+      title: "Se ha enviado la tarea al servidor",
     })
     document.getElementById("close-sheet")?.click() // Manually close the sheet
     try {
-      // Lógica de envío al server
-      // const response = await tasks.createTask(row.original?.URL)
-      // const response = await fetch(_urlBase + "/speech-to-text", {
-      //   method: "POST",
-      //   headers: { "Access-Control-Allow-Origin": "*" },
-      //   body: JSON.stringify({
-      //     params: form.getValues(),
-      //     file: row.original.URL,
-      //   }),
-      // })
-      // console.log(response)
-
-      const res = await POSTTask(row.original.URL, row.original.GRABACION)
+      const res = await POSTTask(
+        row.original.URL,
+        row.original.GRABACION,
+        values
+      )
 
       toast({
         variant: "default",
         title: "Se inició la tarea",
         description: res.identifier,
+        action: (
+          <ToastAction
+            altText='Copiar el ID de la tarea enviada'
+            onClick={() => {
+              handleCopyToClipboard([res.identifier])
+              toast({
+                variant: "success",
+                title: "Se copió el ID al portapapeles",
+              })
+            }}
+          >
+            Copiar ID
+          </ToastAction>
+        ),
       })
+
+      // only reset on success, for UX purposes. ignore assignment error. does't trigger validation
+      // @ts-expect-error
+      form.reset({ language: "", task_type: "" })
       setIsSubmitting(false)
-    } catch (error) {
+    } catch (error: any) {
+      const ERROR_MESSAGE = `${error.message} (digest: @${error.digest})`
+
       toast({
         variant: "destructive",
-        title: "Error al enviar la tarea.",
+        title: "Error al enviar la tarea",
+        description: ERROR_MESSAGE,
+        action: (
+          <ToastAction
+            className='border border-ring'
+            altText='Copiar error al portapapeles'
+            onClick={() => {
+              handleCopyToClipboard([ERROR_MESSAGE, error.stack])
+            }}
+          >
+            Copiar error
+          </ToastAction>
+        ),
       })
       setIsSubmitting(false)
     }
-    form.reset(form.formState.defaultValues)
   }
+
+  form.setValue("device", formSchema.shape.device._def.values[0], {
+    shouldDirty: false,
+  })
+  form.setValue("model", formSchema.shape.model._def.values[0], {
+    shouldDirty: false,
+  })
 
   const onError = (errors: any, event: any) => {
     toast({
       variant: "destructive",
-      title: "Por favor revise los campos ingresados.",
+      title: "Por favor revise los campos ingresados",
     })
   }
 
@@ -202,7 +234,7 @@ export default function TranscriptionButton({ row }: { row: Row<Recording> }) {
                   <FormLabel>Idioma</FormLabel>
                   <FormControl>
                     <Select onValueChange={field.onChange} value={field.value}>
-                      <SelectTrigger className='w-[250px]'>
+                      <SelectTrigger className='w-full'>
                         <SelectValue placeholder='Seleccione el idioma' />
                       </SelectTrigger>
                       <SelectContent>
@@ -225,7 +257,7 @@ export default function TranscriptionButton({ row }: { row: Row<Recording> }) {
                   <FormLabel>Tipo de tarea</FormLabel>
                   <FormControl>
                     <Select onValueChange={field.onChange} value={field.value}>
-                      <SelectTrigger className='w-[250px]'>
+                      <SelectTrigger className='w-full'>
                         <SelectValue placeholder='Seleccione el tipo de tarea' />
                       </SelectTrigger>
                       <SelectContent>
@@ -257,8 +289,12 @@ export default function TranscriptionButton({ row }: { row: Row<Recording> }) {
                 <FormItem>
                   <FormLabel>Modelo</FormLabel>
                   <FormControl>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <SelectTrigger className='w-[250px]'>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value}
+                      disabled
+                    >
+                      <SelectTrigger className='w-full'>
                         <SelectValue placeholder='Seleccione el modelo de IA' />
                       </SelectTrigger>
                       <SelectContent>
@@ -286,7 +322,36 @@ export default function TranscriptionButton({ row }: { row: Row<Recording> }) {
                 </FormItem>
               )}
             />
-            <Button type='submit' onClick={handleCloseClick}>
+            <FormField
+              control={form.control}
+              name='device'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Dispositivo</FormLabel>
+                  <FormControl>
+                    <Select value={field.value}>
+                      <SelectTrigger className='w-full' disabled>
+                        <SelectValue placeholder='Seleccione el dispositivo' />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectItem value='cpu'>CPU</SelectItem>
+                          <SelectItem value='cuda'>GPU</SelectItem>
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button
+              type='submit'
+              onClick={handleCloseClick}
+              disabled={isSubmitting}
+              variant={"secondary"}
+              className='w-full'
+            >
               Iniciar tarea
             </Button>
             <SheetClose asChild>

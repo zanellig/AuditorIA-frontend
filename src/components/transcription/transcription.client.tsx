@@ -7,7 +7,9 @@ import {
   TranscriptionType,
   Task,
   Status,
-} from "@/lib/types"
+  SegmentAnalysisProperties,
+  Medians,
+} from "@/lib/types.d"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -34,6 +36,8 @@ import { cn, secondsToHMS, formatTimestamp } from "@/lib/utils"
 
 import TitleH1 from "@/components/typography/titleH1"
 import SubtitleH2 from "@/components/typography/subtitleH2"
+import { calculateMedian, sendTranscriptionToServer } from "@/lib/actions"
+import { Suspense, useState } from "react"
 
 interface TranscriptionClientProps {
   transcription: TranscriptionType
@@ -70,14 +74,19 @@ const TranscriptionClient = ({
     )
   }
 
+  const isAnalysisNotReady = [
+    Status.Pending,
+    Status.Processing,
+    Status.Failed,
+  ].includes(transcription.status)
+
+  const [medians, setMedians] = useState<Medians | null>(null)
+
   return (
     <>
-      {transcription.status === "failed" ||
-      transcription.status === "pending" ||
-      transcription.status === "processing" ? (
+      {isAnalysisNotReady && (
         <TranscriptionNotReady status={transcription.status} />
-      ) : null}
-      <TranscriptionNotReady status={transcription.status} />
+      )}
 
       <div className={cn("flex flex-col space-y-2 py-10 pl-4 pr-16")}>
         <div className='flex flex-row items-center space-x-4 self-center'>
@@ -102,7 +111,33 @@ const TranscriptionClient = ({
             <TooltipContent>Copiar ID</TooltipContent>
           </Tooltip>
         </div>
-
+        <Button
+          onClick={async () => {
+            if (
+              !transcription.result.segments[0].analysis ||
+              !transcription.result
+            ) {
+              toast({
+                title: "Error",
+                description: "Esta transcripción aún no fue analizada",
+                variant: "destructive",
+              })
+            }
+            const calculation = await calculateMedian(
+              transcription.result.segments
+            )
+            setMedians(calculation)
+            console.log(calculation)
+          }}
+          variant='outline'
+        >
+          Obtener resumen del llamado
+        </Button>
+        {medians && (
+          <div>
+            <SubtitleH2>Resumen del llamado</SubtitleH2>
+          </div>
+        )}
         {transcription?.result?.segments.map((segment: Segment, i: number) => {
           let speaker = segment.speaker
           if (speaker) {
@@ -118,15 +153,12 @@ const TranscriptionClient = ({
           return null
         })}
       </div>
-      {/* <div id='DEBUG-INFO-FOR-DEV-ONLY' className='container'>
-        <code>{JSON.stringify(transcription)}</code>
-      </div> */}
+      {/* BUTTON FOR DEV ONLY, DELETE ONCE DONE */}
     </>
   )
 }
 
 export function TranscriptionNotReady({ status }: { status: Status }) {
-  console.log(status)
   if (status === "failed" || "pending" || "processing") {
     return (
       <Drawer open={true}>
@@ -285,7 +317,7 @@ export function Emoji({ segment }: { segment: Segment }) {
   return (
     <div className={BASIC_STYLE + "flex-row justify-between items-center"}>
       <div className='text-2xl'>
-        {getEmojiForEmotion(segment.analysis.emotion)}
+        {getEmojiForEmotion(segment.analysis?.emotion)}
       </div>
     </div>
   )
@@ -314,7 +346,9 @@ export function TextContainer({ segment }: { segment: Segment }) {
   )
 }
 
-export function getEmojiForEmotion(emotion: Segment["analysis"]["emotion"]) {
+export function getEmojiForEmotion(
+  emotion: SegmentAnalysisProperties["emotion"]
+) {
   let emoji = ""
 
   switch (emotion) {

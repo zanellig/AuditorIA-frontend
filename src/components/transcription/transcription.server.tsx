@@ -11,12 +11,7 @@ interface TranscriptionServerProps {
 
 const TranscriptionServer = async ({ taskId }: TranscriptionServerProps) => {
   try {
-    const transcription = await getTask(
-      _urlBase,
-      _transcriptPath,
-      taskId,
-      false
-    )
+    const transcription = await getTask(_urlBase, _transcriptPath, taskId, true)
 
     if (!transcription) return <LoadingScreen />
     return (

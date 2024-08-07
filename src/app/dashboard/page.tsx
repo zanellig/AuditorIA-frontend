@@ -4,19 +4,19 @@ import TableContainer from "@/components/tables/table-core/table-container"
 import { Suspense } from "react"
 import DashboardSkeleton from "@/components/skeletons/dashboard-skeleton"
 import SubtitleH2 from "@/components/typography/subtitleH2"
-export default function Page() {
+export default function Page({ reset }: { reset: () => void }) {
   return (
     <main id='tables'>
       <TableContainer className='w-full'>
         <SubtitleH2 className='pb-4'>Tareas</SubtitleH2>
         <Suspense fallback={<DashboardSkeleton />}>
-          <TablaTasks />
+          <TablaTasks reset={reset} />
         </Suspense>
       </TableContainer>
       <TableContainer>
         <SubtitleH2 className='pb-4'>Grabaciones</SubtitleH2>
         <Suspense fallback={<DashboardSkeleton />}>
-          <TablaRecordings />
+          <TablaRecordings reset={reset} />
         </Suspense>
       </TableContainer>
     </main>

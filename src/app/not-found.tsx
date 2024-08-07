@@ -1,6 +1,6 @@
 "use client"
 
-import ErrorScreen from "@/components/error-handlers/error-screen"
+import ErrorScreen from "@/components/error/error-screen"
 
 export default function NotFound() {
   const error = new Error("Página no encontrada...")

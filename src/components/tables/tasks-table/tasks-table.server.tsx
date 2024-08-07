@@ -5,12 +5,14 @@ import { columns } from "@/components/tables/tasks-table/columns-tareas"
 import TitleH1 from "@/components/typography/titleH1"
 import ParagraphP from "@/components/typography/paragraphP"
 import SubtitleH2 from "@/components/typography/subtitleH2"
+import ErrorRetryButton from "@/components/error/error-button.client"
 
-export default async function TablaTasks() {
+export default async function TablaTasks({ reset }: { reset: () => void }) {
   let allTasks
   try {
     allTasks = await getTasks(_urlBase, _tasksPath, true)
   } catch (error: any) {
+    console.error(error)
     return (
       <div className='flex flex-col space-y-10'>
         <TitleH1>¡Ha ocurrido un error cargando la lista de tareas! 😯</TitleH1>
@@ -32,6 +34,7 @@ export default async function TablaTasks() {
           <br />
           {"Stack: " + error?.stack}
         </code>
+        <ErrorRetryButton reset={reset} />
       </div>
     )
   }

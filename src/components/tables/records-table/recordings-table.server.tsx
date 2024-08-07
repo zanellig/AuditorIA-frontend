@@ -5,9 +5,15 @@ import DataTable from "@/components/tables/table-core/data-table"
 import TitleH1 from "@/components/typography/titleH1"
 import ParagraphP from "@/components/typography/paragraphP"
 import SubtitleH2 from "@/components/typography/subtitleH2"
+import ErrorRetryButton from "@/components/error/error-button.client"
+import type { Recordings } from "@/lib/types"
 
-export default async function TablaRecordings() {
-  let recordings
+export default async function TablaRecordings({
+  reset,
+}: {
+  reset: () => void
+}) {
+  let recordings: Recordings
   try {
     recordings = await getRecords(_urlCanary, _recordsPath, true)
   } catch (error: any) {
@@ -32,9 +38,17 @@ export default async function TablaRecordings() {
           <br />
           {"Stack: " + error.stack}
         </code>
+        <ErrorRetryButton reset={reset} />
       </div>
     )
   }
 
-  return <DataTable columns={columns} data={recordings} type={"records"} />
+  return (
+    <DataTable
+      columns={columns}
+      data={recordings}
+      type={"records"}
+      recordings={recordings}
+    />
+  )
 }

@@ -7,6 +7,7 @@ import {
   Recordings,
   Method,
   FetchOptions,
+  Segment,
 } from "@/lib/types.d"
 
 import fs from "node:fs/promises"
@@ -14,6 +15,7 @@ import path from "node:path"
 
 import { _urlBase, _urlCanary } from "@/lib/api/paths"
 import { revalidatePath } from "next/cache"
+import { calculateMedianForSegments } from "./utils"
 
 const ACCEPTED_ORIGINS = [_urlBase, _urlCanary]
 
@@ -23,12 +25,27 @@ function _validateOrigin(origin: string): string {
   )
 }
 
-function _getHeaders(origin: string, isJson = true): Record<string, string> {
+enum AllowedContentTypes {
+  Json = "json",
+  Form = "form",
+  Multipart = "multipart",
+}
+
+function _getHeaders(
+  origin: string,
+  contentType?: AllowedContentTypes
+): Record<string, string> {
   let headers: Record<string, string> = {}
-  if (isJson) {
-    headers = {
-      "Content-Type": "application/json",
-    }
+  switch (contentType) {
+    case "json":
+      headers["Content-Type"] = "application/json"
+      break
+    case "form":
+      headers["Content-Type"] = "application/x-www-form-urlencoded"
+      break
+    case "multipart":
+      // Don't set Content-Type for multipart/form-data, let the browser set it with the boundary
+      break
   }
   const validatedOrigin = _validateOrigin(origin)
   if (validatedOrigin) {
@@ -50,15 +67,20 @@ async function _request<T>(
   }
 
   if (body) {
-    fetchOptions.body = JSON.stringify(body)
-    try {
-      await fs.writeFile("./request.txt", fetchOptions.body, {
-        encoding: "utf-8",
-      })
-    } catch (e: any) {
-      console.error(e.message)
+    if (body instanceof FormData) {
+      fetchOptions.body = body
+    } else {
+      fetchOptions.body = JSON.stringify(body)
+      try {
+        await fs.writeFile("./request.txt", fetchOptions.body, {
+          encoding: "utf-8",
+        })
+      } catch (e: any) {
+        console.error(e.message)
+      }
     }
   }
+
   if (options?.revalidate) {
     fetchOptions.next = { revalidate: 5 }
   }
@@ -158,9 +180,6 @@ async function getTask(
 ): Promise<Task | TranscriptionType> {
   const headers = _getHeaders(apiUrl)
   const url = constructUrl(apiUrl, urlPath, id)
-  console.log(
-    `obteniendo tarea desde: ${url}\ncon headers: ${JSON.stringify(headers)}`
-  )
   return _get<Task | TranscriptionType>(url, headers, { revalidate })
 }
 
@@ -172,39 +191,32 @@ async function createTask(
   file?: File | null,
   revalidate = false,
   fileName?: Recording["GRABACION"]
-): Promise<Task> {
-  const headers = _getHeaders(apiUrl, false)
+): Promise<any> {
+  const headers = _getHeaders(apiUrl, AllowedContentTypes.Multipart)
   const url = constructUrl(apiUrl, urlPath)
-  type Req = {
-    params: any
-    file: File | Uint8Array | null
-  }
-  let body: Req = {
-    params: params,
-    file: null,
-  }
+  const formData = new FormData()
+  formData.append("language", params.language)
+  formData.append("device", params.device)
+  formData.append("model", params.model)
+  formData.append("task_type", params.task_type)
+
   if (file) {
-    body.file = file
-  }
-  if (nasUrl && fileName) {
+    formData.append("file", file, file.name)
+  } else if (nasUrl && fileName) {
     try {
-      const cacheDir = path.join(process.cwd(), "cache", "audios")
-      let binaryFromNAS
-      const cacheDataDir = path.join(cacheDir, fileName)
-      await fs.access(cacheDir)
-      await fs.copyFile(path.normalize(nasUrl), cacheDataDir)
-      binaryFromNAS = await fs.readFile(cacheDataDir)
-      binaryFromNAS = new Uint8Array(binaryFromNAS)
-      body.file = binaryFromNAS
-      console.info(body)
-      return _post<Task>(url, headers, body, { revalidate })
-    } catch (e: any) {
-      // handle access error
-      throw Error(e.message)
+      const binaryFromNAS = await readFile(nasUrl)
+      if (binaryFromNAS) {
+        const blob = new Blob([binaryFromNAS], { type: "audio/wav" })
+        formData.append("file", blob, fileName)
+      } else {
+        throw new Error("Failed to read file from NAS")
+      }
+    } catch (error: any) {
+      throw new Error(`${error.message}`)
     }
   }
 
-  return _post<Task>(url, headers, body, { revalidate })
+  return _post(url, headers, formData, { revalidate })
 }
 
 async function updateTask(
@@ -305,70 +317,24 @@ async function getRecord(
   return _get<Recording>(url, headers, { revalidate })
 }
 
-async function createRecord(
-  apiUrl: string,
-  urlPath: string,
-  record: Recording,
-  revalidate?: boolean
-): Promise<Recording> {
-  const headers = _getHeaders(apiUrl)
-  const url = constructUrl(apiUrl, urlPath)
-  return _post<Recording>(url, headers, record, { revalidate })
-}
-
-async function updateRecord(
-  apiUrl: string,
-  urlPath: string,
-  id: string,
-  record: Partial<Recording>,
-  revalidate?: boolean
-): Promise<Recording> {
-  const headers = _getHeaders(apiUrl)
-  const url = constructUrl(apiUrl, urlPath, id)
-  return _put<Recording>(url, headers, record, { revalidate })
-}
-
-async function patchRecord(
-  apiUrl: string,
-  urlPath: string,
-  id: string,
-  record: Partial<Recording>,
-  revalidate?: boolean
-): Promise<Recording> {
-  const headers = _getHeaders(apiUrl)
-  const url = constructUrl(apiUrl, urlPath, id)
-  return _patch<Recording>(url, headers, record, { revalidate })
-}
-
-async function deleteRecord(
-  apiUrl: string,
-  urlPath: string,
-  id: string,
-  revalidate?: boolean
-): Promise<boolean> {
-  const headers = _getHeaders(apiUrl)
-  const url = constructUrl(apiUrl, urlPath, id)
-  return _delete<boolean>(url, headers, { revalidate })
-}
-
-async function deleteRecords(
-  apiUrl: string,
-  urlPath: string,
-  ids: string[],
-  revalidate?: boolean
-): Promise<boolean[]> {
-  const deletePromises = ids.map(id =>
-    deleteRecord(apiUrl, urlPath, id, revalidate)
-  )
-  return Promise.all(deletePromises)
-}
-
 async function getAudioFile(filePath: string): Promise<Buffer | null> {
   return readFile(filePath)
 }
 
 async function actionRevalidatePath(path: string) {
   revalidatePath(path)
+}
+
+async function sendTranscriptionToServer(transcription: TranscriptionType) {
+  await fs.writeFile(
+    "./transcription-from-client.json",
+    JSON.stringify(transcription),
+    { encoding: "utf-8" }
+  )
+}
+
+async function calculateMedian(segments: Segment[]) {
+  return await calculateMedianForSegments(segments)
 }
 
 export {
@@ -382,12 +348,9 @@ export {
   deleteTasks,
   getRecords,
   getRecord,
-  createRecord,
-  updateRecord,
-  patchRecord,
-  deleteRecord,
-  deleteRecords,
   getAudioFile,
+  sendTranscriptionToServer,
+  calculateMedian,
 }
 export async function TEST_GetAudioFromPrivateRoute(url: string) {
   const LOCAL_SERVER_PATH = path.join(process.cwd())
