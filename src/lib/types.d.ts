@@ -182,26 +182,34 @@ export type HateValues = {
   targeted: number[]
   aggressive: number[]
 }
-export type EmotionMedian = {
+export type EmotionAverage = {
   pos: number
   neu: number
   neg: number
 }
-export type SentimentMedian = {
+export type SentimentAverage = {
   joy: number
   fear: number
   anger: number
   others: number
   disgust: number
 }
-export type HateSpeechMedian = {
+export type HateSpeechAverage = {
   hateful: number
   targeted: number
   aggressive: number
 }
 
-export interface Medians {
-  emotionMedian: EmotionMedian
-  sentimentMedian: SentimentMedian
-  hateSpeechMedian: HateSpeechMedian
+export interface Averages {
+  emotionAverage: EmotionAverage
+  sentimentAverage: SentimentAverage
+  hateSpeechAverage: HateSpeechAverage
+}
+
+export enum Emotions {
+  Joy = "Joy" | "Disfrute",
+  Fear = "Fear" | "Miedo",
+  Anger = "Anger" | "Enojo",
+  Others = "Others" | "Otros",
+  Disgust = "Disgust" | "Disgusto",
 }

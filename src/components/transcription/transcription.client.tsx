@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+
 import {
   Segment,
   SentimentType,
@@ -8,7 +9,6 @@ import {
   Task,
   Status,
   SegmentAnalysisProperties,
-  Medians,
 } from "@/lib/types.d"
 
 import { Button } from "@/components/ui/button"
@@ -31,28 +31,22 @@ import { useToast } from "@/components/ui/use-toast"
 
 import { ChevronLeft, ClipboardIcon, MessageCircleQuestion } from "lucide-react"
 
-import { GLOBAL_ICON_SIZE } from "@/lib/consts"
+import {
+  GLOBAL_ICON_SIZE,
+  NEGATIVE_SENTIMENT_COLOR,
+  NEUTRAL_SENTIMENT_COLOR,
+  POSITIVE_SENTIMENT_COLOR,
+} from "@/lib/consts"
 import { cn, secondsToHMS, formatTimestamp } from "@/lib/utils"
 
 import TitleH1 from "@/components/typography/titleH1"
 import SubtitleH2 from "@/components/typography/subtitleH2"
-import { calculateMedian, sendTranscriptionToServer } from "@/lib/actions"
-import { Suspense, useState } from "react"
+
+import Analysis from "@/components/transcription/analysis"
 
 interface TranscriptionClientProps {
   transcription: TranscriptionType
   taskId: Task["identifier"]
-}
-
-function sentimentStyle(sentiment: SentimentType) {
-  switch (sentiment) {
-    case "POS":
-      return "bg-green-500"
-    case "NEU":
-      return "bg-yellow-500"
-    case "NEG":
-      return "bg-red-500"
-  }
 }
 
 const BASIC_STYLE = " flex text-sm rounded-md p-2 gap-2 "
@@ -79,8 +73,6 @@ const TranscriptionClient = ({
     Status.Processing,
     Status.Failed,
   ].includes(transcription.status)
-
-  const [medians, setMedians] = useState<Medians | null>(null)
 
   return (
     <>
@@ -111,33 +103,8 @@ const TranscriptionClient = ({
             <TooltipContent>Copiar ID</TooltipContent>
           </Tooltip>
         </div>
-        <Button
-          onClick={async () => {
-            if (
-              !transcription.result.segments[0].analysis ||
-              !transcription.result
-            ) {
-              toast({
-                title: "Error",
-                description: "Esta transcripción aún no fue analizada",
-                variant: "destructive",
-              })
-            }
-            const calculation = await calculateMedian(
-              transcription.result.segments
-            )
-            setMedians(calculation)
-            console.log(calculation)
-          }}
-          variant='outline'
-        >
-          Obtener resumen del llamado
-        </Button>
-        {medians && (
-          <div>
-            <SubtitleH2>Resumen del llamado</SubtitleH2>
-          </div>
-        )}
+        <Analysis transcription={transcription} />
+
         {transcription?.result?.segments.map((segment: Segment, i: number) => {
           let speaker = segment.speaker
           if (speaker) {
@@ -237,20 +204,18 @@ export function ChatBox({
   speaker: Segment["speaker"]
   start: Segment["start"]
   end: Segment["end"]
-  analysis: Segment["analysis"]
+  analysis?: Segment["analysis"]
 }) {
   let sentiment
   if (analysis?.sentiment) {
     sentiment = analysis.sentiment
-  }
+  } else return null
   switch (speaker) {
     case "SPEAKER_00":
       return (
         <>
-          {sentiment ? (
+          {sentiment && (
             <SentimentMarker sentiment={sentiment as SentimentType} />
-          ) : (
-            <></>
           )}
           <TextBox text={text} start={start} end={end} />
         </>
@@ -259,11 +224,18 @@ export function ChatBox({
       return (
         <>
           <TextBox text={text} start={start} end={end} />
-          {sentiment ? (
+          {sentiment && (
             <SentimentMarker sentiment={sentiment as SentimentType} />
-          ) : (
-            <></>
           )}
+        </>
+      )
+    case "SPEAKER_02":
+      return (
+        <>
+          {sentiment && (
+            <SentimentMarker sentiment={sentiment as SentimentType} />
+          )}
+          <TextBox text={text} start={start} end={end} />
         </>
       )
   }
@@ -312,6 +284,16 @@ export function SentimentMarker({ sentiment }: { sentiment: SentimentType }) {
     ></div>
   )
 }
+function sentimentStyle(sentiment: SentimentType) {
+  switch (sentiment) {
+    case "POS":
+      return `bg-${POSITIVE_SENTIMENT_COLOR}`
+    case "NEU":
+      return `bg-${NEUTRAL_SENTIMENT_COLOR}`
+    case "NEG":
+      return `bg-${NEGATIVE_SENTIMENT_COLOR}`
+  }
+}
 
 export function Emoji({ segment }: { segment: Segment }) {
   return (
@@ -347,7 +329,7 @@ export function TextContainer({ segment }: { segment: Segment }) {
 }
 
 export function getEmojiForEmotion(
-  emotion: SegmentAnalysisProperties["emotion"]
+  emotion?: SegmentAnalysisProperties["emotion"]
 ) {
   let emoji = ""
 

@@ -15,7 +15,7 @@ import path from "node:path"
 
 import { _urlBase, _urlCanary } from "@/lib/api/paths"
 import { revalidatePath } from "next/cache"
-import { calculateMedianForSegments } from "./utils"
+import { calculateAverageForSegments } from "./utils"
 
 const ACCEPTED_ORIGINS = [_urlBase, _urlCanary]
 
@@ -333,8 +333,8 @@ async function sendTranscriptionToServer(transcription: TranscriptionType) {
   )
 }
 
-async function calculateMedian(segments: Segment[]) {
-  return await calculateMedianForSegments(segments)
+async function calculateAverages(segments: Segment[]) {
+  return await calculateAverageForSegments(segments)
 }
 
 export {
@@ -350,7 +350,7 @@ export {
   getRecord,
   getAudioFile,
   sendTranscriptionToServer,
-  calculateMedian,
+  calculateAverages,
 }
 export async function TEST_GetAudioFromPrivateRoute(url: string) {
   const LOCAL_SERVER_PATH = path.join(process.cwd())

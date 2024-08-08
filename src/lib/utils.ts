@@ -1,14 +1,14 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 import {
+  Averages,
   Segment,
-  EmotionMedian,
-  SentimentMedian,
-  HateSpeechMedian,
+  EmotionAverage,
+  SentimentAverage,
+  HateSpeechAverage,
   EmotionValues,
   HateValues,
   SentimentValues,
-  Medians,
 } from "@/lib/types.d"
 
 export function cn(...inputs: ClassValue[]) {
@@ -76,9 +76,9 @@ export const handleCopyToClipboard = (items: string[]) => {
   }
 }
 
-export async function calculateMedianForSegments(
+export async function calculateAverageForSegments(
   segments: Segment[]
-): Promise<Medians | null> {
+): Promise<Averages | null> {
   let emotions: EmotionValues = {
     pos: [],
     neu: [],
@@ -96,6 +96,7 @@ export async function calculateMedianForSegments(
     targeted: [],
     aggressive: [],
   }
+
   for (const segment of segments) {
     if (!segment.analysis) return null
     emotions.neg.push(segment.analysis.sentiment_probas.NEG)
@@ -113,41 +114,36 @@ export async function calculateMedianForSegments(
     hate_speech.aggressive.push(segment.analysis.hate_speech_probas.aggressive)
   }
 
-  let emotionMedian: EmotionMedian
-  let sentimentMedian: SentimentMedian
-  let hateSpeechMedian: HateSpeechMedian
+  let emotionAverage: EmotionAverage
+  let sentimentAverage: SentimentAverage
+  let hateSpeechAverage: HateSpeechAverage
 
-  emotionMedian = {
-    pos: calculateMedian(emotions.pos),
-    neu: calculateMedian(emotions.neu),
-    neg: calculateMedian(emotions.neg),
+  emotionAverage = {
+    pos: calculateAverage(emotions.pos),
+    neu: calculateAverage(emotions.neu),
+    neg: calculateAverage(emotions.neg),
   }
-  sentimentMedian = {
-    joy: calculateMedian(sentiments.joy),
-    fear: calculateMedian(sentiments.fear),
-    anger: calculateMedian(sentiments.anger),
-    others: calculateMedian(sentiments.others),
-    disgust: calculateMedian(sentiments.disgust),
+  sentimentAverage = {
+    joy: calculateAverage(sentiments.joy),
+    fear: calculateAverage(sentiments.fear),
+    anger: calculateAverage(sentiments.anger),
+    others: calculateAverage(sentiments.others),
+    disgust: calculateAverage(sentiments.disgust),
   }
-  hateSpeechMedian = {
-    hateful: calculateMedian(hate_speech.hateful),
-    targeted: calculateMedian(hate_speech.targeted),
-    aggressive: calculateMedian(hate_speech.aggressive),
-  }
-
-  function calculateMedian(array: number[]) {
-    array.sort((a, b) => a - b)
-    const middle = Math.floor(array.length / 2)
-    if (array.length % 2 === 0) {
-      return (array[middle - 1] + array[middle]) / 2
-    } else {
-      return array[middle]
-    }
+  hateSpeechAverage = {
+    hateful: calculateAverage(hate_speech.hateful),
+    targeted: calculateAverage(hate_speech.targeted),
+    aggressive: calculateAverage(hate_speech.aggressive),
   }
 
+  function calculateAverage(array: number[]): number {
+    if (array.length === 0) return 0
+    const sum = array.reduce((a, b) => a + b, 0)
+    return sum / array.length
+  }
   return {
-    emotionMedian,
-    sentimentMedian,
-    hateSpeechMedian,
+    emotionAverage,
+    sentimentAverage,
+    hateSpeechAverage,
   }
 }
