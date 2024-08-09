@@ -193,6 +193,27 @@ export function renderBoxesBySpeaker(
   }
 }
 
+export function SentimentMarker({ sentiment }: { sentiment: SentimentType }) {
+  return (
+    <div
+      className={cn(
+        sentimentStyle(sentiment),
+        "inline-block w-3 h-full rounded-md p-0.5"
+      )}
+    ></div>
+  )
+}
+function sentimentStyle(sentiment: SentimentType) {
+  switch (sentiment) {
+    case "POS":
+      return `bg-${POSITIVE_SENTIMENT_COLOR} color-${POSITIVE_SENTIMENT_COLOR}`
+    case "NEU":
+      return `bg-${NEUTRAL_SENTIMENT_COLOR} color-${NEUTRAL_SENTIMENT_COLOR}`
+    case "NEG":
+      return `bg-${NEGATIVE_SENTIMENT_COLOR} color-${NEGATIVE_SENTIMENT_COLOR}`
+  }
+}
+
 export function ChatBox({
   text,
   speaker,
@@ -273,26 +294,6 @@ export function Timestamp({
     endTime,
     false
   )} )`
-}
-
-export function SentimentMarker({ sentiment }: { sentiment: SentimentType }) {
-  return (
-    <div
-      className={
-        sentimentStyle(sentiment) + " w-[3px] h-auto rounded-md p-0.5 "
-      }
-    ></div>
-  )
-}
-function sentimentStyle(sentiment: SentimentType) {
-  switch (sentiment) {
-    case "POS":
-      return `bg-${POSITIVE_SENTIMENT_COLOR}`
-    case "NEU":
-      return `bg-${NEUTRAL_SENTIMENT_COLOR}`
-    case "NEG":
-      return `bg-${NEGATIVE_SENTIMENT_COLOR}`
-  }
 }
 
 export function Emoji({ segment }: { segment: Segment }) {
