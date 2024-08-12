@@ -1,8 +1,7 @@
 "use client"
-import { useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { RefreshCw } from "lucide-react"
-import NavigationButtons from "@/components/navigation"
+import { NavigationButtons } from "@/components/navigation/navigation"
 import { GLOBAL_ICON_SIZE } from "@/lib/consts"
 import TitleH1 from "@/components/typography/titleH1"
 import ParagraphP from "@/components/typography/paragraphP"
@@ -14,10 +13,6 @@ export default function ErrorScreen({
   error?: Error & { digest?: string }
   reset?: () => void
 }) {
-  useEffect(() => {
-    console.error(error)
-  }, [error])
-
   return (
     <>
       <NavigationButtons />

@@ -2,31 +2,13 @@
 import type { ColumnDef, Row } from "@tanstack/react-table"
 import type { Recording } from "@/lib/types"
 
-import {
-  ArrowUpDown,
-  ArrowDown,
-  ArrowUp,
-  BrainCircuitIcon,
-  InfoIcon,
-} from "lucide-react"
+import { ArrowUpDown, ArrowDown, ArrowUp } from "lucide-react"
 
-import { Button } from "@/components/ui/button"
-
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
-
-import { GLOBAL_ICON_SIZE } from "@/lib/consts"
 import { obtenerMesLocale } from "@/lib/utils"
 import { _urlBase, _urlCanary } from "@/lib/api/paths"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import ParagraphP from "@/components/typography/paragraphP"
-import TranscriptionButton from "@/components/tables/records-table/transcription-button.server"
-import Link from "next/link"
+
 import { Badge } from "@/components/ui/badge"
+import AudioProcessingTaskStarterServer from "@/components/tables/records-table/audio-processing/audio-proccesing-task-starter.server"
 
 // function renderMarker(status: Status) {
 //   switch (status) {
@@ -109,7 +91,7 @@ export const columns: ColumnDef<Recording | null>[] = [
     },
     cell: ({ row }) => {
       return (
-        <div className='flex flex-row justify-between items-center text-primary text-start space-x-2 w-fit'>
+        <div className='flex flex-row justify-between items-center text-start space-x-2 w-fit'>
           {/* {renderMarker(row.original?.USUARIO as Record["USUARIO"])} */}
           <div className='font-bold capitalize'>
             {row.original?.USUARIO as Recording["USUARIO"]}
@@ -182,7 +164,7 @@ export const columns: ColumnDef<Recording | null>[] = [
     cell: ({ row }) => {
       return (
         <div className='flex flex-row space-x-2  justify-center'>
-          <TranscriptionButton row={row as Row<Recording>} />
+          <AudioProcessingTaskStarterServer row={row as Row<Recording>} />
         </div>
       )
     },

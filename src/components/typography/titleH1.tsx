@@ -6,7 +6,7 @@ export default function TitleH1({
 }: {
   children: React.ReactNode
   className?: string
-}) {
+} & React.HTMLAttributes<HTMLHeadingElement>) {
   return (
     <h1
       className={cn(

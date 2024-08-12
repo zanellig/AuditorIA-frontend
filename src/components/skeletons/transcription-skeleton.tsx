@@ -13,28 +13,28 @@ export default function TranscriptionSkeleton({
         className={cn("flex flex-col space-y-2 py-10 pl-4 pr-16", className)}
       >
         <ChatSectionSkeletonContainer position='right'>
-          <Skeleton className='h-[50px] rounded-xl w-[700px] bg-secondary' />
+          <Skeleton className='h-[50px] rounded-xl w-[700px] bg-pulse dark:bg-secondary' />
         </ChatSectionSkeletonContainer>
         <ChatSectionSkeletonContainer position='left'>
-          <Skeleton className='h-[50px] rounded-xl w-[500px] bg-secondary' />
+          <Skeleton className='h-[50px] rounded-xl w-[500px] bg-pulse dark:bg-secondary' />
         </ChatSectionSkeletonContainer>
         <ChatSectionSkeletonContainer position='right'>
-          <Skeleton className='h-[150px] rounded-xl w-[700px] bg-secondary' />
+          <Skeleton className='h-[150px] rounded-xl w-[700px] bg-pulse dark:bg-secondary' />
         </ChatSectionSkeletonContainer>
         <ChatSectionSkeletonContainer position='left'>
-          <Skeleton className='h-[50px] rounded-xl w-[350px] bg-secondary' />
-          <Skeleton className='h-[50px] rounded-xl w-[500px] bg-secondary' />
+          <Skeleton className='h-[50px] rounded-xl w-[350px] bg-pulse dark:bg-secondary' />
+          <Skeleton className='h-[50px] rounded-xl w-[500px] bg-pulse dark:bg-secondary' />
         </ChatSectionSkeletonContainer>
         <ChatSectionSkeletonContainer position='right'>
-          <Skeleton className='h-[50px] rounded-xl w-[350px] bg-secondary' />
-          <Skeleton className='h-[50px] rounded-xl w-[500px] bg-secondary' />
+          <Skeleton className='h-[50px] rounded-xl w-[350px] bg-pulse dark:bg-secondary' />
+          <Skeleton className='h-[50px] rounded-xl w-[500px] bg-pulse dark:bg-secondary' />
         </ChatSectionSkeletonContainer>
         <ChatSectionSkeletonContainer position='left'>
-          <Skeleton className='h-[150px] rounded-xl w-[700px] bg-secondary' />
-          <Skeleton className='h-[50px] rounded-xl w-[500px] bg-secondary' />
+          <Skeleton className='h-[150px] rounded-xl w-[700px] bg-pulse dark:bg-secondary' />
+          <Skeleton className='h-[50px] rounded-xl w-[500px] bg-pulse dark:bg-secondary' />
         </ChatSectionSkeletonContainer>
         <ChatSectionSkeletonContainer position='right'>
-          <Skeleton className='h-[50px] rounded-xl w-[150px] bg-secondary' />
+          <Skeleton className='h-[50px] rounded-xl w-[150px] bg-pulse dark:bg-secondary' />
         </ChatSectionSkeletonContainer>
       </div>
     </>
@@ -73,5 +73,7 @@ export function ChatSectionSkeletonContainer({
   )
 }
 export function AvatarSkeleton() {
-  return <Skeleton className='h-[50px] w-[50px] rounded-full bg-secondary' />
+  return (
+    <Skeleton className='h-[50px] w-[50px] rounded-full bg-pulse dark:bg-secondary' />
+  )
 }

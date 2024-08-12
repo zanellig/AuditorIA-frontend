@@ -27,7 +27,6 @@ export default function TableRows<TData>({
           <TableRow
             key={`row-${row.id}`}
             data-state={row.getIsSelected() && "selected"}
-            className='p-2'
           >
             <TableCell>
               <Checkbox
@@ -39,7 +38,7 @@ export default function TableRows<TData>({
               </Checkbox>
             </TableCell>
             {row.getVisibleCells().map((cell: any) => (
-              <TableCell key={`cell-${cell.id}`}>
+              <TableCell key={`cell-${cell.id}`} className='text-start'>
                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
               </TableCell>
             ))}

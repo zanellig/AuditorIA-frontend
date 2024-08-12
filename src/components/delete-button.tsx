@@ -23,10 +23,6 @@ export default function DeleteButton({
   ids?: Task["identifier"][]
   className?: string
 }) {
-  /**
-   * TODO: Implement deletion API call
-   * https://tasks.office.com/linksolution.com.ar/Home/Task/BYl9VJs82kec_NdGE_7RlWUAJYii?Type=TaskLink&Channel=Link&CreatedTime=638566702346980000
-   */
   return (
     <div
       className='w-full h-full'

@@ -1,5 +1,5 @@
 "use client"
-import "./globals.css"
+import "globals.css"
 import ErrorScreen from "@/components/error/error-screen"
 import { Inter } from "next/font/google"
 

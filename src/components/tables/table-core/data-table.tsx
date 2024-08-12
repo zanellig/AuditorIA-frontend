@@ -33,6 +33,7 @@ import Pagination from "@/components/tables/table-core/pagination"
 import type { PaginationModel, Recordings } from "@/lib/types"
 
 interface DataTableProps<TData, TValue, DataType, classNameType, Recordings> {
+  children?: React.ReactNode
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   type: DataType
@@ -41,6 +42,7 @@ interface DataTableProps<TData, TValue, DataType, classNameType, Recordings> {
 }
 
 export default function DataTable<TData, TValue, DataType>({
+  children,
   columns,
   data,
   type,
@@ -86,13 +88,15 @@ export default function DataTable<TData, TValue, DataType>({
           table={table as ReactTableInstance<TData>}
           type={type as string}
           recordings={recordings}
-        />
+        >
+          {children}
+        </TableActions>
         <div className='rounded-md border'>
           <Table>
             <TableHeader>
               {table.getHeaderGroups().map(headerGroup => (
                 <TableRow key={headerGroup.id}>
-                  <TableHead className='text-center'>
+                  <TableHead>
                     <Checkbox
                       id={`select-all-${type}`}
                       checked={
@@ -103,15 +107,13 @@ export default function DataTable<TData, TValue, DataType>({
                         table.toggleAllPageRowsSelected(!!value)
                       }
                     >
-                      <span className='sr-only'>
-                        Seleccionar todos los {`${type}`}
-                      </span>
+                      <span className='sr-only'>Select all {`${type}`}</span>
                     </Checkbox>
                   </TableHead>
                   {headerGroup.headers.map(header => (
                     <TableHead
                       key={`header-${header.id}`}
-                      className='text-left p-1.5 text-sm font-normal'
+                      className='text-start p-1.5 text-sm font-normal'
                     >
                       {header.isPlaceholder
                         ? null

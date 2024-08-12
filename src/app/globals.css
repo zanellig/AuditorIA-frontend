@@ -4,29 +4,30 @@
 
 @layer base {
   :root {
-    --background: hsl(60, 100%, 94%);
+    --background: hsl(0, 0%, 100%);
+    --pulse: hsl(0, 0%, 88%);
     --foreground: hsl(240, 10%, 3.9%);
-    --card: hsl(60, 100%, 94%);
+    --card: hsl(0, 0%, 100%);
     --card-foreground: hsl(240, 10%, 3.9%);
-    --popover: hsl(60, 100%, 94%);
+    --popover: hsl(0, 0%, 100%);
     --popover-foreground: hsl(240, 10%, 3.9%);
-    --primary: hsl(240, 5.9%, 10%);
-    --primary-foreground: hsl(60, 67%, 92%);
-    --secondary: hsl(60, 46%, 84%);
+    --primary: hsl(346.8, 77.2%, 49.8%);
+    --primary-foreground: hsl(355.7, 100%, 97.3%);
+    --secondary: hsl(240, 4.8%, 95.9%);
     --secondary-foreground: hsl(240, 5.9%, 10%);
-    --muted: hsl(60, 46%, 84%);
+    --muted: hsl(240, 4.8%, 95.9%);
     --muted-foreground: hsl(240, 3.8%, 46.1%);
-    --accent: hsl(60, 46%, 84%);
+    --accent: hsl(240, 4.8%, 95.9%);
     --accent-foreground: hsl(240, 5.9%, 10%);
     --destructive: hsl(0, 84.2%, 60.2%);
-    --destructive-foreground: hsl(60, 67%, 92%);
+    --destructive-foreground: hsl(0, 0%, 98%);
     --success: hsl(142.1, 76.2%, 36.3%);
-    --success-foreground: hsl(60, 67%, 92%);
+    --success-foreground: hsl(0, 0%, 98%);
     --success-secondary: hsl(144.9, 80.4%, 10%);
-    --border: hsl(60, 25%, 81%);
-    --input: hsl(60, 25%, 81%);
-    --ring: hsl(240, 5.9%, 10%);
-    --radius: 0.75rem;
+    --border: hsl(240, 5.9%, 90%);
+    --input: hsl(240, 5.9%, 90%);
+    --ring: hsl(346.8, 77.2%, 49.8%);
+    --radius: 0.5rem;
     --chart-1: hsl(12, 76%, 61%);
     --chart-2: hsl(173, 58%, 39%);
     --chart-3: hsl(197, 37%, 24%);
@@ -53,7 +54,7 @@
     --destructive-foreground: hsl(0, 0%, 98%);
     --destructive-secondary: hsl(2.8, 88.4%, 33.9%);
     --success: hsl(142.1, 76.2%, 36.3%);
-    --success-foreground: hsl(60, 67%, 92%);
+    --success-foreground: hsl(0, 0%, 98%);
     --success-secondary: hsl(144.9, 80.4%, 10%);
     --border: hsl(240, 3.7%, 15.9%);
     --input: hsl(240, 3.7%, 15.9%);
@@ -84,5 +85,13 @@
     /* display: none; <- Crashes Chrome on hover */
     -webkit-appearance: none;
     margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+  }
+}
+
+@layer base {
+  #home {
+    --scroll-behavior: smooth !important;
+    scroll-behavior: smooth !important;
+    scrollbar-width: 250px;
   }
 }

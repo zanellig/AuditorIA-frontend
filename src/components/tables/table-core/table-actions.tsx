@@ -7,9 +7,6 @@ import { Button } from "@/components/ui/button"
 
 import { MixerHorizontalIcon, Pencil1Icon } from "@radix-ui/react-icons"
 
-import { CirclePlus } from "lucide-react"
-import { GLOBAL_ICON_SIZE } from "@/lib/consts"
-
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,12 +22,14 @@ import SeleccionadorEstadoUsuario from "@/components/tables/table-core/seleccion
 import { Recordings, Status } from "@/lib/types"
 
 interface TableActionsProps<TData, Recordings> {
+  children?: React.ReactNode
   table: ReactTableInstance<TData>
   type?: string
   recordings?: Recordings
 }
 
 export default function TableActions<TData>({
+  children,
   table,
   type,
   recordings,
@@ -60,6 +59,7 @@ export default function TableActions<TData>({
           type={type}
           operadores={operadores}
         />
+        {children}
       </div>
 
       <div className='flex flex-row space-x-2'>

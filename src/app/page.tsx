@@ -6,12 +6,12 @@ import { AnimatedTooltip } from "@/components/ui/animated-tooltip"
 
 export default function Home() {
   return (
-    <>
+    <main className='scroll-smooth' id='home'>
       <HeroParallaxDemo />
 
       {/* Coloca el AnimatedTooltip aquí abajo */}
       <AnimatedTooltipPreview />
-    </>
+    </main>
   )
 }
 

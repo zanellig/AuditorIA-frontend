@@ -17,6 +17,8 @@ import { _urlBase, _urlCanary } from "@/lib/api/paths"
 import { revalidatePath } from "next/cache"
 import { calculateAverageForSegments } from "./utils"
 
+const TESTING = true
+
 const ACCEPTED_ORIGINS = [_urlBase, _urlCanary]
 
 function _validateOrigin(origin: string): string {
@@ -50,6 +52,8 @@ function _getHeaders(
   const validatedOrigin = _validateOrigin(origin)
   if (validatedOrigin) {
     headers["Access-Control-Allow-Origin"] = validatedOrigin
+    // headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
+    // headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
   }
   return headers
 }
@@ -166,7 +170,9 @@ async function getTasks(
 ): Promise<Tasks> {
   const headers = _getHeaders(apiUrl)
   const url = constructUrl(apiUrl, urlPath)
-  // return [] // CAMBIAR PARA CUANDO AGUS LEVANTE EL SERVER 30
+  if (TESTING) {
+    return []
+  }
   return _get<{ tasks: Tasks }>(url, headers, { revalidate }).then(
     data => data.tasks
   )
@@ -273,18 +279,22 @@ async function getRecords(
 ): Promise<Recordings> {
   const headers = _getHeaders(baseUrl)
   const url = constructUrl(baseUrl, urlPath)
-
   const cacheDir = path.join(process.cwd(), "cache")
   const cacheFile = path.join(cacheDir, "recordings.json")
   const metaFile = path.join(cacheDir, "recordings_meta.json")
   const TTL = 900000 // 15 minutes in milliseconds
 
+  if (TESTING) {
+    await fs.access(cacheFile)
+    const cachedData = await fs.readFile(cacheFile, "utf-8")
+    return JSON.parse(cachedData)
+  }
   try {
     const metaStats = await fs.stat(metaFile)
     const fileAge = Date.now() - metaStats.mtimeMs
 
     if (fileAge < TTL) {
-      const metaData = JSON.parse(await fs.readFile(metaFile, "utf-8"))
+      // const metaData = JSON.parse(await fs.readFile(metaFile, "utf-8"))
       await fs.access(cacheFile)
       const cachedData = await fs.readFile(cacheFile, "utf-8")
       return JSON.parse(cachedData)

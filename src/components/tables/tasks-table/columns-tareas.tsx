@@ -96,7 +96,7 @@ export const columns: ColumnDef<Task | null>[] = [
     },
     cell: ({ row }) => {
       return (
-        <div className='flex flex-row justify-between items-center text-primary text-start space-x-2 w-fit'>
+        <div className='flex flex-row justify-between items-center text-start space-x-2 w-fit'>
           {renderMarker(row.original?.status as Status)}
           <div className='font-bold capitalize'>
             {row.original?.status as Status}

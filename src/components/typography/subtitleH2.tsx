@@ -6,7 +6,7 @@ export default function SubtitleH2({
 }: {
   children: React.ReactNode
   className?: string
-}) {
+} & React.HTMLAttributes<HTMLHeadingElement>) {
   return (
     <h2
       className={cn(

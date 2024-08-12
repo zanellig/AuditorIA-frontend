@@ -1,3 +1,8 @@
+export enum SupportedLocales {
+  ENGLISH = "en",
+  SPANISH = "es",
+}
+
 export type Tasks = Task[]
 export type Task = {
   identifier: TaskUUID
