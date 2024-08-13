@@ -4,6 +4,11 @@ const nextConfig = {
   images: {
     domains: ["aceternity.com", "github.com", "linksolution.com.ar"], // Agrega "github.com" aquí
   },
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "50mb",
+    },
+  },
 }
 
 export default nextConfig

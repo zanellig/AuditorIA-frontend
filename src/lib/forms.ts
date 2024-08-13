@@ -1,0 +1,106 @@
+import { z } from "zod"
+
+const MAX_UPLOAD_SIZE = 1024 * 1024 * 50 // 50 MB
+const ACCEPTED_FILE_TYPES = [
+  "audio/wav",
+  "audio/x-wav",
+  "audio/x-wav;codecs=1",
+  "audio/mp3",
+  "audio/mpeg",
+  "audio/aac",
+  "audio/ogg",
+  "audio/webm",
+  "audio/flac",
+  "audio/x-flac",
+  "audio/ogg;codecs=vorbis",
+  "audio/mpeg;codecs=mp3",
+]
+
+export const taskFormSchema = z.object({
+  language: z.enum(["es", "en", "fr"], {
+    required_error: "Por favor seleccione un idioma.",
+    invalid_type_error: "Por favor seleccione un idioma.",
+    message: "Por favor seleccione un idioma.",
+  }),
+  task_type: z.enum(["transcribe", "align", "diarize", "combine"], {
+    required_error: "Por favor seleccione tipo de tarea.",
+    invalid_type_error: "Por favor seleccione tipo de tarea.",
+    message: "Por favor seleccione tipo de tarea.",
+  }),
+  model: z.enum(
+    [
+      "large-v3",
+      "tiny",
+      "tiny.en",
+      "base",
+      "base.en",
+      "small",
+      "small.en",
+      "medium",
+      "medium.en",
+      "large",
+      "large-v1",
+      "large-v2",
+    ],
+    {
+      required_error: "Por favor seleccione un modelo.",
+      invalid_type_error: "Por favor seleccione un modelo.",
+      message: "Por favor seleccione un modelo.",
+    }
+  ),
+  device: z.enum(["cuda", "cpu"], {
+    required_error: "Por favor seleccione un dispositivo.",
+    invalid_type_error: "Por favor seleccione un dispositivo.",
+    message: "Por favor seleccione un dispositivo.",
+  }),
+  file: z.custom<File | Blob>().optional(),
+})
+
+export type FormValues = z.infer<typeof taskFormSchema>
+
+export const taskFormOptions = {
+  language: [
+    { value: "es", label: "Español", disabled: false },
+    { value: "en", label: "Inglés", disabled: false },
+    {
+      value: "fr",
+      label:
+        "<span>Francés</span> <span class='font-thin'>(próximamente)</span>",
+      disabled: true,
+    },
+  ],
+  task_type: [
+    { value: "transcribe", label: "Transcribir", disabled: false },
+    { value: "align", label: "Alinear transcripción", disabled: true },
+    { value: "diarize", label: "Separar canales", disabled: true },
+    {
+      value: "combine",
+      label: "Separar canales y transcribir",
+      disabled: false,
+    },
+  ],
+  model: [
+    {
+      value: "large-v3",
+      label:
+        "<span class='font-bold'>Large V3</span> <span class='font-thin'>(recomendado)</span>",
+      disabled: false,
+    },
+    { value: "large-v2", label: "Large V2", disabled: false },
+    { value: "large-v1", label: "Large V1", disabled: false },
+    { value: "large", label: "Large", disabled: true },
+    { value: "tiny", label: "Tiny", disabled: true },
+    { value: "tiny.en", label: "Tiny EN", disabled: true },
+    { value: "base", label: "Base", disabled: true },
+    { value: "base.en", label: "Base EN", disabled: true },
+    { value: "small", label: "Small", disabled: true },
+    { value: "small.en", label: "Small EN", disabled: true },
+    { value: "medium", label: "Medium", disabled: true },
+    { value: "medium.en", label: "Medium EN", disabled: true },
+  ],
+  device: [
+    { value: "cpu", label: "CPU", disabled: true },
+    { value: "cuda", label: "Neural Processing Unit (CUDA)" },
+  ],
+  file: [{ value: null, label: "Seleccionar archivo" }],
+}

@@ -17,7 +17,7 @@ import { _urlBase, _urlCanary } from "@/lib/api/paths"
 import { revalidatePath } from "next/cache"
 import { calculateAverageForSegments } from "./utils"
 
-const TESTING = true
+const TESTING = false
 
 const ACCEPTED_ORIGINS = [_urlBase, _urlCanary]
 
@@ -69,6 +69,7 @@ async function _request<T>(
     headers,
     method,
   }
+  let response: Response
 
   if (body) {
     if (body instanceof FormData) {
@@ -89,14 +90,14 @@ async function _request<T>(
     fetchOptions.next = { revalidate: 5 }
   }
 
-  const response = await fetch(url, fetchOptions)
+  response = await fetch(url, fetchOptions)
   if (!response.ok) {
     const errorDetail = await response.json()
     console.error(
       `Error ${response.status}: ${response.statusText} - ${errorDetail.message}`
     )
   }
-  revalidatePath(`/dashboard`)
+  revalidatePath("/", "layout")
   return await response.json()
 }
 
@@ -139,6 +140,9 @@ function _put<T>(
   body: any,
   options?: { revalidate?: boolean }
 ): Promise<T> {
+  if (body === null) {
+    return _request<T>(url, Method.Put, headers, options)
+  }
   return _request<T>(url, Method.Put, headers, body, options)
 }
 
@@ -190,23 +194,22 @@ async function getTask(
 }
 
 async function createTask(
-  apiUrl: string,
-  urlPath: string,
-  nasUrl?: string,
-  params?: any,
-  file?: File | null,
-  revalidate = false,
+  urlArr: Array<string>,
+  nasUrl?: string | null,
+  params?: any | null,
+  file?: File | Blob | null,
+  revalidate: boolean = false,
   fileName?: Recording["GRABACION"]
 ): Promise<any> {
-  const headers = _getHeaders(apiUrl, AllowedContentTypes.Multipart)
-  const url = constructUrl(apiUrl, urlPath)
+  const headers = _getHeaders(urlArr[0], AllowedContentTypes.Multipart)
+  const url = [...urlArr].join("/")
   const formData = new FormData()
   formData.append("language", params.language)
   formData.append("device", params.device)
   formData.append("model", params.model)
   formData.append("task_type", params.task_type)
 
-  if (file) {
+  if (file && file instanceof File) {
     formData.append("file", file, file.name)
   } else if (nasUrl && fileName) {
     try {
@@ -225,19 +228,10 @@ async function createTask(
   return _post(url, headers, formData, { revalidate })
 }
 
+/**
+ * unused until we implement the patch task endpoint on the backend
+ */
 async function updateTask(
-  baseUrl: string,
-  urlPath: string,
-  id: Task["identifier"],
-  task: Partial<Task>,
-  revalidate?: boolean
-): Promise<Task> {
-  const headers = _getHeaders(baseUrl)
-  const url = constructUrl(baseUrl, urlPath, id)
-  return _put<Task>(url, headers, task, { revalidate })
-}
-
-async function patchTask(
   baseUrl: string,
   urlPath: string,
   id: Task["identifier"],
@@ -248,6 +242,18 @@ async function patchTask(
   const url = constructUrl(baseUrl, urlPath, id)
   return _patch<Task>(url, headers, task, { revalidate })
 }
+
+// async function patchTask(
+//   baseUrl: string,
+//   urlPath: string,
+//   id: Task["identifier"],
+//   task: Partial<Task>,
+//   revalidate?: boolean
+// ): Promise<Task> {
+//   const headers = _getHeaders(baseUrl)
+//   const url = constructUrl(baseUrl, urlPath, id)
+//   return _patch<Task>(url, headers, task, { revalidate })
+// }
 
 async function deleteTask(
   baseUrl: string,
@@ -270,6 +276,17 @@ async function deleteTasks(
     async id => await deleteTask(baseUrl, urlPath, id, revalidate)
   )
   return Promise.all(deletePromises)
+}
+
+async function analyzeTask(
+  baseUrl: string,
+  urlPath: string,
+  id: Task["identifier"],
+  revalidate?: boolean
+): Promise<Task> {
+  const headers = _getHeaders(baseUrl)
+  const url = constructUrl(baseUrl, urlPath, id)
+  return _put<Task>(url, headers, null, { revalidate })
 }
 
 async function getRecords(
@@ -349,11 +366,11 @@ async function calculateAverages(segments: Segment[]) {
 
 export {
   actionRevalidatePath,
+  analyzeTask,
   getTasks,
   getTask,
   createTask,
-  updateTask,
-  patchTask,
+  updateTask, // unused until we implement the patch task endpoint on the backend
   deleteTask,
   deleteTasks,
   getRecords,

@@ -29,102 +29,23 @@ import ParagraphP from "@/components/typography/paragraphP"
 import { SelectField } from "@/components/tables/records-table/audio-processing/select-field"
 import { _urlBase } from "@/lib/api/paths"
 
-const formSchema = z.object({
-  language: z.enum(["es", "en", "fr"], {
-    required_error: "Por favor seleccione un idioma.",
-    invalid_type_error: "Por favor seleccione un idioma.",
-    message: "Por favor seleccione un idioma.",
-  }),
-  task_type: z.enum(["transcribe", "align", "diarize", "combine"], {
-    required_error: "Por favor seleccione tipo de tarea.",
-    invalid_type_error: "Por favor seleccione tipo de tarea.",
-    message: "Por favor seleccione tipo de tarea.",
-  }),
-  model: z.enum(
-    [
-      "large-v3",
-      "tiny",
-      "tiny.en",
-      "base",
-      "base.en",
-      "small",
-      "small.en",
-      "medium",
-      "medium.en",
-      "large",
-      "large-v1",
-      "large-v2",
-    ],
-    {
-      required_error: "Por favor seleccione un modelo.",
-      invalid_type_error: "Por favor seleccione un modelo.",
-      message: "Por favor seleccione un modelo.",
-    }
-  ),
-  device: z.enum(["cuda", "cpu"], {
-    required_error: "Por favor seleccione un dispositivo.",
-    invalid_type_error: "Por favor seleccione un dispositivo.",
-    message: "Por favor seleccione un dispositivo.",
-  }),
-})
-type FormValues = z.infer<typeof formSchema>
-
-const formOptions = {
-  language: [
-    { value: "es", label: "Español", disabled: false },
-    { value: "en", label: "Inglés", disabled: false },
-    {
-      value: "fr",
-      label:
-        "<span>Francés</span> <span class='font-thin'>(próximamente)</span>",
-      disabled: true,
-    },
-  ],
-  task_type: [
-    { value: "transcribe", label: "Transcribir", disabled: false },
-    { value: "align", label: "Alinear transcripción", disabled: true },
-    { value: "diarize", label: "Separar canales", disabled: true },
-    {
-      value: "combine",
-      label: "Separar canales y transcribir",
-      disabled: false,
-    },
-  ],
-  model: [
-    {
-      value: "large-v3",
-      label:
-        "<span class='font-bold'>Large V3</span> <span class='font-thin'>(recomendado)</span>",
-      disabled: false,
-    },
-    { value: "large-v2", label: "Large V2", disabled: false },
-    { value: "large-v1", label: "Large V1", disabled: false },
-    { value: "large", label: "Large", disabled: true },
-    { value: "tiny", label: "Tiny", disabled: true },
-    { value: "tiny.en", label: "Tiny EN", disabled: true },
-    { value: "base", label: "Base", disabled: true },
-    { value: "base.en", label: "Base EN", disabled: true },
-    { value: "small", label: "Small", disabled: true },
-    { value: "small.en", label: "Small EN", disabled: true },
-    { value: "medium", label: "Medium", disabled: true },
-    { value: "medium.en", label: "Medium EN", disabled: true },
-  ],
-  device: [
-    { value: "cpu", label: "CPU" },
-    { value: "cuda", label: "Neural Processing Unit (CUDA)" },
-  ],
-}
+import { taskFormOptions, taskFormSchema, type FormValues } from "@/lib/forms"
+import { Lancelot } from "next/font/google"
 
 export default function AudioProcessingTaskStarter({
   row,
   POSTTask,
 }: {
   row: any
-  POSTTask: (url: string, fileName: string, params: any) => Promise<any>
+  POSTTask: (
+    url: string,
+    fileName: string,
+    params: Record<string, string>
+  ) => Promise<any>
 }) {
   const { toast } = useToast()
   const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(taskFormSchema),
   })
   useEffect(() => {
     // @ts-expect-error
@@ -139,11 +60,12 @@ export default function AudioProcessingTaskStarter({
     document.getElementById("close-sheet")?.click()
 
     try {
-      const res = await POSTTask(
-        row.original.URL,
-        row.original.GRABACION,
-        values
-      )
+      const res = await POSTTask(row.original.URL, row.original.GRABACION, {
+        language: values.language,
+        task_type: values.task_type,
+        model: values.model,
+        device: values.device,
+      })
       handleSuccessfulSubmission(res)
     } catch (error: any) {
       handleSubmissionError(error)
@@ -229,27 +151,26 @@ export default function AudioProcessingTaskStarter({
             <SelectField<FormValues>
               name='language'
               label='Idioma'
-              options={formOptions.language}
+              options={taskFormOptions.language}
               form={form}
             />
             <SelectField<FormValues>
               name='task_type'
               label='Tipo de tarea'
-              options={formOptions.task_type}
+              options={taskFormOptions.task_type}
               form={form}
             />
             <SelectField<FormValues>
               name='model'
               label='Modelo'
-              options={formOptions.model}
+              options={taskFormOptions.model}
               form={form}
             />
             <SelectField<FormValues>
               name='device'
               label='Dispositivo'
-              options={formOptions.device}
+              options={taskFormOptions.device}
               form={form}
-              disabled
             />
             <Button
               type='submit'

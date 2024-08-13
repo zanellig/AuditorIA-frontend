@@ -7,10 +7,13 @@ export default function AudioProcessingTaskStarterServer({
 }: {
   row: any
 }) {
-  async function POSTTask(url: string, fileName: string, params: any) {
+  async function POSTTask(
+    url: string,
+    fileName: string,
+    params: Record<string, string>
+  ) {
     return await createTask(
-      _urlBase,
-      "/speech-to-text",
+      [_urlBase, "/speech-to-text"],
       url,
       params,
       null,

@@ -1,107 +1,211 @@
 "use client"
+import { useEffect, useState } from "react"
+import { cn } from "@/lib/utils"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "./ui/card"
+import { z } from "zod"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
+import { useToast } from "@/components/ui/use-toast"
+import { ToastAction } from "@/components/ui/toast"
+import { handleCopyToClipboard } from "@/lib/utils"
+import { GLOBAL_ICON_SIZE } from "@/lib/consts"
+import { CaptionsIcon } from "lucide-react"
 
-import { Button } from "@/components/ui/button"
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { toast } from "@/components/ui/use-toast"
-import { ToastAction } from "@/components/ui/toast"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import { cn } from "@/lib/utils"
-import SubtitleH2 from "@/components/typography/subtitleH2"
-import { ChevronRightIcon } from "@radix-ui/react-icons"
-import { useState } from "react"
 
-export default function EnvioDeTareas({ className }: { className?: string }) {
-  const [isDeployed, changeDeployed] = useState(false)
-  const TRANSITION_DURATION = "duration-300"
+import { Button } from "@/components/ui/button"
+import ParagraphP from "@/components/typography/paragraphP"
+import { SelectField } from "@/components/tables/records-table/audio-processing/select-field"
+import { _urlBase } from "@/lib/api/paths"
 
-  return (
-    <div
-      className={cn(
-        "bg-popover border z-50 self-center top-1/2 -translate-y-1/2 fixed flex flex-row rounded-md py-8 transition-all",
-        TRANSITION_DURATION,
-        className,
-        isDeployed ? "right-2" : "-right-[370px]"
-      )}
-    >
-      <DeployCardButton
-        isDeployed={isDeployed}
-        changeDeployed={changeDeployed}
-      />
+import { taskFormOptions, taskFormSchema, type FormValues } from "@/lib/forms"
+import { Input } from "./ui/input"
+import { Label } from "./ui/label"
+import { Badge } from "./ui/badge"
+import { createTask } from "@/lib/actions"
 
-      <div
-        className={cn(
-          TRANSITION_DURATION,
-          isDeployed ? "opacity-100" : "opacity-50"
-        )}
-      >
-        <SubtitleH2>Subir archivos</SubtitleH2>
-        {/* Esto tiene que ser un form */}
-        <div className='pt-2 w-[350px] h-[600px]'>
-          <Button
-            onClick={() => {
-              toast({
-                title: "Se envió la tarea",
-                description: "UUID-LOOKS-LIKE-THIS",
-                action: (
-                  <ToastAction altText='Copia el ID de la tarea enviada'>
-                    Copiar ID
-                  </ToastAction>
-                ),
-              })
-            }}
-          >
-            Click me
-          </Button>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-export function DeployCardButton({
-  isDeployed,
-  changeDeployed,
+export default function EnvioDeTareas({
   className,
+  POSTTaskWithFile,
 }: {
-  isDeployed: boolean
-  changeDeployed: Function
   className?: string
+  POSTTaskWithFile: (file: any, params: Record<string, string>) => Promise<any>
 }) {
+  const { toast } = useToast()
+  const form = useForm<FormValues>({
+    resolver: zodResolver(taskFormSchema),
+  })
+  useEffect(() => {
+    // @ts-expect-error
+    // prettier-ignore
+    form.reset({ language: "", task_type: "", model: "", device: "cuda" })
+  }, [])
+
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const onSubmit = async (values: FormValues) => {
+    if (!values.file) {
+      toast({ variant: "destructive", title: "Debe adjuntar un archivo" })
+      return
+    }
+    setIsSubmitting(true)
+    toast({ variant: "success", title: "Se ha enviado la tarea al servidor" })
+    const fileBuffer = await values.file.arrayBuffer()
+    const file = {
+      name: values.file.name,
+      size: values.file.size,
+      type: values.file.type,
+      buffer: new Uint8Array(fileBuffer),
+    }
+
+    try {
+      const res = await POSTTaskWithFile(file, {
+        language: values.language,
+        task_type: values.task_type,
+        model: values.model,
+        device: values.device,
+      })
+      handleSuccessfulSubmission(res)
+    } catch (error: any) {
+      handleSubmissionError(error)
+    }
+
+    setIsSubmitting(false)
+  }
+
+  const handleSuccessfulSubmission = (res: any) => {
+    toast({
+      variant: "default",
+      title: "Se inició la tarea",
+      description: res.identifier,
+      action: (
+        <ToastAction
+          altText='Copiar el ID de la tarea enviada'
+          onClick={() => copyToClipboard(res.identifier)}
+        >
+          Copiar ID
+        </ToastAction>
+      ),
+    })
+    // @ts-ignore
+    // prettier-ignore
+    form.reset({ language: "", task_type: "", model: "", device: "cuda" })
+  }
+
+  const handleSubmissionError = (error: any) => {
+    const errorMessage = `${error.message} (digest: @${error.digest})`
+    toast({
+      variant: "destructive",
+      title: "Error al enviar la tarea",
+      description: errorMessage.toString().slice(0, 50) + "...",
+      action: (
+        <ToastAction
+          className='border border-ring'
+          altText='Copiar error al portapapeles'
+          onClick={() => copyToClipboard(errorMessage, error.stack)}
+        >
+          Copiar error
+        </ToastAction>
+      ),
+    })
+  }
+
+  const copyToClipboard = (...texts: string[]) => {
+    handleCopyToClipboard(texts)
+    toast({ variant: "success", title: "Se copió el texto al portapapeles" })
+  }
   return (
-    <Button
-      variant='ghost'
-      className={cn(
-        "hover:bg-background rounded-xl self-center transition-all py-16 px-2 mr-4 w-fit",
-        className,
-        "duration-500",
-        isDeployed ? "opacity-100" : "opacity-50"
-      )}
-      onClick={e => {
-        e.preventDefault()
-        changeDeployed(!isDeployed)
-      }}
-    >
-      <ChevronRightIcon
-        className={cn(
-          "transition-transform duration-500",
-          isDeployed ? "rotate-0" : "rotate-180"
-        )}
-      />
-    </Button>
+    <Card className={cn("", className)}>
+      <CardHeader>
+        <CardTitle>Enviar una tarea manualmente</CardTitle>
+        <CardDescription>
+          A través de esta página, puede enviar una tarea manualmente. Se
+          aceptan únicamente archivos de audio con las siguientes extensiones:
+        </CardDescription>
+        <div className='flex space-x-2 mt-2'>
+          <Badge variant={"outline"}>mp3</Badge>
+          <Badge variant={"outline"}>flac</Badge>
+          <Badge variant={"outline"}>wma</Badge>
+          <Badge variant={"outline"}>aac</Badge>
+          <Badge variant={"outline"}>ogg</Badge>
+          <Badge variant={"outline"}>wav</Badge>
+          <Badge variant={"outline"}>x-wav</Badge>
+          <Badge variant={"outline"}>mpeg</Badge>
+          <Badge variant={"outline"}>webm</Badge>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
+            <SelectField<FormValues>
+              name='language'
+              label='Idioma'
+              options={taskFormOptions.language}
+              form={form}
+            />
+            <SelectField<FormValues>
+              name='task_type'
+              label='Tipo de tarea'
+              options={taskFormOptions.task_type}
+              form={form}
+            />
+            <SelectField<FormValues>
+              name='model'
+              label='Modelo'
+              options={taskFormOptions.model}
+              form={form}
+            />
+            <SelectField<FormValues>
+              name='device'
+              label='Dispositivo'
+              options={taskFormOptions.device}
+              form={form}
+            />
+            <FormField
+              control={form.control}
+              name='file'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Archivo</FormLabel>
+                  <FormControl>
+                    <Input
+                      type='file'
+                      name='file'
+                      className='mt-2'
+                      onChange={(e: any) => {
+                        field.onChange(e.target.files[0])
+                      }}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button
+              type='submit'
+              disabled={isSubmitting}
+              variant={"default"}
+              className='w-full'
+            >
+              Iniciar tarea
+            </Button>
+          </form>
+        </Form>
+      </CardContent>
+    </Card>
   )
 }

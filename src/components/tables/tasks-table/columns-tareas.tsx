@@ -41,6 +41,13 @@ import {
 import ParagraphP from "@/components/typography/paragraphP"
 import ButtonBorderMagic from "@/components/ui/button-border-magic"
 import { revalidatePath } from "next/cache"
+import {
+  _tasksPath,
+  _transcriptPath,
+  _urlBase,
+  _urlCanary,
+} from "@/lib/api/paths"
+import { analyzeTask } from "@/lib/actions"
 
 function renderMarker(status: Status) {
   switch (status) {
@@ -202,6 +209,29 @@ export const columns: ColumnDef<Task | null>[] = [
                 <ButtonBorderMagic
                   className='w-full h-full text-start'
                   id={row.original?.identifier}
+                  onClick={async () => {
+                    if (row.original?.identifier) {
+                      try {
+                        await analyzeTask(
+                          _urlCanary,
+                          _transcriptPath,
+                          row.original?.identifier
+                        )
+                        toast({
+                          title: "Tarea analizada",
+                          description: "La tarea ha sido analizada",
+                          variant: "success",
+                        })
+                      } catch (error) {
+                        console.log(error)
+                        toast({
+                          title: "Error",
+                          description: "La tarea no pudo ser analizada",
+                          variant: "destructive",
+                        })
+                      }
+                    }
+                  }}
                 >
                   Analizar
                 </ButtonBorderMagic>

@@ -211,7 +211,7 @@ function FormFactory({
         <Textarea
           placeholder={textAreaPlaceholder}
           id={formType + "-textarea"}
-        ></Textarea>
+        />
       </div>
       {children}
       <div className='flex flex-row items-center space-x-2'>
