@@ -64,21 +64,26 @@ export default function EnvioDeTareas({
     }
     setIsSubmitting(true)
     toast({ variant: "success", title: "Se ha enviado la tarea al servidor" })
-    const fileBuffer = await values.file.arrayBuffer()
-    const file = {
-      name: values.file.name,
-      size: values.file.size,
-      type: values.file.type,
-      buffer: new Uint8Array(fileBuffer),
-    }
+    const file = new FormData()
+    file.append("file", values.file as Blob)
+    file.append("language", values.language)
+    file.append("task_type", values.task_type)
+    file.append("model", values.model)
+    file.append("device", values.device)
+    console.log(file)
 
     try {
-      const res = await POSTTaskWithFile(file, {
-        language: values.language,
-        task_type: values.task_type,
-        model: values.model,
-        device: values.device,
+      const res = await fetch("http://10.20.30.30:8000/speech-to-text", {
+        headers: {
+          "Access-Control-Allow-Origin": "http://10.20.30.30:8000",
+          "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+          "Access-Control-Allow-Headers":
+            "Content-Type, Authorization, Content-Length, X-Requested-With",
+        },
+        method: "POST",
+        body: file,
       })
+      console.log(res)
       handleSuccessfulSubmission(res)
     } catch (error: any) {
       handleSubmissionError(error)
@@ -88,22 +93,25 @@ export default function EnvioDeTareas({
   }
 
   const handleSuccessfulSubmission = (res: any) => {
-    toast({
-      variant: "default",
-      title: "Se inició la tarea",
-      description: res.identifier,
-      action: (
-        <ToastAction
-          altText='Copiar el ID de la tarea enviada'
-          onClick={() => copyToClipboard(res.identifier)}
-        >
-          Copiar ID
-        </ToastAction>
-      ),
-    })
-    // @ts-ignore
-    // prettier-ignore
-    form.reset({ language: "", task_type: "", model: "", device: "cuda" })
+    console.log(res.body)
+    if (res.status === 200) {
+      toast({
+        variant: "default",
+        title: "Se inició la tarea",
+        description: res.identifier,
+        action: (
+          <ToastAction
+            altText='Copiar el ID de la tarea enviada'
+            onClick={() => copyToClipboard(res.identifier)}
+          >
+            Copiar ID
+          </ToastAction>
+        ),
+      })
+      // @ts-ignore
+      // prettier-ignore
+      form.reset({ language: "", task_type: "", model: "", device: "cuda", file: null })
+    }
   }
 
   const handleSubmissionError = (error: any) => {
