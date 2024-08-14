@@ -1,11 +1,16 @@
 import EnvioDeTareas from "@/components/envio-de-tareas"
-import EnvioDeTareasServer from "@/components/envio-de-tareas.server"
 import Footer from "@/components/footer"
 import TableContainer from "@/components/tables/table-core/table-container"
 import TableTitleContainer from "@/components/tables/table-core/table-title-container"
 import { TypographyH4 } from "@/components/typography/h4"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { UploadIcon } from "@radix-ui/react-icons"
+import { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "Subir archivos | AuditorIA",
+  description: "Página para subir archivos de audio a AuditorIA",
+}
 
 export default function Page() {
   return (
@@ -16,7 +21,7 @@ export default function Page() {
             <UploadIcon className='h-[1.2rem] w-[1.2rem] text-muted-foreground' />
             <TypographyH4>Subir archivos</TypographyH4>
           </TableTitleContainer>
-          <EnvioDeTareasServer />
+          <EnvioDeTareas />
         </TableContainer>
       </main>
       <Footer />

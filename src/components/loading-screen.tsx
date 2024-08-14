@@ -1,9 +1,10 @@
 "use client"
 import { FlipWords } from "@/components/ui/flip-words"
 import { SparklesCore } from "@/components/ui/sparkles-core"
+import { cn } from "@/lib/utils"
 import { useTheme } from "next-themes"
 
-export default function LoadingScreen() {
+export default function LoadingScreen({ className }: { className?: string }) {
   const { theme } = useTheme()
   const initialWords = ["transcripción", "sentimiento", "emociones", "análisis"]
   const words = [...initialWords].sort(() => Math.random() - 0.5)
@@ -12,7 +13,12 @@ export default function LoadingScreen() {
 
   return (
     <>
-      <div className='h-[500px] bg-background flex flex-col items-center justify-center text-center'>
+      <div
+        className={cn(
+          "h-[500px] bg-background flex flex-col items-center justify-center text-center",
+          className
+        )}
+      >
         <div className='relative w-full h-full rounded-3xl overflow-hidden my-auto'>
           {/* Core component */}
           <SparklesCore

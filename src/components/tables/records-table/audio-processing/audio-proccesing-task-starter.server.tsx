@@ -1,6 +1,6 @@
 import { createTask } from "@/lib/actions"
 import AudioProcessingTaskStarter from "@/components/tables/records-table/audio-processing/audio-processing-task-starter"
-import { _urlBase } from "@/lib/api/paths"
+import { URL_API_MAIN } from "@/lib/consts"
 
 export default function AudioProcessingTaskStarterServer({
   row,
@@ -8,13 +8,13 @@ export default function AudioProcessingTaskStarterServer({
   row: any
 }) {
   async function POSTTask(
-    url: string,
+    nasUrl: string,
     fileName: string,
     params: Record<string, string>
   ) {
     return await createTask(
-      [_urlBase, "/speech-to-text"],
-      url,
+      [URL_API_MAIN, "speech-to-text"],
+      nasUrl,
       params,
       null,
       false,

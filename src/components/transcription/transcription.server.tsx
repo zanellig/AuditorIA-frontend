@@ -2,18 +2,18 @@ import { getTask } from "@/lib/actions"
 
 import TranscriptionClient from "./transcription.client"
 import { Task, TranscriptionType } from "@/lib/types"
-import { _transcriptPath, _urlBase } from "@/lib/api/paths"
-import LoadingScreen from "../loading-screen"
+import { TASK_PATH, URL_API_MAIN } from "@/lib/consts"
 
 interface TranscriptionServerProps {
   taskId: Task["identifier"]
 }
 
-const TranscriptionServer = async ({ taskId }: TranscriptionServerProps) => {
+export default async function TranscriptionServer({
+  taskId,
+}: TranscriptionServerProps) {
   try {
-    const transcription = await getTask(_urlBase, _transcriptPath, taskId, true)
+    const transcription = await getTask([URL_API_MAIN, TASK_PATH], taskId, true)
 
-    if (!transcription) return <LoadingScreen />
     return (
       <TranscriptionClient
         transcription={transcription as TranscriptionType}
@@ -25,5 +25,3 @@ const TranscriptionServer = async ({ taskId }: TranscriptionServerProps) => {
     throw error
   }
 }
-
-export default TranscriptionServer

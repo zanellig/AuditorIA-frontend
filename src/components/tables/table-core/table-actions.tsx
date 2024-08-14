@@ -192,6 +192,7 @@ export default function TableActions<TData>({
                     ids={table
                       .getSelectedRowModel()
                       .rows.map((r: any) => r.original.identifier)}
+                    table={table as typeof table}
                   />
                 </DropdownMenuItem>
               </>

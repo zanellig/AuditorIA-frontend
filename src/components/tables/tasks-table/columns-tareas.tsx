@@ -1,6 +1,6 @@
 "use client"
 
-import { ColumnDef } from "@tanstack/react-table"
+import { ColumnDef, Table } from "@tanstack/react-table"
 import { Task } from "@/lib/types"
 
 import {
@@ -42,11 +42,11 @@ import ParagraphP from "@/components/typography/paragraphP"
 import ButtonBorderMagic from "@/components/ui/button-border-magic"
 import { revalidatePath } from "next/cache"
 import {
-  _tasksPath,
-  _transcriptPath,
-  _urlBase,
-  _urlCanary,
-} from "@/lib/api/paths"
+  ALL_TASKS_PATH,
+  TASK_PATH,
+  URL_API_MAIN,
+  URL_API_CANARY,
+} from "@/lib/consts"
 import { analyzeTask } from "@/lib/actions"
 
 function renderMarker(status: Status) {
@@ -180,10 +180,10 @@ export const columns: ColumnDef<Task | null>[] = [
   },
   {
     id: "actions",
-    cell: ({ row }) => {
-      const tarea = row.original
+    cell: ({ row, table }) => {
+      const task = row.original
       const { toast } = useToast()
-      const taskURL = `dashboard/transcription/${tarea?.identifier}`
+      const taskURL = `dashboard/transcription?identifier=${task?.identifier}`
 
       // {
       //   "identifier": "9b5113b1-47f4-4850-a978-3df81dc95489",
@@ -194,7 +194,6 @@ export const columns: ColumnDef<Task | null>[] = [
       //   "audio_duration": 785.58,
       //   "created_at": "2024-07-17T04:47:22"
       // }
-
       return (
         <div className='flex flex-row justify-end space-x-2'>
           <DropdownMenu>
@@ -213,8 +212,8 @@ export const columns: ColumnDef<Task | null>[] = [
                     if (row.original?.identifier) {
                       try {
                         await analyzeTask(
-                          _urlCanary,
-                          _transcriptPath,
+                          URL_API_CANARY,
+                          TASK_PATH,
                           row.original?.identifier
                         )
                         toast({
@@ -223,7 +222,7 @@ export const columns: ColumnDef<Task | null>[] = [
                           variant: "success",
                         })
                       } catch (error) {
-                        console.log(error)
+                        console.error(error)
                         toast({
                           title: "Error",
                           description: "La tarea no pudo ser analizada",
@@ -248,11 +247,11 @@ export const columns: ColumnDef<Task | null>[] = [
               <DropdownMenuItem
                 onClick={() => {
                   navigator.clipboard.writeText(
-                    tarea?.identifier as Task["identifier"]
+                    task?.identifier as Task["identifier"]
                   )
                   toast({
                     title: "ID copiado",
-                    description: tarea?.identifier,
+                    description: task?.identifier,
                   })
                 }}
               >
@@ -262,11 +261,11 @@ export const columns: ColumnDef<Task | null>[] = [
               <DropdownMenuItem
                 onClick={() => {
                   navigator.clipboard.writeText(
-                    tarea?.file_name as Task["identifier"]
+                    task?.file_name as Task["identifier"]
                   )
                   toast({
                     title: "Nombre de archivo copiado",
-                    description: tarea?.file_name,
+                    description: task?.file_name,
                   })
                 }}
               >
@@ -284,11 +283,14 @@ export const columns: ColumnDef<Task | null>[] = [
                     view: window,
                   })
                   document
-                    .getElementById(`delete-button-${tarea?.identifier}`)
+                    .getElementById(`delete-button-${task?.identifier}`)
                     ?.dispatchEvent(event)
                 }}
               >
-                <DeleteButton identifier={tarea?.identifier} />
+                <DeleteButton
+                  identifier={task?.identifier}
+                  table={table as typeof table}
+                />
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

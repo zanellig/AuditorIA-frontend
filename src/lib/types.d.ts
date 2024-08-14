@@ -3,6 +3,16 @@ export enum SupportedLocales {
   SPANISH = "es",
 }
 
+export interface ServerStatus {
+  main: number | undefined | null
+  canary: number | undefined | null
+}
+
+export type Analysis = {
+  uuid: Task["identifier"]
+  processed_result: string
+}
+
 export type Tasks = Task[]
 export type Task = {
   identifier: TaskUUID

@@ -9,36 +9,41 @@ import { TypographyH4 } from "@/components/typography/h4"
 import { Separator } from "@/components/ui/separator"
 import TableTitleContainer from "@/components/tables/table-core/table-title-container"
 import Footer from "@/components/footer"
-export default function Page({ reset }: { reset: () => void }) {
+import { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "Dashboard | AuditorIA",
+  description: "Dashboard donde encontrarás todas las tareas y grabaciones",
+}
+
+export default function Page() {
   return (
     <>
-      <ScrollArea className='max-h-dvh h-dvh pt-16'>
-        <main id='tables' className='flex flex-col px-2 items-center'>
-          <TableContainer separate>
-            <TableTitleContainer>
-              <FileTextIcon className='h-[1.2rem] w-[1.2rem] text-muted-foreground' />
-              <TypographyH4>Tareas</TypographyH4>
-            </TableTitleContainer>
+      <main id='tables' className='flex flex-col px-2 items-center py-4'>
+        <TableContainer separate>
+          <TableTitleContainer>
+            <FileTextIcon className='h-[1.2rem] w-[1.2rem] text-muted-foreground' />
+            <TypographyH4>Tareas</TypographyH4>
+          </TableTitleContainer>
 
-            <Separator className='my-4' />
-            <Suspense fallback={<DashboardSkeleton />}>
-              <TablaTasks reset={reset} />
-            </Suspense>
-          </TableContainer>
+          <Separator className='my-4' />
+          <Suspense fallback={<DashboardSkeleton />}>
+            <TablaTasks />
+          </Suspense>
+        </TableContainer>
 
-          <TableContainer>
-            <TableTitleContainer>
-              <SpeakerLoudIcon className='h-[1.2rem] w-[1.2rem] text-muted-foreground' />
-              <TypographyH4>Grabaciones</TypographyH4>
-            </TableTitleContainer>
-            <Separator className='my-4' />
-            <Suspense fallback={<DashboardSkeleton />}>
-              <TablaRecordings reset={reset} />
-            </Suspense>
-          </TableContainer>
-          <Footer />
-        </main>
-      </ScrollArea>
+        <TableContainer>
+          <TableTitleContainer>
+            <SpeakerLoudIcon className='h-[1.2rem] w-[1.2rem] text-muted-foreground' />
+            <TypographyH4>Grabaciones</TypographyH4>
+          </TableTitleContainer>
+          <Separator className='my-4' />
+          <Suspense fallback={<DashboardSkeleton />}>
+            <TablaRecordings />
+          </Suspense>
+        </TableContainer>
+        <Footer />
+      </main>
     </>
   )
 }

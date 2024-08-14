@@ -1,6 +1,6 @@
 import "server-only"
 import { createTask, getRecords } from "@/lib/actions"
-import { _recordsPath, _urlBase, _urlCanary } from "@/lib/api/paths"
+import { ALL_RECORDS_PATH, URL_API_MAIN, URL_API_CANARY } from "@/lib/consts"
 import { columns } from "@/components/tables/records-table/columns-records"
 import DataTable from "@/components/tables/table-core/data-table"
 import { SupportedLocales, type Recordings } from "@/lib/types.d"
@@ -13,24 +13,13 @@ export default async function TablaRecordings({
 }) {
   let recordings: Recordings
   try {
-    recordings = await getRecords(_urlCanary, _recordsPath, true)
+    recordings = await getRecords([URL_API_CANARY, ALL_RECORDS_PATH], true)
   } catch (error: any) {
     return (
       <ErrorCodeUserFriendly error={error} locale={SupportedLocales.SPANISH} />
     )
   }
 
-  async function POSTTask(url: string, fileName: string, params: any) {
-    return await createTask(
-      _urlBase,
-      "/speech-to-text",
-      url,
-      params,
-      null,
-      false,
-      fileName
-    )
-  }
   return (
     <DataTable
       columns={columns}

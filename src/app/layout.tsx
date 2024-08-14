@@ -9,7 +9,7 @@ const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "AuditorIA",
-  description: "TEST",
+  description: "Página principal de AuditorIA",
 }
 
 export default function RootLayout({

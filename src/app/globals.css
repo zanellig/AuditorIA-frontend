@@ -24,6 +24,10 @@
     --success: hsl(142.1, 76.2%, 36.3%);
     --success-foreground: hsl(0, 0%, 98%);
     --success-secondary: hsl(144.9, 80.4%, 10%);
+    --warning: hsl(48, 100%, 41.8%);
+    --warning-foreground: hsl(0, 0%, 98%);
+    --error: hsl(355, 70%, 54.1%);
+    --error-foreground: hsl(0, 0%, 98%);
     --border: hsl(240, 5.9%, 90%);
     --input: hsl(240, 5.9%, 90%);
     --ring: hsl(346.8, 77.2%, 49.8%);
@@ -37,6 +41,7 @@
 
   .dark {
     --background: hsl(240, 10%, 3.9%);
+    --pulse: hsl(240, 10%, 3.9%);
     --foreground: hsl(0, 0%, 98%);
     --card: hsl(240, 10%, 3.9%);
     --card-foreground: hsl(0, 0%, 98%);
@@ -56,6 +61,10 @@
     --success: hsl(142.1, 76.2%, 36.3%);
     --success-foreground: hsl(0, 0%, 98%);
     --success-secondary: hsl(144.9, 80.4%, 10%);
+    --warning: hsl(48, 100%, 41.8%);
+    --warning-foreground: hsl(0, 0%, 98%);
+    --error: hsl(355, 70%, 54.1%);
+    --error-foreground: hsl(0, 0%, 98%);
     --border: hsl(240, 3.7%, 15.9%);
     --input: hsl(240, 3.7%, 15.9%);
     --ring: hsl(240, 4.9%, 83.9%);

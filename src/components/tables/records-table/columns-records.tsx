@@ -5,7 +5,7 @@ import type { Recording } from "@/lib/types"
 import { ArrowUpDown, ArrowDown, ArrowUp } from "lucide-react"
 
 import { obtenerMesLocale } from "@/lib/utils"
-import { _urlBase, _urlCanary } from "@/lib/api/paths"
+import { URL_API_MAIN, URL_API_CANARY } from "@/lib/consts"
 
 import { Badge } from "@/components/ui/badge"
 import AudioProcessingTaskStarterServer from "@/components/tables/records-table/audio-processing/audio-proccesing-task-starter.server"
@@ -159,7 +159,7 @@ export const columns: ColumnDef<Recording | null>[] = [
   {
     accessorKey: "URL",
     header: () => {
-      return <div className='text-center'></div>
+      return <></>
     },
     cell: ({ row }) => {
       return (

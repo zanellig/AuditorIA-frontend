@@ -31,31 +31,31 @@ export function BreadcrumbWithCustomSeparator({
           // last index is the current page
           if (index === pathnames.length - 1) {
             return (
-              <>
-                <BreadcrumbItem key={pathname}>
-                  <BreadcrumbPage
-                    className='capitalize'
-                    key={pathname + "-page"}
-                  >
+              <div key={`${index}-${pathname}-item`}>
+                <BreadcrumbItem className='bg-transparent'>
+                  <BreadcrumbPage className='capitalize'>
                     {pathname}
                   </BreadcrumbPage>
                 </BreadcrumbItem>
-              </>
+              </div>
             )
           } else {
             return (
-              <>
-                <BreadcrumbItem key={pathname}>
+              <div
+                key={`${index}-${pathname}-item`}
+                className='flex flex-row items-center space-x-2'
+              >
+                <BreadcrumbItem>
                   <BreadcrumbLink
                     href={`/${pathnames.slice(0, index + 1).join("/")}`}
                     className='capitalize'
-                    key={pathname + "-link"}
+                    key={`${index}-${pathname}-link`}
                   >
                     {pathname}
                   </BreadcrumbLink>
                 </BreadcrumbItem>
                 {pathnames.length - 1 !== index && <BreadcrumbSeparator />}
-              </>
+              </div>
             )
           }
         })}

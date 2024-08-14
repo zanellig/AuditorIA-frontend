@@ -43,6 +43,7 @@ import TitleH1 from "@/components/typography/titleH1"
 import SubtitleH2 from "@/components/typography/subtitleH2"
 
 import Analysis from "@/components/transcription/analysis"
+import SpeakerAnalysis from "./speaker-analysis.server"
 
 interface TranscriptionClientProps {
   transcription: TranscriptionType
@@ -79,7 +80,7 @@ const TranscriptionClient = ({
       {isAnalysisNotReady && (
         <TranscriptionNotReady status={transcription.status} />
       )}
-
+      <SpeakerAnalysis />
       <div className={cn("flex flex-col space-y-2 py-10 pl-4 pr-16")}>
         <div className='flex flex-row items-center space-x-4 self-center'>
           <SubtitleH2>
@@ -198,7 +199,7 @@ export function SentimentMarker({ sentiment }: { sentiment: SentimentType }) {
     <div
       className={cn(
         sentimentStyle(sentiment),
-        "inline-block w-3 h-full rounded-md p-0.5"
+        "inline-block w-1 min-w-1 h-full rounded-md p-0.5"
       )}
     ></div>
   )
@@ -206,11 +207,11 @@ export function SentimentMarker({ sentiment }: { sentiment: SentimentType }) {
 function sentimentStyle(sentiment: SentimentType) {
   switch (sentiment) {
     case "POS":
-      return `bg-${POSITIVE_SENTIMENT_COLOR} color-${POSITIVE_SENTIMENT_COLOR}`
+      return "bg-success"
     case "NEU":
-      return `bg-${NEUTRAL_SENTIMENT_COLOR} color-${NEUTRAL_SENTIMENT_COLOR}`
+      return "bg-yellow-500"
     case "NEG":
-      return `bg-${NEGATIVE_SENTIMENT_COLOR} color-${NEGATIVE_SENTIMENT_COLOR}`
+      return "bg-destructive"
   }
 }
 
@@ -230,6 +231,7 @@ export function ChatBox({
   let sentiment
   if (analysis?.sentiment) {
     sentiment = analysis.sentiment
+    console.log(sentiment)
   } else return null
   switch (speaker) {
     case "SPEAKER_00":

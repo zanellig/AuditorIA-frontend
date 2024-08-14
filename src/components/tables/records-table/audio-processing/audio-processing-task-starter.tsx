@@ -27,7 +27,7 @@ import {
 import { Button } from "@/components/ui/button"
 import ParagraphP from "@/components/typography/paragraphP"
 import { SelectField } from "@/components/tables/records-table/audio-processing/select-field"
-import { _urlBase } from "@/lib/api/paths"
+import { URL_API_MAIN } from "@/lib/consts"
 
 import { taskFormOptions, taskFormSchema, type FormValues } from "@/lib/forms"
 import { Lancelot } from "next/font/google"
@@ -38,7 +38,7 @@ export default function AudioProcessingTaskStarter({
 }: {
   row: any
   POSTTask: (
-    url: string,
+    nasUrl: string,
     fileName: string,
     params: Record<string, string>
   ) => Promise<any>

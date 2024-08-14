@@ -10,6 +10,7 @@ import {
   HateValues,
   SentimentValues,
 } from "@/lib/types.d"
+import { ACCEPTED_ORIGINS } from "@/lib/consts"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -146,4 +147,41 @@ export async function calculateAverageForSegments(
     sentimentAverage,
     hateSpeechAverage,
   }
+}
+
+export function _validateOrigin(origin: string): string {
+  return (
+    ACCEPTED_ORIGINS.find(originFromList => origin === originFromList) || ""
+  )
+}
+
+export enum AllowedContentTypes {
+  Json = "json",
+  Form = "form",
+  Multipart = "multipart",
+}
+
+export function getHeaders(
+  origin: string,
+  contentType?: AllowedContentTypes
+): Record<string, string> {
+  let headers: Record<string, string> = {}
+  switch (contentType) {
+    case "json":
+      headers["Content-Type"] = "application/json"
+      break
+    case "form":
+      headers["Content-Type"] = "application/x-www-form-urlencoded"
+      break
+    case "multipart":
+      // Don't set Content-Type for multipart/form-data, let the browser set it with the boundary
+      break
+  }
+  const validatedOrigin = _validateOrigin(origin)
+  if (validatedOrigin) {
+    headers["Access-Control-Allow-Origin"] = validatedOrigin
+    headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
+    headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
+  }
+  return headers
 }

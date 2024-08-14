@@ -1,5 +1,5 @@
 "use client"
-import React, { useState } from "react"
+import React, { Suspense, useState } from "react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
@@ -14,10 +14,11 @@ import {
 import { SendUsFeedbackButton } from "@/components/navigation/feedback-button"
 import { useScroll } from "../ScrollProvider"
 import { usePathname } from "next/navigation"
-import { BreadcrumbWithCustomSeparator } from "./TESTBREADCRUMBS"
+import { BreadcrumbWithCustomSeparator } from "./breadcrumbs-with-separator"
 import { AvatarButton } from "./avatar"
 import { ModeToggle } from "./mode-toggle"
 import Link from "next/link"
+import StatusBadges from "@/components/navigation/status.client"
 
 export function Sidebar({
   className,
@@ -40,7 +41,7 @@ export function Sidebar({
   return (
     <nav
       className={cn(
-        "flex flex-col h-dvh items-center justify-between py-4 px-2 rounded-br-md bg-primary-foreground space-y-4 transition-all duration-400 overflow-hidden text-muted-foreground",
+        "flex flex-col h-dvh items-center justify-between py-4 px-2 rounded-br-md space-y-4 transition-all duration-400 overflow-hidden text-muted-foreground bg-primary-foreground",
         isExpanded ? "w-64" : "w-16",
         className
       )}
@@ -137,9 +138,11 @@ function SidebarButtonWrapper({
 }
 
 export function NavigationButtons({
+  children,
   className,
   style,
 }: {
+  children?: React.ReactNode
   className?: string
   style?: React.CSSProperties
 }) {
@@ -148,7 +151,6 @@ export function NavigationButtons({
   // const router = useRouter()
 
   const [showButtons, setShowButtons] = useState(false)
-  const [isDashboard, setIsDashboard] = useState(false)
 
   React.useEffect(() => {
     if (scrollY >= 0 && scrollY < 20) {
@@ -158,25 +160,20 @@ export function NavigationButtons({
     }
   }, [scrollY])
 
-  React.useEffect(() => {
-    if (pathname === "/dashboard") {
-      setIsDashboard(true)
-    } else {
-      setIsDashboard(false)
-    }
-  }, [pathname])
-
   return (
     <div
       className={cn(
-        "w-full h-fit absolute z-50 p-4 flex flex-row justify-between items-center",
+        "sticky top-0 w-full h-fit p-4 flex flex-row justify-between items-center z-10 backdrop-blur-sm shadow-md",
         className
       )}
       style={style}
     >
       <BreadcrumbWithCustomSeparator />
 
-      <div className='flex flex-row space-x-4'>
+      <div className='flex flex-row space-x-4 items-center'>
+        {/* <Suspense fallback={<div>Loading...</div>}>
+          <StatusBadges />
+        </Suspense> */}
         <AvatarButton showButtons={showButtons} />
         <div className={`transition-all duration-500 `}>
           <ModeToggle />

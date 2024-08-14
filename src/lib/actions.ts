@@ -1,112 +1,31 @@
 "use server"
 import {
+  Analysis,
   Tasks,
   Task,
   TranscriptionType,
   Recording,
   Recordings,
-  Method,
-  FetchOptions,
   Segment,
 } from "@/lib/types.d"
 
 import fs from "node:fs/promises"
 import path from "node:path"
 
-import { _urlBase, _urlCanary } from "@/lib/api/paths"
+import { URL_API_MAIN, URL_API_CANARY } from "@/lib/consts"
 import { revalidatePath } from "next/cache"
-import { calculateAverageForSegments } from "./utils"
+import { calculateAverageForSegments } from "@/lib/utils"
+import { getHeaders, AllowedContentTypes } from "@/lib/utils"
+
+import { _request, _get, _post, _put, _patch, _delete } from "@/lib/fetcher"
 
 const TESTING = false
-
-const ACCEPTED_ORIGINS = [_urlBase, _urlCanary]
-
-function _validateOrigin(origin: string): string {
-  return (
-    ACCEPTED_ORIGINS.find(originFromList => origin === originFromList) || ""
-  )
-}
-
-enum AllowedContentTypes {
-  Json = "json",
-  Form = "form",
-  Multipart = "multipart",
-}
-
-function _getHeaders(
-  origin: string,
-  contentType?: AllowedContentTypes
-): Record<string, string> {
-  let headers: Record<string, string> = {}
-  switch (contentType) {
-    case "json":
-      headers["Content-Type"] = "application/json"
-      break
-    case "form":
-      headers["Content-Type"] = "application/x-www-form-urlencoded"
-      break
-    case "multipart":
-      // Don't set Content-Type for multipart/form-data, let the browser set it with the boundary
-      break
-  }
-  const validatedOrigin = _validateOrigin(origin)
-  if (validatedOrigin) {
-    headers["Access-Control-Allow-Origin"] = validatedOrigin
-    // headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
-    // headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
-  }
-  return headers
-}
-
-async function _request<T>(
-  url: string,
-  method: Method,
-  headers: Record<string, string>,
-  body?: any,
-  options?: { revalidate?: boolean }
-): Promise<T> {
-  const fetchOptions: FetchOptions = {
-    headers,
-    method,
-  }
-  let response: Response
-
-  if (body) {
-    if (body instanceof FormData) {
-      fetchOptions.body = body
-    } else {
-      fetchOptions.body = JSON.stringify(body)
-      try {
-        await fs.writeFile("./request.txt", fetchOptions.body, {
-          encoding: "utf-8",
-        })
-      } catch (e: any) {
-        console.error(e.message)
-      }
-    }
-  }
-
-  if (options?.revalidate) {
-    fetchOptions.next = { revalidate: 5 }
-  }
-
-  response = await fetch(url, fetchOptions)
-  if (!response.ok) {
-    const errorDetail = await response.json()
-    console.error(
-      `Error ${response.status}: ${response.statusText} - ${errorDetail.message}`
-    )
-  }
-  revalidatePath("/", "layout")
-  return await response.json()
-}
 
 async function readFile(filePath: string): Promise<Buffer | null> {
   let data = null
   try {
     const normalizedPath = path.normalize(filePath)
     data = await fs.readFile(normalizedPath)
-    console.log(`File read successfully. Size: ${data.length} bytes`)
     return data
   } catch (error) {
     if (error instanceof Error) {
@@ -117,79 +36,32 @@ async function readFile(filePath: string): Promise<Buffer | null> {
   return data
 }
 
-function _get<T>(
-  url: string,
-  headers: Record<string, string>,
-  options?: { revalidate?: boolean }
-): Promise<T> {
-  return _request<T>(url, Method.Get, headers, null, options)
-}
-
-function _post<T>(
-  url: string,
-  headers: Record<string, string>,
-  body: any,
-  options?: { revalidate?: boolean }
-): Promise<T> {
-  return _request<T>(url, Method.Post, headers, body, options)
-}
-
-function _put<T>(
-  url: string,
-  headers: Record<string, string>,
-  body: any,
-  options?: { revalidate?: boolean }
-): Promise<T> {
-  if (body === null) {
-    return _request<T>(url, Method.Put, headers, options)
-  }
-  return _request<T>(url, Method.Put, headers, body, options)
-}
-
-function _patch<T>(
-  url: string,
-  headers: Record<string, string>,
-  body: any,
-  options?: { revalidate?: boolean }
-): Promise<T> {
-  return _request<T>(url, Method.Patch, headers, body, options)
-}
-
-function _delete<T>(
-  url: string,
-  headers: Record<string, string>,
-  options?: { revalidate?: boolean }
-): Promise<T> {
-  return _request<T>(url + "/delete", Method.Delete, headers, null, options)
-}
-
 function constructUrl(apiUrl: string, path: string, id?: string): string {
   return id ? `${apiUrl}${path}/${id}` : `${apiUrl}${path}`
 }
 
 async function getTasks(
-  apiUrl: string,
-  urlPath: string,
+  urlArr: Array<string>,
   revalidate?: boolean
 ): Promise<Tasks> {
-  const headers = _getHeaders(apiUrl)
-  const url = constructUrl(apiUrl, urlPath)
+  const headers = getHeaders(urlArr[0])
+  const url = [...urlArr].join("/")
   if (TESTING) {
     return []
   }
-  return _get<{ tasks: Tasks }>(url, headers, { revalidate }).then(
-    data => data.tasks
-  )
+  return _get<{ tasks: Tasks }>(url, headers, {
+    revalidate: revalidate,
+  }).then(data => data.tasks)
 }
 
 async function getTask(
-  apiUrl: string,
-  urlPath: string,
+  urlArr: Array<string>,
   id: Task["identifier"],
   revalidate?: boolean
 ): Promise<Task | TranscriptionType> {
-  const headers = _getHeaders(apiUrl)
-  const url = constructUrl(apiUrl, urlPath, id)
+  const headers = getHeaders(urlArr[0])
+  urlArr.push(id)
+  const url = [...urlArr].join("/")
   return _get<Task | TranscriptionType>(url, headers, { revalidate })
 }
 
@@ -201,7 +73,7 @@ async function createTask(
   revalidate: boolean = false,
   fileName?: Recording["GRABACION"]
 ): Promise<any> {
-  const headers = _getHeaders(urlArr[0], AllowedContentTypes.Multipart)
+  const headers = getHeaders(urlArr[0], AllowedContentTypes.Multipart)
   const url = [...urlArr].join("/")
   const formData = new FormData()
   formData.append("language", params.language)
@@ -214,14 +86,17 @@ async function createTask(
   } else if (nasUrl && fileName) {
     try {
       const binaryFromNAS = await readFile(nasUrl)
+      const fileType = fileName.split(".").pop()
       if (binaryFromNAS) {
-        const blob = new Blob([binaryFromNAS], { type: "audio/wav" })
+        const blob = new File([binaryFromNAS], fileName, {
+          type: `audio/${fileType}`,
+        })
         formData.append("file", blob, fileName)
       } else {
-        throw new Error("Failed to read file from NAS")
+        throw new Error("Failed to read file at createTask")
       }
     } catch (error: any) {
-      throw new Error(`${error.message}`)
+      throw new Error(`${error.message} at createTask`)
     }
   }
 
@@ -238,7 +113,7 @@ async function updateTask(
   task: Partial<Task>,
   revalidate?: boolean
 ): Promise<Task> {
-  const headers = _getHeaders(baseUrl)
+  const headers = getHeaders(baseUrl)
   const url = constructUrl(baseUrl, urlPath, id)
   return _patch<Task>(url, headers, task, { revalidate })
 }
@@ -250,7 +125,7 @@ async function updateTask(
 //   task: Partial<Task>,
 //   revalidate?: boolean
 // ): Promise<Task> {
-//   const headers = _getHeaders(baseUrl)
+//   const headers = getHeaders(baseUrl)
 //   const url = constructUrl(baseUrl, urlPath, id)
 //   return _patch<Task>(url, headers, task, { revalidate })
 // }
@@ -261,7 +136,7 @@ async function deleteTask(
   id: Task["identifier"],
   revalidate?: boolean
 ): Promise<boolean> {
-  const headers = _getHeaders(baseUrl)
+  const headers = getHeaders(baseUrl)
   const url = constructUrl(baseUrl, urlPath, id)
   return _delete<boolean>(url, headers, { revalidate })
 }
@@ -284,18 +159,17 @@ async function analyzeTask(
   id: Task["identifier"],
   revalidate?: boolean
 ): Promise<Task> {
-  const headers = _getHeaders(baseUrl)
+  const headers = getHeaders(baseUrl)
   const url = constructUrl(baseUrl, urlPath, id)
   return _put<Task>(url, headers, null, { revalidate })
 }
 
 async function getRecords(
-  baseUrl: string,
-  urlPath: string,
+  urlArr: Array<string>,
   revalidate?: boolean
 ): Promise<Recordings> {
-  const headers = _getHeaders(baseUrl)
-  const url = constructUrl(baseUrl, urlPath)
+  const headers = getHeaders(urlArr[0])
+  const url = [...urlArr].join("/")
   const cacheDir = path.join(process.cwd(), "cache")
   const cacheFile = path.join(cacheDir, "recordings.json")
   const metaFile = path.join(cacheDir, "recordings_meta.json")
@@ -339,9 +213,20 @@ async function getRecord(
   id: string,
   revalidate?: boolean
 ): Promise<Recording> {
-  const headers = _getHeaders(apiUrl)
+  const headers = getHeaders(apiUrl)
   const url = constructUrl(apiUrl, urlPath, id)
   return _get<Recording>(url, headers, { revalidate })
+}
+
+async function getAnalysis(
+  urlArr: Array<string>,
+  id: string,
+  revalidate: boolean = false
+) {
+  const headers = getHeaders(urlArr[0])
+  const url = [...urlArr].join("/")
+
+  return _get<Analysis>(url, headers, { revalidate })
 }
 
 async function getAudioFile(filePath: string): Promise<Buffer | null> {
@@ -350,6 +235,18 @@ async function getAudioFile(filePath: string): Promise<Buffer | null> {
 
 async function actionRevalidatePath(path: string) {
   revalidatePath(path)
+}
+
+async function checkServerStatus() {
+  const URLS = [URL_API_MAIN, URL_API_CANARY + "/docs"]
+  const responses = URLS.map(async url => {
+    const headers = getHeaders(url)
+    await _get<number>(url, headers, {
+      revalidate: false,
+      onlyReturnStatus: true,
+    })
+  })
+  console.log(`responses: ${responses}`)
 }
 
 async function sendTranscriptionToServer(transcription: TranscriptionType) {
@@ -369,10 +266,12 @@ export {
   analyzeTask,
   getTasks,
   getTask,
+  checkServerStatus,
   createTask,
   updateTask, // unused until we implement the patch task endpoint on the backend
   deleteTask,
   deleteTasks,
+  getAnalysis,
   getRecords,
   getRecord,
   getAudioFile,

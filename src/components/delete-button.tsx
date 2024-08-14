@@ -1,3 +1,4 @@
+"use client"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -10,18 +11,21 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { deleteTask, deleteTasks } from "@/lib/actions"
-import { _transcriptPath, _urlBase } from "@/lib/api/paths"
-import { Task } from "@/lib/types"
+import { TASK_PATH, URL_API_MAIN } from "@/lib/consts"
+import { Recording, Task } from "@/lib/types"
 import { cn } from "@/lib/utils"
+import { Table } from "@tanstack/react-table"
 
-export default function DeleteButton({
+export default function DeleteButton<TData extends Task | Recording>({
   identifier,
   ids,
+  table,
   className,
 }: {
   identifier?: Task["identifier"]
   ids?: Task["identifier"][]
   className?: string
+  table: Table<TData>
 }) {
   return (
     <div
@@ -37,6 +41,7 @@ export default function DeleteButton({
               "w-full h-full text-start cursor-default text-destructive ",
               className
             )}
+            // the click event is dispatched here
             id={`delete-button-${identifier}`}
           >
             Eliminar
@@ -62,11 +67,20 @@ export default function DeleteButton({
               className='font-bold bg-destructive text-primary hover:text-destructive hover:outline-1 hover:-outline-offset-1 hover:outline hover:outline-destructive  hover:bg-transparent'
               onClick={() => {
                 if (ids) {
-                  console.info(ids)
-                  deleteTasks(_urlBase, _transcriptPath, ids, true)
+                  deleteTasks(URL_API_MAIN, TASK_PATH, ids, true)
                 } else if (identifier) {
                   console.info(identifier)
-                  deleteTask(_urlBase, _transcriptPath, identifier, true)
+                  deleteTask(URL_API_MAIN, TASK_PATH, identifier, true)
+                }
+                // this is made to avoid empty pages
+                if (
+                  table.getPaginationRowModel().rows.length === 1 ||
+                  table.getPaginationRowModel().rows.length === ids?.length
+                ) {
+                  table.setPagination({
+                    pageIndex: table.getState().pagination.pageIndex - 1,
+                    pageSize: table.getState().pagination.pageSize,
+                  })
                 }
               }}
             >

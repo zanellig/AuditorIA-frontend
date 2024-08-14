@@ -1,6 +1,5 @@
 import { z } from "zod"
 
-const MAX_UPLOAD_SIZE = 1024 * 1024 * 50 // 50 MB
 const ACCEPTED_FILE_TYPES = [
   "audio/wav",
   "audio/x-wav",
