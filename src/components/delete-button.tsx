@@ -65,12 +65,22 @@ export default function DeleteButton<TData extends Task | Recording>({
           <AlertDialogFooter>
             <AlertDialogAction
               className='font-bold bg-destructive text-primary hover:text-destructive hover:outline-1 hover:-outline-offset-1 hover:outline hover:outline-destructive  hover:bg-transparent'
-              onClick={() => {
+              onClick={async () => {
                 if (ids) {
-                  deleteTasks(URL_API_MAIN, TASK_PATH, ids, true)
+                  const responses = await deleteTasks(
+                    [URL_API_MAIN, TASK_PATH],
+                    ids,
+                    true
+                  )
+                  console.log(responses)
                 } else if (identifier) {
-                  console.info(identifier)
-                  deleteTask(URL_API_MAIN, TASK_PATH, identifier, true)
+                  console.log(
+                    await deleteTask(
+                      [URL_API_MAIN, TASK_PATH],
+                      identifier,
+                      true
+                    )
+                  )
                 }
                 // this is made to avoid empty pages
                 if (

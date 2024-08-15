@@ -35,7 +35,7 @@ async function _request<T, R extends boolean | undefined = undefined>(
   if (options?.onlyReturnStatus) {
     return response.status as R extends true ? number : T
   }
-  return (await response.json()) as R extends true ? number : T
+  return await response.json()
 }
 
 function _get<T>(

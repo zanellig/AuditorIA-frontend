@@ -26,7 +26,7 @@ export default function SearchInput<TData>({
           table.getColumn("identifier")?.setFilterValue(event.target.value)
           table.setPageIndex(0)
         }}
-        className='max-w-sm h-8'
+        className='max-w-sm bg-input-background focus:bg-background'
       />
     )
   }
@@ -39,7 +39,7 @@ export default function SearchInput<TData>({
         onChange={event => {
           table.getColumn("IDLLAMADA")?.setFilterValue(event.target.value)
         }}
-        className='max-w-sm h-8'
+        className='max-w-sm bg-input-background focus:bg-background'
       />
     )
   }

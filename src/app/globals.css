@@ -30,6 +30,7 @@
     --error-foreground: hsl(0, 0%, 98%);
     --border: hsl(240, 5.9%, 90%);
     --input: hsl(240, 5.9%, 90%);
+    --input-background: hsl(177.85, 50%, 98.65%);
     --ring: hsl(346.8, 77.2%, 49.8%);
     --radius: 0.5rem;
     --chart-1: hsl(12, 76%, 61%);
@@ -67,6 +68,7 @@
     --error-foreground: hsl(0, 0%, 98%);
     --border: hsl(240, 3.7%, 15.9%);
     --input: hsl(240, 3.7%, 15.9%);
+    --input-background: hsl(240, 7.95%, 6.95%);
     --ring: hsl(240, 4.9%, 83.9%);
     --chart-1: hsl(220, 70%, 50%);
     --chart-2: hsl(160, 60%, 45%);

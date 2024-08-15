@@ -2,7 +2,7 @@
 import { useState } from "react"
 import { cn } from "@/lib/utils"
 import { Button } from "../ui/button"
-import { ChevronLeftIcon } from "@radix-ui/react-icons"
+import { ChevronLeftIcon, PlayIcon } from "@radix-ui/react-icons"
 import { Analysis } from "@/lib/types"
 import { usePathname } from "next/navigation"
 
@@ -45,9 +45,9 @@ export default function SpeakerAnalysisCard({
           <Button
             variant='outline'
             className='w-full'
-            onClick={async () => {
+            onClick={() => {
               // @ts-ignore
-              const analysisSv = await getAnalysisSv(id)
+              const analysisSv = getAnalysisSv(id)
               setAnalysis(analysisSv)
               console.log(`analysisFromServer: ${analysisSv}`)
             }}

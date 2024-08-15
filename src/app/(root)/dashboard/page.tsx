@@ -41,8 +41,8 @@ export default function Page() {
           <Suspense fallback={<DashboardSkeleton />}>
             <TablaRecordings />
           </Suspense>
+          <Footer />
         </TableContainer>
-        <Footer />
       </main>
     </>
   )

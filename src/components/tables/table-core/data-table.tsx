@@ -91,7 +91,7 @@ export default function DataTable<TData, TValue, DataType>({
         >
           {children}
         </TableActions>
-        <div className='rounded-md border bg-primary-foreground'>
+        <div className='rounded-md border bg-background'>
           <Table>
             <TableHeader>
               {table.getHeaderGroups().map(headerGroup => (

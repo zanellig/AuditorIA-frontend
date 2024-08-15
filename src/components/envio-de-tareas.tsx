@@ -97,7 +97,6 @@ export default function EnvioDeTareas({ className }: { className?: string }) {
         return
       }
       const parsedResponse = await res.json()
-      console.log(parsedResponse)
       handleSuccessfulSubmission(parsedResponse)
     } catch (error: any) {
       handleSubmissionError(error)

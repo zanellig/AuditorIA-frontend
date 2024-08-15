@@ -18,7 +18,6 @@ import { BreadcrumbWithCustomSeparator } from "./breadcrumbs-with-separator"
 import { AvatarButton } from "./avatar"
 import { ModeToggle } from "./mode-toggle"
 import Link from "next/link"
-import StatusBadges from "@/components/navigation/status.client"
 
 export function Sidebar({
   className,
@@ -36,13 +35,13 @@ export function Sidebar({
   React.useEffect(() => {
     const width = isExpanded ? 256 : 64 // 16rem when expanded, 4rem when collapsed
     onResize(width)
+    console.log("onResize", width)
   }, [isExpanded])
 
   return (
     <nav
       className={cn(
-        "flex flex-col h-dvh items-center justify-between py-4 px-2 rounded-br-md space-y-4 transition-all duration-400 overflow-hidden text-muted-foreground bg-primary-foreground",
-        isExpanded ? "w-64" : "w-16",
+        "flex flex-col h-dvh items-center justify-between py-4 px-2 rounded-br-md space-y-4  overflow-hidden text-muted-foreground bg-primary-foreground",
         className
       )}
     >
@@ -163,7 +162,7 @@ export function NavigationButtons({
   return (
     <div
       className={cn(
-        "sticky top-0 w-full h-fit p-4 flex flex-row justify-between items-center z-10 backdrop-blur-sm shadow-md",
+        "sticky top-0 w-full h-fit p-4 flex flex-row justify-between items-center z-10 backdrop-blur-sm shadow-md dark:shadow-xl",
         className
       )}
       style={style}

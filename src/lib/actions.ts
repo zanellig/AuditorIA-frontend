@@ -131,26 +131,30 @@ async function updateTask(
 // }
 
 async function deleteTask(
-  baseUrl: string,
-  urlPath: string,
+  urlArr: Array<string>,
   id: Task["identifier"],
   revalidate?: boolean
 ): Promise<boolean> {
-  const headers = getHeaders(baseUrl)
-  const url = constructUrl(baseUrl, urlPath, id)
+  const headers = getHeaders(urlArr[0])
+  urlArr.push(id)
+  const url = [...urlArr].join("/")
+  revalidatePath("/", "layout")
   return _delete<boolean>(url, headers, { revalidate })
 }
 
 async function deleteTasks(
-  baseUrl: string,
-  urlPath: string,
+  urlArr: Array<string>,
   ids: Task["identifier"][],
   revalidate?: boolean
-): Promise<boolean[]> {
-  const deletePromises = ids.map(
-    async id => await deleteTask(baseUrl, urlPath, id, revalidate)
-  )
-  return Promise.all(deletePromises)
+): Promise<PromiseSettledResult<boolean>[]> {
+  const deletePromises = ids.map(async (id, i) => {
+    return await deleteTask(urlArr, id, revalidate)
+  })
+  console.log("deletePromises", deletePromises)
+  revalidatePath("/", "layout")
+  const results = await Promise.allSettled(deletePromises)
+
+  return results
 }
 
 async function analyzeTask(
@@ -208,13 +212,15 @@ async function getRecords(
 }
 
 async function getRecord(
-  apiUrl: string,
-  urlPath: string,
-  id: string,
+  urlArr: Array<string>,
+  GRABACION: string,
   revalidate?: boolean
 ): Promise<Recording> {
-  const headers = getHeaders(apiUrl)
-  const url = constructUrl(apiUrl, urlPath, id)
+  const headers = getHeaders(urlArr[0])
+  let url = [...urlArr].join("/")
+  url = url.concat(`?GRABACION=${GRABACION}`)
+  console.log("url", url)
+
   return _get<Recording>(url, headers, { revalidate })
 }
 
@@ -227,10 +233,6 @@ async function getAnalysis(
   const url = [...urlArr].join("/")
 
   return _get<Analysis>(url, headers, { revalidate })
-}
-
-async function getAudioFile(filePath: string): Promise<Buffer | null> {
-  return readFile(filePath)
 }
 
 async function actionRevalidatePath(path: string) {
@@ -274,7 +276,6 @@ export {
   getAnalysis,
   getRecords,
   getRecord,
-  getAudioFile,
   sendTranscriptionToServer,
   calculateAverages,
 }

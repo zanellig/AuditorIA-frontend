@@ -23,7 +23,13 @@ import {
 } from "@/components/ui/card"
 import { TrendingUp } from "lucide-react"
 
-export default function AverageEmotionChart({ chartData }: { chartData: any }) {
+export default function AverageEmotionChart({
+  chartData,
+  className,
+}: {
+  chartData: any
+  className?: string
+}) {
   const chartConfig = {
     probas: {
       label: "Probabilidad",
@@ -49,7 +55,7 @@ export default function AverageEmotionChart({ chartData }: { chartData: any }) {
       color: DISGUST_EMOTION_COLOR,
     },
   } satisfies ChartConfig
-  console.log(chartData)
+
   let strongestEmotion = ""
   let highestEmotionProba = 0
   for (const dataObj of chartData) {
@@ -63,10 +69,9 @@ export default function AverageEmotionChart({ chartData }: { chartData: any }) {
   return (
     <>
       {chartData && (
-        <Card className='w-fit'>
+        <Card className='w-[350px] bg-transparent border-none'>
           <CardHeader>
-            <CardTitle>Promedio de emoción</CardTitle>
-            <CardDescription></CardDescription>
+            <CardDescription>Promedio de emoción</CardDescription>
           </CardHeader>
           <CardContent>
             <ChartContainer
@@ -102,17 +107,30 @@ export default function AverageEmotionChart({ chartData }: { chartData: any }) {
           </CardContent>
           <CardFooter className='flex-col items-start gap-2 text-sm'>
             <div className='flex gap-2 font-medium leading-none'>
-              La emoción predominante fue {strongestEmotion} con una
-              probabilidad del {highestEmotionProba.toFixed(1)}%{" "}
+              La emoción predominante fue {getSpanishEmotion(strongestEmotion)}{" "}
+              con una probabilidad del {highestEmotionProba.toFixed(1)}%{" "}
               <TrendingUp size={GLOBAL_ICON_SIZE} />
-            </div>
-            <div className='leading-none text-muted-foreground'>
-              Mostrando el promedio de las emociones analizadas de ambos
-              hablantes durante todo el llamado
             </div>
           </CardFooter>
         </Card>
       )}
     </>
   )
+}
+
+function getSpanishEmotion(emotion: string) {
+  switch (emotion) {
+    case "joy":
+      return "disfrute"
+    case "fear":
+      return "miedo"
+    case "anger":
+      return "enojo"
+    case "others":
+      return "otros"
+    case "disgust":
+      return "disgust"
+    default:
+      return "desconocido"
+  }
 }

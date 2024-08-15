@@ -1,5 +1,11 @@
 "use client"
 
+/**
+ * Esto más que un "seleccionador" es un botón de filtro.
+ * Se debería implementar x tabla y no hacer uno general que tome parámetros,
+ * hacer un "Filter factory" y pasarle parámetros para agregar todos los que queramos.
+ */
+
 import * as React from "react"
 
 import { Table as ReactTableInstance } from "@tanstack/react-table"
@@ -13,6 +19,7 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
+  CommandSeparator,
 } from "@/components/ui/command"
 import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer"
 import {
@@ -40,9 +47,22 @@ export default function SeleccionadorEstadoUsuario<TData>({
 }: SeleccionadorProps<TData>) {
   const [open, setOpen] = React.useState(false)
   const isDesktop = useMediaQuery("(min-width: 768px)")
-  const [selectedStatus, setSelectedValue] = React.useState<
+  const [selectedValue, setSelectedValue] = React.useState<
     Task["status"] | Recording["USUARIO"] | null
   >(null)
+  React.useEffect(() => {
+    console.log(type)
+    console.log("selected status: ", selectedValue)
+  }, [selectedValue])
+
+  const getTypeString = (type: string) => {
+    switch (type) {
+      case "tasks":
+        return "Estado"
+      case "records":
+        return "Usuario"
+    }
+  }
 
   if (isDesktop) {
     return (
@@ -57,8 +77,8 @@ export default function SeleccionadorEstadoUsuario<TData>({
           >
             <CirclePlus size={GLOBAL_ICON_SIZE} />
             <span>
-              {selectedStatus ? (
-                <>{selectedStatus.toString()}</>
+              {selectedValue ? (
+                <>{selectedValue.toString()}</>
               ) : (
                 <>{type === "tasks" ? "Estado" : "Usuario"}</>
               )}
@@ -70,7 +90,7 @@ export default function SeleccionadorEstadoUsuario<TData>({
             setOpen={setOpen}
             setSelectedValue={setSelectedValue}
             table={table}
-            type={type}
+            type={type === "tasks" ? "estado" : "usuario"}
             operadores={operadores}
           />
         </PopoverContent>
@@ -87,10 +107,10 @@ export default function SeleccionadorEstadoUsuario<TData>({
         >
           <CirclePlus size={GLOBAL_ICON_SIZE} />
           <span>
-            {selectedStatus ? (
-              <>{selectedStatus.toString()}</>
+            {selectedValue ? (
+              <>{selectedValue.toString()}</>
             ) : (
-              <>{type === "tasks" ? "Estado" : "Usuario"}</>
+              <span className='capitalize'>{type}</span>
             )}
           </span>
         </Button>
@@ -101,7 +121,7 @@ export default function SeleccionadorEstadoUsuario<TData>({
             setOpen={setOpen}
             setSelectedValue={setSelectedValue}
             table={table}
-            type={type}
+            type={type === "tasks" ? "estado" : "usuario"}
             operadores={operadores}
           />
         </div>
@@ -125,26 +145,28 @@ function StatusList<TData>({
 }) {
   return (
     <Command>
-      <CommandInput placeholder='Filtrar' />
+      <CommandInput placeholder={"Filtrar por " + type} />
       <CommandList>
-        <CommandEmpty>No results found.</CommandEmpty>
+        <CommandEmpty>No se encontraron resultados.</CommandEmpty>
         <CommandGroup>
           {Array.from(operadores).map(operador => (
-            <CommandItem
-              key={operador.toString()}
-              value={operador.toString()}
-              onSelect={value => {
-                const selected = Array.from(operadores).find(
-                  op => op.toString() === value
-                )
-                if (selected !== undefined) {
-                  setSelectedValue(selected)
-                }
-                setOpen(false)
-              }}
-            >
-              {operador.toString()}
-            </CommandItem>
+            <>
+              <CommandItem
+                key={operador.toString()}
+                value={operador.toString()}
+                onSelect={value => {
+                  const selected = Array.from(operadores).find(
+                    op => op.toString() === value
+                  )
+                  if (selected !== undefined) {
+                    setSelectedValue(selected)
+                  }
+                  setOpen(false)
+                }}
+              >
+                {operador.toString()}
+              </CommandItem>
+            </>
           ))}
         </CommandGroup>
       </CommandList>
