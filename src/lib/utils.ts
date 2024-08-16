@@ -185,3 +185,34 @@ export function getHeaders(
   }
   return headers
 }
+
+export function getUniqueWords(segments: Segment[]): Set<string> {
+  const wordsSet: Set<string> = new Set()
+  for (const segment of segments) {
+    let words = segment.text.split(" ")
+    words = words.map(word => {
+      word = replaceSpecialCharacters(word, "")
+      word = word.toLowerCase()
+      word = word.trim()
+      return word
+    })
+    words = words.filter(word => word !== "")
+    words.forEach(word => {
+      wordsSet.add(word)
+    })
+  }
+  return wordsSet
+}
+
+export function replaceSpecialCharacters(
+  input: string,
+  replacement: string
+): string {
+  // Regular expression to match all special characters
+  const specialCharsRegex = /[^a-zA-Z0-9\sáéíóúÁÉÍÓÚ]/g
+
+  // Replace all special characters with the specified replacement string
+  const sanitizedString = input.replace(specialCharsRegex, replacement)
+
+  return sanitizedString
+}

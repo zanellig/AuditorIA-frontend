@@ -16,14 +16,7 @@ import {
 } from "@/lib/consts"
 import AverageEmotionChart from "@/components/transcription/average-emotion-chart"
 import { Card, CardContent } from "@/components/ui/card"
-
-export async function getRecordByGrabacion(
-  urlArr: Array<string>,
-  GRABACION: string
-): Promise<Recording> {
-  const record = await getRecord(urlArr, GRABACION)
-  return record
-}
+import { getUniqueWords } from "@/lib/utils"
 
 export default function Analysis({
   transcription,
@@ -33,8 +26,15 @@ export default function Analysis({
   const { toast } = useToast()
   const [averages, setAverages] = useState<Averages | null>(null)
   const [averageChartData, setAverageChartData] = useState<any>(null)
+  const words = getUniqueWords(transcription.result?.segments)
+  console.log(words)
 
-  const [record, setRecord] = useState<Recording | null>(null)
+  // const [record, setRecord] = useState<Recording | null>(null)
+  // const record = await getRecord(
+  //   [URL_API_CANARY, ALL_RECORDS_PATH],
+  //   transcription.metadata.file_name
+  // )
+  // setRecord(record)
 
   const [allLoaded, setAllLoaded] = useState<boolean>(false)
   return (
@@ -55,11 +55,7 @@ export default function Analysis({
             const calculation = await calculateAverages(
               transcription.result.segments
             )
-            const record = await getRecordByGrabacion(
-              [URL_API_CANARY, ALL_RECORDS_PATH],
-              transcription.metadata.file_name
-            )
-            setRecord(record)
+
             setAverages(calculation)
             const averageChartDataValues = [
               {
@@ -100,7 +96,7 @@ export default function Analysis({
       {allLoaded && (
         <CardContent className='items-center justify-center'>
           <AverageEmotionChart chartData={averageChartData} />
-          <code>{JSON.stringify(record, null, 2)}</code>
+          {/* <code>{JSON.stringify(record, null, 2)}</code> */}
         </CardContent>
       )}
     </Card>

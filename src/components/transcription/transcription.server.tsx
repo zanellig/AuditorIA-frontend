@@ -12,8 +12,11 @@ export default async function TranscriptionServer({
   taskId,
 }: TranscriptionServerProps) {
   try {
-    const transcription = await getTask([URL_API_MAIN, TASK_PATH], taskId, true)
-
+    const response = await fetch("/api/task?identifier=" + taskId, {
+      method: "GET",
+    })
+    const transcription = JSON.parse(await response.text())
+    console.log(transcription)
     return (
       <TranscriptionClient
         transcription={transcription as TranscriptionType}

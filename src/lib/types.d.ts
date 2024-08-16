@@ -8,9 +8,11 @@ export interface ServerStatus {
   canary: number | undefined | null
 }
 
+export enum AnalysisMessage {
+  Queued = "queued for analyze",
+}
 export type Analysis = {
-  uuid: Task["identifier"]
-  processed_result: string
+  message: AnalysisMessage
 }
 
 export type Tasks = Task[]

@@ -19,7 +19,7 @@ import { getHeaders, AllowedContentTypes } from "@/lib/utils"
 
 import { _request, _get, _post, _put, _patch, _delete } from "@/lib/fetcher"
 
-const TESTING = false
+import { TESTING_RECORDINGS, TESTING } from "@/lib/consts"
 
 async function readFile(filePath: string): Promise<Buffer | null> {
   let data = null
@@ -136,8 +136,8 @@ async function deleteTask(
   revalidate?: boolean
 ): Promise<boolean> {
   const headers = getHeaders(urlArr[0])
-  urlArr.push(id)
-  const url = [...urlArr].join("/")
+  let url = [...urlArr].join("/")
+  url = url.concat(`/${id}`)
   revalidatePath("/", "layout")
   return _delete<boolean>(url, headers, { revalidate })
 }
@@ -150,22 +150,24 @@ async function deleteTasks(
   const deletePromises = ids.map(async (id, i) => {
     return await deleteTask(urlArr, id, revalidate)
   })
-  console.log("deletePromises", deletePromises)
-  revalidatePath("/", "layout")
   const results = await Promise.allSettled(deletePromises)
 
+  revalidatePath("/", "layout")
   return results
 }
 
 async function analyzeTask(
-  baseUrl: string,
-  urlPath: string,
+  urlArr: Array<string>,
   id: Task["identifier"],
+  language: Task["language"],
   revalidate?: boolean
-): Promise<Task> {
-  const headers = getHeaders(baseUrl)
-  const url = constructUrl(baseUrl, urlPath, id)
-  return _put<Task>(url, headers, null, { revalidate })
+): Promise<Analysis> {
+  const headers = getHeaders(urlArr[0])
+  let url = [...urlArr].join("/")
+  url = url.concat(`/${id}`).concat(`?lang=${language}`)
+  console.log(url)
+  console.log(headers)
+  return _put<Analysis>(url, null, headers, { revalidate })
 }
 
 async function getRecords(

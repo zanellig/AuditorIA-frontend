@@ -65,7 +65,6 @@ export default function TableActions<TData>({
       <div className='flex flex-row space-x-2'>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            {/* TODO: implementar funcionalidad */}
             <Button
               variant='outline'
               className=' h-8 w-fit space-x-2 font-normal'

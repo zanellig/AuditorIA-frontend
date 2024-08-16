@@ -35,7 +35,6 @@ export function Sidebar({
   React.useEffect(() => {
     const width = isExpanded ? 256 : 64 // 16rem when expanded, 4rem when collapsed
     onResize(width)
-    console.log("onResize", width)
   }, [isExpanded])
 
   return (
@@ -50,7 +49,7 @@ export function Sidebar({
           <ChevronLeftIcon
             className={cn(
               "h-[1.2rem] w-[1.2rem] transition-all duration-600",
-              !isExpanded ? "rotate-180" : "rotate-0"
+              !isExpanded ? "rotate-0" : "rotate-180"
             )}
           />
         </div>

@@ -1,6 +1,11 @@
 import "server-only"
 import { createTask, getRecords } from "@/lib/actions"
-import { ALL_RECORDS_PATH, URL_API_MAIN, URL_API_CANARY } from "@/lib/consts"
+import {
+  ALL_RECORDS_PATH,
+  URL_API_MAIN,
+  URL_API_CANARY,
+  TESTING_RECORDINGS,
+} from "@/lib/consts"
 import { columns } from "@/components/tables/records-table/columns-records"
 import DataTable from "@/components/tables/table-core/data-table"
 import { SupportedLocales, type Recordings } from "@/lib/types.d"
@@ -11,6 +16,11 @@ export default async function TablaRecordings({
 }: {
   reset?: () => void
 }) {
+  if (TESTING_RECORDINGS) {
+    return (
+      <DataTable columns={columns} data={[]} type={"records"} recordings={[]} />
+    )
+  }
   let recordings: Recordings
   try {
     recordings = await getRecords([URL_API_CANARY, ALL_RECORDS_PATH], true)

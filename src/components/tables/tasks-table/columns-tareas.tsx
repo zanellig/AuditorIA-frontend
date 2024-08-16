@@ -47,7 +47,8 @@ import {
   URL_API_MAIN,
   URL_API_CANARY,
 } from "@/lib/consts"
-import { analyzeTask } from "@/lib/actions"
+import { actionRevalidatePath, analyzeTask } from "@/lib/actions"
+import { ToastAction } from "@/components/ui/toast"
 
 function renderMarker(status: Status) {
   switch (status) {
@@ -209,26 +210,46 @@ export const columns: ColumnDef<Task | null>[] = [
                   className='w-full h-full text-start'
                   id={row.original?.identifier}
                   onClick={async () => {
-                    if (row.original?.identifier) {
-                      try {
-                        await analyzeTask(
-                          URL_API_CANARY,
-                          TASK_PATH,
-                          row.original?.identifier
-                        )
+                    toast({
+                      title: "Analizando tarea",
+                      description: "La tarea se está analizando",
+                      variant: "default",
+                    })
+                    try {
+                      const res = await analyzeTask(
+                        [URL_API_CANARY, "tasks"],
+                        row.original?.identifier,
+                        row.original?.language
+                      )
+                      if (res.message === "queued for analyze") {
                         toast({
                           title: "Tarea analizada",
-                          description: "La tarea ha sido analizada",
+                          description: `Ya puede visualizar el análisis de la tarea ${row.original?.identifier}`,
                           variant: "success",
-                        })
-                      } catch (error) {
-                        console.error(error)
-                        toast({
-                          title: "Error",
-                          description: "La tarea no pudo ser analizada",
-                          variant: "destructive",
+                          action: (
+                            <ToastAction altText='Ir a la transcripción'>
+                              <Link
+                                href={taskURL}
+                                className='w-full h-full cursor-default'
+                                onClick={() => {
+                                  actionRevalidatePath(taskURL)
+                                }}
+                              >
+                                Ir a la transcripción
+                              </Link>
+                            </ToastAction>
+                          ),
                         })
                       }
+                    } catch (error) {
+                      console.error(error)
+                      toast({
+                        title: "Error",
+                        description: "La tarea no pudo ser analizada",
+                        variant: "destructive",
+                      })
+                    } finally {
+                      actionRevalidatePath("/dashboard")
                     }
                   }}
                 >
@@ -239,7 +260,13 @@ export const columns: ColumnDef<Task | null>[] = [
               <DropdownMenuSeparator />
 
               <DropdownMenuItem className='font-bold'>
-                <Link href={taskURL} className='w-full h-full cursor-default'>
+                <Link
+                  href={taskURL}
+                  className='w-full h-full cursor-default'
+                  onClick={() => {
+                    actionRevalidatePath(taskURL)
+                  }}
+                >
                   Ir a la transcripción
                 </Link>
               </DropdownMenuItem>

@@ -15,3 +15,7 @@ export const TASK_PATH = "task"
 export const ALL_RECORDS_PATH = "records/all"
 export const SPEECH_TO_TEXT_PATH = "speech-to-text"
 export const ACCEPTED_ORIGINS = [URL_API_MAIN, URL_API_CANARY]
+
+// for testing
+export const TESTING = false
+export const TESTING_RECORDINGS = true
