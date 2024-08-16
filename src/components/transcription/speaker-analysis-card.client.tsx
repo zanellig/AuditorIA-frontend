@@ -4,7 +4,15 @@ import { cn } from "@/lib/utils"
 import { Button } from "../ui/button"
 import { ChevronLeftIcon, PlayIcon } from "@radix-ui/react-icons"
 import { Analysis } from "@/lib/types"
-import { usePathname } from "next/navigation"
+import { usePathname, useSearchParams } from "next/navigation"
+
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
+import { getSpeakerProfileLLM } from "@/lib/actions"
 
 export default function SpeakerAnalysisCard({
   children,
@@ -17,13 +25,14 @@ export default function SpeakerAnalysisCard({
 }) {
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const [analysis, setAnalysis] = useState<Analysis | null>(null)
-  const pathname = usePathname()
-  const id = pathname.split("/").at(-1)
+  const [LLMAnalysis, setLLMAnalysis] = useState<any | null>(null)
+  const searchParams = useSearchParams()
+  const id = searchParams.get("identifier")
 
   return (
     <div
       className={cn(
-        "fixed right-4 rounded-md border backdrop-blur-sm w-fit h-fit py-4 px-2 transition-transform duration-400 z-10",
+        "fixed right-4 rounded-md border bg-popover w-fit h-fit py-4 px-2 transition-transform duration-400 z-10",
         className,
         isOpen ? "" : "translate-x-[85%]"
       )}
@@ -42,19 +51,30 @@ export default function SpeakerAnalysisCard({
           />
         </Button>
         <div id='analysis-content'>
-          <Button
-            variant='outline'
-            className='w-full'
-            onClick={() => {
-              // @ts-ignore
-              const analysisSv = getAnalysisSv(id)
-              setAnalysis(analysisSv)
-              console.log(`analysisFromServer: ${analysisSv}`)
-            }}
-          >
-            Ver análisis por hablante
-          </Button>
-          {analysis && <div className='bg-success'>Good!</div>}
+          <Accordion type='single' collapsible>
+            <AccordionItem value='1'>
+              <AccordionTrigger>Palabras</AccordionTrigger>
+              <AccordionContent>
+                <span>1</span>
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value='2'>
+              <AccordionTrigger
+                className='space-x-4'
+                onClick={() => {
+                  getSpeakerProfileLLM(id).then(data => {
+                    console.log(`data: `, data)
+                    setLLMAnalysis(data)
+                  })
+                }}
+              >
+                <span>Evaluar perfil de hablante</span>
+              </AccordionTrigger>
+              <AccordionContent>
+                <span>2</span>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
         </div>
       </div>
     </div>

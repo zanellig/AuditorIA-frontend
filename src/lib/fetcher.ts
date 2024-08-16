@@ -24,6 +24,7 @@ async function _request<T, R extends boolean | undefined = undefined>(
   if (options?.revalidate) {
     fetchOptions.next = { revalidate: 5 }
   }
+  console.log(`fetchOptions: `, fetchOptions, "\nurl: ", url)
   response = await fetch(url, fetchOptions)
   if (!response.ok) {
     const errorDetail = await response.json()

@@ -10,9 +10,9 @@ export const DISGUST_EMOTION_COLOR = "#8a2be2"
 export const OTHERS_EMOTION_COLOR = "#ff7f50"
 export const URL_API_MAIN = "http://10.20.30.30:8000"
 export const URL_API_CANARY = "http://10.20.30.108:7000"
-export const ALL_TASKS_PATH = "task/all"
+export const ALL_TASKS_PATH = "tasks"
 export const TASK_PATH = "task"
-export const ALL_RECORDS_PATH = "records/all"
+export const ALL_RECORDS_PATH = "records"
 export const SPEECH_TO_TEXT_PATH = "speech-to-text"
 export const ACCEPTED_ORIGINS = [URL_API_MAIN, URL_API_CANARY]
 

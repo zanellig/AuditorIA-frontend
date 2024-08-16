@@ -191,7 +191,7 @@ export function getUniqueWords(segments: Segment[]): Set<string> {
   for (const segment of segments) {
     let words = segment.text.split(" ")
     words = words.map(word => {
-      word = replaceSpecialCharacters(word, "")
+      word = _replaceSpecialCharacters(word, "")
       word = word.toLowerCase()
       word = word.trim()
       return word
@@ -204,7 +204,7 @@ export function getUniqueWords(segments: Segment[]): Set<string> {
   return wordsSet
 }
 
-export function replaceSpecialCharacters(
+export function _replaceSpecialCharacters(
   input: string,
   replacement: string
 ): string {

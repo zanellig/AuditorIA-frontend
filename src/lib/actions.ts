@@ -261,6 +261,13 @@ async function sendTranscriptionToServer(transcription: TranscriptionType) {
   )
 }
 
+async function getSpeakerProfileLLM(id: Task["identifier"]) {
+  const headers = getHeaders(URL_API_CANARY)
+  const url = `${URL_API_CANARY}/tasks/spkanalysis/${id}`
+
+  return _get<any>(url, headers)
+}
+
 async function calculateAverages(segments: Segment[]) {
   return await calculateAverageForSegments(segments)
 }
@@ -278,6 +285,7 @@ export {
   getAnalysis,
   getRecords,
   getRecord,
+  getSpeakerProfileLLM,
   sendTranscriptionToServer,
   calculateAverages,
 }

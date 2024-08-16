@@ -16,7 +16,7 @@ export default async function TranscriptionServer({
       method: "GET",
     })
     const transcription = JSON.parse(await response.text())
-    console.log(transcription)
+
     return (
       <TranscriptionClient
         transcription={transcription as TranscriptionType}
