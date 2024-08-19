@@ -4,6 +4,7 @@ import TitleH1 from "@/components/typography/titleH1"
 import ErrorRetryButton from "@/components/error/error-button.client"
 import { getErrorStringLocale } from "@/lib/get-error-string-locale"
 import { SupportedLocales } from "@/lib/types.d"
+import { Button } from "../ui/button"
 
 interface ErrorCodeUserFriendlyProps {
   error: any
@@ -44,7 +45,12 @@ export function ErrorCodeUserFriendly({
         <br />
         {localizedContent.stackPrefix + error.stack.slice(0, 512)}
       </code>
-      <ErrorRetryButton locale={locale} />
+      <div className='flex flex-row space-x-2 justify-start'>
+        <ErrorRetryButton locale={locale} />
+        <Button variant='outline' className='w-fit p-2'>
+          Copiar código de error
+        </Button>
+      </div>
     </div>
   )
 }

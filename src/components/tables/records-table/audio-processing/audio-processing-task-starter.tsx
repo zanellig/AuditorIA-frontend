@@ -27,7 +27,7 @@ import {
 import { Button } from "@/components/ui/button"
 import ParagraphP from "@/components/typography/paragraphP"
 import { SelectField } from "@/components/tables/records-table/audio-processing/select-field"
-import { URL_API_MAIN } from "@/lib/consts"
+import { API_MAIN } from "@/lib/consts"
 
 import { taskFormOptions, taskFormSchema, type FormValues } from "@/lib/forms"
 import { Lancelot } from "next/font/google"

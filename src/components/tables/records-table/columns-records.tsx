@@ -5,7 +5,7 @@ import type { Recording } from "@/lib/types"
 import { ArrowUpDown, ArrowDown, ArrowUp } from "lucide-react"
 
 import { obtenerMesLocale } from "@/lib/utils"
-import { URL_API_MAIN, URL_API_CANARY } from "@/lib/consts"
+import { API_MAIN, API_CANARY } from "@/lib/consts"
 
 import { Badge } from "@/components/ui/badge"
 import AudioProcessingTaskStarterServer from "@/components/tables/records-table/audio-processing/audio-proccesing-task-starter.server"

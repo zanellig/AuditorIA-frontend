@@ -12,7 +12,7 @@ import {
 import fs from "node:fs/promises"
 import path from "node:path"
 
-import { URL_API_MAIN, URL_API_CANARY } from "@/lib/consts"
+import { API_MAIN, API_CANARY, TASK_PATH } from "@/lib/consts"
 import { revalidatePath } from "next/cache"
 import { calculateAverageForSegments } from "@/lib/utils"
 import { getHeaders, AllowedContentTypes } from "@/lib/utils"
@@ -65,42 +65,32 @@ async function getTask(
   return _get<Task | TranscriptionType>(url, headers, { revalidate })
 }
 
-async function createTask(
-  urlArr: Array<string>,
-  nasUrl?: string | null,
-  params?: any | null,
-  file?: File | Blob | null,
-  revalidate: boolean = false,
-  fileName?: Recording["GRABACION"]
-): Promise<any> {
-  const headers = getHeaders(urlArr[0], AllowedContentTypes.Multipart)
-  const url = [...urlArr].join("/")
-  const formData = new FormData()
-  formData.append("language", params.language)
-  formData.append("device", params.device)
-  formData.append("model", params.model)
-  formData.append("task_type", params.task_type)
+async function createTask(formData: FormData | string): Promise<any> {
+  const headers = getHeaders(API_MAIN, AllowedContentTypes.Multipart)
+  const url = [API_MAIN, TASK_PATH].join("/")
 
-  if (file && file instanceof File) {
-    formData.append("file", file, file.name)
-  } else if (nasUrl && fileName) {
-    try {
-      const binaryFromNAS = await readFile(nasUrl)
-      const fileType = fileName.split(".").pop()
-      if (binaryFromNAS) {
-        const blob = new File([binaryFromNAS], fileName, {
-          type: `audio/${fileType}`,
-        })
-        formData.append("file", blob, fileName)
-      } else {
-        throw new Error("Failed to read file at createTask")
-      }
-    } catch (error: any) {
-      throw new Error(`${error.message} at createTask`)
-    }
-  }
+  console.log("formData", formData)
 
-  return _post(url, headers, formData, { revalidate })
+  // if (file && file instanceof File) {
+  //   formData.append("file", file, file.name)
+  // } else if (nasUrl && fileName) {
+  //   try {
+  //     const binaryFromNAS = await readFile(nasUrl)
+  //     const fileType = fileName.split(".").pop()
+  //     if (binaryFromNAS) {
+  //       const blob = new File([binaryFromNAS], fileName, {
+  //         type: `audio/${fileType}`,
+  //       })
+  //       formData.append("file", blob, fileName)
+  //     } else {
+  //       throw new Error("Failed to read file at createTask")
+  //     }
+  //   } catch (error: any) {
+  //     throw new Error(`${error.message} at createTask`)
+  //   }
+  // }
+
+  return _post(url, formData, headers, { revalidate: false })
 }
 
 /**
@@ -241,29 +231,9 @@ async function actionRevalidatePath(path: string) {
   revalidatePath(path)
 }
 
-async function checkServerStatus() {
-  const URLS = [URL_API_MAIN, URL_API_CANARY + "/docs"]
-  const responses = URLS.map(async url => {
-    const headers = getHeaders(url)
-    await _get<number>(url, headers, {
-      revalidate: false,
-      onlyReturnStatus: true,
-    })
-  })
-  console.log(`responses: ${responses}`)
-}
-
-async function sendTranscriptionToServer(transcription: TranscriptionType) {
-  await fs.writeFile(
-    "./transcription-from-client.json",
-    JSON.stringify(transcription),
-    { encoding: "utf-8" }
-  )
-}
-
 async function getSpeakerProfileLLM(id: Task["identifier"]) {
-  const headers = getHeaders(URL_API_CANARY)
-  const url = `${URL_API_CANARY}/tasks/spkanalysis/${id}`
+  const headers = getHeaders(API_CANARY)
+  const url = `${API_CANARY}/tasks/spkanalysis/${id}`
 
   return _get<any>(url, headers)
 }
@@ -277,7 +247,6 @@ export {
   analyzeTask,
   getTasks,
   getTask,
-  checkServerStatus,
   createTask,
   updateTask, // unused until we implement the patch task endpoint on the backend
   deleteTask,
@@ -286,7 +255,6 @@ export {
   getRecords,
   getRecord,
   getSpeakerProfileLLM,
-  sendTranscriptionToServer,
   calculateAverages,
 }
 export async function TEST_GetAudioFromPrivateRoute(url: string) {

@@ -1,0 +1,142 @@
+import {
+  ArrowRightIcon,
+  ExclamationTriangleIcon,
+  FileTextIcon,
+  GlobeIcon,
+  PersonIcon,
+  SpeakerLoudIcon,
+  UploadIcon,
+} from "@radix-ui/react-icons"
+
+// for 3d card
+import Image from "next/image"
+import React from "react"
+import { CardBody, CardContainer, CardItem } from "@/components/ui/3d-card"
+import Link from "next/link"
+import { Icon } from "@radix-ui/react-select"
+import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
+
+export default function BasicDashboard() {
+  const ICON_CLASSES = "w-[1.2rem] h-[1.2rem] text-muted-foreground"
+  const dashboardItems = [
+    {
+      title: "Transcripción manual",
+      icon: <UploadIcon className={ICON_CLASSES} />,
+      description: "En este módulo, podrá transcribir audios de manera manual.",
+      buttonIcon: (
+        <ArrowRightIcon className={ICON_CLASSES + "text-foreground"} />
+      ),
+    },
+    {
+      title: "Transcripciones de Neotel",
+      icon: <SpeakerLoudIcon className={ICON_CLASSES} />,
+      description:
+        "En este módulo, podrá buscar y visualizar las transcripciones de Neotel.",
+      buttonIcon: (
+        <ArrowRightIcon className={ICON_CLASSES + "text-foreground"} />
+      ),
+    },
+    {
+      title: "Ver tu historial",
+      icon: <FileTextIcon className={ICON_CLASSES} />,
+      description: "En este módulo, podrá ver su historial de transcripciones.",
+      buttonIcon: (
+        <ArrowRightIcon className={ICON_CLASSES + "text-foreground"} />
+      ),
+    },
+    {
+      title: "Ver campañas",
+      icon: <GlobeIcon className={ICON_CLASSES} />,
+      description: "En este módulo, podrá ver los audios por campaña.",
+      buttonIcon: (
+        <ArrowRightIcon className={ICON_CLASSES + "text-foreground"} />
+      ),
+    },
+    {
+      title: "Ver operadores",
+      icon: <PersonIcon className={ICON_CLASSES} />,
+      description: "En este módulo, podrá ver los audios por operador.",
+      buttonIcon: (
+        <ArrowRightIcon className={ICON_CLASSES + "text-foreground"} />
+      ),
+    },
+    {
+      title: "Ver audios problemáticos",
+      icon: <ExclamationTriangleIcon className={ICON_CLASSES} />,
+      description:
+        "En este módulo, podrá ver y revisar los audios marcados como problemáticos.",
+      buttonIcon: (
+        <ArrowRightIcon className={ICON_CLASSES + "text-foreground"} />
+      ),
+    },
+  ]
+  return (
+    <>
+      <main
+        id='basic-dashboard'
+        className='grid lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 gap-4 p-4 w-full justify-items-center relative '
+        style={{ userSelect: "none" }}
+      >
+        {dashboardItems.map((dashboardItem, index) => (
+          <Card3D
+            title={dashboardItem.title}
+            description={dashboardItem.description}
+            icon={dashboardItem.icon}
+            buttonIcon={dashboardItem.buttonIcon}
+            key={`${dashboardItem}-${index}-card`}
+          />
+        ))}
+      </main>
+    </>
+  )
+}
+
+function Card3D({
+  title,
+  description,
+  icon,
+  buttonIcon,
+  className,
+}: {
+  title: string
+  description: string
+  icon: React.JSX.Element
+  buttonIcon: React.JSX.Element
+  className?: string
+}) {
+  return (
+    <CardContainer className={cn("inter-var ")}>
+      <CardBody
+        className={cn(
+          "bg-background relative group/card  dark:hover:shadow-2xl dark:hover:shadow-emerald-500/[0.1] dark:bg-black dark:border-white/[0.2] border-black/[0.1] w-full h-auto lg:min-h-[200px] lg:min-w-full rounded-xl p-4 border flex flex-col gap-2 justify-between"
+        )}
+      >
+        <CardItem
+          translateZ='50'
+          className='text-xl font-bold text-neutral-600 dark:text-white flex flex-row gap-2 items-center'
+        >
+          {icon}
+          {title}
+        </CardItem>
+        <CardItem
+          as='p'
+          translateZ='60'
+          className='text-neutral-500 text-sm max-w-sm mt-2 dark:text-neutral-300 '
+        >
+          {description}
+        </CardItem>
+
+        <CardItem translateZ='100' className='w-full'>
+          <Button variant={"default"} className='w-full'>
+            {buttonIcon}
+            <span className='ml-2 text-sm'>
+              {"Ir a " + title.toLowerCase()}
+            </span>
+            <span className='sr-only'>{"Ir a " + title.toLowerCase()}</span>
+          </Button>
+        </CardItem>
+      </CardBody>
+    </CardContainer>
+  )
+}

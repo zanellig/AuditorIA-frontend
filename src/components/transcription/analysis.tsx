@@ -11,8 +11,8 @@ import {
   FEAR_EMOTION_COLOR,
   JOY_EMOTION_COLOR,
   OTHERS_EMOTION_COLOR,
-  URL_API_CANARY,
-  URL_API_MAIN,
+  API_CANARY,
+  API_MAIN,
 } from "@/lib/consts"
 import AverageEmotionChart from "@/components/transcription/average-emotion-chart"
 import { Card, CardContent } from "@/components/ui/card"
@@ -27,11 +27,10 @@ export default function Analysis({
   const [averages, setAverages] = useState<Averages | null>(null)
   const [averageChartData, setAverageChartData] = useState<any>(null)
   const words = getUniqueWords(transcription.result?.segments)
-  console.log(words)
 
   // const [record, setRecord] = useState<Recording | null>(null)
   // const record = await getRecord(
-  //   [URL_API_CANARY, ALL_RECORDS_PATH],
+  //   [API_CANARY, ALL_RECORDS_PATH],
   //   transcription.metadata.file_name
   // )
   // setRecord(record)

@@ -3,9 +3,15 @@ export enum SupportedLocales {
   SPANISH = "es",
 }
 
-export interface ServerStatus {
-  main: number | undefined | null
-  canary: number | undefined | null
+export interface ServerStatusResponse {
+  variant: ServerStatusBadgeVariant
+  text: string
+}
+export enum ServerStatusBadgeVariant {
+  OK = "success",
+  Warning = "warning",
+  Error = "error",
+  Unknown = "default",
 }
 
 export enum AnalysisMessage {
@@ -152,6 +158,7 @@ export type SegmentAnalysisProperties = {
   emotion_probas: EmotionProbas
   sentiment_probas: SentimentProbas
   hate_speech_probas: HateSpeechProbas
+  is_hate_speech: boolean
 }
 
 export type EmotionProbas = {

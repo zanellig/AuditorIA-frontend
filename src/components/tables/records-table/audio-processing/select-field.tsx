@@ -42,7 +42,7 @@ export function SelectField<TFormValues extends Record<string, any>>({
       // @ts-ignore
       name={name}
       render={({ field }) => (
-        <FormItem>
+        <FormItem className='w-full'>
           <FormLabel>{label}</FormLabel>
           <FormControl>
             <Select

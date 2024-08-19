@@ -11,7 +11,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { deleteTask, deleteTasks } from "@/lib/actions"
-import { TASK_PATH, URL_API_MAIN } from "@/lib/consts"
+import { TASK_PATH, API_MAIN } from "@/lib/consts"
 import { Recording, Task } from "@/lib/types"
 import { cn } from "@/lib/utils"
 import { Table } from "@tanstack/react-table"
@@ -69,12 +69,12 @@ export default function DeleteButton<TData extends Task | Recording>({
                 if (ids) {
                   table.resetRowSelection()
                   const responses = await deleteTasks(
-                    [URL_API_MAIN, TASK_PATH],
+                    [API_MAIN, TASK_PATH],
                     [...ids],
                     true
                   )
                 } else if (identifier) {
-                  await deleteTask([URL_API_MAIN, TASK_PATH], identifier, true)
+                  await deleteTask([API_MAIN, TASK_PATH], identifier, true)
                 }
                 // this is made to avoid empty pages
                 if (

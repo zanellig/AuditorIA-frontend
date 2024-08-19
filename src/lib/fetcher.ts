@@ -5,90 +5,88 @@ async function _request<T, R extends boolean | undefined = undefined>(
   method: Method,
   body?: any,
   headers?: Record<string, string>,
-  options?: { revalidate?: boolean; onlyReturnStatus?: boolean }
-): Promise<R extends true ? number : T> {
+  options?: {
+    revalidate?: boolean
+    onlyReturnStatus?: boolean
+    expectJson?: boolean
+  }
+): Promise<[Error | null, R extends true ? number : T | Response | null]> {
   const fetchOptions: FetchOptions = {
     headers: headers || {},
     method,
   }
-  let response: Response
+  let err: Error | null = null
 
-  if (body) {
-    if (body instanceof FormData) {
-      fetchOptions.body = body
-    } else {
-      fetchOptions.body = JSON.stringify(body)
+  if (body && body instanceof FormData) {
+    fetchOptions.body = body
+  } else if (body !== null) {
+    fetchOptions.body = JSON.stringify(body)
+  }
+
+  options?.revalidate ? (fetchOptions.next = { revalidate: 5 }) : null
+  try {
+    const res = await fetch(url, fetchOptions)
+
+    !res.ok ? (err = await res.json()) : null
+
+    if (options?.onlyReturnStatus) {
+      return [err, res.status] as [null, R extends true ? number : T]
     }
-  }
 
-  if (options?.revalidate) {
-    fetchOptions.next = { revalidate: 5 }
+    if (options?.expectJson) {
+      return [err, await res.json()] as [null, R extends true ? number : T]
+    }
+    return [err, res] as [null, R extends true ? number : T]
+  } catch (e) {
+    return [e, null] as [Error, R extends true ? number : T]
   }
-  console.log(`fetchOptions: `, fetchOptions, "\nurl: ", url)
-  response = await fetch(url, fetchOptions)
-  if (!response.ok) {
-    const errorDetail = await response.json()
-    console.error(
-      `Error ${response.status}: ${response.statusText} - ${errorDetail.message}`
-    )
-  }
-
-  if (options?.onlyReturnStatus) {
-    return response.status as R extends true ? number : T
-  }
-  return await response.json()
 }
 
-function _get<T>(
+function _get(
   url: string,
   headers?: Record<string, string>,
-  options?: { revalidate?: boolean; onlyReturnStatus?: boolean }
-): Promise<T> {
-  return _request<T>(url, Method.Get, null, headers, options)
+  options?: {
+    revalidate?: boolean
+    onlyReturnStatus?: boolean
+    expectJson?: boolean
+  }
+): Promise<[Error | null, Response | null]> {
+  return _request(url, Method.Get, null, headers, options)
 }
 
-function _post<T>(
+function _post<T, R extends boolean | undefined = undefined>(
   url: string,
   body: any,
   headers?: Record<string, string>,
-  options?: { revalidate?: boolean }
-): Promise<T> {
-  // console.log("POST:", {
-  //   url,
-  //   headers,
-  //   body,
-  //   options,
-  // })
-  return _request<T>(url, Method.Post, body, headers, options)
+  options?: { revalidate?: boolean; onlyReturnStatus?: R; expectJson?: boolean }
+): Promise<[Error | null, R extends true ? number : T | Response | null]> {
+  return _request<T, R>(url, Method.Post, body, headers, options)
 }
 
-function _put<T>(
+function _put<T, R extends boolean | undefined = undefined>(
   url: string,
   body: any,
   headers?: Record<string, string>,
-  options?: { revalidate?: boolean }
-): Promise<T> {
-  if (body === null) {
-    return _request<T>(url, Method.Put, null, headers, options)
-  }
-  return _request<T>(url, Method.Put, body, headers, options)
+  options?: { revalidate?: boolean; onlyReturnStatus?: R; expectJson?: boolean }
+): Promise<[Error | null, R extends true ? number : T | Response | null]> {
+  return _request<T, R>(url, Method.Put, body, headers, options)
 }
 
-function _patch<T>(
+function _patch<T, R extends boolean | undefined = undefined>(
   url: string,
   body: any,
   headers?: Record<string, string>,
-  options?: { revalidate?: boolean }
-): Promise<T> {
-  return _request<T>(url, Method.Patch, body, headers, options)
+  options?: { revalidate?: boolean; onlyReturnStatus?: R; expectJson?: boolean }
+): Promise<[Error | null, R extends true ? number : T | Response | null]> {
+  return _request<T, R>(url, Method.Patch, body, headers, options)
 }
 
-function _delete<T>(
+function _delete<T, R extends boolean | undefined = undefined>(
   url: string,
   headers?: Record<string, string>,
-  options?: { revalidate?: boolean }
-): Promise<T> {
-  return _request<T>(url + "/delete", Method.Delete, null, headers, options)
+  options?: { revalidate?: boolean; onlyReturnStatus?: R; expectJson?: boolean }
+): Promise<[Error | null, R extends true ? number : T | Response | null]> {
+  return _request<T, R>(url, Method.Delete, null, headers, options)
 }
 
 export { _request, _get, _post, _put, _patch, _delete }

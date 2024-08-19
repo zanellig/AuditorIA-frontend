@@ -11,6 +11,8 @@ import { Cover } from "@/components/ui/cover"
 import Image from "next/image"
 import Link from "next/link"
 import { SparklesCore } from "@/components/ui/sparkles"
+import TitleH1 from "../typography/titleH1"
+import ParagraphP from "../typography/paragraphP"
 
 export const HeroParallax = ({
   products,

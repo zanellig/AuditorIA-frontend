@@ -1,19 +1,37 @@
-import "server-only"
-import { getTasks } from "@/lib/actions"
-import { ALL_TASKS_PATH, URL_API_MAIN } from "@/lib/consts"
+"use client"
 import DataTable from "@/components/tables/table-core/data-table"
 import { columns } from "@/components/tables/tasks-table/columns-tareas"
 import { ErrorCodeUserFriendly } from "@/components/error/error-code-user-friendly"
 import { SupportedLocales, Tasks } from "@/lib/types.d"
+import DashboardSkeleton from "@/components/skeletons/dashboard-skeleton"
+import { useEffect, useState } from "react"
 
-export default async function TablaTasks() {
-  let allTasks: Tasks
-  try {
-    allTasks = await getTasks([URL_API_MAIN, ALL_TASKS_PATH], true)
-  } catch (error: any) {
+export default function TasksTable() {
+  const [err, setErr] = useState(null)
+  const [tasks, setTasks] = useState<Tasks | null>(null)
+
+  useEffect(() => {
+    async function fetchData() {
+      const [err, res] = await fetch("http://localhost:3001/api/tasks", {
+        method: "GET",
+      }).then(async res => await res.json())
+      setErr(err)
+      setTasks(res.tasks)
+    }
+
+    fetchData()
+  }, [])
+
+  if (err !== null) {
     return (
-      <ErrorCodeUserFriendly error={error} locale={SupportedLocales.ENGLISH} />
+      <ErrorCodeUserFriendly error={err} locale={SupportedLocales.SPANISH} />
     )
   }
-  return <DataTable columns={columns} data={allTasks} type={"tasks"} />
+
+  if (tasks !== null) {
+    console.log(tasks, "data from tasks table")
+    return <DataTable columns={columns} data={tasks} type={"tasks"} />
+  }
+
+  return <DashboardSkeleton />
 }

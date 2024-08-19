@@ -30,9 +30,14 @@ import {
 import { Button } from "@/components/ui/button"
 import ParagraphP from "@/components/typography/paragraphP"
 import { SelectField } from "@/components/tables/records-table/audio-processing/select-field"
-import { URL_API_MAIN, SPEECH_TO_TEXT_PATH } from "@/lib/consts"
+import { API_MAIN, SPEECH_TO_TEXT_PATH } from "@/lib/consts"
 
-import { taskFormOptions, taskFormSchema, type FormValues } from "@/lib/forms"
+import {
+  taskFormOptions,
+  taskFormSchema,
+  type FormValues,
+  ACCEPTED_AUDIO_TYPES,
+} from "@/lib/forms"
 import { Input } from "./ui/input"
 import { Label } from "./ui/label"
 import { Badge } from "./ui/badge"
@@ -68,17 +73,11 @@ export default function EnvioDeTareas({ className }: { className?: string }) {
     form.append("device", values.device)
 
     try {
-      const res = await fetch("http://10.20.30.30:8000/speech-to-text", {
-        headers: {
-          "Access-Control-Allow-Origin": "http://10.20.30.30:8000",
-          "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-          "Access-Control-Allow-Headers":
-            "Content-Type, Authorization, Content-Length, X-Requested-With",
-        },
+      const res = await fetch("/api/task", {
         method: "POST",
         body: form,
       })
-      if (res.status !== 200) {
+      if (!res.ok) {
         toast({
           variant: "destructive",
           title: "Ha ocurrido un error en el servidor",
@@ -87,7 +86,9 @@ export default function EnvioDeTareas({ className }: { className?: string }) {
             <ToastAction
               className='border border-ring'
               altText='Copiar error al portapapeles'
-              onClick={() => copyToClipboard(res.toString())}
+              onClick={async () =>
+                copyToClipboard(JSON.stringify(await res.json()))
+              }
             >
               Copiar error
             </ToastAction>
@@ -134,7 +135,9 @@ export default function EnvioDeTareas({ className }: { className?: string }) {
         <ToastAction
           className='border border-ring'
           altText='Copiar error al portapapeles'
-          onClick={() => copyToClipboard(errorMessage, error.stack)}
+          onClick={() =>
+            copyToClipboard(errorMessage, JSON.stringify(error.stack))
+          }
         >
           Copiar error
         </ToastAction>
@@ -154,44 +157,44 @@ export default function EnvioDeTareas({ className }: { className?: string }) {
           aceptan únicamente archivos de audio con las siguientes extensiones:
         </CardDescription>
         <div className='flex space-x-2 mt-4'>
-          <Badge variant={"outline"}>mp3</Badge>
-          <Badge variant={"outline"}>flac</Badge>
-          <Badge variant={"outline"}>wma</Badge>
-          <Badge variant={"outline"}>aac</Badge>
-          <Badge variant={"outline"}>ogg</Badge>
-          <Badge variant={"outline"}>wav</Badge>
-          <Badge variant={"outline"}>x-wav</Badge>
-          <Badge variant={"outline"}>mpeg</Badge>
-          <Badge variant={"outline"}>webm</Badge>
+          {ACCEPTED_AUDIO_TYPES.map(type => (
+            <Badge variant={"outline"} key={type}>
+              {type}
+            </Badge>
+          ))}
         </div>
       </CardHeader>
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
-            <SelectField<FormValues>
-              name='language'
-              label='Idioma'
-              options={taskFormOptions.language}
-              form={form}
-            />
-            <SelectField<FormValues>
-              name='task_type'
-              label='Tipo de tarea'
-              options={taskFormOptions.task_type}
-              form={form}
-            />
-            <SelectField<FormValues>
-              name='model'
-              label='Modelo'
-              options={taskFormOptions.model}
-              form={form}
-            />
-            <SelectField<FormValues>
-              name='device'
-              label='Dispositivo'
-              options={taskFormOptions.device}
-              form={form}
-            />
+            <div className='flex flex-row space-x-2 w-full'>
+              <SelectField<FormValues>
+                name='language'
+                label='Idioma'
+                options={taskFormOptions.language}
+                form={form}
+              />
+              <SelectField<FormValues>
+                name='task_type'
+                label='Tipo de tarea'
+                options={taskFormOptions.task_type}
+                form={form}
+              />
+            </div>
+            <div className='flex flex-row space-x-2 w-full'>
+              <SelectField<FormValues>
+                name='model'
+                label='Modelo'
+                options={taskFormOptions.model}
+                form={form}
+              />
+              <SelectField<FormValues>
+                name='device'
+                label='Dispositivo'
+                options={taskFormOptions.device}
+                form={form}
+              />
+            </div>
             <FormField
               control={form.control}
               name='file'
@@ -214,7 +217,7 @@ export default function EnvioDeTareas({ className }: { className?: string }) {
             />
             <Button
               type='submit'
-              disabled={isSubmitting}
+              disabled={isSubmitting} // maybe change this to allow user to submit multiple times, but we'll see
               variant={"default"}
               className='w-full'
             >

@@ -23,10 +23,13 @@ export default function RootLayout({
         name='viewport'
         content='width=device-width, initial-scale=1.0'
       ></meta>
+      <head>
+        <link rel='icon' href='/favicon.ico' />
+      </head>
       <body className={inter.className + " w-dvw h-dvh"}>
         <ThemeProvider
           attribute='class'
-          defaultTheme='light'
+          defaultTheme='system'
           enableSystem
           disableTransitionOnChange
         >

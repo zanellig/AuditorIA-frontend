@@ -15,6 +15,18 @@ const ACCEPTED_FILE_TYPES = [
   "audio/mpeg;codecs=mp3",
 ]
 
+export const ACCEPTED_AUDIO_TYPES = [
+  "wav",
+  "x-wav",
+  "mp3",
+  "mpeg",
+  "aac",
+  "ogg",
+  "webm",
+  "flac",
+  "x-flac",
+]
+
 export const taskFormSchema = z.object({
   language: z.enum(["es", "en", "fr"], {
     required_error: "Por favor seleccione un idioma.",
@@ -87,15 +99,15 @@ export const taskFormOptions = {
     },
     { value: "large-v2", label: "Large V2", disabled: false },
     { value: "large-v1", label: "Large V1", disabled: false },
-    { value: "large", label: "Large", disabled: true },
-    { value: "tiny", label: "Tiny", disabled: true },
-    { value: "tiny.en", label: "Tiny EN", disabled: true },
-    { value: "base", label: "Base", disabled: true },
-    { value: "base.en", label: "Base EN", disabled: true },
-    { value: "small", label: "Small", disabled: true },
-    { value: "small.en", label: "Small EN", disabled: true },
-    { value: "medium", label: "Medium", disabled: true },
-    { value: "medium.en", label: "Medium EN", disabled: true },
+    // { value: "large", label: "Large", disabled: true },
+    // { value: "tiny", label: "Tiny", disabled: true },
+    // { value: "tiny.en", label: "Tiny EN", disabled: true },
+    // { value: "base", label: "Base", disabled: true },
+    // { value: "base.en", label: "Base EN", disabled: true },
+    // { value: "small", label: "Small", disabled: true },
+    // { value: "small.en", label: "Small EN", disabled: true },
+    // { value: "medium", label: "Medium", disabled: true },
+    // { value: "medium.en", label: "Medium EN", disabled: true },
   ],
   device: [
     { value: "cpu", label: "CPU", disabled: true },
@@ -103,3 +115,24 @@ export const taskFormOptions = {
   ],
   file: [{ value: null, label: "Seleccionar archivo" }],
 }
+
+export const feedbackFormSchema = z.object({
+  name: z
+    .string({
+      required_error: "Por favor, introduce tu nombre.",
+      invalid_type_error: "Por favor, introduce un nombre válido.",
+    })
+    .min(1)
+    .max(50)
+    // name only includes letters and spaces
+    .regex(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/)
+    // name has to include al least one space character to be a valid full name (e.g. "John Doe")
+    .refine(value => value.includes(" "), {
+      message: "Por favor, introduce tu nombre completo.",
+      path: ["name"],
+    }),
+  email: z.string().email(),
+  message: z.string().min(1).max(1000),
+  rating: z.number().min(1).max(5),
+  has_accepted_terms: z.boolean(),
+})

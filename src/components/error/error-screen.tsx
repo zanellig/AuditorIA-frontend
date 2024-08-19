@@ -1,24 +1,32 @@
 "use client"
 import { Button } from "@/components/ui/button"
 import { RefreshCw } from "lucide-react"
-import { NavigationButtons } from "@/components/navigation/navigation"
+import { TopNavbar } from "@/components/navigation/navigation"
 import { GLOBAL_ICON_SIZE } from "@/lib/consts"
 import TitleH1 from "@/components/typography/titleH1"
 import ParagraphP from "@/components/typography/paragraphP"
+import { ResetIcon, UpdateIcon } from "@radix-ui/react-icons"
 
 export default function ErrorScreen({
   error,
   reset,
+  redirectUrl = "/dashboard",
+  errorTitle = "¡Ha ocurrido un error! 😯",
+  id,
 }: {
   error?: Error & { digest?: string }
   reset?: () => void
+  redirectUrl?: string
+  errorTitle?: string
+  id?: string
 }) {
+  if (!id) id = "generic-error-screen"
   return (
     <>
-      <NavigationButtons />
-      <div className='flex flex-col max-w-2xl my-auto mx-auto pt-16'>
+      <TopNavbar />
+      <main id={id} className='flex flex-col max-w-2xl my-auto mx-auto pt-16'>
         <div className='flex flex-col items-start space-y-5'>
-          <TitleH1>¡Ha ocurrido un error! 😯</TitleH1>
+          <TitleH1>{errorTitle}</TitleH1>
           <ParagraphP>
             Contacte a su administrador de IT y otorgue el siguiente código de
             error:
@@ -30,15 +38,33 @@ export default function ErrorScreen({
               {error?.stack ? `\n${error.stack.slice(0, 512)}...` : ""}
             </code>
           </div>
-          <Button
-            variant='outline'
-            className='w-fit'
-            onClick={() => (reset ? reset() : null)}
+          <section
+            id='error-buttons'
+            className='flex flex-row items-center space-x-4'
           >
-            Reintentar <RefreshCw size={GLOBAL_ICON_SIZE} className='ml-2' />
-          </Button>
+            {redirectUrl && (
+              <Button
+                variant='outline'
+                className='w-fit'
+                onClick={() => window.location.replace(redirectUrl)}
+              >
+                <span>Volver</span>
+                <ResetIcon className='w-[1.2rem] h-[1.2rem] ml-2' />
+              </Button>
+            )}
+            <Button
+              variant='outline'
+              className='w-fit'
+              onClick={() => reset && reset()}
+            >
+              <>
+                <span>Reintentar</span>
+                <UpdateIcon className='w-[1.2rem] h-[1.2rem] ml-2' />
+              </>
+            </Button>
+          </section>
         </div>
-      </div>
+      </main>
     </>
   )
 }

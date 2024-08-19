@@ -1,66 +1,52 @@
 "use client"
 import { Badge } from "@/components/ui/badge"
-import { ServerStatus } from "@/lib/types.d"
-import { useEffect, useState } from "react"
-import { URL_API_MAIN, URL_API_CANARY } from "@/lib/consts"
-import { checkServerStatus } from "@/lib/actions"
-export default async function StatusBadges() {
-  enum ServerStatus {
-    OK = "success",
-    Warning = "warning",
-    Error = "error",
-    Unknown = "default",
-  }
-
+import { Suspense, useEffect, useState } from "react"
+import { ServerStatusBadgeVariant, ServerStatusResponse } from "@/lib/types.d"
+import { Skeleton } from "../ui/skeleton"
+export default function StatusBadges() {
   const [mainServerStatusBadgeOptions, setMainServerStatusBadgeOptions] =
-    useState({
-      variant: ServerStatus.Unknown,
-      text: "?",
+    useState<ServerStatusResponse>({
+      variant: ServerStatusBadgeVariant.Unknown,
+      text: "",
     })
-  const [canaryServerStatusOptions, setCanaryServerStatusOptions] = useState({
-    variant: ServerStatus.Unknown,
-    text: "?",
-  })
-
-  const mainServerStatus = await checkServerStatus()
+  const [canaryServerStatusOptions, setCanaryServerStatusOptions] =
+    useState<ServerStatusResponse>({
+      variant: ServerStatusBadgeVariant.Unknown,
+      text: "",
+    })
 
   useEffect(() => {
-    if (mainServerStatus === 200) {
-      setMainServerStatusBadgeOptions({ variant: ServerStatus.OK, text: "OK" })
-    } else if (typeof mainServerStatus === "number") {
-      setMainServerStatusBadgeOptions({
-        variant: ServerStatus.Warning,
-        text: "Warning",
-      })
-    } else {
-      setMainServerStatusBadgeOptions({
-        variant: ServerStatus.Error,
-        text: "Error",
-      })
-    }
-    if (canaryServerStatus === 200) {
-      setCanaryServerStatusOptions({ variant: ServerStatus.OK, text: "OK" })
-    } else if (typeof canaryServerStatus === "number") {
-      setCanaryServerStatusOptions({
-        variant: ServerStatus.Warning,
-        text: "Warning",
-      })
-    } else {
-      setCanaryServerStatusOptions({
-        variant: ServerStatus.Error,
-        text: "Error",
-      })
-    }
+    fetch("/api/status/main", { method: "GET" }).then(async res => {
+      const response = await res.json()
+      setMainServerStatusBadgeOptions(response)
+    })
+    fetch("/api/status/canary", { method: "GET" }).then(async res => {
+      const response = await res.json()
+      setCanaryServerStatusOptions(response)
+    })
   }, [])
 
   return (
     <div className='flex flex-row space-x-2 h-fit w-fit items-center'>
-      <Badge variant={mainServerStatusBadgeOptions.variant}>
-        <span>{`${mainServerStatusBadgeOptions.text}`}</span>
-      </Badge>
-      <Badge variant={canaryServerStatusOptions.variant}>
-        <span>{`${canaryServerStatusOptions.text}`}</span>
-      </Badge>
+      {mainServerStatusBadgeOptions.text.length === 0 ? (
+        <StatusBadgesSkeleton />
+      ) : (
+        <Badge variant={mainServerStatusBadgeOptions.variant}>
+          <span>{mainServerStatusBadgeOptions.text}</span>
+        </Badge>
+      )}
+
+      {canaryServerStatusOptions.text.length === 0 ? (
+        <StatusBadgesSkeleton />
+      ) : (
+        <Badge variant={canaryServerStatusOptions.variant}>
+          <span>{canaryServerStatusOptions.text}</span>
+        </Badge>
+      )}
     </div>
   )
+}
+
+export function StatusBadgesSkeleton() {
+  return <Skeleton className='w-28 h-6 rounded-md bg-pulse dark:bg-secondary' />
 }

@@ -41,12 +41,7 @@ import {
 import ParagraphP from "@/components/typography/paragraphP"
 import ButtonBorderMagic from "@/components/ui/button-border-magic"
 import { revalidatePath } from "next/cache"
-import {
-  ALL_TASKS_PATH,
-  TASK_PATH,
-  URL_API_MAIN,
-  URL_API_CANARY,
-} from "@/lib/consts"
+import { ALL_TASKS_PATH, TASK_PATH, API_MAIN, API_CANARY } from "@/lib/consts"
 import { actionRevalidatePath, analyzeTask } from "@/lib/actions"
 import { ToastAction } from "@/components/ui/toast"
 
@@ -217,7 +212,7 @@ export const columns: ColumnDef<Task | null>[] = [
                     })
                     try {
                       const res = await analyzeTask(
-                        [URL_API_CANARY, "tasks"],
+                        [API_CANARY, "tasks"],
                         row.original?.identifier,
                         row.original?.language
                       )

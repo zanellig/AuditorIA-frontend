@@ -2,7 +2,7 @@ import { getTask } from "@/lib/actions"
 
 import TranscriptionClient from "./transcription.client"
 import { Task, TranscriptionType } from "@/lib/types"
-import { TASK_PATH, URL_API_MAIN } from "@/lib/consts"
+import { TASK_PATH, API_MAIN } from "@/lib/consts"
 
 interface TranscriptionServerProps {
   taskId: Task["identifier"]
@@ -24,7 +24,7 @@ export default async function TranscriptionServer({
       />
     )
   } catch (error) {
-    console.warn("Error fetching transcription:", error)
+    console.log("Error fetching transcription:", error)
     throw error
   }
 }

@@ -3,11 +3,32 @@ import { FlipWords } from "@/components/ui/flip-words"
 import { SparklesCore } from "@/components/ui/sparkles-core"
 import { cn } from "@/lib/utils"
 import { useTheme } from "next-themes"
+import React from "react"
 
-export default function LoadingScreen({ className }: { className?: string }) {
+export default function LoadingScreen({
+  className,
+  words,
+  usingAI = true,
+}: {
+  className?: string
+  words?: string[]
+  usingAI?: boolean
+}) {
   const { theme } = useTheme()
-  const initialWords = ["transcripción", "sentimiento", "emociones", "análisis"]
-  const words = [...initialWords].sort(() => Math.random() - 0.5)
+  let constWords = words || []
+  React.useEffect(() => {
+    const initialWords = [
+      "transcripción",
+      "sentimiento",
+      "emociones",
+      "análisis",
+    ]
+    if (words && words?.length > 0) {
+      constWords = [...words].sort(() => Math.random() - 0.5)
+    } else {
+      constWords = [...initialWords].sort(() => Math.random() - 0.5)
+    }
+  }, [])
 
   const particleColor = theme === "dark" ? "#FFFFFF" : "#000000"
 
@@ -36,8 +57,8 @@ export default function LoadingScreen({ className }: { className?: string }) {
         </div>
         <div className='text-4xl mx-auto font-normal text-neutral-600 dark:text-neutral-400 absolute z-10 bg-opacity-5 bg-background'>
           Obteniendo
-          <FlipWords words={words} /> <br />
-          con Inteligencia Artificial...
+          <FlipWords words={constWords} /> <br />
+          {usingAI && "con Inteligencia Artificial..."}
         </div>
       </div>
     </>
