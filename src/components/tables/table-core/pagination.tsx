@@ -123,9 +123,9 @@ export default function Pagination<TData>({
       <Button
         variant='outline'
         size='sm'
-        onClick={() => {
+        onClick={async () => {
           table.firstPage()
-          actionRevalidatePath("/dashboard")
+          await actionRevalidatePath("/dashboard")
         }}
         disabled={!table.getCanPreviousPage()}
       >
@@ -134,9 +134,9 @@ export default function Pagination<TData>({
       <Button
         variant='outline'
         size='sm'
-        onClick={() => {
+        onClick={async () => {
           table.previousPage()
-          actionRevalidatePath("/dashboard")
+          await actionRevalidatePath("/dashboard")
         }}
         disabled={!table.getCanPreviousPage()}
       >
@@ -153,9 +153,9 @@ export default function Pagination<TData>({
       <Button
         variant='outline'
         size='sm'
-        onClick={() => {
+        onClick={async () => {
           table.nextPage()
-          actionRevalidatePath("/dashboard")
+          await actionRevalidatePath("/dashboard")
         }}
         disabled={!table.getCanNextPage()}
       >
@@ -164,9 +164,9 @@ export default function Pagination<TData>({
       <Button
         variant='outline'
         size='sm'
-        onClick={() => {
+        onClick={async () => {
           table.lastPage()
-          actionRevalidatePath("/dashboard")
+          await actionRevalidatePath("/dashboard")
         }}
         disabled={!table.getCanNextPage()}
       >

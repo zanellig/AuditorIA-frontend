@@ -8,7 +8,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
-import { cn } from "@/lib/utils"
+import { capitalizeOnlyFirstLetter, cn } from "@/lib/utils"
 import { useRouter } from "next/navigation"
 import { usePathname } from "next/navigation"
 
@@ -28,14 +28,14 @@ export function BreadcrumbWithCustomSeparator({
     <Breadcrumb className={cn(className)}>
       <BreadcrumbList>
         {pathnames.map((pathname, index) => {
+          const normalizedPathname = pathname.replace(/-/g, " ")
+          const displayName = capitalizeOnlyFirstLetter(normalizedPathname)
           // last index is the current page
           if (index === pathnames.length - 1) {
             return (
               <div key={`${index}-${pathname}-item`}>
                 <BreadcrumbItem className='bg-transparent'>
-                  <BreadcrumbPage className='capitalize'>
-                    {pathname}
-                  </BreadcrumbPage>
+                  <BreadcrumbPage>{displayName}</BreadcrumbPage>
                 </BreadcrumbItem>
               </div>
             )
@@ -51,7 +51,7 @@ export function BreadcrumbWithCustomSeparator({
                     className='capitalize'
                     key={`${index}-${pathname}-link`}
                   >
-                    {pathname}
+                    {displayName}
                   </BreadcrumbLink>
                 </BreadcrumbItem>
                 {pathnames.length - 1 !== index && <BreadcrumbSeparator />}

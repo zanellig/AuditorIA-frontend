@@ -2,10 +2,11 @@ import { _get } from "@/lib/fetcher"
 import { API_CANARY } from "@/lib/consts"
 import { getHeaders } from "@/lib/utils"
 import { ServerStatusBadgeVariant } from "@/lib/types.d"
+import { NextRequest, NextResponse } from "next/server"
 
 export const revalidate = 5
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   const headers = getHeaders(API_CANARY)
 
   // Fetch data
@@ -15,7 +16,7 @@ export async function GET(request: Request) {
 
   // Handle errors
   if (error) {
-    return new Response(
+    return new NextResponse(
       JSON.stringify({
         variant: ServerStatusBadgeVariant.Error,
         text: "Canary server error",
@@ -26,7 +27,7 @@ export async function GET(request: Request) {
 
   // Handle response status
   if (response && response.ok) {
-    return new Response(
+    return new NextResponse(
       JSON.stringify({
         variant: ServerStatusBadgeVariant.OK,
         text: "Canary server OK",
@@ -36,7 +37,7 @@ export async function GET(request: Request) {
   }
 
   // Default case
-  return new Response(
+  return new NextResponse(
     JSON.stringify({
       variant: ServerStatusBadgeVariant.Warning,
       text: "Canary server warning",

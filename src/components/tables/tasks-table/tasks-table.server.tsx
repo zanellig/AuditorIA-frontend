@@ -5,8 +5,12 @@ import { ErrorCodeUserFriendly } from "@/components/error/error-code-user-friend
 import { SupportedLocales, Tasks } from "@/lib/types.d"
 import DashboardSkeleton from "@/components/skeletons/dashboard-skeleton"
 import { useEffect, useState } from "react"
+import { TESTING } from "@/lib/consts"
 
 export default function TasksTable() {
+  if (TESTING) {
+    return <DataTable columns={columns} data={[]} type={"tasks"} />
+  }
   const [err, setErr] = useState(null)
   const [tasks, setTasks] = useState<Tasks | null>(null)
 
@@ -16,22 +20,17 @@ export default function TasksTable() {
         method: "GET",
       }).then(async res => await res.json())
       setErr(err)
-      setTasks(res.tasks)
+      setTasks(res)
     }
 
     fetchData()
   }, [])
 
   if (err !== null) {
-    return (
-      <ErrorCodeUserFriendly error={err} locale={SupportedLocales.SPANISH} />
-    )
+    return <ErrorCodeUserFriendly error={err} locale={SupportedLocales.ES} />
   }
-
   if (tasks !== null) {
-    console.log(tasks, "data from tasks table")
     return <DataTable columns={columns} data={tasks} type={"tasks"} />
   }
-
   return <DashboardSkeleton />
 }

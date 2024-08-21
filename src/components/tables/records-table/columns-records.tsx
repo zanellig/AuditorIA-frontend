@@ -8,7 +8,7 @@ import { obtenerMesLocale } from "@/lib/utils"
 import { API_MAIN, API_CANARY } from "@/lib/consts"
 
 import { Badge } from "@/components/ui/badge"
-import AudioProcessingTaskStarterServer from "@/components/tables/records-table/audio-processing/audio-proccesing-task-starter.server"
+import AudioProcessingTaskStarter from "./audio-processing/audio-processing-task-starter"
 
 // function renderMarker(status: Status) {
 //   switch (status) {
@@ -164,7 +164,7 @@ export const columns: ColumnDef<Recording | null>[] = [
     cell: ({ row }) => {
       return (
         <div className='flex flex-row space-x-2  justify-center'>
-          <AudioProcessingTaskStarterServer row={row as Row<Recording>} />
+          <AudioProcessingTaskStarter row={row as Row<Recording>} />
         </div>
       )
     },

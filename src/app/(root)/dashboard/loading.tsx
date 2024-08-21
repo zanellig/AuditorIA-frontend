@@ -4,7 +4,7 @@ export default function Loading() {
   return (
     <LoadingScreen
       className='self-center'
-      words={["dashboard", "panel"]}
+      words={["dashboard", "panel de control"]}
       usingAI={false}
     />
   )

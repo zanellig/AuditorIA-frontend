@@ -8,9 +8,9 @@ export function getErrorStringLocale({
   locale: SupportedLocales
 }) {
   switch (locale) {
-    case SupportedLocales.ENGLISH:
+    case SupportedLocales.EN:
       return getErrorCodeUserFriendlyEnglish(error)
-    case SupportedLocales.SPANISH:
+    case SupportedLocales.ES:
       return getErrorCodeUserFriendlySpanish(error)
     default:
       return getErrorCodeUserFriendlySpanish(error)

@@ -216,3 +216,48 @@ export function _replaceSpecialCharacters(
 
   return sanitizedString
 }
+
+export function extractQueryParamsFromUrl(search: string) {
+  // Extract the part of the URL after the "?"
+  const queryString = search.split("?")[1] || ""
+  const regexToLookForKeyValuePairs = /([^&=?]+)=([^&=?]*)/g
+  let match
+  const params: Record<string, string>[] = []
+
+  // Iterate over all matches of key-value pairs in the query string
+  while ((match = regexToLookForKeyValuePairs.exec(queryString)) !== null) {
+    params.push({ [match[1]]: decodeURIComponent(match[2]) })
+  }
+  console.log(params)
+  return params
+}
+export function concatParamsToUrlString(
+  baseUrl: string,
+  params: Record<string, string>[]
+) {
+  let url = baseUrl
+  if (params.length > 0) {
+    url +=
+      "?" +
+      params
+        .map(param => {
+          const key = Object.keys(param)[0]
+          const value = param[key]
+          return `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
+        })
+        .join("&")
+  }
+  return url
+}
+
+export function extractYearMonthDayFromDate(date: Date): string {
+  const year = date.getFullYear().toString().padStart(4, "0")
+  const month = (date.getMonth() + 1).toString().padStart(2, "0")
+  const day = date.getDate().toString().padStart(2, "0")
+  console.log(year, month, day, "from extractYearMonthDayFromDate")
+  return `${year}${month}${day}`
+}
+
+export function capitalizeOnlyFirstLetter(text: string) {
+  return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase()
+}

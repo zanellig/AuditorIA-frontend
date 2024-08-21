@@ -25,9 +25,9 @@ export default function ErrorRetryButton({
 
 function getRefreshLocale(locale?: SupportedLocales) {
   switch (locale) {
-    case SupportedLocales.ENGLISH:
+    case SupportedLocales.EN:
       return "Retry"
-    case SupportedLocales.SPANISH:
+    case SupportedLocales.ES:
       return "Reintentar"
     default:
       return "Reintentar"

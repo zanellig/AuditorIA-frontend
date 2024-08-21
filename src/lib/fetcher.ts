@@ -38,7 +38,8 @@ async function _request<T, R extends boolean | undefined = undefined>(
     }
     return [err, res] as [null, R extends true ? number : T]
   } catch (e) {
-    return [e, null] as [Error, R extends true ? number : T]
+    console.error(e)
+    return [err, null] as [Error, R extends true ? number : T]
   }
 }
 

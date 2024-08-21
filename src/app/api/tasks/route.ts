@@ -2,8 +2,9 @@ import { ALL_TASKS_PATH, API_MAIN } from "@/lib/consts"
 import { getHeaders } from "@/lib/utils"
 import { _get } from "@/lib/fetcher"
 import { Tasks } from "@/lib/types.d"
+import { NextRequest } from "next/server"
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   const headers = getHeaders(API_MAIN)
   const url = [API_MAIN, ALL_TASKS_PATH].join("/")
   const [err, res] = await _get(url, headers, { revalidate: true })
@@ -26,14 +27,16 @@ export async function GET(request: Request) {
     })
   }
   if (res === null) {
-    return new Response("No content", { status: 204 })
+    return new Response(JSON.stringify([null, "No content"]), { status: 204 })
   }
   if (res.ok) {
-    const tasks = await res.json()
+    const tasks: Tasks = (await res.json()).tasks
     return new Response(JSON.stringify([null, tasks]), {
       status: 200,
       headers: responseHeaders,
     })
   }
-  return new Response("Unexpected error", { status: 500 })
+  return new Response(JSON.stringify(["Unexpected error", null]), {
+    status: 500,
+  })
 }

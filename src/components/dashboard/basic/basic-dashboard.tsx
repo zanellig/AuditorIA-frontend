@@ -1,74 +1,96 @@
 import {
   ArrowRightIcon,
+  CalendarIcon,
   ExclamationTriangleIcon,
   FileTextIcon,
   GlobeIcon,
   PersonIcon,
   SpeakerLoudIcon,
+  TrashIcon,
   UploadIcon,
 } from "@radix-ui/react-icons"
-
-// for 3d card
-import Image from "next/image"
 import React from "react"
 import { CardBody, CardContainer, CardItem } from "@/components/ui/3d-card"
 import Link from "next/link"
-import { Icon } from "@radix-ui/react-select"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { DASHBOARD_ICON_CLASSES } from "@/lib/consts"
 
 export default function BasicDashboard() {
-  const ICON_CLASSES = "w-[1.2rem] h-[1.2rem] text-muted-foreground"
   const dashboardItems = [
     {
       title: "Transcripción manual",
-      icon: <UploadIcon className={ICON_CLASSES} />,
+      icon: <UploadIcon className={DASHBOARD_ICON_CLASSES} />,
       description: "En este módulo, podrá transcribir audios de manera manual.",
       buttonIcon: (
-        <ArrowRightIcon className={ICON_CLASSES + "text-foreground"} />
+        <ArrowRightIcon
+          className={DASHBOARD_ICON_CLASSES + "text-foreground"}
+        />
       ),
+      href: "/subir-archivos",
     },
     {
       title: "Transcripciones de Neotel",
-      icon: <SpeakerLoudIcon className={ICON_CLASSES} />,
+      icon: <SpeakerLoudIcon className={DASHBOARD_ICON_CLASSES} />,
       description:
         "En este módulo, podrá buscar y visualizar las transcripciones de Neotel.",
       buttonIcon: (
-        <ArrowRightIcon className={ICON_CLASSES + "text-foreground"} />
+        <ArrowRightIcon
+          className={DASHBOARD_ICON_CLASSES + "text-foreground"}
+        />
       ),
     },
     {
       title: "Ver tu historial",
-      icon: <FileTextIcon className={ICON_CLASSES} />,
+      icon: <FileTextIcon className={DASHBOARD_ICON_CLASSES} />,
       description: "En este módulo, podrá ver su historial de transcripciones.",
       buttonIcon: (
-        <ArrowRightIcon className={ICON_CLASSES + "text-foreground"} />
+        <ArrowRightIcon
+          className={DASHBOARD_ICON_CLASSES + "text-foreground"}
+        />
       ),
     },
     {
       title: "Ver campañas",
-      icon: <GlobeIcon className={ICON_CLASSES} />,
+      icon: <GlobeIcon className={DASHBOARD_ICON_CLASSES} />,
       description: "En este módulo, podrá ver los audios por campaña.",
       buttonIcon: (
-        <ArrowRightIcon className={ICON_CLASSES + "text-foreground"} />
+        <ArrowRightIcon
+          className={DASHBOARD_ICON_CLASSES + "text-foreground"}
+        />
       ),
     },
     {
       title: "Ver operadores",
-      icon: <PersonIcon className={ICON_CLASSES} />,
+      icon: <PersonIcon className={DASHBOARD_ICON_CLASSES} />,
       description: "En este módulo, podrá ver los audios por operador.",
       buttonIcon: (
-        <ArrowRightIcon className={ICON_CLASSES + "text-foreground"} />
+        <ArrowRightIcon
+          className={DASHBOARD_ICON_CLASSES + "text-foreground"}
+        />
       ),
     },
     {
       title: "Ver audios problemáticos",
-      icon: <ExclamationTriangleIcon className={ICON_CLASSES} />,
+      icon: <ExclamationTriangleIcon className={DASHBOARD_ICON_CLASSES} />,
       description:
         "En este módulo, podrá ver y revisar los audios marcados como problemáticos.",
       buttonIcon: (
-        <ArrowRightIcon className={ICON_CLASSES + "text-foreground"} />
+        <ArrowRightIcon
+          className={DASHBOARD_ICON_CLASSES + "text-foreground"}
+        />
       ),
+    },
+    {
+      title: "Buscar por fecha",
+      icon: <CalendarIcon className={DASHBOARD_ICON_CLASSES} />,
+      description: "En este módulo, podrá buscar los audios por fecha.",
+      buttonIcon: (
+        <ArrowRightIcon
+          className={DASHBOARD_ICON_CLASSES + "text-foreground"}
+        />
+      ),
+      href: "/dashboard/search-records-by-date",
     },
   ]
   return (
@@ -84,6 +106,7 @@ export default function BasicDashboard() {
             description={dashboardItem.description}
             icon={dashboardItem.icon}
             buttonIcon={dashboardItem.buttonIcon}
+            href={dashboardItem.href}
             key={`${dashboardItem}-${index}-card`}
           />
         ))}
@@ -97,14 +120,19 @@ function Card3D({
   description,
   icon,
   buttonIcon,
+  href,
   className,
 }: {
   title: string
   description: string
   icon: React.JSX.Element
   buttonIcon: React.JSX.Element
+  href?: string
   className?: string
 }) {
+  if (href && !href.startsWith("/")) {
+    throw new Error("href must start with /")
+  }
   return (
     <CardContainer className={cn("inter-var ")}>
       <CardBody
@@ -128,13 +156,25 @@ function Card3D({
         </CardItem>
 
         <CardItem translateZ='100' className='w-full'>
-          <Button variant={"default"} className='w-full'>
-            {buttonIcon}
-            <span className='ml-2 text-sm'>
-              {"Ir a " + title.toLowerCase()}
-            </span>
-            <span className='sr-only'>{"Ir a " + title.toLowerCase()}</span>
-          </Button>
+          {href ? (
+            <Link href={href}>
+              <Button variant={"default"} className='w-full'>
+                {buttonIcon}
+                <span className='ml-2 text-sm'>
+                  {"Ir a " + title.toLowerCase()}
+                </span>
+                <span className='sr-only'>{"Ir a " + title.toLowerCase()}</span>
+              </Button>
+            </Link>
+          ) : (
+            <Button variant={"default"} className='w-full'>
+              {buttonIcon}
+              <span className='ml-2 text-sm'>
+                {"Ir a " + title.toLowerCase()}
+              </span>
+              <span className='sr-only'>{"Ir a " + title.toLowerCase()}</span>
+            </Button>
+          )}
         </CardItem>
       </CardBody>
     </CardContainer>

@@ -15,15 +15,16 @@ export function ErrorCodeUserFriendly({
   error,
   locale,
 }: ErrorCodeUserFriendlyProps) {
+  if (!error) return null
   const content = {
-    [SupportedLocales.SPANISH]: {
+    [SupportedLocales.ES]: {
       title: "¡Ha ocurrido un error cargando la lista! 😯",
       paragraph:
         "Contacte a su administrador de IT y otorgue el siguiente código de error:",
       messagePrefix: "Mensaje: ",
       stackPrefix: "Stack: ",
     },
-    [SupportedLocales.ENGLISH]: {
+    [SupportedLocales.EN]: {
       title: "An error occurred loading the list! 😯",
       paragraph:
         "Contact your IT administrator and give the following error code:",
@@ -31,8 +32,16 @@ export function ErrorCodeUserFriendly({
       stackPrefix: "Stack: ",
     },
   }
-
   const localizedContent = content[locale]
+  if (!error.stack) {
+    return (
+      <div className='flex flex-col space-y-10'>
+        <TitleH1>{localizedContent.title}</TitleH1>
+        <ParagraphP>{localizedContent.paragraph}</ParagraphP>
+        <code>{JSON.parse(error).detail}</code>
+      </div>
+    )
+  }
 
   return (
     <div className='flex flex-col space-y-10'>

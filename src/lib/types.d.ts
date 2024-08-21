@@ -1,6 +1,6 @@
 export enum SupportedLocales {
-  ENGLISH = "en",
-  SPANISH = "es",
+  EN = "en",
+  ES = "es",
 }
 
 export interface ServerStatusResponse {

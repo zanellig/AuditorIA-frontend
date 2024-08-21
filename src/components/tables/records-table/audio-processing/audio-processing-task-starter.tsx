@@ -27,22 +27,11 @@ import {
 import { Button } from "@/components/ui/button"
 import ParagraphP from "@/components/typography/paragraphP"
 import { SelectField } from "@/components/tables/records-table/audio-processing/select-field"
-import { API_MAIN } from "@/lib/consts"
 
 import { taskFormOptions, taskFormSchema, type FormValues } from "@/lib/forms"
-import { Lancelot } from "next/font/google"
+import { createTask } from "@/lib/actions"
 
-export default function AudioProcessingTaskStarter({
-  row,
-  POSTTask,
-}: {
-  row: any
-  POSTTask: (
-    nasUrl: string,
-    fileName: string,
-    params: Record<string, string>
-  ) => Promise<any>
-}) {
+export default function AudioProcessingTaskStarter({ row }: { row: any }) {
   const { toast } = useToast()
   const form = useForm<FormValues>({
     resolver: zodResolver(taskFormSchema),
@@ -58,19 +47,19 @@ export default function AudioProcessingTaskStarter({
     setIsSubmitting(true)
     toast({ variant: "success", title: "Se ha enviado la tarea al servidor" })
     document.getElementById("close-sheet")?.click()
-
-    try {
-      const res = await POSTTask(row.original.URL, row.original.GRABACION, {
-        language: values.language,
-        task_type: values.task_type,
-        model: values.model,
-        device: values.device,
-      })
-      handleSuccessfulSubmission(res)
-    } catch (error: any) {
-      handleSubmissionError(error)
-    }
-
+    const formData = new FormData()
+    const filePath = row.original.URL
+    formData.append("language", values.language)
+    formData.append("task_type", values.task_type)
+    formData.append("model", values.model)
+    formData.append("device", values.device)
+    const [err, res] = await createTask(formData, {
+      fileName: row.original.GRABACION,
+      nasUrl: filePath,
+    })
+    console.log(res, "from audio-processing-task-starter")
+    handleSuccessfulSubmission(res)
+    handleSubmissionError(err)
     setIsSubmitting(false)
   }
 

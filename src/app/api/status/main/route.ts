@@ -2,10 +2,11 @@ import { _get } from "@/lib/fetcher"
 import { API_MAIN } from "@/lib/consts"
 import { getHeaders } from "@/lib/utils"
 import { ServerStatusBadgeVariant } from "@/lib/types.d"
+import { NextRequest, NextResponse } from "next/server"
 
 export const revalidate = 5
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   const headers = getHeaders(API_MAIN)
 
   // Fetch data
@@ -15,7 +16,7 @@ export async function GET(request: Request) {
 
   // Handle errors
   if (error) {
-    return new Response(
+    return new NextResponse(
       JSON.stringify({
         variant: ServerStatusBadgeVariant.Error,
         text: "Main server error",
@@ -28,7 +29,7 @@ export async function GET(request: Request) {
   if (response) {
     switch (response.status) {
       case 200:
-        return new Response(
+        return new NextResponse(
           JSON.stringify({
             variant: ServerStatusBadgeVariant.OK,
             text: "Main server OK",
@@ -36,7 +37,7 @@ export async function GET(request: Request) {
           { status: 200 }
         )
       case 404:
-        return new Response(
+        return new NextResponse(
           JSON.stringify({
             variant: ServerStatusBadgeVariant.Error,
             text: "Main server not found",
@@ -44,7 +45,7 @@ export async function GET(request: Request) {
           { status: 404 }
         )
       case 500:
-        return new Response(
+        return new NextResponse(
           JSON.stringify({
             variant: ServerStatusBadgeVariant.Error,
             text: "Main server error",
@@ -52,7 +53,7 @@ export async function GET(request: Request) {
           { status: 500 }
         )
       default:
-        return new Response(
+        return new NextResponse(
           JSON.stringify({
             variant: ServerStatusBadgeVariant.Warning,
             text: "Main server warning",
@@ -63,7 +64,7 @@ export async function GET(request: Request) {
   }
 
   // Fallback for when response is null
-  return new Response(
+  return new NextResponse(
     JSON.stringify({
       variant: ServerStatusBadgeVariant.Warning,
       text: "Main server warning",

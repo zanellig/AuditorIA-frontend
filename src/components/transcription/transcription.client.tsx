@@ -1,5 +1,5 @@
 "use client"
-
+import * as React from "react"
 import Link from "next/link"
 
 import {
@@ -9,6 +9,7 @@ import {
   Task,
   Status,
   SegmentAnalysisProperties,
+  SupportedLocales,
 } from "@/lib/types.d"
 
 import { Button } from "@/components/ui/button"
@@ -29,7 +30,12 @@ import {
 } from "@/components/ui/tooltip"
 import { useToast } from "@/components/ui/use-toast"
 
-import { ChevronLeft, ClipboardIcon, MessageCircleQuestion } from "lucide-react"
+import {
+  ChevronLeft,
+  ClipboardIcon,
+  MessageCircleQuestion,
+  Trash,
+} from "lucide-react"
 
 import {
   GLOBAL_ICON_SIZE,
@@ -43,41 +49,85 @@ import TitleH1 from "@/components/typography/titleH1"
 import SubtitleH2 from "@/components/typography/subtitleH2"
 
 import Analysis from "@/components/transcription/analysis"
-import SpeakerAnalysis from "./speaker-analysis.server"
+import TranscriptionSkeleton from "../skeletons/transcription-skeleton"
+import { ErrorCodeUserFriendly } from "../error/error-code-user-friendly"
+import SpeakerAnalysisCard from "./speaker-analysis-card.client"
 
-interface TranscriptionClientProps {
-  transcription: TranscriptionType
-  taskId: Task["identifier"]
-}
 const BASIC_STYLE = "flex text-sm rounded-md p-2 gap-2"
 
-const TranscriptionClient: React.FC<TranscriptionClientProps> = ({
-  transcription,
-  taskId,
-}) => {
+export default function TranscriptionClient({ taskId }: { taskId: string }) {
   const { toast } = useToast()
-  const isAnalysisNotReady = [
-    Status.Pending,
-    Status.Processing,
-    Status.Failed,
-  ].includes(transcription.status)
+  const [transcription, setTranscription] =
+    React.useState<TranscriptionType | null>(null)
+  const [error, setError] = React.useState<Error | null>(null)
+
+  React.useEffect(() => {
+    async function fetchData() {
+      const [err, res] = await fetch(
+        `http://localhost:3001/api/task?identifier=${taskId}`,
+        { method: "GET" }
+      ).then(async res => await res.json())
+
+      if (err) {
+        setError(err)
+        toast({
+          title: "Error al obtener la tarea",
+          description: err.message,
+          variant: "destructive",
+        })
+      } else {
+        setTranscription(res)
+      }
+    }
+
+    fetchData()
+  }, [])
+
+  let isAnalysisNotReady
+  if (transcription) {
+    isAnalysisNotReady = [
+      Status.Pending,
+      Status.Processing,
+      Status.Failed,
+    ].includes(transcription.status)
+  } else {
+    isAnalysisNotReady = false
+  }
+
+  React.useEffect(() => {
+    console.log("transcription on client", transcription)
+  }, [transcription])
 
   return (
     <>
-      {isAnalysisNotReady && (
-        <TranscriptionNotReady status={transcription.status} />
+      {transcription === null && <TranscriptionSkeleton />}
+
+      {transcription && (
+        <>
+          {isAnalysisNotReady && (
+            <TranscriptionNotReady status={transcription?.status} />
+          )}
+          <SpeakerAnalysisCard segments={transcription?.result?.segments}>
+            {""}
+          </SpeakerAnalysisCard>
+          <div className='flex flex-col space-y-2 py-10 pl-4 pr-16'>
+            <TaskHeader taskId={taskId} toast={toast} />
+            <Analysis transcription={transcription} />
+            {transcription?.result?.segments.map((segment, index) => {
+              console.log(segment, "segment from transcription")
+              return (
+                <SegmentRenderer
+                  key={`${segment.speaker}-segment-${index}`}
+                  segment={segment}
+                />
+              )
+            })}
+          </div>
+        </>
       )}
-      <SpeakerAnalysis />
-      <div className='flex flex-col space-y-2 py-10 pl-4 pr-16'>
-        <TaskHeader taskId={taskId} toast={toast} />
-        <Analysis transcription={transcription} />
-        {transcription?.result?.segments.map((segment, index) => (
-          <SegmentRenderer
-            key={`${segment.speaker}-segment-${index}`}
-            segment={segment}
-          />
-        ))}
-      </div>
+      {error && (
+        <ErrorCodeUserFriendly error={error} locale={SupportedLocales.ES} />
+      )}
     </>
   )
 }
@@ -211,7 +261,7 @@ interface SegmentRendererProps {
 }
 
 const SegmentRenderer: React.FC<SegmentRendererProps> = ({ segment }) => {
-  const speakerNumber = parseInt(segment.speaker.split("_")[1], 10)
+  const speakerNumber = parseInt(segment?.speaker?.split("_")[1], 10)
   const isEvenSpeaker = speakerNumber % 2 === 0
 
   return (
@@ -255,8 +305,6 @@ const TextContainer: React.FC<TextContainerProps> = ({ segment }) => (
     <TextBox text={segment.text} start={segment.start} end={segment.end} />
   </div>
 )
-
-export default TranscriptionClient
 
 // "use client"
 

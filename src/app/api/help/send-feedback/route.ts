@@ -1,10 +1,11 @@
 import { _get, _post, _put, _delete, _patch } from "@/lib/fetcher"
 import { API_CANARY, FEEDBACK_PATH } from "@/lib/consts"
 import { getHeaders } from "@/lib/utils"
+import { NextRequest } from "next/server"
 
 export const revalidate = 5
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   const headers = getHeaders(API_CANARY)
   const body = new FormData()
   const reqUrl = `${API_CANARY}/${FEEDBACK_PATH}`
