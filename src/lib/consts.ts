@@ -19,6 +19,7 @@ export const SPEECH_TO_TEXT_PATH = "speech-to-text"
 export const FEEDBACK_PATH = "help/send-feedback"
 export const FEATURE_PATH = "help/recommend-feature"
 export const BUG_PATH = "help/report-bug"
+export const SPEAKER_ANALYSIS_PATH = "spkanalysis"
 export const ACCEPTED_ORIGINS = [API_MAIN, API_CANARY]
 
 // for testing

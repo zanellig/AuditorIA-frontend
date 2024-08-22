@@ -1,4 +1,4 @@
-import { _get, _post, _put, _delete, _patch } from "@/lib/fetcher"
+import { _post } from "@/lib/fetcher"
 import { API_CANARY, FEEDBACK_PATH } from "@/lib/consts"
 import { getHeaders } from "@/lib/utils"
 import { NextRequest } from "next/server"

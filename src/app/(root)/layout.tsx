@@ -10,14 +10,12 @@ import { TopNavbar, Sidebar } from "@/components/navigation/navigation"
 import { cn } from "@/lib/utils"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import Footer from "@/components/footer"
-import { Switch } from "@/components/ui/switch"
 import DashboardSwitch from "@/components/dashboard/dashboard-switch"
 
 const BACKGROUND = "bg-pulse"
 
 export default function Layout({ children }: { children: ReactNode }) {
   const [sidebarWidth, setSidebarWidth] = useState(64) // Initial width of 16 (4rem)
-  const [isAdvancedDashboard, setIsAdvancedDashboard] = useState(false)
   const handleSidebarResize = (width: number) => {
     setSidebarWidth(width)
   }
@@ -27,6 +25,7 @@ export default function Layout({ children }: { children: ReactNode }) {
       <ScrollProvider>
         <TooltipProvider>
           <DashboardProvider>
+            {/* TODO: acá va a ir el AudioPlayerProvider */}
             <div
               id='main-global-container'
               className={cn(

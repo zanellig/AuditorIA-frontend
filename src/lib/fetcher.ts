@@ -1,3 +1,4 @@
+import "server-only"
 import { Method, FetchOptions } from "@/lib/types.d"
 
 async function _request<T, R extends boolean | undefined = undefined>(
@@ -9,6 +10,7 @@ async function _request<T, R extends boolean | undefined = undefined>(
     revalidate?: boolean
     onlyReturnStatus?: boolean
     expectJson?: boolean
+    cacheResponse?: boolean
   }
 ): Promise<[Error | null, R extends true ? number : T | Response | null]> {
   const fetchOptions: FetchOptions = {
@@ -16,6 +18,10 @@ async function _request<T, R extends boolean | undefined = undefined>(
     method,
   }
   let err: Error | null = null
+
+  if (!options?.cacheResponse) {
+    fetchOptions.cache = "no-store" as RequestCache
+  }
 
   if (body && body instanceof FormData) {
     fetchOptions.body = body
@@ -26,19 +32,22 @@ async function _request<T, R extends boolean | undefined = undefined>(
   options?.revalidate ? (fetchOptions.next = { revalidate: 5 }) : null
   try {
     const res = await fetch(url, fetchOptions)
-
+    console.log(res)
+    if (err !== null) {
+      console.log([err, null])
+      return [err as Error, null] as [Error, R extends true ? number : T]
+    }
     !res.ok ? (err = await res.json()) : null
-
+    console.log(err)
     if (options?.onlyReturnStatus) {
+      console.log([err, res.status])
       return [err, res.status] as [null, R extends true ? number : T]
     }
-
     if (options?.expectJson) {
       return [err, await res.json()] as [null, R extends true ? number : T]
     }
     return [err, res] as [null, R extends true ? number : T]
   } catch (e) {
-    console.error(e)
     return [err, null] as [Error, R extends true ? number : T]
   }
 }
@@ -50,6 +59,7 @@ function _get(
     revalidate?: boolean
     onlyReturnStatus?: boolean
     expectJson?: boolean
+    cacheResponse?: boolean
   }
 ): Promise<[Error | null, Response | null]> {
   return _request(url, Method.Get, null, headers, options)
@@ -59,7 +69,12 @@ function _post<T, R extends boolean | undefined = undefined>(
   url: string,
   body: any,
   headers?: Record<string, string>,
-  options?: { revalidate?: boolean; onlyReturnStatus?: R; expectJson?: boolean }
+  options?: {
+    revalidate?: boolean
+    onlyReturnStatus?: R
+    expectJson?: boolean
+    cacheResponse?: boolean
+  }
 ): Promise<[Error | null, R extends true ? number : T | Response | null]> {
   return _request<T, R>(url, Method.Post, body, headers, options)
 }
@@ -68,7 +83,12 @@ function _put<T, R extends boolean | undefined = undefined>(
   url: string,
   body: any,
   headers?: Record<string, string>,
-  options?: { revalidate?: boolean; onlyReturnStatus?: R; expectJson?: boolean }
+  options?: {
+    revalidate?: boolean
+    onlyReturnStatus?: R
+    expectJson?: boolean
+    cacheResponse?: boolean
+  }
 ): Promise<[Error | null, R extends true ? number : T | Response | null]> {
   return _request<T, R>(url, Method.Put, body, headers, options)
 }
@@ -77,7 +97,12 @@ function _patch<T, R extends boolean | undefined = undefined>(
   url: string,
   body: any,
   headers?: Record<string, string>,
-  options?: { revalidate?: boolean; onlyReturnStatus?: R; expectJson?: boolean }
+  options?: {
+    revalidate?: boolean
+    onlyReturnStatus?: R
+    expectJson?: boolean
+    cacheResponse?: boolean
+  }
 ): Promise<[Error | null, R extends true ? number : T | Response | null]> {
   return _request<T, R>(url, Method.Patch, body, headers, options)
 }
@@ -85,7 +110,12 @@ function _patch<T, R extends boolean | undefined = undefined>(
 function _delete<T, R extends boolean | undefined = undefined>(
   url: string,
   headers?: Record<string, string>,
-  options?: { revalidate?: boolean; onlyReturnStatus?: R; expectJson?: boolean }
+  options?: {
+    revalidate?: boolean
+    onlyReturnStatus?: R
+    expectJson?: boolean
+    cacheResponse?: boolean
+  }
 ): Promise<[Error | null, R extends true ? number : T | Response | null]> {
   return _request<T, R>(url, Method.Delete, null, headers, options)
 }

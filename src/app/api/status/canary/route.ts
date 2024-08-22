@@ -6,14 +6,16 @@ import { NextRequest, NextResponse } from "next/server"
 
 export const revalidate = 5
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   const headers = getHeaders(API_CANARY)
 
   // Fetch data
   const [error, response] = await _get(API_CANARY + "/docs", headers, {
     expectJson: false,
+    onlyReturnStatus: true,
+    cacheResponse: false,
   })
-
+  console.log(error, response)
   // Handle errors
   if (error) {
     return new NextResponse(
@@ -26,22 +28,49 @@ export async function GET(request: NextRequest) {
   }
 
   // Handle response status
-  if (response && response.ok) {
-    return new NextResponse(
-      JSON.stringify({
-        variant: ServerStatusBadgeVariant.OK,
-        text: "Canary server OK",
-      }),
-      { status: 200 }
-    )
+  if (response) {
+    switch (response.status) {
+      case 200:
+        return new NextResponse(
+          JSON.stringify({
+            variant: ServerStatusBadgeVariant.OK,
+            text: "Canary server OK",
+          }),
+          { status: 200 }
+        )
+      case 404:
+        return new NextResponse(
+          JSON.stringify({
+            variant: ServerStatusBadgeVariant.Error,
+            text: "Canary server not found",
+          }),
+          { status: 404 }
+        )
+      case 500:
+        return new NextResponse(
+          JSON.stringify({
+            variant: ServerStatusBadgeVariant.Error,
+            text: "Canary server error",
+          }),
+          { status: 500 }
+        )
+      default:
+        return new NextResponse(
+          JSON.stringify({
+            variant: ServerStatusBadgeVariant.Warning,
+            text: "Canary server warning",
+          }),
+          { status: 500 }
+        )
+    }
   }
 
-  // Default case
+  // Fallback for when response is null
   return new NextResponse(
     JSON.stringify({
       variant: ServerStatusBadgeVariant.Warning,
       text: "Canary server warning",
     }),
-    { status: response?.status || 500 }
+    { status: 500 }
   )
 }

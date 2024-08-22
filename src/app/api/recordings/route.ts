@@ -6,7 +6,7 @@ import {
   getHeaders,
   concatParamsToUrlString,
 } from "@/lib/utils"
-import { NextRequest, NextResponse } from "next/server"
+import { NextRequest } from "next/server"
 
 export async function GET(request: NextRequest) {
   const headers = getHeaders(API_CANARY)

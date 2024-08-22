@@ -1,4 +1,3 @@
-// components/dashboard/dashboard.tsx
 "use client"
 
 import AdvancedDashboard from "./advanced/advanced-dashboard"

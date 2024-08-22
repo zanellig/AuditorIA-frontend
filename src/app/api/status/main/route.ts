@@ -2,11 +2,11 @@ import { _get } from "@/lib/fetcher"
 import { API_MAIN } from "@/lib/consts"
 import { getHeaders } from "@/lib/utils"
 import { ServerStatusBadgeVariant } from "@/lib/types.d"
-import { NextRequest, NextResponse } from "next/server"
+import { NextResponse } from "next/server"
 
 export const revalidate = 5
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   const headers = getHeaders(API_MAIN)
 
   // Fetch data

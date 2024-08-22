@@ -1,4 +1,4 @@
-import { ScrollArea } from "@/components/ui/scroll-area"
+import Report from "@/components/reports/report"
 
 import { Metadata } from "next"
 
@@ -8,5 +8,9 @@ export const metadata: Metadata = {
 }
 
 export default function Page() {
-  return <ScrollArea className='max-h-dvh h-dvh pt-16 min-h-dvh'></ScrollArea>
+  return (
+    <>
+      <Report />
+    </>
+  )
 }

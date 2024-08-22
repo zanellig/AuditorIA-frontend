@@ -6,10 +6,10 @@ import {
   BookmarkIcon,
   ChatBubbleIcon,
   ChevronLeftIcon,
-  DownloadIcon,
-  FilePlusIcon,
+  FileIcon,
   GearIcon,
   HomeIcon,
+  UploadIcon,
 } from "@radix-ui/react-icons"
 import { SendUsFeedbackButton } from "@/components/navigation/feedback-button"
 import { useScroll } from "../ScrollProvider"
@@ -20,7 +20,6 @@ import { ModeToggle } from "./mode-toggle"
 import Link from "next/link"
 import { TESTING, TESTING_RECORDINGS } from "@/lib/consts"
 import StatusBadges from "./status.client"
-import SubtitleH2 from "../typography/subtitleH2"
 
 export function Sidebar({
   className,
@@ -57,23 +56,23 @@ export function Sidebar({
     },
     {
       href: "/subir-archivos",
-      icon: <FilePlusIcon className='h-[1.2rem] w-[1.2rem]' />,
+      icon: <UploadIcon className='h-[1.2rem] w-[1.2rem]' />,
       title: "Subir un archivo",
     },
-    {
-      href: "/tareas-guardadas",
-      icon: <BookmarkIcon className='h-[1.2rem] w-[1.2rem]' />,
-      title: "Tareas guardadas",
-    },
+    // {
+    //   href: "/tareas-guardadas",
+    //   icon: <BookmarkIcon className='h-[1.2rem] w-[1.2rem]' />,
+    //   title: "Tareas guardadas",
+    // },
     {
       href: "/reportes",
-      icon: <DownloadIcon className='h-[1.2rem] w-[1.2rem]' />,
-      title: "Descargar reportes",
+      icon: <FileIcon className='h-[1.2rem] w-[1.2rem]' />,
+      title: "Reportes",
     },
     {
-      href: "/chatbot",
+      href: "/chats",
       icon: <ChatBubbleIcon className='h-[1.2rem] w-[1.2rem]' />,
-      title: "Chatbot",
+      title: "Chats",
     },
     {
       href: "/settings",
@@ -220,11 +219,16 @@ export function TopNavbar({
       style={style}
     >
       <BreadcrumbWithCustomSeparator />
-      {TESTING || TESTING_RECORDINGS ? (
-        <SubtitleH2 className='animate-pulse text-destructive'>
-          TESTING MODE IS ON
-        </SubtitleH2>
-      ) : null}
+      <>
+        {TESTING && (
+          <p className='animate-pulse text-destructive'>TESTING IS ON</p>
+        )}
+        {TESTING_RECORDINGS && (
+          <p className='animate-pulse text-destructive'>
+            TESTING RECORDINGS IS ON
+          </p>
+        )}
+      </>
       <div className='flex flex-row space-x-4 items-center'>
         {isSettingsPage && <StatusBadges />}
         {children}

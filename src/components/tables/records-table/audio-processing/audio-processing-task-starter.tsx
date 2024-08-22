@@ -57,9 +57,13 @@ export default function AudioProcessingTaskStarter({ row }: { row: any }) {
       fileName: row.original.GRABACION,
       nasUrl: filePath,
     })
-    console.log(res, "from audio-processing-task-starter")
+
+    if (err !== null) {
+      handleSubmissionError(err)
+      setIsSubmitting(false)
+      return
+    }
     handleSuccessfulSubmission(res)
-    handleSubmissionError(err)
     setIsSubmitting(false)
   }
 

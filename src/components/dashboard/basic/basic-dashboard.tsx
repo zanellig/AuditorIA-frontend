@@ -2,11 +2,12 @@ import {
   ArrowRightIcon,
   CalendarIcon,
   ExclamationTriangleIcon,
+  FileIcon,
   FileTextIcon,
   GlobeIcon,
+  LoopIcon,
   PersonIcon,
   SpeakerLoudIcon,
-  TrashIcon,
   UploadIcon,
 } from "@radix-ui/react-icons"
 import React from "react"
@@ -39,6 +40,7 @@ export default function BasicDashboard() {
           className={DASHBOARD_ICON_CLASSES + "text-foreground"}
         />
       ),
+      href: "/dashboard/search-records",
     },
     {
       title: "Ver tu historial",
@@ -49,9 +51,10 @@ export default function BasicDashboard() {
           className={DASHBOARD_ICON_CLASSES + "text-foreground"}
         />
       ),
+      href: "/dashboard/search-tasks",
     },
     {
-      title: "Ver campañas",
+      title: "Buscar por campaña",
       icon: <GlobeIcon className={DASHBOARD_ICON_CLASSES} />,
       description: "En este módulo, podrá ver los audios por campaña.",
       buttonIcon: (
@@ -59,9 +62,10 @@ export default function BasicDashboard() {
           className={DASHBOARD_ICON_CLASSES + "text-foreground"}
         />
       ),
+      href: "/dashboard/search-records-by-campaign",
     },
     {
-      title: "Ver operadores",
+      title: "Buscar por operador",
       icon: <PersonIcon className={DASHBOARD_ICON_CLASSES} />,
       description: "En este módulo, podrá ver los audios por operador.",
       buttonIcon: (
@@ -69,6 +73,7 @@ export default function BasicDashboard() {
           className={DASHBOARD_ICON_CLASSES + "text-foreground"}
         />
       ),
+      href: "/dashboard/search-tasks-by-operator",
     },
     {
       title: "Ver audios problemáticos",
@@ -80,6 +85,7 @@ export default function BasicDashboard() {
           className={DASHBOARD_ICON_CLASSES + "text-foreground"}
         />
       ),
+      href: "/dashboard/search-tasks-by-ponderation",
     },
     {
       title: "Buscar por fecha",
@@ -91,6 +97,28 @@ export default function BasicDashboard() {
         />
       ),
       href: "/dashboard/search-records-by-date",
+    },
+    {
+      title: "Buscar por dirección",
+      icon: <LoopIcon className={DASHBOARD_ICON_CLASSES} />,
+      description: "En este módulo, podrá buscar los audios por dirección.",
+      buttonIcon: (
+        <ArrowRightIcon
+          className={DASHBOARD_ICON_CLASSES + "text-foreground"}
+        />
+      ),
+      href: "/dashboard/search-records-by-direction",
+    },
+    {
+      title: "Ver reportes",
+      icon: <FileIcon className={DASHBOARD_ICON_CLASSES} />,
+      description: "En este módulo, podrá ver los reportes.",
+      buttonIcon: (
+        <ArrowRightIcon
+          className={DASHBOARD_ICON_CLASSES + "text-foreground"}
+        />
+      ),
+      href: "/reportes",
     },
   ]
   return (

@@ -1,3 +1,4 @@
+"use client"
 import TasksTable from "@/components/tables/tasks-table/tasks-table.server"
 import RecordingsTable from "@/components/tables/records-table/recordings-table.server"
 import TableContainer from "@/components/tables/table-core/table-container"

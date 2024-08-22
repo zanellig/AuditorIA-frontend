@@ -94,9 +94,9 @@ export default function TranscriptionClient({ taskId }: { taskId: string }) {
     isAnalysisNotReady = false
   }
 
-  React.useEffect(() => {
-    console.log("transcription on client", transcription)
-  }, [transcription])
+  // React.useEffect(() => {
+  //   console.log("transcription on client", transcription)
+  // }, [transcription])
 
   return (
     <>
@@ -114,7 +114,6 @@ export default function TranscriptionClient({ taskId }: { taskId: string }) {
             <TaskHeader taskId={taskId} toast={toast} />
             <Analysis transcription={transcription} />
             {transcription?.result?.segments.map((segment, index) => {
-              console.log(segment, "segment from transcription")
               return (
                 <SegmentRenderer
                   key={`${segment.speaker}-segment-${index}`}

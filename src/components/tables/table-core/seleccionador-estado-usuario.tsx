@@ -50,10 +50,6 @@ export default function SeleccionadorEstadoUsuario<TData>({
   const [selectedValue, setSelectedValue] = React.useState<
     Task["status"] | Recording["USUARIO"] | null
   >(null)
-  React.useEffect(() => {
-    console.log(type)
-    console.log("selected status: ", selectedValue)
-  }, [selectedValue])
 
   const getTypeString = (type: string) => {
     switch (type) {

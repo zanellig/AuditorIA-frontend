@@ -89,11 +89,12 @@ export enum Method {
   Patch = "PATCH",
   Delete = "DELETE",
 }
-export interface FetchOptions {
+export interface FetchOptions extends RequestInit {
   headers: Record<string, string>
   method: Methods
   body?: any
   next?: NextFetchRequestConfig
+  cache?: RequestCache
 }
 
 export type SentimentType = "NEG" | "NEU" | "POS"

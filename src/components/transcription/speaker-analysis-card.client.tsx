@@ -6,11 +6,12 @@ import {
   ArrowRightIcon,
   CheckIcon,
   ChevronLeftIcon,
+  ClipboardCopyIcon,
   Cross2Icon,
   Pencil2Icon,
   PlayIcon,
 } from "@radix-ui/react-icons"
-import { Analysis, Segment } from "@/lib/types"
+import { Analysis, Segment, Task } from "@/lib/types.d"
 import { usePathname, useSearchParams } from "next/navigation"
 
 import {
@@ -19,10 +20,10 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
-import { getSpeakerProfileLLM } from "@/lib/actions"
 import { Input } from "../ui/input"
 import { DASHBOARD_ICON_CLASSES } from "@/lib/consts"
 import { useToast } from "../ui/use-toast"
+import { LoadingState, MultiStepLoader } from "../ui/multi-step-loader"
 
 export default function SpeakerAnalysisCard({
   children,
@@ -34,8 +35,6 @@ export default function SpeakerAnalysisCard({
   segments: Segment[]
 }) {
   const [isOpen, setIsOpen] = useState<boolean>(false)
-  const [analysis, setAnalysis] = useState<Analysis | null>(null)
-  const [LLMAnalysis, setLLMAnalysis] = useState<any | null>(null)
   const searchParams = useSearchParams()
   const id = searchParams.get("identifier")
   const uniqueWords = getUniqueWords(segments || [])
@@ -65,26 +64,100 @@ export default function SpeakerAnalysisCard({
         <div id='analysis-content'>
           <Accordion type='single' collapsible className='lg:w-[500px]'>
             <LocalWordSearch words={uniqueWords} />
-            <AccordionItem value='2'>
-              <AccordionTrigger
-                className='space-x-4'
-                // onClick={() => {
-                //   getSpeakerProfileLLM(id).then(data => {
-                //     console.log(`data: `, data)
-                //     setLLMAnalysis(data)
-                //   })
-                // }}
-              >
-                <span>Evaluar perfil de hablante</span>
-              </AccordionTrigger>
-              <AccordionContent>
-                <span>2</span>
-              </AccordionContent>
-            </AccordionItem>
+            <EvalSpeakerProfile id={id as Task["identifier"]} />
           </Accordion>
         </div>
       </div>
     </div>
+  )
+}
+
+function EvalSpeakerProfile({
+  className,
+  id,
+}: {
+  className?: string
+  id: Task["identifier"]
+}) {
+  const { toast } = useToast()
+
+  const [LLMAnalysis, setLLMAnalysis] = useState<any | null>(null)
+  const [isFetching, setIsFetching] = useState<boolean>(false)
+  const [fetchError, setFetchError] = useState<any>(null)
+  const [storedResponse, setStoredResponse] = useState<string | null>(null)
+
+  React.useEffect(() => {
+    // Load stored data from localStorage when the component mounts
+    const storedString = localStorage.getItem("response")
+    if (storedString) {
+      setLLMAnalysis(JSON.parse(storedString))
+      setStoredResponse(storedString)
+    }
+  }, [])
+
+  React.useEffect(() => {
+    if (storedResponse !== null) {
+      return
+    }
+    const fetchData = async () => {
+      const [err, res] = await fetch(`/api/task/spkanalysis?identifier=${id}`, {
+        method: "GET",
+      }).then(async res => await res.json())
+      if (err !== null) {
+        setFetchError(err["detail"])
+        return
+      }
+      const str = res["processed_result"].match(/```json\s+([\s\S]*?)\s+```/)[1]
+      localStorage.setItem("response", str)
+      setLLMAnalysis(JSON.parse(str))
+      setIsFetching(false)
+    }
+    fetchData()
+  }, [isFetching])
+
+  return (
+    <>
+      <AccordionItem value='2'>
+        <AccordionTrigger
+          className='space-x-4'
+          onClick={() => {
+            setIsFetching(true)
+          }}
+        >
+          <span>Evaluar perfil de hablante</span>
+        </AccordionTrigger>
+        <AccordionContent>
+          {LLMAnalysis &&
+            Object.keys(LLMAnalysis).map((key, i) => {
+              return (
+                <div key={i} className='flex flex-col gap-2'>
+                  <div className='flex flex-row items-center space-x-2'>
+                    <span className='text-sm'>{key}</span>
+                    <Button
+                      variant='outline'
+                      onClick={() => {
+                        navigator.clipboard.writeText(
+                          JSON.stringify(LLMAnalysis[key])
+                        )
+                        toast({
+                          title: "Texto copiado al portapapeles",
+                          variant: "success",
+                        })
+                      }}
+                    >
+                      <ClipboardCopyIcon className={DASHBOARD_ICON_CLASSES} />
+                    </Button>
+                  </div>
+                  <code className='whitespace-pre-wrap'>
+                    {LLMAnalysis[key]}
+                  </code>
+                </div>
+              )
+            })}
+          {fetchError && <code>{fetchError}</code>}
+        </AccordionContent>
+      </AccordionItem>
+    </>
   )
 }
 
@@ -100,96 +173,99 @@ function LocalWordSearch({
   const [currentInput, setCurrentInput] = useState<string>("")
   type EditingState = [boolean, string, number]
   const [edit, setEdit] = useState<EditingState>([false, "", -1])
+  type FoundWordsState = [boolean, string, number]
+  const [foundWords, setFoundWords] = useState<FoundWordsState[]>([])
+
+  // this is only while we figure out how to change the component to accept the FoundWordsState[] as a prop
+  const [loadingStates, setLoadingStates] = useState<LoadingState[]>([])
+  const [searchingWordsForUser, setSearchingWordsForUser] =
+    useState<boolean>(false)
 
   function searchWords(
     searchWords: string[],
     targetWords: Set<string>
-  ): boolean[] {
-    return [...searchWords].map(searchWord => {
-      return targetWords.has(searchWord)
+  ): FoundWordsState[] {
+    return [...searchWords].map((searchWord, i) => {
+      const hasTargetWord = targetWords.has(searchWord)
+      return [hasTargetWord, searchWord, i]
     })
   }
 
+  function _reset() {
+    setCurrentInput("")
+    setInputs([])
+  }
+
   return (
-    <AccordionItem value='1'>
-      <AccordionTrigger>Buscar palabras</AccordionTrigger>
-      <AccordionContent className='flex flex-col space-y-2'>
-        <div className='flex flex-row space-x-2 items-center'>
-          <Input
-            className='focus-visible:ring-0'
-            placeholder='Ingrese una palabra'
-            value={currentInput}
-            onChange={e => setCurrentInput(e.target.value)}
-            onKeyDown={e => {
-              if (e.key === "Enter") {
-                setInputs([...inputs, currentInput])
-                setCurrentInput("")
-              }
-            }}
-          />
-          <Button
-            variant={"outline"}
-            onClick={() => {
-              if (currentInput === "") {
-                toast({
-                  title: "Ingrese una palabra para buscar",
-                  variant: "destructive",
-                })
-                return
-              }
-              setInputs([...inputs, currentInput])
-              setCurrentInput("")
-            }}
-          >
-            <CheckIcon className={DASHBOARD_ICON_CLASSES} />
-          </Button>
-        </div>
-        {inputs.map((input, i) => {
-          return (
-            <div
-              key={`word-container-${i}`}
-              className='flex flex-row items-center space-x-2'
-            >
-              <Button
-                key={`word-remove-${i}`}
-                variant='outline'
-                onClick={() =>
-                  setInputs(inputs.filter((_, index) => index !== i))
-                }
-              >
-                <Cross2Icon className={DASHBOARD_ICON_CLASSES} />
-              </Button>
-              <Button
-                variant='outline'
-                onClick={() => {
-                  if (edit[0] && edit[2] === i) {
-                    // change the value of the input[i] to the new value
-                    setInputs(
-                      inputs.map((_, i) => {
-                        if (i === edit[2]) {
-                          return edit[1]
-                        }
-                        return _
-                      })
-                    )
-                    setEdit([false, "", -1])
+    <>
+      {searchingWordsForUser && (
+        <MultiStepLoader
+          loadingStates={loadingStates}
+          loading={true}
+          loop={true}
+          duration={2000}
+        />
+      )}
+      <AccordionItem value='1'>
+        <AccordionTrigger>Buscar palabras</AccordionTrigger>
+        <AccordionContent className='flex flex-col space-y-2'>
+          <div className='flex flex-row space-x-2 items-center'>
+            <Input
+              className='focus-visible:ring-0'
+              placeholder='Ingrese una palabra'
+              value={currentInput}
+              onChange={e => setCurrentInput(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === "Enter") {
+                  if (currentInput === "") {
+                    toast({
+                      title: "Ingrese una palabra para buscar",
+                      variant: "destructive",
+                    })
                     return
                   }
-                  setEdit([true, input, i])
-                }}
+                  setInputs([...inputs, currentInput])
+                  setCurrentInput("")
+                }
+              }}
+            />
+            <Button
+              variant={"outline"}
+              onClick={() => {
+                if (currentInput === "") {
+                  toast({
+                    title: "Ingrese una palabra para buscar",
+                    variant: "destructive",
+                  })
+                  return
+                }
+                setInputs([...inputs, currentInput])
+                setCurrentInput("")
+              }}
+            >
+              <CheckIcon className={DASHBOARD_ICON_CLASSES} />
+            </Button>
+          </div>
+          {inputs.map((input, i) => {
+            return (
+              <div
+                key={`word-container-${i}`}
+                className='flex flex-row items-center space-x-2'
               >
-                {edit[0] && edit[2] === i ? (
-                  <CheckIcon className={DASHBOARD_ICON_CLASSES} />
-                ) : (
-                  <Pencil2Icon className={DASHBOARD_ICON_CLASSES} />
-                )}
-              </Button>
-              {edit[0] && edit[2] === i ? (
-                <Input
-                  value={edit[1]}
-                  onChange={e => setEdit([true, e.target.value, edit[2]])}
-                  onKeyDown={e => {
-                    if (e.key === "Enter") {
+                <Button
+                  key={`word-remove-${i}`}
+                  variant='outline'
+                  onClick={() =>
+                    setInputs(inputs.filter((_, index) => index !== i))
+                  }
+                >
+                  <Cross2Icon className={DASHBOARD_ICON_CLASSES} />
+                </Button>
+                <Button
+                  variant='outline'
+                  onClick={() => {
+                    if (edit[0] && edit[2] === i) {
+                      // change the value of the input[i] to the new value
                       setInputs(
                         inputs.map((_, i) => {
                           if (i === edit[2]) {
@@ -199,43 +275,80 @@ function LocalWordSearch({
                         })
                       )
                       setEdit([false, "", -1])
+                      return
                     }
-                    if (e.key === "Escape") {
-                      setEdit([false, "", -1])
-                    }
-                  }}
-                />
-              ) : (
-                <div
-                  className='rounded-md bg-popover p-2 text-sm border border-input w-full'
-                  style={{
-                    userSelect: "none",
+                    setEdit([true, input, i])
                   }}
                 >
-                  {input}
-                </div>
-              )}
-            </div>
-          )
-        })}
-        {inputs.length > 0 && (
-          <Button
-            className='flex flex-row items-center space-x-2'
-            onClick={() => {
-              // forward the click event to the close-speaker-analysis-card-button
-              const closeButton = document.getElementById(
-                "close-speaker-analysis-card-button"
-              )
-              if (closeButton) {
-                closeButton.click()
-              }
-            }}
-          >
-            <ArrowRightIcon className={DASHBOARD_ICON_CLASSES} />
-            <span>Buscar</span>
-          </Button>
-        )}
-      </AccordionContent>
-    </AccordionItem>
+                  {edit[0] && edit[2] === i ? (
+                    <CheckIcon className={DASHBOARD_ICON_CLASSES} />
+                  ) : (
+                    <Pencil2Icon className={DASHBOARD_ICON_CLASSES} />
+                  )}
+                </Button>
+                {edit[0] && edit[2] === i ? (
+                  <Input
+                    value={edit[1]}
+                    onChange={e => setEdit([true, e.target.value, edit[2]])}
+                    onKeyDown={e => {
+                      if (e.key === "Enter") {
+                        setInputs(
+                          inputs.map((_, i) => {
+                            if (i === edit[2]) {
+                              return edit[1]
+                            }
+                            return _
+                          })
+                        )
+                        setEdit([false, "", -1])
+                      }
+                      if (e.key === "Escape") {
+                        setEdit([false, "", -1])
+                      }
+                    }}
+                  />
+                ) : (
+                  <div
+                    className='rounded-md bg-popover p-2 text-sm border border-input w-full'
+                    style={{
+                      userSelect: "none",
+                    }}
+                  >
+                    {input}
+                  </div>
+                )}
+              </div>
+            )
+          })}
+          {inputs.length > 0 && (
+            <Button
+              className='flex flex-row items-center space-x-2'
+              onClick={() => {
+                // forward the click event to the close-speaker-analysis-card-button
+                const closeButton = document.getElementById(
+                  "close-speaker-analysis-card-button"
+                )
+                if (closeButton) {
+                  closeButton.click()
+                }
+                setFoundWords(searchWords(inputs, words))
+
+                for (const foundWordsTuple of foundWords) {
+                  const loadingState: LoadingState = {
+                    text: foundWordsTuple[1],
+                  }
+                  setLoadingStates(prev => [...prev, loadingState])
+                }
+                setSearchingWordsForUser(true)
+                _reset()
+              }}
+            >
+              <ArrowRightIcon className={DASHBOARD_ICON_CLASSES} />
+              <span>Buscar</span>
+            </Button>
+          )}
+        </AccordionContent>
+      </AccordionItem>
+    </>
   )
 }

@@ -13,11 +13,7 @@ import { SupportedLocales, type Recordings } from "@/lib/types.d"
 import { ErrorCodeUserFriendly } from "@/components/error/error-code-user-friendly"
 import DashboardSkeleton from "@/components/skeletons/dashboard-skeleton"
 
-export default async function RecordingsTable({
-  reset,
-}: {
-  reset?: () => void
-}) {
+export default async function RecordingsTable() {
   if (TESTING_RECORDINGS) {
     return (
       <DataTable columns={columns} data={[]} type={"records"} recordings={[]} />

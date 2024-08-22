@@ -14,7 +14,7 @@ export function AvatarButton({
       }`}
     >
       {/* aca le pueden poner su avatar de github (o cualquier imagen que quieran), si lo cambian asegúrense de no meter este archivo / linea en el commit */}
-      <AvatarImage src='https://github.com/zanellig.png' />{" "}
+      <AvatarImage src='https://github.com/agustinbouzonn.png' />{" "}
       <AvatarFallback>GZ</AvatarFallback>
     </Avatar>
   )

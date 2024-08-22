@@ -1,7 +1,7 @@
-import { _get, _post, _put, _delete, _patch } from "@/lib/fetcher"
+import { _get, _post } from "@/lib/fetcher"
 import { API_MAIN, SPEECH_TO_TEXT_PATH, TASK_PATH } from "@/lib/consts"
 import { getHeaders } from "@/lib/utils"
-import { Task, TaskPOSTResponse } from "@/lib/types.d"
+import { TaskPOSTResponse } from "@/lib/types.d"
 import { NextRequest, NextResponse } from "next/server"
 
 export const revalidate = 5
@@ -12,10 +12,7 @@ const SPEECH_TO_TEXT_API = [API_MAIN, SPEECH_TO_TEXT_PATH].join("/")
 export async function GET(request: NextRequest) {
   const url = new URL(request.url)
   const identifier = request.nextUrl.searchParams.get("identifier")
-  console.log(
-    "identifier from GET task route",
-    request.nextUrl.searchParams.get("identifier")
-  )
+
   const headers = getHeaders(API_MAIN)
   if (!identifier) {
     return new NextResponse(
@@ -30,7 +27,6 @@ export async function GET(request: NextRequest) {
     revalidate: true,
     expectJson: true,
   })
-  console.log(err, res, "from task route")
   if (err !== null) {
     return new NextResponse(JSON.stringify([JSON.stringify(err), null]), {
       status: err.status || 500,

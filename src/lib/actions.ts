@@ -235,12 +235,12 @@ export async function actionRevalidatePath(path: string) {
   revalidatePath(path)
 }
 
-export async function getSpeakerProfileLLM(id: Task["identifier"]) {
-  const headers = getHeaders(API_CANARY)
-  const url = `${API_CANARY}/tasks/spkanalysis/${id}`
+// export async function getSpeakerProfileLLM(id: Task["identifier"]) {
+//   const headers = getHeaders(API_CANARY)
+//   const url = `${API_CANARY}/tasks/spkanalysis/${id}`
 
-  return _get(url, headers)
-}
+//   return _get(url, headers)
+// }
 
 export async function calculateAverages(segments: Segment[]) {
   return await calculateAverageForSegments(segments)
