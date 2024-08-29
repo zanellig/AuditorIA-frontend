@@ -11,6 +11,7 @@ export default function TranscriptionSkeleton({
     <>
       <div
         className={cn("flex flex-col space-y-2 py-10 pl-4 pr-16", className)}
+        // TODO: check this padding
       >
         <ChatSectionSkeletonContainer position='right'>
           <Skeleton className='h-[50px] rounded-xl w-[700px] bg-pulse dark:bg-secondary' />

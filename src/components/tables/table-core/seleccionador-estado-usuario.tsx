@@ -34,7 +34,7 @@ import { cn } from "@/lib/utils"
 
 interface SeleccionadorProps<TData> {
   table: ReactTableInstance<TData>
-  type?: string
+  type: string
   className?: string
   operadores: Array<number | Status>
 }
@@ -57,6 +57,8 @@ export default function SeleccionadorEstadoUsuario<TData>({
         return "Estado"
       case "records":
         return "Usuario"
+      default:
+        return "Estado (default)"
     }
   }
 
@@ -76,7 +78,7 @@ export default function SeleccionadorEstadoUsuario<TData>({
               {selectedValue ? (
                 <>{selectedValue.toString()}</>
               ) : (
-                <>{type === "tasks" ? "Estado" : "Usuario"}</>
+                <>{getTypeString(type)}</>
               )}
             </span>
           </Button>
@@ -86,7 +88,7 @@ export default function SeleccionadorEstadoUsuario<TData>({
             setOpen={setOpen}
             setSelectedValue={setSelectedValue}
             table={table}
-            type={type === "tasks" ? "estado" : "usuario"}
+            type={getTypeString(type)?.toLocaleLowerCase()}
             operadores={operadores}
           />
         </PopoverContent>

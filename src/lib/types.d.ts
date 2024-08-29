@@ -238,3 +238,4 @@ export enum Emotions {
   Others = "Others" | "Otros",
   Disgust = "Disgust" | "Disgusto",
 }
+export type FoundWordsState = [boolean, string, number]

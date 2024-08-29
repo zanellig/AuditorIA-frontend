@@ -186,12 +186,17 @@ export function getHeaders(
   return headers
 }
 
+export function normalizeString(input: string): string {
+  return _replaceSpecialCharacters(replaceNonASCIIChars(input), "")
+}
+
 export function getUniqueWords(segments: Segment[]): Set<string> {
   const wordsSet: Set<string> = new Set()
   for (const segment of segments) {
     let words = segment.text.split(" ")
     words = words.map(word => {
       word = _replaceSpecialCharacters(word, "")
+      word = replaceNonASCIIChars(word)
       word = word.toLowerCase()
       word = word.trim()
       return word
@@ -215,6 +220,12 @@ export function _replaceSpecialCharacters(
   const sanitizedString = input.replace(specialCharsRegex, replacement)
 
   return sanitizedString
+}
+
+export function replaceNonASCIIChars(input: string): string {
+  return input
+    .normalize("NFD") // Decompose accented characters into base + diacritic
+    .replace(/[\u0300-\u036f]/g, "") // Remove diacritic marks
 }
 
 export function extractQueryParamsFromUrl(search: string) {

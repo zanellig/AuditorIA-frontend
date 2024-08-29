@@ -73,7 +73,7 @@ export default function BasicDashboard() {
           className={DASHBOARD_ICON_CLASSES + "text-foreground"}
         />
       ),
-      href: "/dashboard/search-tasks-by-operator",
+      href: "/dashboard/search-records-by-operator",
     },
     {
       title: "Ver audios problemáticos",
@@ -86,6 +86,7 @@ export default function BasicDashboard() {
         />
       ),
       href: "/dashboard/search-tasks-by-ponderation",
+      disabled: true,
     },
     {
       title: "Buscar por fecha",
@@ -125,7 +126,7 @@ export default function BasicDashboard() {
     <>
       <main
         id='basic-dashboard'
-        className='grid lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 gap-4 p-4 w-full justify-items-center relative '
+        className='grid lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 gap-4 w-full justify-items-center relative '
         style={{ userSelect: "none" }}
       >
         {dashboardItems.map((dashboardItem, index) => (
@@ -135,6 +136,7 @@ export default function BasicDashboard() {
             icon={dashboardItem.icon}
             buttonIcon={dashboardItem.buttonIcon}
             href={dashboardItem.href}
+            disabled={dashboardItem.disabled}
             key={`${dashboardItem}-${index}-card`}
           />
         ))}
@@ -149,6 +151,7 @@ function Card3D({
   icon,
   buttonIcon,
   href,
+  disabled = false,
   className,
 }: {
   title: string
@@ -156,6 +159,7 @@ function Card3D({
   icon: React.JSX.Element
   buttonIcon: React.JSX.Element
   href?: string
+  disabled?: boolean
   className?: string
 }) {
   if (href && !href.startsWith("/")) {
@@ -195,7 +199,7 @@ function Card3D({
               </Button>
             </Link>
           ) : (
-            <Button variant={"default"} className='w-full'>
+            <Button variant={"default"} className='w-full' disabled={disabled}>
               {buttonIcon}
               <span className='ml-2 text-sm'>
                 {"Ir a " + title.toLowerCase()}

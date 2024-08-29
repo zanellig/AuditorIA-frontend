@@ -26,7 +26,7 @@ export default function Page() {
         { id: 10 },
         { id: 11 },
       ]}
-      className='w-full p-4'
+      className='w-full'
     />
   )
 }

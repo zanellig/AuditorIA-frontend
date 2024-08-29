@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 
 export default function Page() {
   return (
-    <main id='file-uploader' className='flex flex-col px-2 pt-4'>
+    <main id='file-uploader' className='flex flex-col w-full'>
       <TableContainer>
         <TableTitleContainer>
           <UploadIcon className='h-[1.2rem] w-[1.2rem] text-muted-foreground' />

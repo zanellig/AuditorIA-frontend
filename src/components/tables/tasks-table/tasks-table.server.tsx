@@ -19,7 +19,10 @@ export default function TasksTable() {
       const [err, res] = await fetch("http://localhost:3001/api/tasks", {
         method: "GET",
       }).then(async res => await res.json())
-      setErr(err)
+      if (err !== null) {
+        setErr(err)
+        return
+      }
       setTasks(res)
     }
 

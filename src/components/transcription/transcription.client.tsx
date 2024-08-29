@@ -111,6 +111,7 @@ export default function TranscriptionClient({ taskId }: { taskId: string }) {
             {""}
           </SpeakerAnalysisCard>
           <div className='flex flex-col space-y-2 py-10 pl-4 pr-16'>
+            {/* TODO: check this padding too */}
             <TaskHeader taskId={taskId} toast={toast} />
             <Analysis transcription={transcription} />
             {transcription?.result?.segments.map((segment, index) => {

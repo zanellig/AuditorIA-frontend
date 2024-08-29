@@ -1,4 +1,5 @@
 "use client"
+import { FoundWordsState } from "@/lib/types.d"
 import { cn } from "@/lib/utils"
 import { AnimatePresence, motion } from "framer-motion"
 import { useState, useEffect } from "react"
@@ -14,6 +15,36 @@ const CheckIcon = ({ className }: { className?: string }) => {
       className={cn("w-6 h-6 ", className)}
     >
       <path d='M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z' />
+    </svg>
+  )
+}
+
+const CircleIcon = ({ className }: { className?: string }) => {
+  return (
+    <svg
+      xmlns='http://www.w3.org/2000/svg'
+      fill='none'
+      viewBox='0 0 24 24'
+      strokeWidth={1.5}
+      stroke='currentColor'
+      className={cn("w-6 h-6 ", className)}
+    >
+      <path d='M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z' />
+    </svg>
+  )
+}
+
+const CrossIcon = ({ className }: { className?: string }) => {
+  return (
+    <svg
+      xmlns='http://www.w3.org/2000/svg'
+      fill='none'
+      viewBox='0 0 24 24'
+      strokeWidth={1.5}
+      stroke='currentColor'
+      className={cn("w-6 h-6 ", className)}
+    >
+      <path d='M8 8l8 8M16 8l-8 8 M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z' />
     </svg>
   )
 }
@@ -41,9 +72,11 @@ export type LoadingState = {
 
 const LoaderCore = ({
   loadingStates,
+  targetLoadingStates,
   value = 0,
 }: {
   loadingStates: LoadingState[]
+  targetLoadingStates: string[]
   value?: number
 }) => {
   return (
@@ -62,9 +95,9 @@ const LoaderCore = ({
           >
             <div>
               {index > value && (
-                <CheckIcon className='text-black dark:text-white' />
+                <CircleIcon className='text-black dark:text-white' />
               )}
-              {index <= value && (
+              {index <= value && targetLoadingStates[index][0] && (
                 <CheckFilled
                   className={cn(
                     "text-black dark:text-white",
@@ -73,11 +106,24 @@ const LoaderCore = ({
                   )}
                 />
               )}
+              {index <= value && !targetLoadingStates[index][0] && (
+                <CrossIcon
+                  className={cn(
+                    "text-black dark:text-white",
+                    value === index && "text-black dark:text-red-600"
+                  )}
+                />
+              )}
             </div>
             <span
               className={cn(
                 "text-black dark:text-white",
-                value === index && "text-black dark:text-lime-500 opacity-100"
+                value === index &&
+                  targetLoadingStates[index][0] &&
+                  "text-black dark:text-lime-500 opacity-100",
+                value === index &&
+                  !targetLoadingStates[index][0] &&
+                  "text-black dark:text-red-600"
               )}
             >
               {loadingState.text}
@@ -94,60 +140,51 @@ export const MultiStepLoader = ({
   loading,
   duration = 2000,
   loop = true,
+  targetWords,
 }: {
   loadingStates: LoadingState[]
+  targetWords: FoundWordsState[]
   loading?: boolean
   duration?: number
   loop?: boolean
 }) => {
   const [currentState, setCurrentState] = useState(0)
-  console.log(
-    "loadingStates",
-    loadingStates,
-    "loading",
-    loading,
-    "loop",
-    loop,
-    "duration",
-    duration
-  )
-
+  console.log()
   useEffect(() => {
     if (!loading) {
       setCurrentState(0)
       return
     }
-    const timeout = setTimeout(() => {
-      setCurrentState(prevState =>
-        loop
-          ? prevState === loadingStates.length - 1
-            ? 0
-            : prevState + 1
-          : Math.min(prevState + 1, loadingStates.length - 1)
-      )
-    }, duration)
 
-    return () => clearTimeout(timeout)
-  }, [currentState, loading, loop, loadingStates.length, duration])
+    const interval = setInterval(() => {
+      setCurrentState(prevState => {
+        if (loop) {
+          return prevState + 1
+        } else {
+          return Math.min(prevState + 1, loadingStates.length - 1)
+        }
+      })
+    }, Math.round(duration / loadingStates.length))
+
+    return () => clearInterval(interval)
+  }, [loading, loop, loadingStates.length, duration])
+
   return (
     <AnimatePresence mode='wait'>
       {loading && (
         <motion.div
-          initial={{
-            opacity: 0,
-          }}
-          animate={{
-            opacity: 1,
-          }}
-          exit={{
-            opacity: 0,
-          }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
           className='w-full h-full fixed inset-0 z-[100] flex items-center justify-center backdrop-blur-2xl'
         >
-          <div className='h-96  relative'>
-            <LoaderCore value={currentState} loadingStates={loadingStates} />
+          <div className='h-96 relative'>
+            <LoaderCore
+              value={currentState}
+              loadingStates={loadingStates}
+              targetLoadingStates={targetWords}
+            />
           </div>
-
           <div className='bg-gradient-to-t inset-x-0 z-20 bottom-0 bg-white dark:bg-black h-full absolute [mask-image:radial-gradient(900px_at_center,transparent_30%,white)]' />
         </motion.div>
       )}

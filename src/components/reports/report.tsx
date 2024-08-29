@@ -9,7 +9,7 @@ import Example from "./report-word-cloud"
 export default function Report() {
   return (
     <>
-      <div className='flex flex-col gap-2 p-4'>
+      <div className='flex flex-col gap-2'>
         <ReportRowContainer>
           <ReportHateMonth />
           <ReportEmotionCall />

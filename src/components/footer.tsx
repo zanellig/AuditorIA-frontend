@@ -7,7 +7,7 @@ export default function Footer({ className }: { className?: string }) {
   return (
     <footer
       className={cn(
-        "h-fit w-full text-muted-foreground flex items-end py-4 m-4  justify-center bg-muted rounded-md shadow-md overflow-hidden",
+        "h-fit w-full text-muted-foreground flex items-end py-4 my-4  justify-center bg-muted rounded-md shadow-md overflow-hidden",
         className
       )}
     >

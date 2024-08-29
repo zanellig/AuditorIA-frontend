@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import Footer from "@/components/footer"
 import DashboardSwitch from "@/components/dashboard/dashboard-switch"
+import { AudioProvider } from "@/components/audio/AudioProvider"
 
 const BACKGROUND = "bg-pulse"
 
@@ -25,40 +26,38 @@ export default function Layout({ children }: { children: ReactNode }) {
       <ScrollProvider>
         <TooltipProvider>
           <DashboardProvider>
-            {/* TODO: acá va a ir el AudioPlayerProvider */}
-            <div
-              id='main-global-container'
-              className={cn(
-                "flex flex-row relative overflow-hidden bg-transparent"
-              )}
-            >
-              <section
-                id='main-sidebar-container'
-                className={cn(
-                  "transition-all duration-300",
-                  sidebarWidth === 64 ? "w-64" : "w-16"
-                )}
+            <AudioProvider>
+              <div
+                id='main-global-container'
+                className={cn("flex relative overflow-hidden bg-transparent")}
               >
-                <Sidebar
-                  className={BACKGROUND}
-                  onResize={handleSidebarResize}
-                />
-              </section>
-              <section
-                id='main-app-container'
-                // style={{ width: `calc(100dvw - ${sidebarWidth}px)` }}
-                className='transition-all duration-300 border-s-2 border-solid border-muted rounded-s-xl overflow-hidden relative bg-primary-foreground w-full'
-              >
-                <ScrollArea className='max-h-dvh h-dvh overflow-x-hidden'>
-                  <TopNavbar>
-                    <DashboardSwitch />
-                  </TopNavbar>
-                  {children}
-                  <Footer />
-                </ScrollArea>
-              </section>
-            </div>
-            <Toaster />
+                <section
+                  id='main-sidebar-container'
+                  className={cn(
+                    "transition-all duration-300",
+                    sidebarWidth === 64 ? "w-64" : "w-16"
+                  )}
+                >
+                  <Sidebar
+                    className={BACKGROUND}
+                    onResize={handleSidebarResize}
+                  />
+                </section>
+                <section
+                  id='main-app-container'
+                  className='transition-all duration-300 border-s-2 border-solid border-muted rounded-s-xl overflow-hidden relative bg-primary-foreground w-full'
+                >
+                  <ScrollArea className='max-h-dvh h-dvh p-4'>
+                    <TopNavbar>
+                      <DashboardSwitch />
+                    </TopNavbar>
+                    {children}
+                    <Footer />
+                  </ScrollArea>
+                </section>
+              </div>
+              <Toaster />
+            </AudioProvider>
           </DashboardProvider>
         </TooltipProvider>
       </ScrollProvider>

@@ -179,7 +179,7 @@ export const columns: ColumnDef<Task | null>[] = [
     cell: ({ row, table }) => {
       const task = row.original
       const { toast } = useToast()
-      const taskURL = `dashboard/transcription?identifier=${task?.identifier}`
+      const taskURL = `/dashboard/transcription?identifier=${task?.identifier}`
 
       // {
       //   "identifier": "9b5113b1-47f4-4850-a978-3df81dc95489",

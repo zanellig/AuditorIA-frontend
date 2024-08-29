@@ -1,6 +1,12 @@
 "use client"
 import React, { useEffect, useState } from "react"
-import { cn, getUniqueWords } from "@/lib/utils"
+import {
+  _replaceSpecialCharacters,
+  cn,
+  getUniqueWords,
+  normalizeString,
+  replaceNonASCIIChars,
+} from "@/lib/utils"
 import { Button } from "../ui/button"
 import {
   ArrowRightIcon,
@@ -11,7 +17,7 @@ import {
   Pencil2Icon,
   PlayIcon,
 } from "@radix-ui/react-icons"
-import { Analysis, Segment, Task } from "@/lib/types.d"
+import { Analysis, FoundWordsState, Segment, Task } from "@/lib/types.d"
 import { usePathname, useSearchParams } from "next/navigation"
 
 import {
@@ -38,7 +44,7 @@ export default function SpeakerAnalysisCard({
   const searchParams = useSearchParams()
   const id = searchParams.get("identifier")
   const uniqueWords = getUniqueWords(segments || [])
-
+  console.log(uniqueWords)
   return (
     <div
       className={cn(
@@ -160,7 +166,6 @@ function EvalSpeakerProfile({
     </>
   )
 }
-
 function LocalWordSearch({
   className,
   words,
@@ -173,24 +178,34 @@ function LocalWordSearch({
   const [currentInput, setCurrentInput] = useState<string>("")
   type EditingState = [boolean, string, number]
   const [edit, setEdit] = useState<EditingState>([false, "", -1])
-  type FoundWordsState = [boolean, string, number]
-  const [foundWords, setFoundWords] = useState<FoundWordsState[]>([])
-
   // this is only while we figure out how to change the component to accept the FoundWordsState[] as a prop
   const [loadingStates, setLoadingStates] = useState<LoadingState[]>([])
   const [searchingWordsForUser, setSearchingWordsForUser] =
     useState<boolean>(false)
+  const [timer, setTimer] = useState<number>(0)
 
+  const [foundWords, setFoundWords] = useState<FoundWordsState[]>([])
   function searchWords(
     searchWords: string[],
     targetWords: Set<string>
   ): FoundWordsState[] {
     return [...searchWords].map((searchWord, i) => {
-      const hasTargetWord = targetWords.has(searchWord)
+      const hasTargetWord = targetWords.has(searchWord.toLowerCase())
       return [hasTargetWord, searchWord, i]
     })
   }
-
+  React.useEffect(() => {
+    // timer
+    if (searchingWordsForUser) {
+      const loadingTimer = setTimeout(() => {
+        setSearchingWordsForUser(false)
+        _reset()
+        setLoadingStates([])
+        setTimer(0)
+      }, timer)
+      return () => clearTimeout(loadingTimer)
+    }
+  }, [searchingWordsForUser])
   function _reset() {
     setCurrentInput("")
     setInputs([])
@@ -202,19 +217,20 @@ function LocalWordSearch({
         <MultiStepLoader
           loadingStates={loadingStates}
           loading={true}
+          duration={timer}
           loop={true}
-          duration={2000}
+          targetWords={foundWords}
         />
       )}
       <AccordionItem value='1'>
-        <AccordionTrigger>Buscar palabras</AccordionTrigger>
+        <AccordionTrigger>Buscar palabras </AccordionTrigger>
         <AccordionContent className='flex flex-col space-y-2'>
           <div className='flex flex-row space-x-2 items-center'>
             <Input
               className='focus-visible:ring-0'
               placeholder='Ingrese una palabra'
               value={currentInput}
-              onChange={e => setCurrentInput(e.target.value)}
+              onChange={e => setCurrentInput(normalizeString(e.target.value))}
               onKeyDown={e => {
                 if (e.key === "Enter") {
                   if (currentInput === "") {
@@ -288,14 +304,14 @@ function LocalWordSearch({
                 </Button>
                 {edit[0] && edit[2] === i ? (
                   <Input
-                    value={edit[1]}
+                    value={normalizeString(edit[1])}
                     onChange={e => setEdit([true, e.target.value, edit[2]])}
                     onKeyDown={e => {
                       if (e.key === "Enter") {
                         setInputs(
                           inputs.map((_, i) => {
                             if (i === edit[2]) {
-                              return edit[1]
+                              return normalizeString(edit[1])
                             }
                             return _
                           })
@@ -324,18 +340,11 @@ function LocalWordSearch({
             <Button
               className='flex flex-row items-center space-x-2'
               onClick={() => {
-                // forward the click event to the close-speaker-analysis-card-button
-                const closeButton = document.getElementById(
-                  "close-speaker-analysis-card-button"
-                )
-                if (closeButton) {
-                  closeButton.click()
-                }
                 setFoundWords(searchWords(inputs, words))
-
-                for (const foundWordsTuple of foundWords) {
+                for (const input of inputs) {
+                  setTimer(prevTimer => prevTimer + 600)
                   const loadingState: LoadingState = {
-                    text: foundWordsTuple[1],
+                    text: input,
                   }
                   setLoadingStates(prev => [...prev, loadingState])
                 }

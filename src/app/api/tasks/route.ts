@@ -7,7 +7,7 @@ import { NextRequest } from "next/server"
 export async function GET(request: NextRequest) {
   const headers = getHeaders(API_MAIN)
   const url = [API_MAIN, ALL_TASKS_PATH].join("/")
-  const [err, res] = await _get(url, headers, { revalidate: true })
+  const [err, res] = await _get(url, headers)
 
   const responseHeaders = new Headers()
   responseHeaders.append("Access-Control-Allow-Origin", API_MAIN)

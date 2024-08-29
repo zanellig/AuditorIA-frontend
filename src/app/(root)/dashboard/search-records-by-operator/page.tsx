@@ -55,7 +55,7 @@ export default function Page() {
   React.useEffect(() => {}, [recordings])
 
   return (
-    <div className='flex flex-row gap-2 p-4'>
+    <div className='flex flex-row gap-2'>
       <Card className='w-fit h-fit'>
         <CardHeader>
           <CardTitle className='flex flex-row items-center gap-2'>

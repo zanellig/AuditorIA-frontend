@@ -24,4 +24,4 @@ export const ACCEPTED_ORIGINS = [API_MAIN, API_CANARY]
 
 // for testing
 export const TESTING = false
-export const TESTING_RECORDINGS = true
+export const TESTING_RECORDINGS = false
