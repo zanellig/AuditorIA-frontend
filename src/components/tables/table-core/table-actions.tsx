@@ -21,19 +21,19 @@ import { useToast } from "@/components/ui/use-toast"
 import SeleccionadorEstadoUsuario from "@/components/tables/table-core/seleccionador-estado-usuario"
 import { Recordings, Status } from "@/lib/types"
 
-interface TableActionsProps<TData, Recordings> {
+interface TableActionsProps<DataTypes, TData, Recordings> {
   children?: React.ReactNode
   table: ReactTableInstance<TData>
-  type?: string
+  type: DataTypes
   recordings?: Recordings
 }
 
-export default function TableActions<TData>({
+export default function TableActions<DataTypes, TData>({
   children,
   table,
   type,
   recordings,
-}: TableActionsProps<TData, Recordings>) {
+}: TableActionsProps<DataTypes, TData, Recordings>) {
   const { toast } = useToast()
   const operadores: number[] | Status[] | Set<any> = useMemo(() => {
     if (!recordings) return new Set()
@@ -43,18 +43,16 @@ export default function TableActions<TData>({
       const operador = Number(recording.USUARIO)
       set.add(operador)
     }
-    const sortedOperadores: number[] = Array.from(set).sort(
-      (a: number, b: number) => a - b
-    )
+    const sortedOperadores = Array.from(set).sort((a, b) => a - b)
     return sortedOperadores
   }, [recordings])
 
   return (
     <div className='flex pb-2 items-center w-full justify-between'>
       <div className='flex flex-row space-x-2'>
-        <SearchInput table={table} type={type} />
+        <SearchInput<DataTypes, TData> table={table} type={type} />
 
-        <SeleccionadorEstadoUsuario
+        <SeleccionadorEstadoUsuario<DataTypes, TData>
           table={table}
           type={type}
           operadores={operadores}
@@ -160,11 +158,14 @@ export default function TableActions<TData>({
             {type === "tasks" ? (
               <DropdownMenuItem
                 onClick={() => {
-                  alert(
-                    `Está a punto de abrir ${
-                      table.getSelectedRowModel().rows.length
-                    } pestañas`
-                  )
+                  table.getSelectedRowModel().rows.map((r: any) => {
+                    window.open(
+                      `http://10.20.30.211:3001/dashboard/transcription?identifier=${r.original.identifier}`,
+                      "_blank",
+                      "popup=true,width=800,height=600"
+                    )
+                  })
+                  table.toggleAllRowsSelected(false)
                 }}
               >
                 Abrir en nueva pestaña
@@ -186,7 +187,7 @@ export default function TableActions<TData>({
                       ?.dispatchEvent(event)
                   }}
                 >
-                  <DeleteButton
+                  <DeleteButton<TData>
                     identifier={type}
                     ids={table
                       .getSelectedRowModel()

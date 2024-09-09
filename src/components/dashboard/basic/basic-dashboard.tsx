@@ -1,13 +1,13 @@
 import {
   ArrowRightIcon,
   CalendarIcon,
+  ChatBubbleIcon,
   ExclamationTriangleIcon,
   FileIcon,
   FileTextIcon,
   GlobeIcon,
   LoopIcon,
   PersonIcon,
-  SpeakerLoudIcon,
   UploadIcon,
 } from "@radix-ui/react-icons"
 import React from "react"
@@ -28,20 +28,9 @@ export default function BasicDashboard() {
           className={DASHBOARD_ICON_CLASSES + "text-foreground"}
         />
       ),
-      href: "/subir-archivos",
+      href: "/upload",
     },
-    {
-      title: "Transcripciones de Neotel",
-      icon: <SpeakerLoudIcon className={DASHBOARD_ICON_CLASSES} />,
-      description:
-        "En este módulo, podrá buscar y visualizar las transcripciones de Neotel.",
-      buttonIcon: (
-        <ArrowRightIcon
-          className={DASHBOARD_ICON_CLASSES + "text-foreground"}
-        />
-      ),
-      href: "/dashboard/search-records",
-    },
+
     {
       title: "Ver tu historial",
       icon: <FileTextIcon className={DASHBOARD_ICON_CLASSES} />,
@@ -51,7 +40,7 @@ export default function BasicDashboard() {
           className={DASHBOARD_ICON_CLASSES + "text-foreground"}
         />
       ),
-      href: "/dashboard/search-tasks",
+      href: "/dashboard/search/tasks",
     },
     {
       title: "Buscar por campaña",
@@ -62,7 +51,7 @@ export default function BasicDashboard() {
           className={DASHBOARD_ICON_CLASSES + "text-foreground"}
         />
       ),
-      href: "/dashboard/search-records-by-campaign",
+      href: "/dashboard/search/records/campaign",
     },
     {
       title: "Buscar por operador",
@@ -73,7 +62,7 @@ export default function BasicDashboard() {
           className={DASHBOARD_ICON_CLASSES + "text-foreground"}
         />
       ),
-      href: "/dashboard/search-records-by-operator",
+      href: "/dashboard/search/records/operator",
     },
     {
       title: "Ver audios problemáticos",
@@ -85,7 +74,7 @@ export default function BasicDashboard() {
           className={DASHBOARD_ICON_CLASSES + "text-foreground"}
         />
       ),
-      href: "/dashboard/search-tasks-by-ponderation",
+      href: "/dashboard/search/tasks/ponderation",
       disabled: true,
     },
     {
@@ -97,7 +86,7 @@ export default function BasicDashboard() {
           className={DASHBOARD_ICON_CLASSES + "text-foreground"}
         />
       ),
-      href: "/dashboard/search-records-by-date",
+      href: "/dashboard/search/records/date",
     },
     {
       title: "Buscar por dirección",
@@ -108,7 +97,7 @@ export default function BasicDashboard() {
           className={DASHBOARD_ICON_CLASSES + "text-foreground"}
         />
       ),
-      href: "/dashboard/search-records-by-direction",
+      href: "/dashboard/search/records/direction",
     },
     {
       title: "Ver reportes",
@@ -120,6 +109,18 @@ export default function BasicDashboard() {
         />
       ),
       href: "/reportes",
+    },
+    {
+      title: "Ver chats",
+      icon: <ChatBubbleIcon className={DASHBOARD_ICON_CLASSES} />,
+      description: "En este módulo, podrá ver y analizar los chats.",
+      buttonIcon: (
+        <ArrowRightIcon
+          className={DASHBOARD_ICON_CLASSES + "text-foreground"}
+        />
+      ),
+      href: "/chats",
+      disabled: true,
     },
   ]
   return (
@@ -169,12 +170,16 @@ function Card3D({
     <CardContainer className={cn("inter-var ")}>
       <CardBody
         className={cn(
-          "bg-background relative group/card  dark:hover:shadow-2xl dark:hover:shadow-emerald-500/[0.1] dark:bg-black dark:border-white/[0.2] border-black/[0.1] w-full h-auto lg:min-h-[200px] lg:min-w-full rounded-xl p-4 border flex flex-col gap-2 justify-between"
+          "bg-background relative group/card  dark:hover:shadow-2xl dark:hover:shadow-emerald-500/[0.1] dark:bg-black dark:border-white/[0.2] border-black/[0.1] w-full h-auto lg:min-h-[200px] lg:min-w-full rounded-xl p-4 border flex flex-col gap-2 justify-between",
+          disabled && "cursor-not-allowed"
         )}
       >
         <CardItem
           translateZ='50'
-          className='text-xl font-bold text-neutral-600 dark:text-white flex flex-row gap-2 items-center'
+          className={cn(
+            "text-xl font-bold text-secondary-foreground flex flex-row gap-2 items-center",
+            disabled && "text-muted-foreground"
+          )}
         >
           {icon}
           {title}
@@ -182,13 +187,13 @@ function Card3D({
         <CardItem
           as='p'
           translateZ='60'
-          className='text-neutral-500 text-sm max-w-sm mt-2 dark:text-neutral-300 '
+          className={cn("text-muted-foreground text-sm max-w-sm mt-2")}
         >
           {description}
         </CardItem>
 
         <CardItem translateZ='100' className='w-full'>
-          {href ? (
+          {!disabled && href ? (
             <Link href={href}>
               <Button variant={"default"} className='w-full'>
                 {buttonIcon}

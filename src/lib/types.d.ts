@@ -2,7 +2,10 @@ export enum SupportedLocales {
   EN = "en",
   ES = "es",
 }
-
+export enum TableSupportedDataTypes {
+  Tasks = "tasks",
+  Recordings = "recordings",
+}
 export interface ServerStatusResponse {
   variant: ServerStatusBadgeVariant
   text: string

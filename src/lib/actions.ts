@@ -1,4 +1,6 @@
+// @/lib/actions.ts
 "use server"
+import "server-only"
 import {
   Analysis,
   Tasks,
@@ -20,6 +22,26 @@ import { getHeaders, AllowedContentTypes } from "@/lib/utils"
 import { _request, _get, _post, _put, _patch, _delete } from "@/lib/fetcher"
 
 import { TESTING_RECORDINGS, TESTING } from "@/lib/consts"
+import { getNetworkAudio } from "./audio"
+import { SignupFormSchema, FormState } from "@/lib/auth/auth"
+import { useQuery } from "@tanstack/react-query"
+
+export async function signup(state: FormState, formData: FormData) {
+  // Validate form fields
+  const validatedFields = SignupFormSchema.safeParse({
+    name: formData.get("name"),
+    password: formData.get("password"),
+  })
+
+  // If any form fields are invalid, return early
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+    }
+  }
+
+  // Call the provider or db to create a user...
+}
 
 export async function readFile(filePath: string): Promise<Buffer | null> {
   let data = null
@@ -100,17 +122,17 @@ export async function createTask(
 /**
  * unused until we implement the patch task endpoint on the backend
  */
-async function updateTask(
-  baseUrl: string,
-  urlPath: string,
-  id: Task["identifier"],
-  task: Partial<Task>,
-  revalidate?: boolean
-) {
-  const headers = getHeaders(baseUrl)
-  const url = constructUrl(baseUrl, urlPath, id)
-  return _patch(url, headers, task, { revalidate })
-}
+// async function updateTask(
+//   baseUrl: string,
+//   urlPath: string,
+//   id: Task["identifier"],
+//   task: Partial<Task>,
+//   revalidate?: boolean
+// ) {
+//   const headers = getHeaders(baseUrl)
+//   const url = constructUrl(baseUrl, urlPath, id)
+//   return _patch(url, headers, task, { revalidate })
+// }
 
 // async function patchTask(
 //   baseUrl: string,
@@ -159,8 +181,6 @@ export async function analyzeTask(
   const headers = getHeaders(urlArr[0])
   let url = [...urlArr].join("/")
   url = url.concat(`/${id}`).concat(`?lang=${language}`)
-  console.log(url)
-  console.log(headers)
   return _put(url, null, headers, { revalidate })
 }
 
@@ -235,18 +255,47 @@ export async function actionRevalidatePath(path: string) {
   revalidatePath(path)
 }
 
-// export async function getSpeakerProfileLLM(id: Task["identifier"]) {
-//   const headers = getHeaders(API_CANARY)
-//   const url = `${API_CANARY}/tasks/spkanalysis/${id}`
-
-//   return _get(url, headers)
-// }
-
 export async function calculateAverages(segments: Segment[]) {
   return await calculateAverageForSegments(segments)
 }
 
-export async function TEST_GetAudioFromPrivateRoute(url: string) {
-  const LOCAL_SERVER_PATH = path.join(process.cwd())
-  console.warn(`cwd: ${LOCAL_SERVER_PATH} \nurl from client: ${url}`)
+export const fetchAudioData = async (nasPath: string) => {
+  // Replace this with your actual API call to fetch audio data from the NAS
+  const [err, res] = await getNetworkAudio(encodeURIComponent(nasPath))
+  if (err !== null) {
+    return new Error("Failed to fetch audio data")
+  }
+
+  return res !== null ? res.blob() : null
+}
+
+export const getOperatorQuality = async (taskId: string) => {
+  const res = await fetch("/api/task/operator_quality/" + taskId)
+  return res.json()
+}
+
+export const fetchLLMAnalysis = async (taskId: string) => {
+  const [err, res] = await getAnalysis([API_MAIN, TASK_PATH], taskId, true)
+  if (err !== null) {
+    return new Error("Failed to fetch LLM analysis")
+  }
+  return res !== null ? res.json() : null
+}
+
+export const getAudioPath = async (
+  file_name: string
+): Promise<Recording["URL"] | null> => {
+  const [err, res] = await fetch(
+    `http://10.20.30.211:3001/api/recordings?GRABACION=${file_name}`,
+    { method: "GET" }
+  ).then(async res => await res.json())
+  if (err !== null) {
+    throw new Error(
+      "Failed to fetch audio from file name on fetchRecordByFileName" + err
+    )
+  }
+  if (res) {
+    return res.records[0].URL
+  }
+  return null
 }

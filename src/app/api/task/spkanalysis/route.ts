@@ -22,17 +22,17 @@ export async function GET(request: NextRequest) {
   const [err, res] = await _get(url, headers)
 
   if (err !== null) {
-    return new NextResponse(JSON.stringify([err, null]), {
-      status: err.status || 500,
+    return new NextResponse(JSON.stringify(err), {
+      status: 500,
     })
   }
   if (res !== null && res.ok) {
     const data = await res?.json()
-    return new NextResponse(JSON.stringify([null, data]), {
+    return new NextResponse(JSON.stringify(data), {
       status: 200,
     })
   }
-  return new NextResponse(JSON.stringify([null, null]), {
+  return new NextResponse(JSON.stringify(null), {
     status: 404,
   })
 }

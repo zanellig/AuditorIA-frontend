@@ -13,9 +13,8 @@ export async function GET() {
   const [error, response] = await _get(API_CANARY + "/docs", headers, {
     expectJson: false,
     onlyReturnStatus: true,
-    cacheResponse: false,
+    cacheResponse: true,
   })
-  console.log(error, response)
   // Handle errors
   if (error) {
     return new NextResponse(
@@ -29,7 +28,7 @@ export async function GET() {
 
   // Handle response status
   if (response) {
-    switch (response.status) {
+    switch (Number(response)) {
       case 200:
         return new NextResponse(
           JSON.stringify({
@@ -57,20 +56,11 @@ export async function GET() {
       default:
         return new NextResponse(
           JSON.stringify({
-            variant: ServerStatusBadgeVariant.Warning,
-            text: "Canary server warning",
+            variant: ServerStatusBadgeVariant.Error,
+            text: "Canary server unavailable",
           }),
-          { status: 500 }
+          { status: 521 }
         )
     }
   }
-
-  // Fallback for when response is null
-  return new NextResponse(
-    JSON.stringify({
-      variant: ServerStatusBadgeVariant.Warning,
-      text: "Canary server warning",
-    }),
-    { status: 500 }
-  )
 }

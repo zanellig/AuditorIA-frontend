@@ -1,14 +1,5 @@
-"use client"
-
-import { useRouter } from "next/navigation"
-import ErrorScreen from "@/components/error/error-screen"
+import { redirect } from "next/navigation"
 
 export default function NotFound() {
-  const router = useRouter()
-  const error = new Error("Página no encontrada...")
-  return (
-    <>
-      <ErrorScreen error={error} reset={() => router.push("/dashboard")} />
-    </>
-  )
+  redirect("/dashboard")
 }

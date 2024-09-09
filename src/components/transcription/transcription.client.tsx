@@ -1,11 +1,12 @@
+// @/components/transcription/transcription.client.tsx
 "use client"
 import * as React from "react"
-import Link from "next/link"
+import { useQuery } from "@tanstack/react-query"
+import { useRouter } from "next/navigation"
 
 import {
   Segment,
   SentimentType,
-  TranscriptionType,
   Task,
   Status,
   SegmentAnalysisProperties,
@@ -15,7 +16,6 @@ import {
 import { Button } from "@/components/ui/button"
 import {
   Drawer,
-  DrawerTrigger,
   DrawerContent,
   DrawerClose,
   DrawerHeader,
@@ -30,19 +30,9 @@ import {
 } from "@/components/ui/tooltip"
 import { useToast } from "@/components/ui/use-toast"
 
-import {
-  ChevronLeft,
-  ClipboardIcon,
-  MessageCircleQuestion,
-  Trash,
-} from "lucide-react"
+import { ChevronLeft, ClipboardIcon, MessageCircleQuestion } from "lucide-react"
 
-import {
-  GLOBAL_ICON_SIZE,
-  NEGATIVE_SENTIMENT_COLOR,
-  NEUTRAL_SENTIMENT_COLOR,
-  POSITIVE_SENTIMENT_COLOR,
-} from "@/lib/consts"
+import { GLOBAL_ICON_SIZE } from "@/lib/consts"
 import { cn, secondsToHMS, formatTimestamp } from "@/lib/utils"
 
 import TitleH1 from "@/components/typography/titleH1"
@@ -52,57 +42,47 @@ import Analysis from "@/components/transcription/analysis"
 import TranscriptionSkeleton from "../skeletons/transcription-skeleton"
 import { ErrorCodeUserFriendly } from "../error/error-code-user-friendly"
 import SpeakerAnalysisCard from "./speaker-analysis-card.client"
+import { useTranscription } from "../context/TranscriptionProvider"
 
 const BASIC_STYLE = "flex text-sm rounded-md p-2 gap-2"
 
-export default function TranscriptionClient({ taskId }: { taskId: string }) {
+type DrawerOptions = {
+  show?: boolean
+  text?: string
+}
+
+export default function TranscriptionClient({
+  taskId,
+  drawerOptions,
+}: {
+  taskId?: string
+  drawerOptions?: DrawerOptions
+}) {
   const { toast } = useToast()
-  const [transcription, setTranscription] =
-    React.useState<TranscriptionType | null>(null)
-  const [error, setError] = React.useState<Error | null>(null)
 
+  const { transcription, isLoading, error, fetchTranscription } =
+    useTranscription()
+
+  let isAnalysisNotReady =
+    transcription &&
+    [Status.Pending, Status.Processing, Status.Failed].includes(
+      transcription.status
+    )
   React.useEffect(() => {
-    async function fetchData() {
-      const [err, res] = await fetch(
-        `http://localhost:3001/api/task?identifier=${taskId}`,
-        { method: "GET" }
-      ).then(async res => await res.json())
-
-      if (err) {
-        setError(err)
-        toast({
-          title: "Error al obtener la tarea",
-          description: err.message,
-          variant: "destructive",
-        })
-      } else {
-        setTranscription(res)
-      }
+    if (taskId) {
+      fetchTranscription(taskId)
     }
-
-    fetchData()
-  }, [])
-
-  let isAnalysisNotReady
-  if (transcription) {
-    isAnalysisNotReady = [
-      Status.Pending,
-      Status.Processing,
-      Status.Failed,
-    ].includes(transcription.status)
-  } else {
-    isAnalysisNotReady = false
-  }
-
-  // React.useEffect(() => {
-  //   console.log("transcription on client", transcription)
-  // }, [transcription])
+  }, [taskId, fetchTranscription])
 
   return (
     <>
-      {transcription === null && <TranscriptionSkeleton />}
+      {isLoading && <TranscriptionSkeleton />}
+      {drawerOptions?.show && (
+        <TranscriptionNotReady text={`${drawerOptions?.text || ""}`} />
+      )}
+      {!drawerOptions?.show && isLoading && <TranscriptionSkeleton />}
 
-      {transcription && (
+      {!drawerOptions?.show && transcription && (
         <>
           {isAnalysisNotReady && (
             <TranscriptionNotReady status={transcription?.status} />
@@ -111,17 +91,14 @@ export default function TranscriptionClient({ taskId }: { taskId: string }) {
             {""}
           </SpeakerAnalysisCard>
           <div className='flex flex-col space-y-2 py-10 pl-4 pr-16'>
-            {/* TODO: check this padding too */}
-            <TaskHeader taskId={taskId} toast={toast} />
+            {taskId && <TaskHeader taskId={taskId} toast={toast} />}
             <Analysis transcription={transcription} />
-            {transcription?.result?.segments.map((segment, index) => {
-              return (
-                <SegmentRenderer
-                  key={`${segment.speaker}-segment-${index}`}
-                  segment={segment}
-                />
-              )
-            })}
+            {transcription?.result?.segments.map((segment, index) => (
+              <SegmentRenderer
+                key={`${segment.speaker}-segment-${index}`}
+                segment={segment}
+              />
+            ))}
           </div>
         </>
       )}
@@ -163,37 +140,48 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({ taskId, toast }) => (
 )
 
 interface TranscriptionNotReadyProps {
-  status: Status
+  status?: Status
+  text?: string
 }
 
 const TranscriptionNotReady: React.FC<TranscriptionNotReadyProps> = ({
   status,
-}) => (
-  <Drawer open={true}>
-    <DrawerContent className='focus:border focus:outline-none'>
-      <DrawerHeader>
-        <DrawerTitle className='mx-auto'>
-          <TitleH1>
-            Esta tarea{" "}
-            {status === "failed"
-              ? "falló"
-              : "no está lista para ser visualizada"}
-            .
-          </TitleH1>
-        </DrawerTitle>
-      </DrawerHeader>
-      <DrawerFooter>
-        <DrawerClose asChild>
-          <Link href='/dashboard'>
-            <Button variant='outline' className='w-full'>
-              <ChevronLeft /> Volver al dashboard
+  text,
+}) => {
+  const router = useRouter()
+  return (
+    <Drawer open={true}>
+      <DrawerContent className='focus:border focus:outline-none'>
+        <DrawerHeader>
+          <DrawerTitle className='mx-auto'>
+            <TitleH1>
+              {text
+                ? text
+                : `Esta tarea
+            ${
+              status === "failed"
+                ? "falló"
+                : "no está lista para ser visualizada"
+            }
+            .`}
+            </TitleH1>
+          </DrawerTitle>
+        </DrawerHeader>
+        <DrawerFooter>
+          <DrawerClose asChild>
+            <Button
+              variant='outline'
+              className='w-full'
+              onClick={() => router.back()}
+            >
+              <ChevronLeft /> Volver
             </Button>
-          </Link>
-        </DrawerClose>
-      </DrawerFooter>
-    </DrawerContent>
-  </Drawer>
-)
+          </DrawerClose>
+        </DrawerFooter>
+      </DrawerContent>
+    </Drawer>
+  )
+}
 
 interface SentimentMarkerProps {
   sentiment: SentimentType
@@ -211,23 +199,6 @@ const SentimentMarker: React.FC<SentimentMarkerProps> = ({ sentiment }) => (
     )}
   />
 )
-
-interface TextBoxProps {
-  text: string
-  start: number
-  end: number
-}
-
-const TextBox: React.FC<TextBoxProps> = ({ text, start, end }) => (
-  <div className='flex flex-col justify-between gap-2 text-sm'>
-    {text}
-    <div className='text-xs text-muted-foreground'>
-      ({formatTimestamp(secondsToHMS(start), false)} -{" "}
-      {formatTimestamp(secondsToHMS(end), false)})
-    </div>
-  </div>
-)
-
 interface EmojiProps {
   emotion: SegmentAnalysisProperties["emotion"]
 }
@@ -255,7 +226,6 @@ const EmotionBox: React.FC = () => (
     </Button>
   </div>
 )
-
 interface SegmentRendererProps {
   segment: Segment
 }
@@ -295,14 +265,20 @@ interface TextContainerProps {
 const TextContainer: React.FC<TextContainerProps> = ({ segment }) => (
   <div
     className={cn(
-      "text-wrap max-w-[500px] flex-row justify-between outline outline-1 outline-muted bg-popover",
+      "text-wrap max-w-[500px] flex-row justify-between outline outline-1 outline-muted bg-popover shadow-md dark:shadow-lg",
       BASIC_STYLE
     )}
   >
     {segment.analysis?.sentiment && (
       <SentimentMarker sentiment={segment.analysis.sentiment} />
     )}
-    <TextBox text={segment.text} start={segment.start} end={segment.end} />
+    <div className='flex flex-col justify-between gap-2 text-sm'>
+      {segment.text}
+      <div className='text-xs text-muted-foreground'>
+        ({formatTimestamp(secondsToHMS(segment.start), false)} -{" "}
+        {formatTimestamp(secondsToHMS(segment.end), false)})
+      </div>
+    </div>
   </div>
 )
 

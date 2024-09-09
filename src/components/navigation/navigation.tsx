@@ -12,7 +12,7 @@ import {
   UploadIcon,
 } from "@radix-ui/react-icons"
 import { SendUsFeedbackButton } from "@/components/navigation/feedback-button"
-import { useScroll } from "../ScrollProvider"
+import { useScroll } from "../context/ScrollProvider"
 import { usePathname } from "next/navigation"
 import { BreadcrumbWithCustomSeparator } from "./breadcrumbs-with-separator"
 import { AvatarButton } from "./avatar"
@@ -55,15 +55,10 @@ export function Sidebar({
       title: "Dashboard",
     },
     {
-      href: "/subir-archivos",
+      href: "/upload",
       icon: <UploadIcon className='h-[1.2rem] w-[1.2rem]' />,
       title: "Subir un archivo",
     },
-    // {
-    //   href: "/tareas-guardadas",
-    //   icon: <BookmarkIcon className='h-[1.2rem] w-[1.2rem]' />,
-    //   title: "Tareas guardadas",
-    // },
     {
       href: "/reportes",
       icon: <FileIcon className='h-[1.2rem] w-[1.2rem]' />,
@@ -73,6 +68,7 @@ export function Sidebar({
       href: "/chats",
       icon: <ChatBubbleIcon className='h-[1.2rem] w-[1.2rem]' />,
       title: "Chats",
+      disabled: true,
     },
     {
       href: "/settings",
@@ -102,6 +98,7 @@ export function Sidebar({
               icon={link.icon}
               title={link.title}
               clickOptions={link.clickOptions}
+              disabled={link.disabled}
             />
           )
         })}
@@ -120,6 +117,7 @@ function SidebarButton({
   icon,
   title,
   clickOptions,
+  disabled = false,
 }: {
   children?: React.ReactNode
   className?: string
@@ -131,13 +129,14 @@ function SidebarButton({
     redirect?: boolean
     onClick?: () => void
   }
+  disabled?: boolean
 }) {
   const pathname = usePathname()
   const isActive = pathname === href
   const selectedClassAtributes = "text-accent-foreground shadow-md"
   return (
     <div className={cn(className)} key={buttonKey}>
-      {href ? (
+      {!disabled && href ? (
         <Link href={href} key={buttonKey + "-link"}>
           <SidebarButtonWrapper
             className={isActive && selectedClassAtributes}
@@ -152,6 +151,7 @@ function SidebarButton({
           onClick={clickOptions?.onClick}
           className={isActive && selectedClassAtributes}
           wrapperKey={buttonKey + "-wrapper"}
+          disabled={disabled}
         >
           <div key={buttonKey + "-icon"}>{icon}</div>
           <div key={buttonKey + "-title"}>{title}</div>
@@ -165,11 +165,13 @@ function SidebarButtonWrapper({
   className,
   wrapperKey,
   onClick,
+  disabled = false,
 }: {
   children: React.ReactNode
   className?: string | boolean
   wrapperKey: string
   onClick?: () => void
+  disabled?: boolean
 }) {
   return (
     <div className='relative' key={wrapperKey}>
@@ -177,9 +179,11 @@ function SidebarButtonWrapper({
         variant={"ghost"}
         className={cn(
           "flex bg-popover w-full items-center justify-start space-x-4 overflow-hidden p-4",
-          className
+          className,
+          disabled && "cursor-not-allowed hover:bg-background hover:shadow-none"
         )}
         onClick={onClick}
+        disabled={disabled}
       >
         {children}
       </Button>
@@ -213,7 +217,7 @@ export function TopNavbar({
   return (
     <div
       className={cn(
-        "sticky top-0 w-full h-fit p-4 flex flex-row justify-between items-center z-10 backdrop-blur-sm shadow-md dark:shadow-xl",
+        "sticky top-0 w-full h-fit p-4 flex flex-row justify-between items-center z-10 backdrop-blur-sm shadow-md dark:shadow-xl rounded-md",
         className
       )}
       style={style}

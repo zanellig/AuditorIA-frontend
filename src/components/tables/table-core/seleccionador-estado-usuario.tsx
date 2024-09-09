@@ -4,6 +4,8 @@
  * Esto más que un "seleccionador" es un botón de filtro.
  * Se debería implementar x tabla y no hacer uno general que tome parámetros,
  * hacer un "Filter factory" y pasarle parámetros para agregar todos los que queramos.
+ *
+ * 02/09/2024: más verdadero que nunca el comentario de arriba :P
  */
 
 import * as React from "react"
@@ -32,26 +34,26 @@ import { GLOBAL_ICON_SIZE } from "@/lib/consts"
 import { Recording, Task, Status } from "@/lib/types"
 import { cn } from "@/lib/utils"
 
-interface SeleccionadorProps<TData> {
+interface SeleccionadorProps<DataType, TData> {
   table: ReactTableInstance<TData>
-  type: string
+  type: DataType
   className?: string
-  operadores: Array<number | Status>
+  operadores: Array<number | Status> | Set<number | Status>
 }
 
-export default function SeleccionadorEstadoUsuario<TData>({
+export default function SeleccionadorEstadoUsuario<DataType, TData>({
   table,
   type,
   className,
   operadores,
-}: SeleccionadorProps<TData>) {
+}: SeleccionadorProps<DataType, TData>) {
   const [open, setOpen] = React.useState(false)
   const isDesktop = useMediaQuery("(min-width: 768px)")
   const [selectedValue, setSelectedValue] = React.useState<
     Task["status"] | Recording["USUARIO"] | null
   >(null)
 
-  const getTypeString = (type: string) => {
+  const getTypeString = (type: DataType) => {
     switch (type) {
       case "tasks":
         return "Estado"

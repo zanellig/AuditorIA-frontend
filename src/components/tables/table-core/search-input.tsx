@@ -5,15 +5,15 @@ import { Table as ReactTableInstance } from "@tanstack/react-table"
 import { Input } from "@/components/ui/input"
 import { useEffect } from "react"
 
-interface SearchInputProps<TData> {
+interface SearchInputProps<DataType, TData> {
   table: ReactTableInstance<TData>
-  type?: string
+  type?: DataType
 }
 
-export default function SearchInput<TData>({
+export default function SearchInput<DataType, TData>({
   table,
   type,
-}: SearchInputProps<TData>) {
+}: SearchInputProps<DataType, TData>) {
   if (type === "tasks") {
     return (
       <Input

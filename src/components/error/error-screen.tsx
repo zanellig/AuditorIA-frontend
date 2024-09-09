@@ -6,6 +6,7 @@ import { GLOBAL_ICON_SIZE } from "@/lib/consts"
 import TitleH1 from "@/components/typography/titleH1"
 import ParagraphP from "@/components/typography/paragraphP"
 import { ResetIcon, UpdateIcon } from "@radix-ui/react-icons"
+import { useRouter } from "next/navigation"
 
 export default function ErrorScreen({
   error,
@@ -21,6 +22,7 @@ export default function ErrorScreen({
   id?: string
 }) {
   if (!id) id = "generic-error-screen"
+  const router = useRouter()
   return (
     <>
       <TopNavbar />
@@ -46,7 +48,7 @@ export default function ErrorScreen({
               <Button
                 variant='outline'
                 className='w-fit'
-                onClick={() => window.location.replace(redirectUrl)}
+                onClick={() => router.back()}
               >
                 <span>Volver</span>
                 <ResetIcon className='w-[1.2rem] h-[1.2rem] ml-2' />

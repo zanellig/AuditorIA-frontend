@@ -1,9 +1,10 @@
 "use client"
-import React, { useEffect, useState } from "react"
+import React, { useState } from "react"
 import {
   _replaceSpecialCharacters,
   cn,
   getUniqueWords,
+  handleCopyToClipboard,
   normalizeString,
   replaceNonASCIIChars,
 } from "@/lib/utils"
@@ -12,13 +13,11 @@ import {
   ArrowRightIcon,
   CheckIcon,
   ChevronLeftIcon,
-  ClipboardCopyIcon,
   Cross2Icon,
   Pencil2Icon,
-  PlayIcon,
 } from "@radix-ui/react-icons"
-import { Analysis, FoundWordsState, Segment, Task } from "@/lib/types.d"
-import { usePathname, useSearchParams } from "next/navigation"
+import { FoundWordsState, Segment, Task } from "@/lib/types.d"
+import { useSearchParams } from "next/navigation"
 
 import {
   Accordion,
@@ -30,6 +29,7 @@ import { Input } from "../ui/input"
 import { DASHBOARD_ICON_CLASSES } from "@/lib/consts"
 import { useToast } from "../ui/use-toast"
 import { LoadingState, MultiStepLoader } from "../ui/multi-step-loader"
+import EvalSpeakerProfile from "./eval-speaker-profile"
 
 export default function SpeakerAnalysisCard({
   children,
@@ -44,7 +44,7 @@ export default function SpeakerAnalysisCard({
   const searchParams = useSearchParams()
   const id = searchParams.get("identifier")
   const uniqueWords = getUniqueWords(segments || [])
-  console.log(uniqueWords)
+
   return (
     <div
       className={cn(
@@ -78,94 +78,6 @@ export default function SpeakerAnalysisCard({
   )
 }
 
-function EvalSpeakerProfile({
-  className,
-  id,
-}: {
-  className?: string
-  id: Task["identifier"]
-}) {
-  const { toast } = useToast()
-
-  const [LLMAnalysis, setLLMAnalysis] = useState<any | null>(null)
-  const [isFetching, setIsFetching] = useState<boolean>(false)
-  const [fetchError, setFetchError] = useState<any>(null)
-  const [storedResponse, setStoredResponse] = useState<string | null>(null)
-
-  React.useEffect(() => {
-    // Load stored data from localStorage when the component mounts
-    const storedString = localStorage.getItem("response")
-    if (storedString) {
-      setLLMAnalysis(JSON.parse(storedString))
-      setStoredResponse(storedString)
-    }
-  }, [])
-
-  React.useEffect(() => {
-    if (storedResponse !== null) {
-      return
-    }
-    const fetchData = async () => {
-      const [err, res] = await fetch(`/api/task/spkanalysis?identifier=${id}`, {
-        method: "GET",
-      }).then(async res => await res.json())
-      if (err !== null) {
-        setFetchError(err["detail"])
-        return
-      }
-      const str = res["processed_result"].match(/```json\s+([\s\S]*?)\s+```/)[1]
-      localStorage.setItem("response", str)
-      setLLMAnalysis(JSON.parse(str))
-      setIsFetching(false)
-    }
-    fetchData()
-  }, [isFetching])
-
-  return (
-    <>
-      <AccordionItem value='2'>
-        <AccordionTrigger
-          className='space-x-4'
-          onClick={() => {
-            setIsFetching(true)
-          }}
-        >
-          <span>Evaluar perfil de hablante</span>
-        </AccordionTrigger>
-        <AccordionContent>
-          {LLMAnalysis &&
-            Object.keys(LLMAnalysis).map((key, i) => {
-              return (
-                <div key={i} className='flex flex-col gap-2'>
-                  <div className='flex flex-row items-center space-x-2'>
-                    <span className='text-sm'>{key}</span>
-                    <Button
-                      variant='outline'
-                      onClick={() => {
-                        navigator.clipboard.writeText(
-                          JSON.stringify(LLMAnalysis[key])
-                        )
-                        toast({
-                          title: "Texto copiado al portapapeles",
-                          variant: "success",
-                        })
-                      }}
-                    >
-                      <ClipboardCopyIcon className={DASHBOARD_ICON_CLASSES} />
-                    </Button>
-                  </div>
-                  <code className='whitespace-pre-wrap'>
-                    {LLMAnalysis[key]}
-                  </code>
-                </div>
-              )
-            })}
-          {fetchError && <code>{fetchError}</code>}
-        </AccordionContent>
-      </AccordionItem>
-    </>
-  )
-}
 function LocalWordSearch({
   className,
   words,

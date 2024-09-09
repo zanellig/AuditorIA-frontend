@@ -24,9 +24,12 @@ export default async function RecordingsTable() {
 
   useEffect(() => {
     async function fetchData() {
-      const [err, res] = await fetch(`http://localhost:3001/api/recordings`, {
-        method: "GET",
-      }).then(async res => await res.json())
+      const [err, res] = await fetch(
+        `http://10.20.30.211:3001/api/recordings`,
+        {
+          method: "GET",
+        }
+      ).then(async res => await res.json())
       setErr(err)
       setRecordings(res)
     }

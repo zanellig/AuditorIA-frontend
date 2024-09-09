@@ -1,3 +1,5 @@
+import { cn } from "./utils"
+
 export const GLOBAL_ICON_SIZE: number = 16
 export const NAVIGATION_ICON_SIZE: number = GLOBAL_ICON_SIZE + 2
 export const POSITIVE_SENTIMENT_COLOR = "green-500"
@@ -10,6 +12,10 @@ export const DISGUST_EMOTION_COLOR = "#8a2be2"
 export const OTHERS_EMOTION_COLOR = "#ff7f50"
 export const DASHBOARD_ICON_CLASSES =
   "w-[1.2rem] h-[1.2rem] text-muted-foreground"
+export const SPEAKER_ICON_CLASSES = cn(
+  DASHBOARD_ICON_CLASSES,
+  "w-[1rem] h-[1rem]"
+)
 export const API_MAIN = "http://10.20.30.30:8000"
 export const API_CANARY = "http://10.20.30.108:7000"
 export const ALL_TASKS_PATH = "tasks"

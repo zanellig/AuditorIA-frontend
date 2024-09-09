@@ -26,24 +26,19 @@ import { useToast } from "@/components/ui/use-toast"
 
 import DeleteButton from "@/components/delete-button"
 
-import type { Recording, Status } from "@/lib/types"
+import type { Status } from "@/lib/types"
 
 import { GLOBAL_ICON_SIZE } from "@/lib/consts"
-import { obtenerMesLocale } from "@/lib/utils"
+import { handleCopyToClipboard, obtenerMesLocale } from "@/lib/utils"
 
 import { secondsToHMS, formatTimestamp } from "@/lib/utils"
 import Link from "next/link"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
-import ParagraphP from "@/components/typography/paragraphP"
+
 import ButtonBorderMagic from "@/components/ui/button-border-magic"
-import { revalidatePath } from "next/cache"
-import { ALL_TASKS_PATH, TASK_PATH, API_MAIN, API_CANARY } from "@/lib/consts"
+import { API_CANARY } from "@/lib/consts"
 import { actionRevalidatePath, analyzeTask } from "@/lib/actions"
 import { ToastAction } from "@/components/ui/toast"
+import { usePathname } from "next/navigation"
 
 function renderMarker(status: Status) {
   switch (status) {
@@ -179,7 +174,8 @@ export const columns: ColumnDef<Task | null>[] = [
     cell: ({ row, table }) => {
       const task = row.original
       const { toast } = useToast()
-      const taskURL = `/dashboard/transcription?identifier=${task?.identifier}`
+      const currentUrl = usePathname()
+      const taskURL = `/dashboard/transcription?identifier=${task?.identifier}&file_name=${task?.file_name}`
 
       // {
       //   "identifier": "9b5113b1-47f4-4850-a978-3df81dc95489",
@@ -210,42 +206,41 @@ export const columns: ColumnDef<Task | null>[] = [
                       description: "La tarea se está analizando",
                       variant: "default",
                     })
-                    try {
-                      const res = await analyzeTask(
-                        [API_CANARY, "tasks"],
-                        row.original?.identifier,
-                        row.original?.language
-                      )
-                      if (res.message === "queued for analyze") {
-                        toast({
-                          title: "Tarea analizada",
-                          description: `Ya puede visualizar el análisis de la tarea ${row.original?.identifier}`,
-                          variant: "success",
-                          action: (
-                            <ToastAction altText='Ir a la transcripción'>
-                              <Link
-                                href={taskURL}
-                                className='w-full h-full cursor-default'
-                                onClick={() => {
-                                  actionRevalidatePath(taskURL)
-                                }}
-                              >
-                                Ir a la transcripción
-                              </Link>
-                            </ToastAction>
-                          ),
-                        })
-                      }
-                    } catch (error) {
-                      console.error(error)
+                    const [err, res] = await analyzeTask(
+                      [API_CANARY, "tasks"],
+                      row.original?.identifier,
+                      row.original?.language
+                    )
+                    console.log(res)
+                    if (err !== null) {
                       toast({
                         title: "Error",
                         description: "La tarea no pudo ser analizada",
                         variant: "destructive",
                       })
-                    } finally {
-                      actionRevalidatePath("/dashboard")
                     }
+                    if (res) {
+                      toast({
+                        title: "Tarea analizada",
+                        description: `Ya puede visualizar el análisis de la tarea ${row.original?.identifier}`,
+                        variant: "success",
+                        action: (
+                          <ToastAction altText='Ir a la transcripción'>
+                            <Link
+                              href={taskURL}
+                              className='w-full h-full cursor-default'
+                              onClick={() => {
+                                actionRevalidatePath(taskURL)
+                              }}
+                            >
+                              Ir a la transcripción
+                            </Link>
+                          </ToastAction>
+                        ),
+                      })
+                    }
+
+                    actionRevalidatePath(currentUrl)
                   }}
                 >
                   Analizar
@@ -253,6 +248,14 @@ export const columns: ColumnDef<Task | null>[] = [
               </DropdownMenuItem>
 
               <DropdownMenuSeparator />
+
+              <DropdownMenuItem
+                onClick={() => {
+                  row.pin("top", true)
+                }}
+              >
+                Fijar fila
+              </DropdownMenuItem>
 
               <DropdownMenuItem className='font-bold'>
                 <Link
@@ -268,9 +271,7 @@ export const columns: ColumnDef<Task | null>[] = [
 
               <DropdownMenuItem
                 onClick={() => {
-                  navigator.clipboard.writeText(
-                    task?.identifier as Task["identifier"]
-                  )
+                  handleCopyToClipboard(task?.identifier as Task["identifier"])
                   toast({
                     title: "ID copiado",
                     description: task?.identifier,
@@ -282,9 +283,7 @@ export const columns: ColumnDef<Task | null>[] = [
 
               <DropdownMenuItem
                 onClick={() => {
-                  navigator.clipboard.writeText(
-                    task?.file_name as Task["identifier"]
-                  )
+                  handleCopyToClipboard(task?.file_name as Task["identifier"])
                   toast({
                     title: "Nombre de archivo copiado",
                     description: task?.file_name,

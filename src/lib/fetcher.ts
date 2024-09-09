@@ -19,7 +19,7 @@ async function _request<T, R extends boolean | undefined = undefined>(
   }
   let err: Error | null = null
 
-  if (!options?.cacheResponse) {
+  if (options?.cacheResponse !== undefined && !options?.cacheResponse) {
     fetchOptions.cache = "no-store" as RequestCache
   }
 
@@ -32,15 +32,11 @@ async function _request<T, R extends boolean | undefined = undefined>(
   options?.revalidate ? (fetchOptions.next = { revalidate: 5 }) : null
   try {
     const res = await fetch(url, fetchOptions)
-    console.log(res)
     if (err !== null) {
-      console.log([err, null])
       return [err as Error, null] as [Error, R extends true ? number : T]
     }
     !res.ok ? (err = await res.json()) : null
-    console.log(err)
     if (options?.onlyReturnStatus) {
-      console.log([err, res.status])
       return [err, res.status] as [null, R extends true ? number : T]
     }
     if (options?.expectJson) {

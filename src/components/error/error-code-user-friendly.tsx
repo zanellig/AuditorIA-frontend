@@ -5,6 +5,8 @@ import ErrorRetryButton from "@/components/error/error-button.client"
 import { getErrorStringLocale } from "@/lib/get-error-string-locale"
 import { SupportedLocales } from "@/lib/types.d"
 import { Button } from "../ui/button"
+import { handleCopyToClipboard } from "@/lib/utils"
+import { useToast } from "../ui/use-toast"
 
 interface ErrorCodeUserFriendlyProps {
   error: any
@@ -15,6 +17,7 @@ export function ErrorCodeUserFriendly({
   error,
   locale,
 }: ErrorCodeUserFriendlyProps) {
+  const { toast } = useToast()
   if (!error) return null
   const content = {
     [SupportedLocales.ES]: {
@@ -34,11 +37,12 @@ export function ErrorCodeUserFriendly({
   }
   const localizedContent = content[locale]
   if (!error.stack) {
+    const errDetail = JSON.parse(error).detail
     return (
       <div className='flex flex-col space-y-10'>
         <TitleH1>{localizedContent.title}</TitleH1>
         <ParagraphP>{localizedContent.paragraph}</ParagraphP>
-        <code>{JSON.parse(error).detail}</code>
+        <code>{errDetail ? errDetail : error.message}</code>
       </div>
     )
   }
@@ -56,7 +60,16 @@ export function ErrorCodeUserFriendly({
       </code>
       <div className='flex flex-row space-x-2 justify-start'>
         <ErrorRetryButton locale={locale} />
-        <Button variant='outline' className='w-fit p-2'>
+        <Button
+          variant='outline'
+          className='w-fit p-2'
+          onClick={() => {
+            handleCopyToClipboard(error.stack)
+            toast({
+              title: "Copiado al portapapeles",
+            })
+          }}
+        >
           Copiar código de error
         </Button>
       </div>

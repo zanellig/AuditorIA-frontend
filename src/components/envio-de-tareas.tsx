@@ -56,8 +56,6 @@ export default function EnvioDeTareas({ className }: { className?: string }) {
 
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const [audiosQueuedByUser, setAudiosQueuedByUser] = useState<number>(0)
-
   const onSubmit = async (values: FormValues) => {
     if (!values.file) {
       toast({ variant: "destructive", title: "Debe adjuntar un archivo" })
@@ -73,10 +71,10 @@ export default function EnvioDeTareas({ className }: { className?: string }) {
     form.append("device", values.device)
 
     try {
-      const res = await fetch("/api/task", {
+      const res = await fetch("http://10.20.30.211:3001/api/tasks", {
         method: "POST",
         body: form,
-      })
+      }).then(async res => await res.json())
       if (!res.ok) {
         toast({
           variant: "destructive",
@@ -86,9 +84,13 @@ export default function EnvioDeTareas({ className }: { className?: string }) {
             <ToastAction
               className='border border-ring'
               altText='Copiar error al portapapeles'
-              onClick={async () =>
-                copyToClipboard(JSON.stringify(await res.json()))
-              }
+              onClick={async () => {
+                handleCopyToClipboard(JSON.stringify(res[1]))
+                toast({
+                  variant: "success",
+                  title: "Se copió el texto al portapapeles",
+                })
+              }}
             >
               Copiar error
             </ToastAction>
@@ -114,7 +116,7 @@ export default function EnvioDeTareas({ className }: { className?: string }) {
       action: (
         <ToastAction
           altText='Copiar el ID de la tarea enviada'
-          onClick={() => copyToClipboard(res.identifier)}
+          onClick={() => handleCopyToClipboard(res.identifier)}
         >
           Copiar ID
         </ToastAction>
@@ -145,10 +147,6 @@ export default function EnvioDeTareas({ className }: { className?: string }) {
     })
   }
 
-  const copyToClipboard = (...texts: string[]) => {
-    handleCopyToClipboard(texts)
-    toast({ variant: "success", title: "Se copió el texto al portapapeles" })
-  }
   return (
     <Card className={cn("mt-4", className)}>
       <CardHeader>

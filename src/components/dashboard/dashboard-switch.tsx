@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react"
 import { Switch } from "@/components/ui/switch"
-import { useDashboard } from "@/components/DashboardProvider"
+import { useDashboard } from "@/components/context/DashboardProvider"
 import { Label } from "../ui/label"
 
 export default function DashboardSwitch() {

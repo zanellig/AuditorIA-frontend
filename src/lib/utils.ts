@@ -66,8 +66,8 @@ export function formatTimestamp(
   return formattedTime.trim()
 }
 
-export const handleCopyToClipboard = (items: string[]) => {
-  const textToCopy = items.join(", ")
+export const handleCopyToClipboard = (items: string[] | string) => {
+  const textToCopy = typeof items === "string" ? items : items.join(", ")
   if (typeof window !== "undefined" && navigator.clipboard) {
     navigator.clipboard
       .writeText(textToCopy)
@@ -239,7 +239,6 @@ export function extractQueryParamsFromUrl(search: string) {
   while ((match = regexToLookForKeyValuePairs.exec(queryString)) !== null) {
     params.push({ [match[1]]: decodeURIComponent(match[2]) })
   }
-  console.log(params)
   return params
 }
 export function concatParamsToUrlString(

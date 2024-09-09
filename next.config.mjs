@@ -1,4 +1,7 @@
 /** @type {import('next').NextConfig} */
+import dotenv from "dotenv"
+dotenv.config({ path: ".env.local" })
+// Other configuration settings
 const nextConfig = {
   typescript: { ignoreBuildErrors: true },
   images: {

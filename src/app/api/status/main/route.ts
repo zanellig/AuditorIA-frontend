@@ -27,7 +27,7 @@ export async function GET() {
 
   // Handle response status
   if (response) {
-    switch (response.status) {
+    switch (Number(response)) {
       case 200:
         return new NextResponse(
           JSON.stringify({
@@ -55,20 +55,11 @@ export async function GET() {
       default:
         return new NextResponse(
           JSON.stringify({
-            variant: ServerStatusBadgeVariant.Warning,
-            text: "Main server warning",
+            variant: ServerStatusBadgeVariant.Error,
+            text: "Main server unavailable",
           }),
-          { status: 500 }
+          { status: 521 }
         )
     }
   }
-
-  // Fallback for when response is null
-  return new NextResponse(
-    JSON.stringify({
-      variant: ServerStatusBadgeVariant.Warning,
-      text: "Main server warning",
-    }),
-    { status: 500 }
-  )
 }

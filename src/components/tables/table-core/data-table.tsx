@@ -1,5 +1,5 @@
 "use client"
-import { useState } from "react"
+import React, { useState } from "react"
 import { cn } from "@/lib/utils"
 
 import {
@@ -15,6 +15,7 @@ import {
   getSortedRowModel,
   useReactTable,
   Table as ReactTableInstance,
+  RowPinningState,
 } from "@tanstack/react-table"
 
 import { Checkbox } from "@/components/ui/checkbox"
@@ -30,25 +31,25 @@ import TableRows from "@/components/tables/table-core/table-row"
 import TableActions from "@/components/tables/table-core/table-actions"
 import Pagination from "@/components/tables/table-core/pagination"
 
-import type { PaginationModel, Recordings } from "@/lib/types"
+import type { TableSupportedDataTypes, Recordings } from "@/lib/types"
 
-interface DataTableProps<TData, TValue, DataType, classNameType, Recordings> {
+interface DataTableProps<TData, TValue, classNameType, Recordings> {
   children?: React.ReactNode
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
-  type: DataType
+  type: TableSupportedDataTypes
   className?: classNameType
   recordings?: Recordings
 }
 
-export default function DataTable<TData, TValue, DataType>({
+export default function DataTable<TData, TValue>({
   children,
   columns,
   data,
   type,
   className,
   recordings,
-}: DataTableProps<TData, TValue, string, string, Recordings>) {
+}: DataTableProps<TData, TValue, string, Recordings>) {
   // Filtering
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
 
@@ -68,7 +69,6 @@ export default function DataTable<TData, TValue, DataType>({
     getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
-
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
@@ -80,14 +80,16 @@ export default function DataTable<TData, TValue, DataType>({
     },
     onPaginationChange: setPagination,
     autoResetPageIndex: false,
+    enableRowPinning: true,
+    keepPinnedRows: false,
   })
 
   return (
     <>
       <div className={cn("", className)}>
-        <TableActions
+        <TableActions<TableSupportedDataTypes, TData>
           table={table as ReactTableInstance<TData>}
-          type={type as string}
+          type={type as TableSupportedDataTypes}
           recordings={recordings}
         >
           {children}
@@ -131,12 +133,16 @@ export default function DataTable<TData, TValue, DataType>({
               <TableRows
                 table={table as ReactTableInstance<TData>}
                 columns={columns}
-                type={type as string}
+                type={type as TableSupportedDataTypes}
               />
             </TableBody>
           </Table>
         </div>
-        <Pagination table={table} type={type} pagination={pagination} />
+        <Pagination
+          table={table}
+          type={type as TableSupportedDataTypes}
+          pagination={pagination}
+        />
       </div>
     </>
   )

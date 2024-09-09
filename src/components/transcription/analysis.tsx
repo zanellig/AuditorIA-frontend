@@ -26,6 +26,7 @@ export default function Analysis({
   const { toast } = useToast()
   const [averages, setAverages] = useState<Averages | null>(null)
   const [averageChartData, setAverageChartData] = useState<any>(null)
+  console.log(transcription)
   const words = getUniqueWords(transcription?.result?.segments)
 
   // const [record, setRecord] = useState<Recording | null>(null)

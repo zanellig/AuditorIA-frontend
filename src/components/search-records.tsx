@@ -17,24 +17,46 @@ import { useToast } from "@/components/ui/use-toast"
 import { Recordings } from "@/lib/types"
 import DataTable from "@/components/tables/table-core/data-table"
 import { columns } from "@/components/tables/records-table/columns-records"
+import { DatePickerWithPresets } from "./range-date-picker"
+import { extractYearMonthDayFromDate } from "@/lib/utils"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select"
+import { TableSupportedDataTypes } from "@/lib/types.d"
+
+type InputType = "text" | "date" | "number" | "select"
 
 export default function SearchRecords({
   title,
   icon,
   shouldEnterText,
   _route,
+  inputOptions,
 }: {
   title: string
   icon: JSX.Element
   shouldEnterText: string
   _route: string
+  inputOptions?: {
+    inputType: InputType
+    selectOptions?: string[]
+  }
 }) {
+  const { inputType, selectOptions } = inputOptions || {
+    inputType: "text",
+    selectOptions: null,
+  }
   const { toast } = useToast()
   const [err, setErr] = React.useState<any>(null)
   const [recordings, setRecordings] = React.useState<Recordings | null>(null)
   const [isLoading, setIsLoading] = React.useState(false)
   const [input, setInput] = React.useState("")
   const [search, setSearch] = React.useState<string | null>(null)
+  const [date, setDate] = React.useState<Date | null>(null)
 
   React.useEffect(() => {
     async function fetchData() {
@@ -43,7 +65,7 @@ export default function SearchRecords({
       setRecordings(null)
       setErr(null)
       const [err, res] = await fetch(
-        `http://localhost:3001/api/recordings?${_route}=${search}`,
+        `http://10.20.30.211:3001/api/recordings?${_route}=${search}`,
         {
           method: "GET",
         }
@@ -58,7 +80,28 @@ export default function SearchRecords({
     fetchData()
   }, [search])
 
-  React.useEffect(() => {}, [recordings])
+  React.useEffect(() => {
+    async function fetchData() {
+      if (!date) return
+      setIsLoading(true)
+      setRecordings(null)
+      setErr(null)
+      const normalizedDateSearchQuery = extractYearMonthDayFromDate(date)
+      const [err, res] = await fetch(
+        `http://10.20.30.211:3001/api/recordings?FECHA=${normalizedDateSearchQuery}`,
+        {
+          method: "GET",
+        }
+      ).then(async res => {
+        return await res.json()
+      })
+      setErr(err)
+      setRecordings(res)
+      setIsLoading(false)
+    }
+
+    fetchData()
+  }, [isLoading])
 
   return (
     <div className='flex flex-row gap-2'>
@@ -68,23 +111,48 @@ export default function SearchRecords({
             {icon}
             <span>Buscar audios por {title}</span>
           </CardTitle>
-          <CardDescription>
-            Ingrese su {title} en el formulario para buscar audios.
-          </CardDescription>
+          <CardDescription>Ingrese {shouldEnterText} a buscar.</CardDescription>
         </CardHeader>
         <CardContent>
-          <Input
-            value={input}
-            onChange={e => {
-              setInput(e.target.value)
-            }}
-          />
+          {inputType === "text" && (
+            <Input
+              value={input}
+              onChange={e => {
+                setInput(e.target.value)
+              }}
+            />
+          )}
+          {inputType === "date" && (
+            <DatePickerWithPresets onDateChange={setDate} />
+          )}
+          {inputType === "number" && (
+            <Input
+              value={input}
+              onChange={e => {
+                setInput(e.target.value)
+              }}
+            />
+          )}
+          {inputType === "select" && (
+            <Select value={input} onValueChange={value => setInput(value)}>
+              <SelectTrigger>
+                <SelectValue placeholder={`Seleccionar ${title}`} />
+              </SelectTrigger>
+              <SelectContent position='popper'>
+                {selectOptions?.map((option, index) => (
+                  <SelectItem key={index} value={option}>
+                    {option}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
         </CardContent>
         <CardFooter>
           <Button
             className='flex flex-row items-center gap-2 w-full'
             onClick={() => {
-              if (!(input.length > 0)) {
+              if (!date || !(input.length > 0)) {
                 toast({
                   title: `Debe ingresar ${shouldEnterText}.`,
                   variant: "destructive",
@@ -109,11 +177,19 @@ export default function SearchRecords({
               </CardDescription>
             </CardHeader>
           </Card>
-          <DataTable columns={columns} data={[]} type='records' />
+          <DataTable
+            columns={columns}
+            data={[]}
+            type={TableSupportedDataTypes.Recordings}
+          />
         </div>
       )}
       {recordings === null && err === null && isLoading === false ? (
-        <DataTable columns={columns} data={[]} type='records' />
+        <DataTable
+          columns={columns}
+          data={[]}
+          type={TableSupportedDataTypes.Recordings}
+        />
       ) : null}
       {isLoading && <DashboardSkeleton />}
       {recordings !== null && (
@@ -130,7 +206,7 @@ export default function SearchRecords({
             columns={columns}
             data={recordings}
             recordings={recordings}
-            type='records'
+            type={TableSupportedDataTypes.Recordings}
           />
         </div>
       )}
