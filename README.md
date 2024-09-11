@@ -1,5 +1,7 @@
 # auditorIA
 
+> Ahora auditorIA es Linux-based, por lo que debemos actualizar este instructivo.
+
 ## Como correr en desarrollo
 
 1.0. Nos aseguramos de tener la versión correcta de Node.js
