@@ -1,46 +1,31 @@
 "use client"
 
 import { Table as ReactTableInstance } from "@tanstack/react-table"
-
 import { Input } from "@/components/ui/input"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 
-interface SearchInputProps<DataType, TData> {
+interface SearchInputProps<TData> {
   table: ReactTableInstance<TData>
-  type?: DataType
 }
 
-export default function SearchInput<DataType, TData>({
-  table,
-  type,
-}: SearchInputProps<DataType, TData>) {
-  if (type === "tasks") {
-    return (
-      <Input
-        placeholder='Filtrar por ID...'
-        value={table.getColumn("identifier")?.getFilterValue() as string}
-        onChange={event => {
-          if (event.target.value.length > 0) {
-            table.getColumn("identifier")?.setFilterValue(event.target.value)
-          }
-          table.getColumn("identifier")?.setFilterValue(event.target.value)
-          table.setPageIndex(0)
-        }}
-        className='max-w-sm bg-input-background focus:bg-background'
-      />
-    )
-  }
+export default function SearchInput<TData>({ table }: SearchInputProps<TData>) {
+  const [searchValue, setSearchValue] = useState<string>("")
 
-  if (type === "records") {
-    return (
-      <Input
-        placeholder='Filtrar por ID de llamado...'
-        value={table.getColumn("IDLLAMADA")?.getFilterValue() as string}
-        onChange={event => {
-          table.getColumn("IDLLAMADA")?.setFilterValue(event.target.value)
-        }}
-        className='max-w-sm bg-input-background focus:bg-background'
-      />
-    )
-  }
+  useEffect(() => {
+    // Set the filter value for all columns when search value changes
+    table.setGlobalFilter(searchValue)
+    // Reset to the first page when search input changes
+    if (searchValue.length > 0) {
+      table.setPageIndex(0)
+    }
+  }, [searchValue, table])
+
+  return (
+    <Input
+      placeholder='Buscar columna...'
+      value={searchValue}
+      onChange={event => setSearchValue(event.target.value)}
+      className='max-w-sm bg-input-background focus:bg-background'
+    />
+  )
 }
