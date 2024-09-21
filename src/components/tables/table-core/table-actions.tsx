@@ -1,65 +1,90 @@
 "use client"
-import { useMemo } from "react"
 
-import { Table as ReactTableInstance } from "@tanstack/react-table"
-
-import { Button } from "@/components/ui/button"
-
-import { MixerHorizontalIcon, Pencil1Icon } from "@radix-ui/react-icons"
-
+import { useMemo, useState } from "react"
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-} from "@/components/ui/dropdown-menu"
-import DeleteButton from "@/components/delete-button"
+  Table as ReactTableInstance,
+  ColumnFiltersState,
+  getFilteredRowModel,
+} from "@tanstack/react-table"
+import { Button } from "@/components/ui/button"
 import SearchInput from "@/components/tables/table-core/search-input"
+import FilterButton from "@/components/tables/table-core/filter-button"
 
-import { useToast } from "@/components/ui/use-toast"
-import SeleccionadorEstadoUsuario from "@/components/tables/table-core/seleccionador-estado-usuario"
-import { Recordings, Status } from "@/lib/types"
-
-interface TableActionsProps<DataTypes, TData, Recordings> {
+interface TableActionsProps<TData> {
   children?: React.ReactNode
   table: ReactTableInstance<TData>
-  type: DataTypes
-  recordings?: Recordings
+  data: TData[]
 }
 
-export default function TableActions<DataTypes, TData>({
+export default function TableActions<TData>({
   children,
   table,
-  type,
-  recordings,
-}: TableActionsProps<DataTypes, TData, Recordings>) {
-  const { toast } = useToast()
-  const operadores: number[] | Status[] | Set<any> = useMemo(() => {
-    if (!recordings) return new Set()
-    const set: Set<number | Status> = new Set()
+  data,
+}: TableActionsProps<TData>) {
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
 
-    for (const recording of recordings) {
-      const operador = Number(recording.USUARIO)
-      set.add(operador)
-    }
-    const sortedOperadores = Array.from(set).sort((a, b) => a - b)
-    return sortedOperadores
-  }, [recordings])
+  const columns = table.getAllColumns()
+
+  // Memoized filter logic
+  const filters = useMemo(
+    () =>
+      columns
+        .filter(column => column.getCanFilter())
+        .map(column => {
+          const id = column.id
+          const uniqueValues = new Set(
+            data
+              .map(row => {
+                const value = row[id as keyof TData]
+                return value !== null && value !== undefined
+                  ? String(value)
+                  : null
+              })
+              .filter(Boolean)
+          )
+          return { id, filterValues: uniqueValues }
+        }),
+    [columns, data]
+  )
+
+  // Update table options
+  useMemo(() => {
+    table.setOptions(prev => ({
+      ...prev,
+      state: {
+        ...prev.state,
+        columnFilters,
+      },
+      onColumnFiltersChange: setColumnFilters,
+      getFilteredRowModel: getFilteredRowModel(),
+    }))
+  }, [table, columnFilters])
 
   return (
     <div className='flex pb-2 items-center w-full justify-between'>
       <div className='flex flex-row space-x-2'>
-        <SearchInput<DataTypes, TData> table={table} type={type} />
-
-        <SeleccionadorEstadoUsuario<DataTypes, TData>
-          table={table}
-          type={type}
-          operadores={operadores}
-        />
+        <SearchInput<TData> table={table} />
+        {filters.map(
+          filter =>
+            table.getColumn(filter.id)?.getCanFilter() && (
+              <FilterButton<TData>
+                key={filter.id}
+                table={table}
+                // we ignore the errors because we already checked if the column exists and can be filtered
+                // @ts-ignore
+                column={table.getColumn(filter.id)}
+                // @ts-ignore
+                filterValues={filter.filterValues}
+              />
+            )
+        )}
         {children}
       </div>
+    </div>
+  )
+}
 
+/*
       <div className='flex flex-row space-x-2'>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -201,7 +226,7 @@ export default function TableActions<DataTypes, TData>({
         </DropdownMenu>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            {/* TODO: implementar funcionalidad */}
+            TODO: implementar funcionalidad
             <Button
               variant='outline'
               className='ml-2 h-8 w-fit space-x-2 font-normal'
@@ -216,6 +241,4 @@ export default function TableActions<DataTypes, TData>({
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-    </div>
-  )
-}
+*/

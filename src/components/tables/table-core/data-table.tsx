@@ -37,9 +37,8 @@ interface DataTableProps<TData, TValue, classNameType, Recordings> {
   children?: React.ReactNode
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
-  type: TableSupportedDataTypes
+  type?: TableSupportedDataTypes
   className?: classNameType
-  recordings?: Recordings
 }
 
 export default function DataTable<TData, TValue>({
@@ -48,11 +47,11 @@ export default function DataTable<TData, TValue>({
   data,
   type,
   className,
-  recordings,
 }: DataTableProps<TData, TValue, string, Recordings>) {
   // Filtering
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
 
+  // Visibility
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
 
   // Sorting
@@ -70,7 +69,7 @@ export default function DataTable<TData, TValue>({
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
     onColumnFiltersChange: setColumnFilters,
-    getFilteredRowModel: getFilteredRowModel(),
+    getFilteredRowModel: getFilteredRowModel(), // needed for client-side filtering
     onColumnVisibilityChange: setColumnVisibility,
     state: {
       sorting,
@@ -87,10 +86,9 @@ export default function DataTable<TData, TValue>({
   return (
     <>
       <div className={cn("", className)}>
-        <TableActions<TableSupportedDataTypes, TData>
+        <TableActions<TData>
           table={table as ReactTableInstance<TData>}
-          type={type as TableSupportedDataTypes}
-          recordings={recordings}
+          data={data}
         >
           {children}
         </TableActions>

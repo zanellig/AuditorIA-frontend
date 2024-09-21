@@ -22,7 +22,7 @@ export default function SearchInput<TData>({ table }: SearchInputProps<TData>) {
 
   return (
     <Input
-      placeholder='Buscar columna...'
+      placeholder='Buscar fila...'
       value={searchValue}
       onChange={event => setSearchValue(event.target.value)}
       className='max-w-sm bg-input-background focus:bg-background'
