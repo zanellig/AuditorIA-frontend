@@ -1,6 +1,5 @@
 import { ALL_RECORDS_PATH, API_CANARY } from "@/lib/consts"
 import { _get } from "@/lib/fetcher"
-import { Recordings } from "@/lib/types"
 import {
   extractQueryParamsFromUrl,
   getHeaders,
@@ -16,12 +15,6 @@ export async function GET(request: NextRequest) {
   const params = extractQueryParamsFromUrl(request.nextUrl.search)
   const baseUrl = [API_CANARY, ALL_RECORDS_PATH].join("/")
   const url = concatParamsToUrlString(baseUrl, params)
-  console.log(
-    "we've hit the recordings route for the internal API",
-    params,
-    baseUrl,
-    url
-  )
   const [err, res] = await _get(url, headers, { revalidate: true })
   const responseHeaders = new Headers()
   responseHeaders.append("Access-Control-Allow-Origin", API_CANARY)
@@ -41,7 +34,7 @@ export async function GET(request: NextRequest) {
     })
   }
   if (res === null) {
-    return new Response("No content", { status: 204 })
+    return new Response(JSON.stringify([null, null]), { status: 204 })
   }
   const response = await res.json()
   if (res.ok) {
@@ -50,5 +43,5 @@ export async function GET(request: NextRequest) {
       headers: responseHeaders,
     })
   }
-  return new Response("Unexpected error", { status: 500 })
+  return new Response(JSON.stringify([err, null]), { status: 500 })
 }
