@@ -1,7 +1,6 @@
-export enum SupportedLocales {
-  EN = "en",
-  ES = "es",
-}
+import { z } from "zod"
+
+export const SupportedLocales = z.enum(["en", "es"])
 export enum TableSupportedDataTypes {
   Tasks = "tasks",
   Recordings = "recordings",
@@ -24,66 +23,48 @@ export type Analysis = {
   message: AnalysisMessage
 }
 
+export const Status = z.enum([
+  "completed",
+  "processing",
+  "failed",
+  "analyzed",
+  "pending",
+])
+export type Status = z.infer<typeof Status>
+
+export const taskSchema = z.object({
+  identifier: z.string(),
+  status: Status,
+  task_type: z.string(),
+  file_name: z.string(),
+  language: z.enum(["en", "es"]),
+  audio_duration: z.number(),
+  created_at: z.date(),
+})
+export type Task = z.infer<typeof taskSchema>
 export type Tasks = Task[]
-export type Task = {
-  identifier: TaskUUID
-  status: Status
-  task_type: string
-  file_name: Filename
-  language: Language
-  audio_duration: number
-  created_at: Fecha
-}
 
 export type TaskPOSTResponse = {
   identifier: TaskUUID
   message: string
 }
 
-export type Recording = {
-  id: number
-  fecha: number
-  IDLLAMADA: number | string
-  IDAPLICACION: number
-  USUARIO: number
-  ANI_TELEFONO: number
-  GRABACION: string
-  DIRECCION: string
-  INICIO: Date
-  FIN: Date
-  SECTOT: number
-  URL: string
-}
+export const recordingSchema = z.object({
+  id: z.number(),
+  fecha: z.number(),
+  IDLLAMADA: z.number().or(z.string()),
+  IDAPLICACION: z.number(),
+  USUARIO: z.number(),
+  ANI_TELEFONO: z.number(),
+  GRABACION: z.string(),
+  DIRECCION: z.string(),
+  INICIO: z.date(),
+  FIN: z.date(),
+  SECTOT: z.number(),
+  URL: z.string(),
+})
+export type Recording = z.infer<typeof recordingSchema>
 export type Recordings = Recording[]
-
-export enum Status {
-  Completed = "completed",
-  Processing = "processing",
-  Failed = "failed",
-  CAPSAnalyzed = "Analyzed",
-  Analyzed = "analyzed",
-  Pending = "pending",
-}
-
-type Language = "en" | "es"
-type TaskUUID = string
-type Fecha = Date
-type Filename = string
-
-/**
- * No utilizado
- */
-export type GenericRequest = {
-  task_type: string
-  language: string
-  file?: string
-  text?: string
-  save_to_db: boolean // false
-  return_immediate: boolean // false
-  diarize: boolean // false
-  split_channels: boolean // false
-  analyze_sentiment: boolean // false
-}
 
 export enum Method {
   Get = "GET",
@@ -100,97 +81,94 @@ export interface FetchOptions extends RequestInit {
   cache?: RequestCache
 }
 
-export type SentimentType = "NEG" | "NEU" | "POS"
+export const emotionProbasSchema = z.object({
+  joy: z.number(),
+  fear: z.number(),
+  anger: z.number(),
+  others: z.number(),
+  disgust: z.number(),
+  sadness: z.number(),
+  surprise: z.number(),
+})
+export type EmotionProbas = z.infer<typeof emotionProbasSchema>
+export const sentimentProbasSchema = z.object({
+  NEG: z.number(),
+  NEU: z.number(),
+  POS: z.number(),
+})
+export type SentimentProbas = z.infer<typeof sentimentProbasSchema>
+export const hateSpeechProbasSchema = z.object({
+  hateful: z.number(),
+  targeted: z.number(),
+  aggressive: z.number(),
+})
+export type HateSpeechProbas = z.infer<typeof hateSpeechProbasSchema>
+export const segmentAnalysisSchema = z.object({
+  emotion: z.string(),
+  sentiment: z.enum(["NEG", "NEU", "POS"]),
+  hate_speech: z.string(),
+  emotion_probas: emotionProbasSchema,
+  sentiment_probas: sentimentProbasSchema,
+  hate_speech_probas: hateSpeechProbasSchema,
+  is_hate_speech: z.boolean(),
+})
+export type SegmentAnalysisProperties = z.infer<typeof segmentAnalysisSchema>
 
-export type Segment = {
-  end: number
-  text: string
-  start: number
-  speaker: string
-  analysis?: SegmentAnalysisProperties
-}
+export const segmentSchema = z.object({
+  end: z.number(),
+  text: z.string(),
+  start: z.number(),
+  speaker: z.string(),
+  analysis: z.optional(segmentAnalysisSchema),
+})
+export type Segment = z.infer<typeof segmentSchema>
 
-export type TranscriptionType = {
-  status: Status
-  result: {
-    segments: Segment[]
-  }
-  error: null | string
-  metadata: {
-    audio_duration: number | null
-    duration: number
-    file_name: string
-    language: Language
-    task_params: {
-      task: string
-      model: string
-      device: string
-      threads: number
-      language: string
-      batch_size: number
-      compute_type: string
-      device_index: number
-      max_speakers: number
-      min_speakers: number
-      align_model: string | null
-      asr_options: {
-        patience: number
-        beam_size: number
-        temperatures: number
-        initial_prompt: string | null
-        length_penalty: number
-        suppress_tokens: number[]
-        suppress_numerals: boolean
-        log_prob_threshold: number
-        no_speech_threshold: number
-        compression_ratio_threshold: number
-      }
-      vad_options: {
-        vad_onset: number
-        vad_offset: number
-      }
-    }
-    task_type: string
-    url: string | null
-  }
-}
+export const transcriptionTypeSchema = z.object({
+  status: Status,
+  result: z.object({
+    segments: z.array(segmentSchema),
+  }),
+  error: z.string().nullable(),
+  metadata: z.object({
+    audio_duration: z.number().nullable(),
+    duration: z.number(),
+    file_name: z.string(),
+    language: SupportedLocales,
+    task_params: z.object({
+      task: z.string(),
+      model: z.string(),
+      device: z.string(),
+      threads: z.number(),
+      language: z.string(),
+      batch_size: z.number(),
+      compute_type: z.string(),
+      device_index: z.number(),
+      max_speakers: z.number(),
+      min_speakers: z.number(),
+      align_model: z.string().nullable(),
+      asr_options: z.object({
+        patience: z.number(),
+        beam_size: z.number(),
+        temperatures: z.number(),
+        initial_prompt: z.string().nullable(),
+        length_penalty: z.number(),
+        suppress_tokens: z.array(z.number()),
+        suppress_numerals: z.boolean(),
+        log_prob_threshold: z.number(),
+        no_speech_threshold: z.number(),
+        compression_ratio_threshold: z.number(),
+      }),
+      vad_options: z.object({
+        vad_onset: z.number(),
+        vad_offset: z.number(),
+      }),
+    }),
+    task_type: z.string(),
+    url: z.string().nullable(),
+  }),
+})
 
-export type SegmentAnalysisProperties = {
-  emotion: string
-  sentiment: SentimentType
-  hate_speech: string
-  emotion_probas: EmotionProbas
-  sentiment_probas: SentimentProbas
-  hate_speech_probas: HateSpeechProbas
-  is_hate_speech: boolean
-}
-
-export type EmotionProbas = {
-  joy: number
-  fear: number
-  anger: number
-  others: number
-  disgust: number
-  sadness: number
-  surprise: number
-}
-
-export type SentimentProbas = {
-  NEG: number
-  NEU: number
-  POS: number
-}
-
-export type HateSpeechProbas = {
-  hateful: number
-  targeted: number
-  aggressive: number
-}
-
-export type PaginationModel = {
-  pageIndex: number
-  pageSize: number
-}
+export type TranscriptionType = z.infer<typeof transcriptionTypeSchema>
 
 export type EmotionValues = {
   pos: number[]
@@ -210,6 +188,7 @@ export type HateValues = {
   targeted: number[]
   aggressive: number[]
 }
+
 export type EmotionAverage = {
   pos: number
   neu: number
@@ -241,4 +220,6 @@ export enum Emotions {
   Others = "Others" | "Otros",
   Disgust = "Disgust" | "Disgusto",
 }
-export type FoundWordsState = [boolean, string, number]
+
+export const FoundWordsState = z.tuple([z.boolean(), z.string(), z.number()])
+export type FoundWordsState = z.infer<typeof FoundWordsState>
