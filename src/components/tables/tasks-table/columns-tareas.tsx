@@ -29,7 +29,7 @@ import DeleteButton from "@/components/delete-button"
 import type { Status } from "@/lib/types"
 
 import { GLOBAL_ICON_SIZE } from "@/lib/consts"
-import { handleCopyToClipboard, obtenerMesLocale } from "@/lib/utils"
+import { handleCopyToClipboard, getLocaleMonth } from "@/lib/utils"
 
 import { secondsToHMS, formatTimestamp } from "@/lib/utils"
 import Link from "next/link"
@@ -108,7 +108,7 @@ export const columns: ColumnDef<Task | null>[] = [
     header: () => <div>Fecha</div>,
     cell: ({ row }) => {
       const date = new Date(row.original?.created_at as Task["created_at"])
-      const mes = obtenerMesLocale(date.getMonth())
+      const mes = getLocaleMonth(date.getMonth())
       const hora = date.toLocaleTimeString("es-US", {
         hour: "2-digit",
         minute: "2-digit",

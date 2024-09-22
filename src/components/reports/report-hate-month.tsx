@@ -14,7 +14,7 @@ import {
   CardTitle,
 } from "../ui/card"
 import { CartesianGrid, Line, LineChart, XAxis } from "recharts"
-import { obtenerMesLocale } from "@/lib/utils"
+import { getLocaleMonth } from "@/lib/utils"
 
 // audios problematicos por mes (generales)
 const chartData = [
@@ -139,7 +139,7 @@ export default function ReportHateMonth() {
                 tickMargin={8}
                 minTickGap={32}
                 tickFormatter={value => {
-                  return obtenerMesLocale(value)
+                  return getLocaleMonth(value)
                 }}
               />
               <ChartTooltip

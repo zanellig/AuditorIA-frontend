@@ -4,7 +4,7 @@ import type { Recording } from "@/lib/types"
 
 import { ArrowUpDown, ArrowDown, ArrowUp } from "lucide-react"
 
-import { obtenerMesLocale } from "@/lib/utils"
+import { getLocaleMonth } from "@/lib/utils"
 import { API_MAIN, API_CANARY } from "@/lib/consts"
 
 import { Badge } from "@/components/ui/badge"
@@ -38,10 +38,6 @@ function renderArrow(sorted: false | "asc" | "desc") {
 }
 
 export const columns: ColumnDef<Recording | null>[] = [
-  /**
-   * TODO: add a ID column with a Badge component showing the type of task
-   * TODO: Función para seleccionar UUID con un toggle, y seleccionar masivamente. Si no está seleccionado e igual se toca ELIMINAR, mandar a eliminar el UUID
-   */
   {
     accessorKey: "IDLLAMADA",
     header: () => {
@@ -56,9 +52,9 @@ export const columns: ColumnDef<Recording | null>[] = [
           key={`check-${row.original?.IDLLAMADA}`}
           className='flex flex-row items-center justify-start w-fit space-x-2'
         >
-          <Badge className='capitalize' variant={"outline"}>
+          {/* <Badge className='capitalize' variant={"outline"}>
             {row.original?.DIRECCION.toLocaleLowerCase()}
-          </Badge>
+          </Badge> */}
           {/* <InfoIcon
             className='ml-2 mr-0 inline-block'
             size={GLOBAL_ICON_SIZE}
@@ -116,7 +112,7 @@ export const columns: ColumnDef<Recording | null>[] = [
     header: () => <div>Fecha</div>,
     cell: ({ row }) => {
       const date = new Date(row.original?.INICIO as Recording["INICIO"])
-      const mes = obtenerMesLocale(date.getMonth())
+      const mes = getLocaleMonth(date.getMonth())
 
       return <div>{`${date.getDate()} de ${mes} de ${date.getFullYear()}`}</div>
     },
