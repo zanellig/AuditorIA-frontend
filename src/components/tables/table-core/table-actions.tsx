@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import React, { useMemo, useState } from "react"
 import {
   Table as ReactTableInstance,
   ColumnFiltersState,
@@ -23,6 +23,13 @@ export default function TableActions<TData>({
 }: TableActionsProps<TData>) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
 
+  // React.useEffect(() => {
+  //   console.group("TableActions")
+  //   console.log(table.getAllColumns())
+  //   console.log(table.getRowModel())
+  //   console.log(table.getRowModel().rows)
+  // }, [])
+
   const columns = table.getAllColumns()
 
   // Memoized filter logic
@@ -35,12 +42,12 @@ export default function TableActions<TData>({
           const uniqueValues = new Set(
             data
               .map(row => {
-                const value = row[id as keyof TData]
+                const value = row?.[id as keyof TData] // Use optional chaining to avoid null/undefined dereference
                 return value !== null && value !== undefined
                   ? String(value)
                   : null
               })
-              .filter(Boolean)
+              .filter(Boolean) // Filter out null or undefined values
           )
           return { id, filterValues: uniqueValues }
         }),

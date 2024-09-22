@@ -38,8 +38,10 @@ export default function FilterButton<TData>({
   const onSelect = (value: string | null) => {
     if (value === null) {
       column.setFilterValue(null)
+      table.firstPage()
     } else {
       column.setFilterValue(value)
+      table.firstPage()
     }
     setOpen(false)
   }
