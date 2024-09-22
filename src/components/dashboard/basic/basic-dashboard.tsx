@@ -10,12 +10,13 @@ import {
   PersonIcon,
   UploadIcon,
 } from "@radix-ui/react-icons"
-import React from "react"
+import * as React from "react"
 import { CardBody, CardContainer, CardItem } from "@/components/ui/3d-card"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { DASHBOARD_ICON_CLASSES } from "@/lib/consts"
+import { StatefulButton } from "@/components/stateful-button"
 
 export default function BasicDashboard() {
   const dashboardItems = [
@@ -163,8 +164,20 @@ function Card3D({
   disabled?: boolean
   className?: string
 }) {
+  "use client"
+  const [isRedirecting, setIsRedirecting] = React.useState(false)
+
   if (href && !href.startsWith("/")) {
     throw new Error("href must start with /")
+  }
+
+  const buttonContent = () => {
+    return (
+      <>
+        {"Ir a " + title.toLowerCase()}
+        <span className='sr-only'>{"Ir a " + title.toLowerCase()}</span>
+      </>
+    )
   }
   return (
     <CardContainer className={cn("inter-var ")}>
@@ -194,23 +207,27 @@ function Card3D({
 
         <CardItem translateZ='100' className='w-full'>
           {!disabled && href ? (
-            <Link href={href}>
-              <Button variant={"default"} className='w-full'>
-                {buttonIcon}
-                <span className='ml-2 text-sm'>
-                  {"Ir a " + title.toLowerCase()}
-                </span>
-                <span className='sr-only'>{"Ir a " + title.toLowerCase()}</span>
-              </Button>
+            <Link href={href} onClick={() => setIsRedirecting(true)}>
+              <StatefulButton
+                variant={"default"}
+                className='w-full'
+                isLoading={isRedirecting}
+                icon={buttonIcon}
+              >
+                {buttonContent()}
+              </StatefulButton>
             </Link>
           ) : (
-            <Button variant={"default"} className='w-full' disabled={disabled}>
-              {buttonIcon}
-              <span className='ml-2 text-sm'>
-                {"Ir a " + title.toLowerCase()}
-              </span>
-              <span className='sr-only'>{"Ir a " + title.toLowerCase()}</span>
-            </Button>
+            <StatefulButton
+              variant={"default"}
+              className='w-full'
+              disabled={disabled}
+              onClick={() => setIsRedirecting(true)}
+              isLoading={isRedirecting}
+              icon={buttonIcon}
+            >
+              {buttonContent()}
+            </StatefulButton>
           )}
         </CardItem>
       </CardBody>

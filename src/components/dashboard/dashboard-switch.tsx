@@ -23,10 +23,12 @@ export default function DashboardSwitch() {
 
   return (
     <>
-      <Label>
-        Modo <span>{localIsAdvanced ? "avanzado" : "básico"}</span>
-      </Label>
-      <Switch checked={localIsAdvanced} onCheckedChange={handleCheckedChange} />
+      <Label htmlFor='advanced-mode-switch'>Modo avanzado</Label>
+      <Switch
+        checked={localIsAdvanced}
+        onCheckedChange={handleCheckedChange}
+        id='advanced-mode-switch'
+      />
     </>
   )
 }
