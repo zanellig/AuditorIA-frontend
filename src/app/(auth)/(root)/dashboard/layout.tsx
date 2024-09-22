@@ -18,7 +18,12 @@ export default function DashboardLayout({
   React.useEffect(() => {
     if (path.includes("/transcription")) {
       const fileName = params.get("file_name")
-      if (fileName)
+      if (
+        fileName &&
+        fileName.length > 0 &&
+        fileName !== null &&
+        fileName != undefined
+      )
         setTranscriptionState({
           file_name: fileName,
         })
