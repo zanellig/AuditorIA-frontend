@@ -1,22 +1,12 @@
 "use client"
 import { useEffect, useState } from "react"
 import { cn } from "@/lib/utils"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "./ui/card"
-import { set, z } from "zod"
+import { Card, CardContent, CardDescription, CardHeader } from "./ui/card"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { useToast } from "@/components/ui/use-toast"
 import { ToastAction } from "@/components/ui/toast"
 import { handleCopyToClipboard } from "@/lib/utils"
-import { GLOBAL_ICON_SIZE } from "@/lib/consts"
-import { CaptionsIcon } from "lucide-react"
 
 import {
   Form,
@@ -27,10 +17,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 
-import { Button } from "@/components/ui/button"
-import ParagraphP from "@/components/typography/paragraphP"
 import { SelectField } from "@/components/tables/records-table/audio-processing/select-field"
-import { API_MAIN, SPEECH_TO_TEXT_PATH } from "@/lib/consts"
 
 import {
   taskFormOptions,
@@ -39,11 +26,10 @@ import {
   ACCEPTED_AUDIO_TYPES,
 } from "@/lib/forms"
 import { Input } from "./ui/input"
-import { Label } from "./ui/label"
 import { Badge } from "./ui/badge"
-import { createTask } from "@/lib/actions"
+import { StatefulButton } from "./stateful-button"
 
-export default function EnvioDeTareas({ className }: { className?: string }) {
+export default function TaskUploadForm({ className }: { className?: string }) {
   const { toast } = useToast()
   const form = useForm<FormValues>({
     resolver: zodResolver(taskFormSchema),
@@ -58,6 +44,7 @@ export default function EnvioDeTareas({ className }: { className?: string }) {
 
   const onSubmit = async (values: FormValues) => {
     if (!values.file) {
+      console.log(values?.file)
       toast({ variant: "destructive", title: "Debe adjuntar un archivo" })
       return
     }
@@ -71,9 +58,12 @@ export default function EnvioDeTareas({ className }: { className?: string }) {
     form.append("device", values.device)
 
     try {
-      const res = await fetch("http://10.20.30.211:3001/api/tasks", {
+      const res = await fetch("http://10.20.30.211:3030/api/tasks", {
         method: "POST",
         body: form,
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       }).then(async res => await res.json())
       if (!res.ok) {
         toast({
@@ -138,7 +128,7 @@ export default function EnvioDeTareas({ className }: { className?: string }) {
           className='border border-ring'
           altText='Copiar error al portapapeles'
           onClick={() =>
-            copyToClipboard(errorMessage, JSON.stringify(error.stack))
+            handleCopyToClipboard([errorMessage, JSON.stringify(error.stack)])
           }
         >
           Copiar error
@@ -213,14 +203,13 @@ export default function EnvioDeTareas({ className }: { className?: string }) {
                 </FormItem>
               )}
             />
-            <Button
+            <StatefulButton
               type='submit'
-              disabled={isSubmitting} // maybe change this to allow user to submit multiple times, but we'll see
-              variant={"default"}
+              isLoading={isSubmitting} // maybe change this to allow user to submit multiple times, but we'll see
               className='w-full'
             >
-              Iniciar tarea
-            </Button>
+              <span>Iniciar tarea</span>
+            </StatefulButton>
           </form>
         </Form>
       </CardContent>
