@@ -6,6 +6,7 @@ import { Slider } from "@/components/ui/slider"
 import { Button } from "@/components/ui/button"
 import {
   Cross1Icon,
+  ExclamationTriangleIcon,
   PauseIcon,
   PlayIcon,
   SpeakerLoudIcon,
@@ -23,6 +24,7 @@ import {
 } from "../ui/select"
 import HashLoader from "react-spinners/HashLoader"
 import { getAudioPath } from "@/lib/actions"
+import { cn } from "@/lib/utils"
 
 interface FloatingAudioPlayerProps {
   file_name: string
@@ -149,15 +151,17 @@ export default function FloatingAudioPlayer({
               style={{ top: "50%", transform: "translateY(-50%)" }}
             >
               <div className='marquee-content whitespace-nowrap font-mono text-sm'>
-                {!!file_name && !isLoading
-                  ? "Reproduciendo audio:"
-                  : isLoading
-                  ? "Cargando audio..."
-                  : hasError && (
-                      <span className='text-destructive'>
-                        Error al cargar audio:
-                      </span>
-                    )}{" "}
+                {!!file_name && !isLoading && !hasError ? (
+                  "Reproduciendo audio:"
+                ) : isLoading ? (
+                  <span className='text-warning'>Cargando audio:</span>
+                ) : (
+                  hasError && (
+                    <span className='text-destructive'>
+                      Error al cargar audio:
+                    </span>
+                  )
+                )}{" "}
                 {String(file_name)}
               </div>
             </div>
@@ -167,6 +171,17 @@ export default function FloatingAudioPlayer({
           </Button>
         </div>
         <div className='flex items-center justify-between'>
+          {hasError && !isLoading && (
+            <Button
+              className='rounded-md text-destructive-foreground p-2'
+              disabled
+              variant={"destructive"}
+            >
+              <ExclamationTriangleIcon
+                className={cn(DASHBOARD_ICON_CLASSES, "text-current")}
+              />
+            </Button>
+          )}
           {!hasError && (
             <Button
               onClick={isPlaying ? pause : play}

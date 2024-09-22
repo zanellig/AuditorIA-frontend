@@ -7,11 +7,17 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const path = searchParams.get("path")
   if (!path) {
-    return new NextResponse("Missing path parameter", { status: 400 })
+    return new NextResponse(
+      JSON.stringify(new Error("Missing path parameter.")),
+      { status: 400 }
+    )
   }
   const [err, audioBuffer] = await getNetworkAudio(path)
   if (audioBuffer === null) {
-    return new NextResponse("No audio found on the path", { status: 204 })
+    return new NextResponse(
+      JSON.stringify(new Error("No audio found in the path.")),
+      { status: 404 }
+    )
   }
   if (err !== null) {
     return new NextResponse(err.message, { status: 500 })
