@@ -37,7 +37,9 @@ export default async function RecordingsTable() {
   }, [])
 
   if (err !== null) {
-    return <ErrorCodeUserFriendly error={err} locale={SupportedLocales.ES} />
+    return (
+      <ErrorCodeUserFriendly error={err} locale={SupportedLocales.Values.es} />
+    )
   }
   if (recordings) {
     return (

@@ -1,12 +1,10 @@
 // @/components/transcription/transcription.client.tsx
 "use client"
 import * as React from "react"
-import { useQuery } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
 
 import {
   Segment,
-  SentimentType,
   Task,
   Status,
   SegmentAnalysisProperties,
@@ -62,12 +60,14 @@ export default function TranscriptionClient({
 
   const { transcription, isLoading, error, fetchTranscription } =
     useTranscription()
-
   let isAnalysisNotReady =
     transcription &&
-    [Status.Pending, Status.Processing, Status.Failed].includes(
-      transcription.status
-    )
+    [
+      Status.Values.pending,
+      Status.Values.processing,
+      Status.Values.failed,
+      // @ts-ignore
+    ].includes(transcription.status)
   React.useEffect(() => {
     if (taskId) {
       fetchTranscription(taskId)
@@ -103,7 +103,10 @@ export default function TranscriptionClient({
         </>
       )}
       {error && (
-        <ErrorCodeUserFriendly error={error} locale={SupportedLocales.ES} />
+        <ErrorCodeUserFriendly
+          error={error}
+          locale={SupportedLocales.Values.es}
+        />
       )}
     </>
   )
@@ -183,11 +186,7 @@ const TranscriptionNotReady: React.FC<TranscriptionNotReadyProps> = ({
   )
 }
 
-interface SentimentMarkerProps {
-  sentiment: SentimentType
-}
-
-const SentimentMarker: React.FC<SentimentMarkerProps> = ({ sentiment }) => (
+const SentimentMarker: React.FC<{ sentiment: string }> = ({ sentiment }) => (
   <div
     className={cn(
       {

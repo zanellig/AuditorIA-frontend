@@ -7,10 +7,11 @@ import { SupportedLocales } from "@/lib/types.d"
 import { Button } from "../ui/button"
 import { handleCopyToClipboard } from "@/lib/utils"
 import { useToast } from "../ui/use-toast"
+import { z } from "zod"
 
 interface ErrorCodeUserFriendlyProps {
   error: any
-  locale: SupportedLocales
+  locale: z.infer<typeof SupportedLocales>
 }
 
 export function ErrorCodeUserFriendly({
@@ -20,14 +21,14 @@ export function ErrorCodeUserFriendly({
   const { toast } = useToast()
   if (!error) return null
   const content = {
-    [SupportedLocales.ES]: {
+    [SupportedLocales.Values.es]: {
       title: "¡Ha ocurrido un error cargando la lista! 😯",
       paragraph:
         "Contacte a su administrador de IT y otorgue el siguiente código de error:",
       messagePrefix: "Mensaje: ",
       stackPrefix: "Stack: ",
     },
-    [SupportedLocales.EN]: {
+    [SupportedLocales.Values.en]: {
       title: "An error occurred loading the list! 😯",
       paragraph:
         "Contact your IT administrator and give the following error code:",
