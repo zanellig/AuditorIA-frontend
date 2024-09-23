@@ -10,6 +10,7 @@ import React, {
 } from "react"
 
 interface AudioContextProps {
+  isAudioPlayerHidden: boolean
   isPlaying: boolean
   isLoading: boolean
   hasError: boolean
@@ -22,6 +23,7 @@ interface AudioContextProps {
   pause: () => void
   stop: () => void
   toggleMute: () => void
+  toggleHide: () => void
   setVolume: (value: number) => void
   seekAudio: (percentage: number) => void
   setPlaybackSpeed: (speed: number) => void
@@ -42,6 +44,11 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({
   const [audioDuration, setAudioDuration] = useState(0)
   const [currentTime, setCurrentTime] = useState(0)
   const [playbackSpeed, setPlaybackSpeed] = useState(1)
+  const [isAudioPlayerHidden, toggleAudioPlayerHidden] = useState(false)
+
+  const toggleHide = useCallback(() => {
+    toggleAudioPlayerHidden(prev => !prev)
+  }, [])
 
   const loadAudio = useCallback(async (nasPath: string) => {
     setIsLoading(true)
@@ -136,6 +143,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [])
 
   const contextValue = {
+    isAudioPlayerHidden,
     isPlaying,
     isLoading,
     hasError,
@@ -148,6 +156,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({
     pause,
     stop,
     toggleMute,
+    toggleHide,
     setVolume: setVolumeHandler,
     seekAudio,
     setPlaybackSpeed: setPlaybackSpeedHandler,

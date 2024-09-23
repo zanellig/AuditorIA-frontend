@@ -50,8 +50,7 @@ export default function TableRows<TData>({
     return (
       <TableRow>
         <TableCell colSpan={columns.length} className='h-24 text-center'>
-          No se encontraron {type === "tasks" ? "tareas" : "grabaciones"}
-          ...
+          Sin resultados.
         </TableCell>
       </TableRow>
     )

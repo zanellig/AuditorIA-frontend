@@ -167,10 +167,10 @@ function Card3D({
     throw new Error("href must start with /")
   }
   return (
-    <CardContainer className={cn("inter-var ")}>
+    <CardContainer className={cn("inter-var", className)}>
       <CardBody
         className={cn(
-          "bg-background relative group/card  dark:hover:shadow-2xl dark:hover:shadow-emerald-500/[0.1] dark:bg-black dark:border-white/[0.2] border-black/[0.1] w-full h-auto lg:min-h-[200px] lg:min-w-full rounded-xl p-4 border flex flex-col gap-2 justify-between",
+          "bg-background relative group/card  dark:hover:shadow-2xl dark:hover:shadow-emerald-500/[0.1] dark:bg-black dark:border-white/[0.2] border-black/[0.1] w-full h-auto lg:min-h-[200px] lg:min-w-full rounded-xl p-4 border flex flex-col gap-2 justify-between min-h-48",
           disabled && "cursor-not-allowed"
         )}
       >

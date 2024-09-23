@@ -28,11 +28,11 @@ export default function Layout({ children }: { children: ReactNode }) {
           <DashboardProvider>
             <TranscriptionProvider>
               <div
-                id='main-global-container'
+                id='global-container'
                 className={cn("flex relative overflow-hidden bg-transparent")}
               >
                 <section
-                  id='main-sidebar-container'
+                  id='sidebar-container'
                   className={cn(
                     "transition-all duration-300",
                     sidebarWidth === 64 ? "w-64" : "w-16"
@@ -44,7 +44,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                   />
                 </section>
                 <section
-                  id='main-app-container'
+                  id='main-container'
                   className={cn(
                     BACKGROUND,
                     "transition-all duration-300 border-s-2 border-solid border-muted rounded-tl-xl rounded-bl-xl overflow-hidden relative bg-primary-foreground w-full"
@@ -54,7 +54,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                     <TopNavbar>
                       <DashboardSwitch />
                     </TopNavbar>
-                    <div className='p-2'>
+                    <div className='px-5 py-2 min-h-full'>
                       {children}
                       <Footer />
                     </div>

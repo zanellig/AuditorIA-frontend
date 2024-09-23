@@ -38,10 +38,11 @@ export default function TableActions<DataTypes, TData>({
   const operadores: number[] | Status[] | Set<any> = useMemo(() => {
     if (!recordings) return new Set()
     const set: Set<number | Status> = new Set()
-
     for (const recording of recordings) {
-      const operador = Number(recording.USUARIO)
-      set.add(operador)
+      if (recording.USUARIO) {
+        const operador = Number(recording.USUARIO)
+        set.add(operador)
+      }
     }
     const sortedOperadores = Array.from(set).sort((a, b) => a - b)
     return sortedOperadores
@@ -49,7 +50,7 @@ export default function TableActions<DataTypes, TData>({
 
   return (
     <div className='flex pb-2 items-center w-full justify-between'>
-      <div className='flex flex-row space-x-2'>
+      <div className='flex flex-row space-x-2 items-center'>
         <SearchInput<DataTypes, TData> table={table} type={type} />
 
         <SeleccionadorEstadoUsuario<DataTypes, TData>
@@ -65,7 +66,7 @@ export default function TableActions<DataTypes, TData>({
           <DropdownMenuTrigger asChild>
             <Button
               variant='outline'
-              className=' h-8 w-fit space-x-2 font-normal'
+              className='h-8 w-fit space-x-2 font-normal'
               onClick={event => event.stopPropagation()}
               disabled={
                 !table.getIsSomeRowsSelected() && !table.getIsAllRowsSelected()

@@ -133,7 +133,8 @@ function SidebarButton({
 }) {
   const pathname = usePathname()
   const isActive = pathname === href
-  const selectedClassAtributes = "text-accent-foreground shadow-md"
+  const selectedClassAtributes =
+    "text-accent-foreground shadow-md shadow-accent-foreground/50 dark:shadow-accent-foreground/80 dark:bg-accent"
   return (
     <div className={cn(className)} key={buttonKey}>
       {!disabled && href ? (
@@ -143,7 +144,9 @@ function SidebarButton({
             wrapperKey={buttonKey + "-wrapper"}
           >
             <div key={buttonKey + "-icon"}>{icon}</div>
-            <div key={buttonKey + "-title"}>{title}</div>
+            <div key={buttonKey + "-title"} className='text-sm'>
+              {title}
+            </div>
           </SidebarButtonWrapper>
         </Link>
       ) : (
@@ -154,7 +157,9 @@ function SidebarButton({
           disabled={disabled}
         >
           <div key={buttonKey + "-icon"}>{icon}</div>
-          <div key={buttonKey + "-title"}>{title}</div>
+          <div key={buttonKey + "-title"} className='text-sm'>
+            {title}
+          </div>
         </SidebarButtonWrapper>
       )}
     </div>

@@ -15,7 +15,6 @@ import {
   getSortedRowModel,
   useReactTable,
   Table as ReactTableInstance,
-  RowPinningState,
 } from "@tanstack/react-table"
 
 import { Checkbox } from "@/components/ui/checkbox"
@@ -72,6 +71,14 @@ export default function DataTable<TData, TValue>({
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
+    globalFilterFn: (row, columnId, filterValue, addMeta) => {
+      const value = row.getValue(columnId)
+      return (
+        value !== null &&
+        value !== undefined &&
+        String(value).toLowerCase().includes(String(filterValue).toLowerCase())
+      )
+    },
     state: {
       sorting,
       columnFilters,

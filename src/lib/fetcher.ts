@@ -32,10 +32,10 @@ async function _request<T, R extends boolean | undefined = undefined>(
   options?.revalidate ? (fetchOptions.next = { revalidate: 5 }) : null
   try {
     const res = await fetch(url, fetchOptions)
+    !res.ok ? (err = await res.json()) : null
     if (err !== null) {
       return [err as Error, null] as [Error, R extends true ? number : T]
     }
-    !res.ok ? (err = await res.json()) : null
     if (options?.onlyReturnStatus) {
       return [err, res.status] as [null, R extends true ? number : T]
     }
