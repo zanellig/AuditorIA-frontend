@@ -22,7 +22,7 @@ export default function TasksTable() {
 
   useEffect(() => {
     async function fetchData() {
-      const [err, res] = await fetch("http://10.20.30.211:3001/api/tasks", {
+      const [err, res] = await fetch("http://10.20.30.211:3030/api/tasks", {
         method: "GET",
       }).then(async res => await res.json())
       if (err !== null) {

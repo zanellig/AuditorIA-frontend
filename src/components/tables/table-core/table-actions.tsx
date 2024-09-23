@@ -192,7 +192,7 @@ export default function TableActions<TData>({
                 onClick={() => {
                   table.getSelectedRowModel().rows.map((r: any) => {
                     window.open(
-                      `http://10.20.30.211:3001/dashboard/transcription?identifier=${r.original.identifier}`,
+                      `http://10.20.30.211:3030/dashboard/transcription?identifier=${r.original.identifier}`,
                       "_blank",
                       "popup=true,width=800,height=600"
                     )

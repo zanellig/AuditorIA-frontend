@@ -23,25 +23,7 @@ import { _request, _get, _post, _put, _patch, _delete } from "@/lib/fetcher"
 
 import { TESTING_RECORDINGS, TESTING } from "@/lib/consts"
 import { getNetworkAudio } from "./audio"
-import { SignupFormSchema, FormState } from "@/lib/auth/auth"
 import { useQuery } from "@tanstack/react-query"
-
-export async function signup(state: FormState, formData: FormData) {
-  // Validate form fields
-  const validatedFields = SignupFormSchema.safeParse({
-    name: formData.get("name"),
-    password: formData.get("password"),
-  })
-
-  // If any form fields are invalid, return early
-  if (!validatedFields.success) {
-    return {
-      errors: validatedFields.error.flatten().fieldErrors,
-    }
-  }
-
-  // Call the provider or db to create a user...
-}
 
 export async function readFile(filePath: string): Promise<Buffer | null> {
   let data = null

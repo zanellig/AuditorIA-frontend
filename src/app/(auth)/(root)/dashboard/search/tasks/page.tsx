@@ -14,7 +14,7 @@ import { ErrorCodeUserFriendly } from "@/components/error/error-code-user-friend
 import { CustomBorderCard } from "@/components/custom-border-card"
 
 export default async function Test() {
-  const [err, res] = await fetch("http://10.20.30.211:3001/api/tasks").then(
+  const [err, res] = await fetch("http://10.20.30.211:3030/api/tasks").then(
     async res => {
       return await res.json()
     }

@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
   const responseHeaders = new Headers()
   responseHeaders.append(
     "Access-Control-Allow-Origin",
-    `${API_CANARY}, http://localhost:3030, http://10.20.30.211:3001, http://10.20.30.211:3030 `
+    `${API_CANARY}, http://localhost:3030, http://10.20.30.211:3030, http://10.20.30.211:3030 `
   )
   responseHeaders.append(
     "Access-Control-Allow-Methods",
