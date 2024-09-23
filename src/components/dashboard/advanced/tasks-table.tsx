@@ -6,9 +6,14 @@ import TableTitleContainer from "@/components/tables/table-core/table-title-cont
 import DataTable from "@/components/tables/table-core/data-table"
 import { columns as tasksColumns } from "@/components/tables/tasks-table/columns-tareas"
 import { ErrorCodeUserFriendly } from "@/components/error/error-code-user-friendly"
-import { SupportedLocales, TableSupportedDataTypes } from "@/lib/types.d"
+import { SupportedLocales, TableSupportedDataTypes, Tasks } from "@/lib/types.d"
 
-export default async function TaskTable({ err, res }) {
+type TasksTableProps = {
+  err: unknown
+  res: Tasks
+}
+
+export default async function TaskTable({ err, res }: TasksTableProps) {
   return (
     <>
       <TableTitleContainer>
@@ -17,7 +22,10 @@ export default async function TaskTable({ err, res }) {
       </TableTitleContainer>
       <Separator className='my-4' />
       {err !== null && (
-        <ErrorCodeUserFriendly error={err} locale={SupportedLocales.ES} />
+        <ErrorCodeUserFriendly
+          error={err}
+          locale={SupportedLocales.Values.es}
+        />
       )}
       <DataTable
         columns={tasksColumns}

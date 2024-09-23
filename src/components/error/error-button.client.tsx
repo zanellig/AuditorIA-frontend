@@ -3,13 +3,14 @@ import { Button } from "@/components/ui/button"
 import { RefreshCw } from "lucide-react"
 import { GLOBAL_ICON_SIZE } from "@/lib/consts"
 import { SupportedLocales } from "@/lib/types.d"
+import { z } from "zod"
 
 export default function ErrorRetryButton({
   reset,
   locale,
 }: {
   reset?: () => void
-  locale?: SupportedLocales
+  locale?: z.infer<typeof SupportedLocales>
 }) {
   return (
     <Button
@@ -23,11 +24,11 @@ export default function ErrorRetryButton({
   )
 }
 
-function getRefreshLocale(locale?: SupportedLocales) {
+function getRefreshLocale(locale?: z.infer<typeof SupportedLocales>) {
   switch (locale) {
-    case SupportedLocales.EN:
+    case SupportedLocales.Values.en:
       return "Retry"
-    case SupportedLocales.ES:
+    case SupportedLocales.Values.es:
       return "Reintentar"
     default:
       return "Reintentar"

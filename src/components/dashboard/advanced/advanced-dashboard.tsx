@@ -7,71 +7,63 @@ import { ErrorCodeUserFriendly } from "@/components/error/error-code-user-friend
 import { SupportedLocales } from "@/lib/types.d"
 import TableContainer from "@/components/tables/table-core/table-container"
 
-async function fetchTasks() {
-  const response = await fetch("http://10.20.30.211:3001/api/tasks")
-  if (!response.ok) {
-    throw new Error("Failed to fetch tasks")
-  }
-  return response.json()
-}
-
-async function fetchRecordings() {
-  const response = await fetch("http://10.20.30.211:3001/api/recordings", {
+async function fetchAdvancedDashboardData() {
+  const recordings = fetch("http://10.20.30.211:3030/api/recordings", {
     cache: "no-store",
   })
-  if (!response.ok) {
+  const tasks = fetch("http://10.20.30.211:3030/api/tasks", {
+    cache: "no-store",
+  })
+  const [taskResponse, recordingResponse] = await Promise.all([
+    tasks,
+    recordings,
+  ])
+  if (!taskResponse.ok) {
+    throw new Error("Failed to fetch tasks")
+  }
+  if (!recordingResponse.ok) {
     throw new Error("Failed to fetch recordings")
   }
-  return response.json()
+  return [taskResponse.json(), recordingResponse.json()]
 }
 
 export default function AdvancedDashboard() {
-  const {
-    data: taskData,
-    error: taskError,
-    isLoading: taskLoading,
-  } = useQuery({
-    queryKey: ["tasks"],
-    queryFn: fetchTasks,
+  const { data, error, isLoading } = useQuery({
+    queryKey: ["all"],
+    queryFn: fetchAdvancedDashboardData,
   })
 
-  const {
-    data: recordingData,
-    error: recordingError,
-    isLoading: recordingLoading,
-  } = useQuery({
-    queryKey: ["recordings"],
-    queryFn: fetchRecordings,
-  })
+  const taskData = data?.[0] ?? []
+  const recordingData = data?.[1] ?? []
 
   return (
     <main id='tables' className='flex flex-col px-2 items-center py-4'>
-      {/* <TableContainer separate>
-        {taskLoading ? (
+      <TableContainer separate>
+        {isLoading ? (
           <DashboardSkeleton />
-        ) : taskError ? (
+        ) : error ? (
           <>
             <ErrorCodeUserFriendly
-              error={taskError}
-              locale={SupportedLocales.ES}
+              error={error}
+              locale={SupportedLocales.Values.es}
             />
           </>
         ) : (
-          <TasksTable err={taskData[0]} res={taskData[1]} />
+          <TasksTable err={error} res={taskData} />
         )}
       </TableContainer>
       <TableContainer>
-        {recordingLoading ? (
+        {isLoading ? (
           <DashboardSkeleton />
-        ) : recordingError ? (
+        ) : error ? (
           <ErrorCodeUserFriendly
-            error={recordingError}
-            locale={SupportedLocales.ES}
+            error={error}
+            locale={SupportedLocales.Values.es}
           />
         ) : (
-          <RecordsTable err={recordingData[0]} res={recordingData[1]} />
+          <RecordsTable err={error} res={recordingData} />
         )}
-      </TableContainer> */}
+      </TableContainer>
     </main>
   )
 }

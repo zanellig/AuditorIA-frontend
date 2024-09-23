@@ -1,6 +1,5 @@
 import { ALL_RECORDS_PATH, API_CANARY } from "@/lib/consts"
 import { _get } from "@/lib/fetcher"
-import { Recordings } from "@/lib/types"
 import {
   extractQueryParamsFromUrl,
   getHeaders,
@@ -10,21 +9,18 @@ import { NextRequest } from "next/server"
 
 export async function GET(request: NextRequest) {
   const headers = getHeaders(API_CANARY)
-  // puede haberse hecho más fácil, sacando todo lo que esté después del ? y parseandolo, pero prefiero tener las utils por las dudas...
-  // básicamente extrae los queryparams de la url que le pasamos en el request y se los concatena a la url que le vamos a pasar a la api
-  // además, nos puede pasar que más adelante tengamos otras cosas en la url que no sean params, entonces para evitar futuros problemas lo hacemos así y después si lo tenemos que cambiar, lo cambiamos acá y nada más
+  // It could have been done easier by removing everything after the ? and parsing it, but I prefer to have the utils just in case...
+  // Basically, it extracts the query params from the URL we pass in the request and concatenates them to the URL we're going to pass to the API
+  // Additionally, we might have other things in the URL later that aren't params, so to avoid future problems we do it this way, and if we need to change it later, we change it here and nowhere else
   const params = extractQueryParamsFromUrl(request.nextUrl.search)
   const baseUrl = [API_CANARY, ALL_RECORDS_PATH].join("/")
   const url = concatParamsToUrlString(baseUrl, params)
-  console.log(
-    "we've hit the recordings route for the internal API",
-    params,
-    baseUrl,
-    url
-  )
   const [err, res] = await _get(url, headers, { revalidate: true })
   const responseHeaders = new Headers()
-  responseHeaders.append("Access-Control-Allow-Origin", API_CANARY)
+  responseHeaders.append(
+    "Access-Control-Allow-Origin",
+    `${API_CANARY}, http://localhost:3030, http://10.20.30.211:3001, http://10.20.30.211:3030 `
+  )
   responseHeaders.append(
     "Access-Control-Allow-Methods",
     "GET, POST, PUT, DELETE, OPTIONS"
@@ -36,12 +32,22 @@ export async function GET(request: NextRequest) {
   responseHeaders.append("Content-Type", "application/json")
 
   if (err !== null) {
-    return new Response(JSON.stringify([JSON.stringify(err), null]), {
+    if (
+      // @ts-ignore
+      err.detail ===
+      "Error al obtener los registros: 404: No se encontraron registros"
+    ) {
+      return new Response(JSON.stringify([null, []]), { status: 404 })
+    }
+    // @ts-ignore
+    // API hasn't changed yet to return a normalized response, we have to access the detail key if it returns an error
+    return new Response(JSON.stringify([JSON.stringify(err.detail), null]), {
       status: 500,
     })
   }
+  // API never falls back to this clause because when it returns a good response but with no content, it treats it as an error
   if (res === null) {
-    return new Response("No content", { status: 204 })
+    return new Response(JSON.stringify([null, null]), { status: 204 })
   }
   const response = await res.json()
   if (res.ok) {
@@ -50,5 +56,5 @@ export async function GET(request: NextRequest) {
       headers: responseHeaders,
     })
   }
-  return new Response("Unexpected error", { status: 500 })
+  return new Response(JSON.stringify([err, null]), { status: 500 })
 }

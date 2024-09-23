@@ -1,9 +1,14 @@
 "use client"
 import { Skeleton } from "@/components/ui/skeleton"
+import { cn } from "@/lib/utils"
 
-export default function DashboardSkeleton() {
+export default function DashboardSkeleton({
+  className,
+}: {
+  className?: string
+}) {
   return (
-    <>
+    <section className={cn("w-full", className)}>
       <div className='flex flex-col space-y-10'>
         <div className='flex flex-row space-x-2 items-center w-full justify-between'>
           <div className='flex flex-row space-x-4 items-center'>
@@ -28,7 +33,7 @@ export default function DashboardSkeleton() {
 
         <PaginationSkeleton />
       </div>
-    </>
+    </section>
   )
 }
 
@@ -52,11 +57,6 @@ function PaginationSkeleton() {
     <div className='flex flex-row justify-between items-center'>
       <Skeleton className='h-5 w-[500px] rounded-xl bg-pulse dark:bg-secondary' />
       <Skeleton className='h-5 w-[200px] rounded-xl bg-pulse dark:bg-secondary' />
-      <div className='flex justify-end flex-row space-x-5'>
-        <SinglePaginationButtonSkeleton />
-        <SinglePaginationButtonSkeleton />
-        <SinglePaginationButtonSkeleton />
-      </div>
     </div>
   )
 }

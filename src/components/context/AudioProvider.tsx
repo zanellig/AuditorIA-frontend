@@ -54,11 +54,10 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({
     setIsLoading(true)
     try {
       const response = await fetch(
-        `/api/audio?path=${encodeURIComponent(nasPath)}`
+        `http://10.20.30.211:3030/api/audio?path=${encodeURIComponent(nasPath)}`
       )
       if (!response.ok) {
         setError(true)
-        throw new Error("Failed to fetch audio")
       }
       const blob = await response.blob()
       const url = URL.createObjectURL(blob)

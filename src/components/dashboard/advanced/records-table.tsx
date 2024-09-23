@@ -6,9 +6,18 @@ import TableTitleContainer from "@/components/tables/table-core/table-title-cont
 import DataTable from "@/components/tables/table-core/data-table"
 import { columns as recordsColumns } from "@/components/tables/records-table/columns-records"
 import { ErrorCodeUserFriendly } from "@/components/error/error-code-user-friendly"
-import { SupportedLocales, TableSupportedDataTypes } from "@/lib/types.d"
+import {
+  Recordings,
+  SupportedLocales,
+  TableSupportedDataTypes,
+} from "@/lib/types.d"
 
-export default function RecordsTable({ err, res }) {
+type RecordsTableProps = {
+  err: unknown
+  res: Recordings
+}
+
+export default function RecordsTable({ err, res }: RecordsTableProps) {
   return (
     <>
       <TableTitleContainer>
@@ -17,7 +26,10 @@ export default function RecordsTable({ err, res }) {
       </TableTitleContainer>
       <Separator className='my-4' />
       {err !== null && (
-        <ErrorCodeUserFriendly error={err} locale={SupportedLocales.ES} />
+        <ErrorCodeUserFriendly
+          error={err}
+          locale={SupportedLocales.Values.es}
+        />
       )}
       <DataTable
         columns={recordsColumns}

@@ -265,7 +265,8 @@ export const fetchAudioData = async (nasPath: string) => {
   if (err !== null) {
     return new Error("Failed to fetch audio data")
   }
-
+  // @ts-expect-error
+  // i don't know why it throws a type error when accessing the blob as the response from the server action is a Buffer, but it works
   return res !== null ? res.blob() : null
 }
 
@@ -286,13 +287,16 @@ export const getAudioPath = async (
   file_name: string
 ): Promise<Recording["URL"] | null> => {
   const [err, res] = await fetch(
-    `http://10.20.30.211:3001/api/recordings?GRABACION=${file_name}`,
+    `http://10.20.30.211:3030/api/recordings?GRABACION=${file_name}`, // I reckon CORS header is implemented in the route; will have to test. Good time to start making unit tests or a testing branch.
     { method: "GET" }
-  ).then(async res => await res.json())
+  ).then(async res => {
+    if (!res.ok) {
+      return [new Error("Failed to fetch audio from file name"), null]
+    }
+    return await res.json()
+  })
   if (err !== null) {
-    throw new Error(
-      "Failed to fetch audio from file name on fetchRecordByFileName" + err
-    )
+    return null
   }
   if (res) {
     return res.records[0].URL

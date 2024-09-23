@@ -1,4 +1,3 @@
-// @/lib/audio.ts
 import "server-only"
 import { promisify } from "util"
 import { exec } from "child_process"
@@ -11,6 +10,16 @@ const execAsync = promisify(exec)
 export async function getNetworkAudio(
   audioPath: string
 ): Promise<[Error | null, Buffer | null]> {
+  const isWindows = os.platform() === "win32"
+
+  if (!isWindows) {
+    const smbClientInstalled =
+      (await execAsync("which smbclient").catch(() => null)) !== null
+    if (!smbClientInstalled) {
+      return [new Error("smbclient is not installed on this system"), null]
+    }
+  }
+
   // Extract share and file path from the UNC path
   const [, , server, share, ...filePath] = audioPath.split(/[\/\\]/)
   const sharePath = `//${server}/${share}`
@@ -33,30 +42,63 @@ export async function getNetworkAudio(
 
   const tempFile = path.join(tempDir, "temp-audio-file")
 
-  // Construct the smbclient command
-  const username = process.env.LDAP_USERNAME
-  const password = process.env.LDAP_PASSWORD
-  const domain = process.env.LDAP_DOMAIN
+  // Windows-specific handling
+  if (isWindows) {
+    const username = process.env.LDAP_USERNAME
+    const password = process.env.LDAP_PASSWORD
+    const domain = process.env.LDAP_DOMAIN
 
-  if (!username || !password || !domain) {
-    return [new Error("LDAP credentials are not properly configured"), null]
-  }
+    if (!username || !password || !domain) {
+      return [new Error("LDAP credentials are not properly configured"), null]
+    }
 
-  const smbCommand = `smbclient ${sharePath} -U ${domain}/${username}%${password} -c "get \\"${filePathOnShare}\\" \\"${tempFile}\\""`
+    // Construct PowerShell command to mount the SMB share, copy the file, and unmount
+    const powershellCommand = `
+      $username = '${domain}\\${username}'
+      $password = ConvertTo-SecureString '${password}' -AsPlainText -Force
+      $credential = New-Object System.Management.Automation.PSCredential($username, $password)
+      New-PSDrive -Name 'Z' -PSProvider 'FileSystem' -Root '${sharePath}' -Credential $credential
+      Copy-Item 'Z:\\${filePathOnShare}' '${tempFile}'
+      Remove-PSDrive -Name 'Z'
+    `
 
-  // Execute the smbclient command
-  try {
-    await execAsync(smbCommand)
-  } catch (err) {
-    await fs.rmdir(tempDir).catch(() => {}) // Best effort cleanup
-    return [
-      new Error(
-        `Failed to execute smbclient command: ${
-          err instanceof Error ? err.message : String(err)
-        }`
-      ),
-      null,
-    ]
+    try {
+      await execAsync(`powershell.exe -Command "${powershellCommand}"`)
+    } catch (err) {
+      return [
+        new Error(
+          `Failed to execute PowerShell command: ${
+            err instanceof Error ? err.message : String(err)
+          }`
+        ),
+        null,
+      ]
+    }
+  } else {
+    // Linux/macOS smbclient handling
+    const username = process.env.LDAP_USERNAME
+    const password = process.env.LDAP_PASSWORD
+    const domain = process.env.LDAP_DOMAIN
+
+    if (!username || !password || !domain) {
+      return [new Error("LDAP credentials are not properly configured"), null]
+    }
+
+    const smbCommand = `smbclient ${sharePath} -U ${domain}/${username}%${password} -c "get \\"${filePathOnShare}\\" \\"${tempFile}\\""`
+
+    try {
+      await execAsync(smbCommand)
+    } catch (err) {
+      await fs.rmdir(tempDir).catch(() => {}) // Best effort cleanup
+      return [
+        new Error(
+          `Failed to execute smbclient command: ${
+            err instanceof Error ? err.message : String(err)
+          }`
+        ),
+        null,
+      ]
+    }
   }
 
   // Read the temporary file
@@ -87,5 +129,6 @@ export async function getNetworkAudio(
       }`
     )
   }
+
   return [null, audioBuffer]
 }

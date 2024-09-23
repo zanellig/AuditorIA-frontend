@@ -48,7 +48,6 @@ export function BreadcrumbWithCustomSeparator({
                 <BreadcrumbItem>
                   <BreadcrumbLink
                     href={`/${pathnames.slice(0, index + 1).join("/")}`}
-                    className='capitalize'
                     key={`${index}-${pathname}-link`}
                   >
                     {displayName}

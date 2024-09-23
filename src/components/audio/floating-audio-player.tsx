@@ -6,6 +6,7 @@ import { Slider } from "@/components/ui/slider"
 import { Button } from "@/components/ui/button"
 import {
   Cross1Icon,
+  ExclamationTriangleIcon,
   PauseIcon,
   PlayIcon,
   SpeakerLoudIcon,
@@ -23,6 +24,7 @@ import {
 } from "../ui/select"
 import HashLoader from "react-spinners/HashLoader"
 import { getAudioPath } from "@/lib/actions"
+import { cn } from "@/lib/utils"
 
 interface FloatingAudioPlayerProps {
   file_name: string
@@ -132,150 +134,152 @@ export default function FloatingAudioPlayer({
   ]
 
   return (
-    <>
-      {isAudioPlayerHidden ? (
-        <div
-          className={
-            "fixed bg-primary-foreground border border-border rounded-xl shadow-md dark:shadow-lg p-4 w-80 select-none text-muted-foreground"
-          }
-          style={{
-            right: `${position.right}px`,
-            bottom: `${position.bottom}px`,
-            cursor: isDragging ? "grabbing" : "grab",
-          }}
-          onMouseDown={handleMouseDown}
-        >
-          <div className='space-y-2'>
-            <div className='flex justify-between gap-2'>
-              <div className='relative h-9 overflow-hidden rounded-md w-full'>
-                <div
-                  className='absolute inset-0 flex'
-                  style={{ top: "50%", transform: "translateY(-50%)" }}
-                >
-                  <div className='marquee-content whitespace-nowrap font-mono text-sm'>
-                    {!!file_name && !isLoading
-                      ? "Reproduciendo audio:"
-                      : isLoading && audioDuration
-                      ? "Cargando audio..."
-                      : hasError && (
-                          <span className='text-destructive'>
-                            Error al cargar audio:
-                          </span>
-                        )}
-                    {String(file_name)}
-                  </div>
-                </div>
+    <div
+      className={
+        "fixed bg-primary-foreground border border-border rounded-xl shadow-md dark:shadow-lg p-4 w-80 select-none text-muted-foreground"
+      }
+      style={{
+        right: `${position.right}px`,
+        bottom: `${position.bottom}px`,
+        cursor: isDragging ? "grabbing" : "grab",
+      }}
+      onMouseDown={handleMouseDown}
+    >
+      <div className='space-y-2'>
+        <div className='flex justify-between gap-2'>
+          <div className='relative h-9 overflow-hidden rounded-md w-full'>
+            <div
+              className='absolute inset-0 flex'
+              style={{ top: "50%", transform: "translateY(-50%)" }}
+            >
+              <div className='marquee-content whitespace-nowrap font-mono text-sm'>
+                {!!file_name && !isLoading && !hasError ? (
+                  "Reproduciendo audio:"
+                ) : isLoading ? (
+                  <span className='text-warning'>Cargando audio:</span>
+                ) : (
+                  hasError && (
+                    <span className='text-destructive'>
+                      Error al cargar audio:
+                    </span>
+                  )
+                )}{" "}
+                {String(file_name)}
               </div>
-              <Button
-                size={"icon"}
-                variant={"ghost"}
-                className='p-2'
-                onClick={toggleHide}
-              >
-                <Cross1Icon className={DASHBOARD_ICON_CLASSES} />
-              </Button>
-            </div>
-            <div className='flex items-center justify-between'>
-              {!hasError && (
-                <Button
-                  onClick={isPlaying ? pause : play}
-                  disabled={isLoading}
-                  variant='outline'
-                  size='icon'
-                  className='rounded-md hover:text-secondary-foreground bg-popover p-2'
-                  aria-label={isPlaying ? "Pause" : "Play"}
-                >
-                  {isLoading && audioDuration ? (
-                    <HashLoader color='white' loading={true} size={20} />
-                  ) : isPlaying ? (
-                    <PauseIcon className={DASHBOARD_ICON_CLASSES} />
-                  ) : (
-                    <PlayIcon className={DASHBOARD_ICON_CLASSES} />
-                  )}
-                </Button>
-              )}
-              <span className='text-sm'>
-                {formatTime(currentTime)} / {formatTime(audioDuration)}
-              </span>
-            </div>
-            <Slider
-              value={[currentTime]}
-              max={audioDuration}
-              step={0.1}
-              onValueChange={([value]) =>
-                seekAudio((value / audioDuration) * 100)
-              }
-              className='w-full'
-              aria-label='Seek audio'
-            />
-            <div className='flex items-center space-x-2'>
-              <Button
-                onClick={toggleMute}
-                variant='ghost'
-                size='icon'
-                className='rounded-sm hover:bg-transparent hover:shadow-none hover:text-secondary-foreground items-center text-center'
-                aria-label={muted ? "Unmute" : "Mute"}
-              >
-                {muted ? (
-                  <SpeakerOffIcon className={SPEAKER_ICON_CLASSES} />
-                ) : volume === 0 ? (
-                  <SpeakerOffIcon className={SPEAKER_ICON_CLASSES} />
-                ) : volume > 50 && volume <= 100 ? (
-                  <SpeakerLoudIcon className={SPEAKER_ICON_CLASSES} />
-                ) : volume > 25 && volume <= 50 ? (
-                  <SpeakerModerateIcon className={SPEAKER_ICON_CLASSES} />
-                ) : volume > 0 && volume <= 25 ? (
-                  <SpeakerQuietIcon className={SPEAKER_ICON_CLASSES} />
-                ) : null}
-              </Button>
-              <Slider
-                value={[volume]}
-                max={100}
-                step={1}
-                onValueChange={([value]) => setVolume(value)}
-                className='w-24'
-                aria-label='Adjust volume'
-              />
-              <Select
-                value={playbackSpeed.toString()}
-                onValueChange={value => setPlaybackSpeed(parseFloat(value))}
-              >
-                <SelectTrigger
-                  className='w-[80px] bg-popover shadow-md dark:shadow-lg'
-                  aria-label='Select playback speed'
-                >
-                  <SelectValue placeholder='Speed' />
-                </SelectTrigger>
-                <SelectContent>
-                  {speeds.map((speed, index) => (
-                    <SelectItem
-                      key={"speed-selector-" + index}
-                      value={speed.value.toString()}
-                    >
-                      {speed.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
             </div>
           </div>
-          <style jsx>{`
-            @keyframes marquee {
-              0% {
-                transform: translateX(100%);
-              }
-              100% {
-                transform: translateX(-100%);
-              }
-            }
-            .marquee-content {
-              display: inline-block;
-              padding-left: 50%;
-              animation: marquee 15s linear infinite;
-            }
-          `}</style>
+          <Button size={"icon"} variant={"ghost"} className='p-2'>
+            <Cross1Icon className={DASHBOARD_ICON_CLASSES} />
+          </Button>
         </div>
-      ) : null}
-    </>
+        <div className='flex items-center justify-between'>
+          {hasError && !isLoading && (
+            <Button
+              className='rounded-md text-destructive-foreground p-2'
+              disabled
+              variant={"destructive"}
+            >
+              <ExclamationTriangleIcon
+                className={cn(DASHBOARD_ICON_CLASSES, "text-current")}
+              />
+            </Button>
+          )}
+          {!hasError && (
+            <Button
+              onClick={isPlaying ? pause : play}
+              disabled={isLoading}
+              variant='outline'
+              size='icon'
+              className='rounded-md hover:text-secondary-foreground bg-popover p-2'
+              aria-label={isPlaying ? "Pause" : "Play"}
+            >
+              {isLoading ? (
+                <HashLoader color='white' loading={true} size={20} />
+              ) : isPlaying ? (
+                <PauseIcon className={DASHBOARD_ICON_CLASSES} />
+              ) : (
+                <PlayIcon className={DASHBOARD_ICON_CLASSES} />
+              )}
+            </Button>
+          )}
+          <span className='text-sm'>
+            {formatTime(currentTime)} / {formatTime(audioDuration)}
+          </span>
+        </div>
+        <Slider
+          value={[currentTime]}
+          max={audioDuration}
+          step={0.1}
+          onValueChange={([value]) => seekAudio((value / audioDuration) * 100)}
+          className='w-full'
+          aria-label='Seek audio'
+        />
+        <div className='flex items-center space-x-2'>
+          <Button
+            onClick={toggleMute}
+            variant='ghost'
+            size='icon'
+            className='rounded-sm hover:bg-transparent hover:shadow-none hover:text-secondary-foreground items-center text-center'
+            aria-label={muted ? "Unmute" : "Mute"}
+          >
+            {muted ? (
+              <SpeakerOffIcon className={SPEAKER_ICON_CLASSES} />
+            ) : volume === 0 ? (
+              <SpeakerOffIcon className={SPEAKER_ICON_CLASSES} />
+            ) : volume > 50 && volume <= 100 ? (
+              <SpeakerLoudIcon className={SPEAKER_ICON_CLASSES} />
+            ) : volume > 25 && volume <= 50 ? (
+              <SpeakerModerateIcon className={SPEAKER_ICON_CLASSES} />
+            ) : volume > 0 && volume <= 25 ? (
+              <SpeakerQuietIcon className={SPEAKER_ICON_CLASSES} />
+            ) : null}
+          </Button>
+          <Slider
+            value={[volume]}
+            max={100}
+            step={1}
+            onValueChange={([value]) => setVolume(value)}
+            className='w-24'
+            aria-label='Adjust volume'
+          />
+          <Select
+            value={playbackSpeed.toString()}
+            onValueChange={value => setPlaybackSpeed(parseFloat(value))}
+          >
+            <SelectTrigger
+              className='w-[80px] bg-popover shadow-md dark:shadow-lg'
+              aria-label='Select playback speed'
+            >
+              <SelectValue placeholder='Speed' />
+            </SelectTrigger>
+            <SelectContent>
+              {speeds.map((speed, index) => (
+                <SelectItem
+                  key={"speed-selector-" + index}
+                  value={speed.value.toString()}
+                >
+                  {speed.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+      <style jsx>{`
+        @keyframes marquee {
+          0% {
+            transform: translateX(100%);
+          }
+          100% {
+            transform: translateX(-100%);
+          }
+        }
+        .marquee-content {
+          display: inline-block;
+          padding-left: 50%;
+          animation: marquee 15s linear infinite;
+        }
+      `}</style>
+    </div>
   )
 }

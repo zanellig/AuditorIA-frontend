@@ -27,16 +27,12 @@ import {
   SelectValue,
 } from "./ui/select"
 import { TableSupportedDataTypes } from "@/lib/types.d"
+import { CustomBorderCard } from "./custom-border-card"
+import { StatefulButton } from "./stateful-button"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 
 type InputType = "text" | "date" | "number" | "select"
-
-export default function SearchRecords({
-  title,
-  icon,
-  shouldEnterText,
-  _route,
-  inputOptions,
-}: {
+type TSearchRecordsProps = {
   title: string
   icon: JSX.Element
   shouldEnterText: string
@@ -45,67 +41,97 @@ export default function SearchRecords({
     inputType: InputType
     selectOptions?: string[]
   }
-}) {
+}
+
+export default function SearchRecords({
+  title,
+  icon,
+  shouldEnterText,
+  _route,
+  inputOptions,
+}: TSearchRecordsProps) {
   const { inputType, selectOptions } = inputOptions || {
     inputType: "text",
     selectOptions: null,
   }
   const { toast } = useToast()
-  const [err, setErr] = React.useState<any>(null)
-  const [recordings, setRecordings] = React.useState<Recordings | null>(null)
-  const [isLoading, setIsLoading] = React.useState(false)
   const [input, setInput] = React.useState("")
   const [search, setSearch] = React.useState<string | null>(null)
   const [date, setDate] = React.useState<Date | null>(null)
 
   React.useEffect(() => {
-    async function fetchData() {
-      if (!search) return
-      setIsLoading(true)
-      setRecordings(null)
-      setErr(null)
-      const [err, res] = await fetch(
-        `http://10.20.30.211:3001/api/recordings?${_route}=${search}`,
-        {
-          method: "GET",
-        }
-      ).then(async res => {
-        return await res.json()
-      })
-      setErr(err)
-      setRecordings(res)
-      setIsLoading(false)
-    }
+    // intercept the fetching and cancel it if the search or date or input change
+  }, [search, date, input])
 
-    fetchData()
-  }, [search])
+  // Function to fetch recordings based on input or date
+  const fetchRecordings = async (signal: AbortSignal) => {
+    const queryParam = date
+      ? `FECHA=${extractYearMonthDayFromDate(date)}`
+      : `${_route}=${search}`
+
+    const res = await fetch(
+      `http://10.20.30.211:3030/api/recordings?${queryParam}`, // changed to localhost as it's not working on the server, because of CORS
+      { method: "GET", signal }
+    )
+    if (!res.ok) {
+      if (res.status === 404) {
+        throw new Error("No recordings found")
+      }
+      if (res.status === 500) {
+        throw new Error("Failed to fetch recordings")
+      }
+    }
+    const [err, data] = await res.json()
+    if (typeof data === "string") {
+      throw new Error(data)
+    }
+    return data.records as Recordings
+  }
+
+  const queryClient = useQueryClient()
+
+  const [queryKey, setQueryKey] = React.useState<string | null>(null)
+  React.useEffect(() => {
+    setQueryKey(`${date ? date.toISOString() : search}`)
+  }, [date, search])
+
+  const {
+    data: recordings,
+    error,
+    isLoading,
+  } = useQuery({
+    queryKey: [queryKey],
+    queryFn: async ({ signal }) => {
+      return await fetchRecordings(signal)
+    },
+    enabled: !!search || !!date, // Fetch only when there's a search or date value
+    refetchOnWindowFocus: false, // Avoid refetching when window is focused
+  })
+
+  const handleSearch = () => {
+    if (!date && !(input.length > 0)) {
+      toast({
+        title: `Debe ingresar ${shouldEnterText}.`,
+        variant: "destructive",
+      })
+      return
+    }
+    setSearch(input)
+    queryClient.fetchQuery({ queryKey: [queryKey] })
+  }
 
   React.useEffect(() => {
-    async function fetchData() {
-      if (!date) return
-      setIsLoading(true)
-      setRecordings(null)
-      setErr(null)
-      const normalizedDateSearchQuery = extractYearMonthDayFromDate(date)
-      const [err, res] = await fetch(
-        `http://10.20.30.211:3001/api/recordings?FECHA=${normalizedDateSearchQuery}`,
-        {
-          method: "GET",
-        }
-      ).then(async res => {
-        return await res.json()
+    if (error) {
+      toast({
+        title: error.message,
+        variant: "destructive",
       })
-      setErr(err)
-      setRecordings(res)
-      setIsLoading(false)
     }
-
-    fetchData()
-  }, [isLoading])
+  }, [error])
 
   return (
-    <div className='flex flex-row gap-2'>
-      <Card className='w-fit h-fit'>
+    <div className='flex flex-col gap-2 w-full justify-center'>
+      <Card className='h-fit min-w-[350px] w-[350px]'>
         <CardHeader>
           <CardTitle className='flex flex-row items-center gap-2'>
             {icon}
@@ -115,23 +141,13 @@ export default function SearchRecords({
         </CardHeader>
         <CardContent>
           {inputType === "text" && (
-            <Input
-              value={input}
-              onChange={e => {
-                setInput(e.target.value)
-              }}
-            />
+            <Input value={input} onChange={e => setInput(e.target.value)} />
           )}
           {inputType === "date" && (
             <DatePickerWithPresets onDateChange={setDate} />
           )}
           {inputType === "number" && (
-            <Input
-              value={input}
-              onChange={e => {
-                setInput(e.target.value)
-              }}
-            />
+            <Input value={input} onChange={e => setInput(e.target.value)} />
           )}
           {inputType === "select" && (
             <Select value={input} onValueChange={value => setInput(value)}>
@@ -148,68 +164,78 @@ export default function SearchRecords({
             </Select>
           )}
         </CardContent>
-        <CardFooter>
-          <Button
-            className='flex flex-row items-center gap-2 w-full'
-            onClick={() => {
-              if (!date || !(input.length > 0)) {
-                toast({
-                  title: `Debe ingresar ${shouldEnterText}.`,
-                  variant: "destructive",
-                })
-                return
-              }
-              setSearch(input)
-            }}
+        <CardFooter className='flex justify-start items-center gap-2'>
+          <StatefulButton
+            className='gap-2 w-full'
+            onClick={handleSearch}
+            isLoading={isLoading}
+            icon={<ArrowRightIcon className={DASHBOARD_ICON_CLASSES} />}
           >
-            <ArrowRightIcon className={DASHBOARD_ICON_CLASSES} />
-            Buscar audios
-          </Button>
+            <span>Buscar audios</span>
+          </StatefulButton>
+          {isLoading && (
+            <Button
+              variant={"destructive"}
+              onClick={() =>
+                queryClient.cancelQueries({
+                  queryKey: [queryKey],
+                })
+              }
+            >
+              Cancelar
+            </Button>
+          )}
         </CardFooter>
       </Card>
-      {err !== null && (
-        <div className='flex flex-col gap-2'>
-          <Card>
-            <CardHeader>
-              <CardTitle> Error </CardTitle>
-              <CardDescription className='text-warning'>
-                {JSON.parse(err).detail}
-              </CardDescription>
-            </CardHeader>
-          </Card>
-          <DataTable
-            columns={columns}
-            data={[]}
-            type={TableSupportedDataTypes.Recordings}
-          />
-        </div>
-      )}
-      {recordings === null && err === null && isLoading === false ? (
-        <DataTable
-          columns={columns}
-          data={[]}
-          type={TableSupportedDataTypes.Recordings}
-        />
-      ) : null}
-      {isLoading && <DashboardSkeleton />}
-      {recordings !== null && (
-        <div className='flex flex-col gap-2'>
-          <Card>
-            <CardHeader>
-              <CardTitle> Resultados </CardTitle>
-              <CardDescription className='text-success'>
-                {recordings.length} audios encontrados.{" "}
-              </CardDescription>
-            </CardHeader>
-          </Card>
-          <DataTable
-            columns={columns}
-            data={recordings}
-            recordings={recordings}
-            type={TableSupportedDataTypes.Recordings}
-          />
-        </div>
-      )}
+
+      <div
+        className='flex flex-col gap-2 items-center w-full'
+        id='recordings-container'
+      >
+        {error && (
+          <>
+            <CustomBorderCard description={error.message} variant={"error"} />
+            <DataTable
+              columns={columns}
+              data={[]}
+              type={TableSupportedDataTypes.Recordings}
+              className='w-full'
+            />
+          </>
+        )}
+
+        {!isLoading && recordings === null && !error && (
+          <>
+            <CustomBorderCard
+              description='No se han encontrado registros.'
+              variant={"warning"}
+            />
+            <DataTable
+              columns={columns}
+              data={[]}
+              type={TableSupportedDataTypes.Recordings}
+              className='w-full'
+            />
+          </>
+        )}
+
+        {isLoading && <DashboardSkeleton />}
+
+        {!isLoading && recordings && (
+          <>
+            <CustomBorderCard
+              description={`${recordings.length} audios encontrados.`}
+              variant={"success"}
+            />
+            <DataTable
+              columns={columns}
+              data={recordings}
+              type={TableSupportedDataTypes.Recordings}
+              className='w-full'
+            />
+          </>
+        )}
+      </div>
     </div>
   )
 }
