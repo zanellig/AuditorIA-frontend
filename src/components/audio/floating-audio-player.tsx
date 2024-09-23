@@ -133,6 +133,10 @@ export default function FloatingAudioPlayer({
     { label: "2x", value: 2 },
   ]
 
+  const isReproducing = !!file_name && !isLoading && !hasError
+  const isLoadingAudio = isLoading && !!file_name
+  const hasLoadingError = hasError && !!file_name
+
   return (
     <div
       className={
@@ -153,18 +157,16 @@ export default function FloatingAudioPlayer({
               style={{ top: "50%", transform: "translateY(-50%)" }}
             >
               <div className='marquee-content whitespace-nowrap font-mono text-sm'>
-                {!!file_name && !isLoading && !hasError ? (
+                {isReproducing ? (
                   "Reproduciendo audio:"
-                ) : isLoading ? (
+                ) : isLoadingAudio ? (
                   <span className='text-warning'>Cargando audio:</span>
-                ) : (
-                  hasError && (
-                    <span className='text-destructive'>
-                      Error al cargar audio:
-                    </span>
-                  )
-                )}{" "}
-                {String(file_name)}
+                ) : hasLoadingError ? (
+                  <span className='text-destructive'>
+                    Error al cargar audio:
+                  </span>
+                ) : null}{" "}
+                {!!file_name && String(file_name)}
               </div>
             </div>
           </div>
