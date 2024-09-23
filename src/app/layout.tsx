@@ -24,7 +24,7 @@ export default function RootLayout({
         content='width=device-width, initial-scale=1.0'
       ></meta>
       <head>
-        <link rel='icon' href='/favicon.ico' />
+        <link rel='icon' href='/favicon.ico' sizes='any' />
       </head>
       <body className={inter.className + " w-dvw h-dvh"}>
         <ThemeProvider
