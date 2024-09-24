@@ -10,7 +10,7 @@ import {
   HateValues,
   SentimentValues,
 } from "@/lib/types.d"
-import { ACCEPTED_ORIGINS } from "@/lib/consts"
+import { ACCEPTED_ORIGINS, API_CANARY, API_MAIN } from "@/lib/consts"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -164,25 +164,28 @@ export enum AllowedContentTypes {
 export function getHeaders(
   origin: string,
   contentType?: AllowedContentTypes
-): Record<string, string> {
-  let headers: Record<string, string> = {}
+): Headers {
+  const headers = new Headers()
   switch (contentType) {
     case "json":
-      headers["Content-Type"] = "application/json"
+      headers.set("Content-Type", "application/json")
       break
     case "form":
-      headers["Content-Type"] = "application/x-www-form-urlencoded"
+      headers.set("Content-Type", "application/x-www-form-urlencoded")
       break
     case "multipart":
       // Don't set Content-Type for multipart/form-data, let the browser set it with the boundary
       break
   }
   const validatedOrigin = _validateOrigin(origin)
-  if (validatedOrigin) {
-    headers["Access-Control-Allow-Origin"] = validatedOrigin
-    headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
-    headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
-  }
+
+  headers.set(
+    "Access-Control-Allow-Origin",
+    `${API_MAIN}, ${API_CANARY}, http://10.20.30.211:3030`
+  )
+  headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+  headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+
   return headers
 }
 

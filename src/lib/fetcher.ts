@@ -5,7 +5,7 @@ async function _request<T, R extends boolean | undefined = undefined>(
   url: string,
   method: Method,
   body?: any,
-  headers?: Record<string, string>,
+  headers?: Headers,
   options?: {
     revalidate?: boolean
     onlyReturnStatus?: boolean
@@ -14,7 +14,10 @@ async function _request<T, R extends boolean | undefined = undefined>(
   }
 ): Promise<[Error | null, R extends true ? number : T | Response | null]> {
   const fetchOptions: FetchOptions = {
-    headers: headers || {},
+    headers:
+      headers instanceof Headers
+        ? Object.fromEntries(headers.entries())
+        : headers || {},
     method,
   }
   let err: Error | null = null
@@ -50,7 +53,7 @@ async function _request<T, R extends boolean | undefined = undefined>(
 
 function _get(
   url: string,
-  headers?: Record<string, string>,
+  headers?: Headers,
   options?: {
     revalidate?: boolean
     onlyReturnStatus?: boolean
@@ -64,7 +67,7 @@ function _get(
 function _post<T, R extends boolean | undefined = undefined>(
   url: string,
   body: any,
-  headers?: Record<string, string>,
+  headers?: Headers,
   options?: {
     revalidate?: boolean
     onlyReturnStatus?: R
@@ -78,7 +81,7 @@ function _post<T, R extends boolean | undefined = undefined>(
 function _put<T, R extends boolean | undefined = undefined>(
   url: string,
   body: any,
-  headers?: Record<string, string>,
+  headers?: Headers,
   options?: {
     revalidate?: boolean
     onlyReturnStatus?: R
@@ -92,7 +95,7 @@ function _put<T, R extends boolean | undefined = undefined>(
 function _patch<T, R extends boolean | undefined = undefined>(
   url: string,
   body: any,
-  headers?: Record<string, string>,
+  headers?: Headers,
   options?: {
     revalidate?: boolean
     onlyReturnStatus?: R
@@ -105,7 +108,7 @@ function _patch<T, R extends boolean | undefined = undefined>(
 
 function _delete<T, R extends boolean | undefined = undefined>(
   url: string,
-  headers?: Record<string, string>,
+  headers?: Headers,
   options?: {
     revalidate?: boolean
     onlyReturnStatus?: R

@@ -74,7 +74,7 @@ export enum Method {
   Delete = "DELETE",
 }
 export interface FetchOptions extends RequestInit {
-  headers: Record<string, string>
+  headers: Headers | Record<string, string>
   method: Methods
   body?: any
   next?: NextFetchRequestConfig
