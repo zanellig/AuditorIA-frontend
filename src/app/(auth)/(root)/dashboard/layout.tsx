@@ -10,7 +10,7 @@ export default function DashboardLayout({
   children: React.ReactNode
 }) {
   const [transcriptionState, setTranscriptionState] = React.useState({
-    file_name: "",
+    fileName: "",
   })
   const params = useSearchParams()
   const path = usePathname()
@@ -25,7 +25,7 @@ export default function DashboardLayout({
         fileName != undefined
       )
         setTranscriptionState({
-          file_name: fileName,
+          fileName: fileName,
         })
     }
   }, [path, params])
@@ -33,7 +33,7 @@ export default function DashboardLayout({
     <>
       <AudioProvider>
         {children}
-        <FloatingAudioPlayer file_name={transcriptionState.file_name} />
+        <FloatingAudioPlayer fileName={transcriptionState.fileName} />
       </AudioProvider>
     </>
   )

@@ -25,7 +25,7 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { HashLoader } from "react-spinners"
 import { getAudioPath } from "@/lib/actions"
 import { cn } from "@/lib/utils"
-import { Music } from "lucide-react"
+import { Music, Pause, Play, TriangleAlert } from "lucide-react"
 import { GLOBAL_ICON_SIZE } from "@/lib/consts"
 
 interface FloatingAudioPlayerProps {
@@ -171,13 +171,15 @@ export default function FloatingAudioPlayer({
           </CardHeader>
           <CardContent className='space-y-2'>
             <div className='flex items-center justify-between'>
-              {hasError && !isLoading ? (
+              {hasLoadingError ? (
                 <Button
                   className='rounded-md text-destructive-foreground p-2'
                   disabled
                   variant='destructive'
+                  size='icon'
+                  aria-label={"Error playing audio"}
                 >
-                  <ExclamationTriangleIcon className='h-4 w-4' />
+                  <TriangleAlert size={GLOBAL_ICON_SIZE} />
                 </Button>
               ) : (
                 <Button
@@ -191,9 +193,9 @@ export default function FloatingAudioPlayer({
                   {isLoading ? (
                     <HashLoader color='currentColor' loading={true} size={20} />
                   ) : isPlaying ? (
-                    <PauseIcon className='h-4 w-4' />
+                    <Pause size={GLOBAL_ICON_SIZE} />
                   ) : (
-                    <PlayIcon className='h-4 w-4' />
+                    <Play size={GLOBAL_ICON_SIZE} />
                   )}
                 </Button>
               )}
