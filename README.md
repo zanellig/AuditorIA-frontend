@@ -106,3 +106,11 @@ Podemos proceder a cerrarlo
 ```pwsh
   taskkill /PID [id del proceso] /F
 ```
+
+## License
+
+© 2024 Gonzalo Zanelli. All rights reserved.
+
+This software and its source code are proprietary. No part of this software, in whole or in part, may be reproduced, stored, or transmitted without the prior written permission of the copyright holder.
+
+Permission to use, copy, modify, and distribute this software is strictly prohibited unless expressly granted by the copyright holder.

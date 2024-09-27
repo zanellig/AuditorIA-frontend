@@ -62,7 +62,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                 </section>
               </div>
               <Toaster />
-              <ReactQueryDevtools initialIsOpen={true} />
+              {/* <ReactQueryDevtools initialIsOpen={true} /> */}
             </TranscriptionProvider>
           </DashboardProvider>
         </TooltipProvider>
