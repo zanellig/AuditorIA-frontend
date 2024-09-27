@@ -16,7 +16,7 @@ import { Recording, Task } from "@/lib/types"
 import { cn } from "@/lib/utils"
 import { Table } from "@tanstack/react-table"
 
-export default function DeleteButton<TData extends Task | Recording>({
+export default function DeleteButton<TData>({
   identifier,
   ids,
   table,

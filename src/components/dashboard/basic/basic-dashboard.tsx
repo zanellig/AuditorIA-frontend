@@ -17,13 +17,15 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { DASHBOARD_ICON_CLASSES } from "@/lib/consts"
 import { StatefulButton } from "@/components/stateful-button"
+import { ArrowRightLeft } from 'lucide-react'
 
 export default function BasicDashboard() {
   const dashboardItems = [
     {
-      title: "Transcripción manual",
+      title: "Subir archivos",
       icon: <UploadIcon className={DASHBOARD_ICON_CLASSES} />,
-      description: "En este módulo, podrá transcribir audios de manera manual.",
+      description:
+        "En este módulo, podrá subir audios de manera manual y enviarlos al sistema de procesamiento.",
       buttonIcon: (
         <ArrowRightIcon
           className={DASHBOARD_ICON_CLASSES + "text-foreground"}
@@ -91,7 +93,7 @@ export default function BasicDashboard() {
     },
     {
       title: "Buscar por dirección",
-      icon: <LoopIcon className={DASHBOARD_ICON_CLASSES} />,
+      icon: <ArrowRightLeft className={DASHBOARD_ICON_CLASSES} />,
       description: "En este módulo, podrá buscar los audios por dirección.",
       buttonIcon: (
         <ArrowRightIcon

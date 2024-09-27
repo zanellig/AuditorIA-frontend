@@ -191,7 +191,12 @@ export default function FloatingAudioPlayer({
                   aria-label={isPlaying ? "Pause" : "Play"}
                 >
                   {isLoading ? (
-                    <HashLoader color='currentColor' loading={true} size={20} />
+                    <HashLoader
+                      color='currentColor'
+                      loading={true}
+                      size={GLOBAL_ICON_SIZE}
+                      className='animate-spin'
+                    />
                   ) : isPlaying ? (
                     <Pause size={GLOBAL_ICON_SIZE} />
                   ) : (

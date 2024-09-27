@@ -18,9 +18,9 @@ const cardVariants = cva(
     variants: {
       variant: {
         default: "border-muted-foreground text-muted-foreground",
-        success: "border-success text-success",
-        error: "border-error text-error",
-        warning: "border-warning text-warning",
+        success: "border-success text-success bg-success/5",
+        error: "border-error text-error bg-error/5",
+        warning: "border-warning text-warning bg-warning/5",
       },
     },
     defaultVariants: {

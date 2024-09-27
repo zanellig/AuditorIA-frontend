@@ -16,38 +16,23 @@ import DashboardSwitch from "@/components/dashboard/dashboard-switch"
 const BACKGROUND = "bg-pulse"
 
 export default function Layout({ children }: { children: ReactNode }) {
-  const [sidebarWidth, setSidebarWidth] = useState(16) // Initial width of 16 (4rem)
-  const handleSidebarResize = (width: number) => {
-    setSidebarWidth(width)
-  }
-
   return (
     <>
       <ScrollProvider>
         <TooltipProvider>
           <DashboardProvider>
             <TranscriptionProvider>
+              {/* This one serves as the "body" tag so that we don't have to navigate to the root layout.tsx when we want to modify or check it. */}
               <div
                 id='global-container'
-                className={cn("flex relative overflow-hidden bg-transparent")}
+                className={cn("flex relative bg-transparent w-dvw h-dvh")}
               >
-                <section
-                  id='sidebar-container'
-                  className={cn(
-                    "transition-all duration-300",
-                    sidebarWidth === 64 ? "w-64" : "w-16"
-                  )}
-                >
-                  <Sidebar
-                    className={BACKGROUND}
-                    onResize={handleSidebarResize}
-                  />
-                </section>
+                <Sidebar className={cn(BACKGROUND)} />
                 <section
                   id='main-container'
                   className={cn(
                     BACKGROUND,
-                    "transition-all duration-300 border-s-2 border-solid border-muted rounded-tl-xl rounded-bl-xl overflow-hidden relative bg-primary-foreground w-full"
+                    "border-s border-solid border-muted relative bg-primary-foreground w-full"
                   )}
                 >
                   <ScrollArea className='max-h-dvh h-dvh'>

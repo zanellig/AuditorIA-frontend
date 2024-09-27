@@ -2,15 +2,7 @@
 import React, { Suspense, useState } from "react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import {
-  BookmarkIcon,
-  ChatBubbleIcon,
-  ChevronLeftIcon,
-  FileIcon,
-  GearIcon,
-  HomeIcon,
-  UploadIcon,
-} from "@radix-ui/react-icons"
+import { BarChart, Icon, PieChart, Plug, TrendingUp } from "lucide-react"
 import { SendUsFeedbackButton } from "@/components/navigation/feedback-button"
 import { useScroll } from "../context/ScrollProvider"
 import { usePathname } from "next/navigation"
@@ -18,181 +10,248 @@ import { BreadcrumbWithCustomSeparator } from "./breadcrumbs-with-separator"
 import { AvatarButton } from "./avatar"
 import { ModeToggle } from "./mode-toggle"
 import Link from "next/link"
-import { TESTING, TESTING_RECORDINGS } from "@/lib/consts"
+import { GLOBAL_ICON_SIZE, TESTING, TESTING_RECORDINGS } from "@/lib/consts"
 import StatusBadges from "./status.client"
+import {
+  Bell,
+  Calendar,
+  MessageSquare,
+  ChevronLeft,
+  Clock,
+  AlertTriangle,
+  File,
+  FileText,
+  Settings,
+  Globe,
+  Home,
+  RefreshCcw,
+  User,
+  Upload,
+  ArrowRightLeft,
+  ChevronDown,
+  ChevronsDownIcon,
+  ChevronsUpIcon,
+  ChevronUp,
+  KeyIcon,
+  MailIcon,
+  UsersIcon,
+} from "lucide-react"
+import { SidebarButton, SidebarButtonProps } from "./sidebar-button"
+import { ScrollArea } from "../ui/scroll-area"
+import Image from "next/image"
+import logo from "@/app/favicon.ico"
 
-export function Sidebar({
-  className,
-  onResize,
-}: {
-  className?: string
-  onResize: (width: number) => void
-}) {
-  const [isExpanded, setIsExpanded] = useState(false)
-  const toggleSidebar = () => {
-    setIsExpanded(!isExpanded)
-  }
-  // to add a new tab, add it to the links array below respecting the order in which you want it to appear :)
-  // remember to add the folder with the href name you will be redirecting to and the page.tsx file said folder (basic nextjs app router behaviour)
+const iconSize = "h-[1.2rem] w-[1.2rem]"
+const TOP_HEIGHT = "h-14"
+
+/**
+ * To add a new tab, add it to the links array below, maintaining the order in which you want it to appear.
+ *
+ * IMPORTANT: Remember to create a folder with the same name as the href you will be redirecting to and include a page.tsx file in that folder.
+ *
+ * IMPORTANT: Please don't rename the array to children, as it will conflict with the children prop.
+ *
+ * You can nest children infinitely by adding an "Achildren" key with an array of objects
+ * following the same structure as the other objects in the array.
+ *
+ * If you provide an array of children, the button will be expandable.
+ *
+ * If you don't provide an href, the button will not redirect the user, but you can still use the onClick event.
+ *
+ * Haven't tested passing children to an expandable button, but it should work.
+ *
+ * The props are defined in sidebar-button.tsx as SidebarButtonProps. If you add keys to the object that are not declared in the interface,
+ * the app will not crash, but the key will be ignored.
+ *
+ * Be careful when adding links without an icon, as the text will be offset and will not align with other buttons that have an icon.
+ *
+ */
+export function Sidebar({ className }: { className?: string }) {
   const links = [
     {
-      icon: (
-        <ChevronLeftIcon
-          className={cn(
-            "h-[1.2rem] w-[1.2rem] transition-all duration-600",
-            !isExpanded ? "rotate-0" : "rotate-180"
-          )}
-        />
-      ),
-      title: "Cerrar menú",
-      clickOptions: {
-        onClick: toggleSidebar,
-      },
-    },
-    {
-      href: "/dashboard",
-      icon: <HomeIcon className='h-[1.2rem] w-[1.2rem]' />,
+      icon: <Home className={iconSize} />,
       title: "Dashboard",
+      clickOptions: {
+        onClick: () => {},
+      },
+      Achildren: [
+        {
+          href: "/dashboard/search/tasks",
+          title: "Historial",
+          icon: <FileText className={iconSize} />,
+          disabled: false,
+        },
+        {
+          href: "/dashboard/search/records/campaign",
+          title: "Campañas",
+          icon: <Globe className={iconSize} />,
+        },
+        {
+          href: "/dashboard/search/records/operator",
+          title: "Operador",
+          icon: <User className={iconSize} />,
+        },
+        {
+          title: "Audios problemáticos",
+          icon: <AlertTriangle className={iconSize} />,
+          disabled: true,
+        },
+        {
+          href: "/dashboard/search/records/date",
+          title: "Fecha",
+          icon: <Calendar className={iconSize} />,
+        },
+        {
+          href: "/dashboard/search/records/direction",
+          title: "Dirección",
+          icon: <ArrowRightLeft className={iconSize} />,
+        },
+      ],
     },
     {
       href: "/upload",
-      icon: <UploadIcon className='h-[1.2rem] w-[1.2rem]' />,
+      icon: <Upload className={iconSize} />,
       title: "Subir un archivo",
     },
     {
       href: "/reportes",
-      icon: <FileIcon className='h-[1.2rem] w-[1.2rem]' />,
+      icon: <File className={iconSize} />,
       title: "Reportes",
     },
     {
       href: "/chats",
-      icon: <ChatBubbleIcon className='h-[1.2rem] w-[1.2rem]' />,
+      icon: <MessageSquare className={iconSize} />,
       title: "Chats",
       disabled: true,
     },
     {
       href: "/settings",
-      icon: <GearIcon className='h-[1.2rem] w-[1.2rem]' />,
+      icon: <Settings className={iconSize} />,
       title: "Configuración",
+      disabled: true,
+      Achildren: [
+        {
+          href: "/settings/account",
+          title: "Cuenta",
+          icon: <User className={iconSize} />,
+          disabled: true,
+        },
+        {
+          href: "/notifications",
+          icon: <Bell className={iconSize} />,
+          title: "Notificaciones",
+          disabled: true,
+          Achildren: [
+            {
+              href: "/activity-log",
+              icon: <Clock className={iconSize} />,
+              title: "Log de actividad",
+              disabled: true,
+            },
+          ],
+        },
+      ],
+    },
+    {
+      href: "/team-management",
+      icon: <UsersIcon className={iconSize} />,
+      title: "Administración de equipo",
+      disabled: true,
+      Achildren: [
+        {
+          href: "/team-management/roles",
+          title: "Roles & Permisos",
+          icon: <KeyIcon className={iconSize} />,
+          disabled: true,
+        },
+        {
+          href: "/team-management/invitations",
+          title: "Invitaciones",
+          icon: <MailIcon className={iconSize} />,
+          disabled: true,
+        },
+      ],
+    },
+    {
+      href: "/integrations",
+      icon: <Plug className={iconSize} />,
+      title: "Integraciones",
+      disabled: true,
+    },
+    {
+      icon: <BarChart className={iconSize} />,
+      title: "Analíticas",
+      disabled: true,
+      Achildren: [
+        {
+          href: "/analytics/overview",
+          title: "Vista general",
+          icon: <PieChart className={iconSize} />,
+          disabled: true,
+        },
+        {
+          href: "/analytics/performance",
+          title: "Rendimiento",
+          icon: <TrendingUp className={iconSize} />,
+          disabled: true,
+        },
+      ],
     },
   ]
 
-  React.useEffect(() => {
-    const width = isExpanded ? 256 : 64 // 16rem when expanded, 4rem when collapsed
-    onResize(width)
-  }, [isExpanded])
-
   return (
-    <nav
+    <ScrollArea
       className={cn(
-        "flex flex-col h-dvh items-center justify-between py-4 px-2 rounded-br-md space-y-4  overflow-hidden text-muted-foreground bg-primary-foreground",
+        "flex flex-col space-y-0 w-fit p-0 h-dvh min-w-72 items-center justify-between text-muted-foreground",
         className
       )}
     >
-      <div className='flex flex-col space-y-4 w-full'>
-        {links.map((link, index) => {
-          return (
-            <SidebarButton
-              buttonKey={"sidebar-button-" + index}
-              href={link.href}
-              icon={link.icon}
-              title={link.title}
-              clickOptions={link.clickOptions}
-              disabled={link.disabled}
-            />
-          )
-        })}
-      </div>
-      <SendUsFeedbackButton>
+      {/* App icon */}
+      {/* The z index makes it so the sidebar is above the ScrollArea */}
+      <Link
+        href='/'
+        className={cn(
+          "flex space-x-4 p-4 mb-2 items-center sticky top-0 w-full backdrop-blur-sm border-b border-solid border-muted z-10",
+          TOP_HEIGHT
+        )}
+      >
+        <Image
+          src={logo}
+          alt='AuditorIA'
+          loading='lazy'
+          className='w-[1.2rem] h-[1.2rem]'
+        />
+        <p
+          className='duration-300 transition-colors font-bold hover:text-foreground'
+          style={{
+            fontSize: "1.2rem",
+          }}
+        >
+          AuditorIA
+        </p>
+      </Link>
+
+      {links.map((link, index) => (
+        <SidebarButton
+          key={"sidebar-button-" + index}
+          href={link.href}
+          icon={link.icon}
+          title={link.title}
+          clickOptions={link.clickOptions}
+          disabled={link.disabled ?? false}
+          className='w-full'
+        >
+          {link.Achildren && link.Achildren.length > 0
+            ? link.Achildren.map((child, childIndex) => (
+                <SidebarButton {...(child as SidebarButtonProps)} />
+              ))
+            : null}
+        </SidebarButton>
+      ))}
+      <SendUsFeedbackButton className='mx-2'>
         <div>Envianos tus comentarios</div>
       </SendUsFeedbackButton>
-    </nav>
-  )
-}
-function SidebarButton({
-  children,
-  className,
-  buttonKey,
-  href,
-  icon,
-  title,
-  clickOptions,
-  disabled = false,
-}: {
-  children?: React.ReactNode
-  className?: string
-  buttonKey: string
-  href?: string
-  icon: React.JSX.Element
-  title: string
-  clickOptions?: {
-    redirect?: boolean
-    onClick?: () => void
-  }
-  disabled?: boolean
-}) {
-  const pathname = usePathname()
-  const isActive = pathname === href
-  const selectedClassAtributes =
-    "text-accent-foreground shadow-md shadow-accent-foreground/50 dark:shadow-accent-foreground/80 dark:bg-accent"
-  return (
-    <div className={cn(className)} key={buttonKey}>
-      {!disabled && href ? (
-        <Link href={href} key={buttonKey + "-link"}>
-          <SidebarButtonWrapper
-            className={isActive && selectedClassAtributes}
-            wrapperKey={buttonKey + "-wrapper"}
-          >
-            <div key={buttonKey + "-icon"}>{icon}</div>
-            <div key={buttonKey + "-title"} className='text-sm'>
-              {title}
-            </div>
-          </SidebarButtonWrapper>
-        </Link>
-      ) : (
-        <SidebarButtonWrapper
-          onClick={clickOptions?.onClick}
-          className={isActive && selectedClassAtributes}
-          wrapperKey={buttonKey + "-wrapper"}
-          disabled={disabled}
-        >
-          <div key={buttonKey + "-icon"}>{icon}</div>
-          <div key={buttonKey + "-title"} className='text-sm'>
-            {title}
-          </div>
-        </SidebarButtonWrapper>
-      )}
-    </div>
-  )
-}
-function SidebarButtonWrapper({
-  children,
-  className,
-  wrapperKey,
-  onClick,
-  disabled = false,
-}: {
-  children: React.ReactNode
-  className?: string | boolean
-  wrapperKey: string
-  onClick?: () => void
-  disabled?: boolean
-}) {
-  return (
-    <div className='relative' key={wrapperKey}>
-      <Button
-        variant={"ghost"}
-        className={cn(
-          "flex bg-popover w-full items-center justify-start space-x-4 overflow-hidden p-4",
-          className,
-          disabled && "cursor-not-allowed hover:bg-background hover:shadow-none"
-        )}
-        onClick={onClick}
-        disabled={disabled}
-      >
-        {children}
-      </Button>
-    </div>
+    </ScrollArea>
   )
 }
 
@@ -222,8 +281,9 @@ export function TopNavbar({
   return (
     <div
       className={cn(
-        "sticky top-0 w-full h-fit p-4 flex flex-row justify-between items-center z-10 backdrop-blur-sm shadow-md dark:shadow-xl rounded-md",
-        className
+        "sticky top-0 w-full p-4 flex flex-row justify-between items-center z-10 backdrop-blur-sm shadow-md dark:shadow-xl border-b border-solid border-muted",
+        className,
+        TOP_HEIGHT
       )}
       style={style}
     >
