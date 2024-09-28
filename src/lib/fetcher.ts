@@ -35,7 +35,14 @@ async function _request<T, R extends boolean | undefined = undefined>(
   options?.revalidate ? (fetchOptions.next = { revalidate: 5 }) : null
   try {
     const res = await fetch(url, fetchOptions)
-    !res.ok ? (err = await res.json()) : null
+    if (!res.ok) {
+      try {
+        err = await res.json()
+      } catch (e) {
+        err = new Error("Failed to parse error response", { cause: e })
+      }
+      return [err, null] as [Error, R extends true ? number : T]
+    }
     if (err !== null) {
       return [err as Error, null] as [Error, R extends true ? number : T]
     }
@@ -47,7 +54,10 @@ async function _request<T, R extends boolean | undefined = undefined>(
     }
     return [err, res] as [null, R extends true ? number : T]
   } catch (e) {
-    return [err, null] as [Error, R extends true ? number : T]
+    return [new Error("Failed to fetch", { cause: e }), null] as [
+      Error,
+      R extends true ? number : T
+    ]
   }
 }
 
