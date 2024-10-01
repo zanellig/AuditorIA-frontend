@@ -77,7 +77,7 @@ export default function SearchRecords({
       : `${_route}=${search}`
 
     const res = await fetch(
-      `/api/recordings?${queryParam}`, // changed to localhost as it's not working on the server, because of CORS
+      `http://10.20.30.211:3030/api/recordings?${queryParam}`, // changed to localhost as it's not working on the server, because of CORS
       { method: "GET", signal }
     )
     if (!res.ok) {

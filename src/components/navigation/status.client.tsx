@@ -16,11 +16,11 @@ export default function StatusBadges() {
     })
 
   useEffect(() => {
-    fetch("/api/status/main", { method: "GET" }).then(async res => {
+    fetch("http://10.20.30.211:3030/api/status/main", { method: "GET" }).then(async res => {
       const response = await res.json()
       setMainServerStatusBadgeOptions(response)
     })
-    fetch("/api/status/canary", { method: "GET" }).then(async res => {
+    fetch("http://10.20.30.211:3030/api/status/canary", { method: "GET" }).then(async res => {
       const response = await res.json()
       setCanaryServerStatusOptions(response)
     })

@@ -28,7 +28,7 @@ export const useTranscription = () => {
 }
 
 const fetchTranscription = async (taskId: string) => {
-  const [err, response] = await fetch(`/api/task?identifier=${taskId}`, {
+  const [err, response] = await fetch(`http://10.20.30.211:3030/api/task?identifier=${taskId}`, {
     method: "GET",
     headers: { "Content-Type": "application/json" },
   }).then(async res => {

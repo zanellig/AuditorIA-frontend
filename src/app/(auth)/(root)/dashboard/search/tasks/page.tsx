@@ -9,7 +9,7 @@ import { CustomBorderCard } from "@/components/custom-border-card"
 
 export default async function Page() {
   // Server rendering done the right way pa 😎
-  const [err, res] = await fetch("/api/tasks").then(async res => {
+  const [err, res] = await fetch("http://10.20.30.211:3030/api/tasks").then(async res => {
     if (!res.ok) {
       return [new Error("No se pudo recuperar la lista de tareas"), null]
     }

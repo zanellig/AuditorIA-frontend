@@ -55,7 +55,7 @@ export default function TaskUploadForm({ className }: { className?: string }) {
       /**
        * Form works, but API is currently down.
        */
-      const [error, task] = await fetch("/api/task", {
+      const [error, task] = await fetch("http://10.20.30.211:3030/api/task", {
         method: "POST",
         body: formData,
       }).then(async res => {

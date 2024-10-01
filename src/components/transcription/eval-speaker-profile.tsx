@@ -34,9 +34,12 @@ function EvalSpeakerProfile({
   const fetchLLMAnalysis = async () => {
     let response
     if (!storedResponse) {
-      response = await fetch(`/api/task/spkanalysis?identifier=${id}`, {
-        method: "GET",
-      })
+      response = await fetch(
+        `http://10.20.30.211:3030/api/task/spkanalysis?identifier=${id}`,
+        {
+          method: "GET",
+        }
+      )
       const data = await response.json()
       if (data[0] !== null) {
         throw new Error(data[0].detail)

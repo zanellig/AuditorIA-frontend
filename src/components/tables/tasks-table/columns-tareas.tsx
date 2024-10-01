@@ -68,7 +68,8 @@ function renderArrow(sorted: false | "asc" | "desc") {
   }
 }
 /**
- * Don't export or use this function more than it's needed. It's only a helper function to centralize the URL building in this file
+ * USED ON HREF
+ * Don't export or use this function more than it's needed. It's only a helper function to centralize the URL building in this file's hrefs
  */
 function _URLBuilder(task: Task) {
   const taskURL = `/dashboard/transcription?identifier=${task?.identifier}${

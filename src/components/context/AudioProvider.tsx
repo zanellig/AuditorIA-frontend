@@ -54,7 +54,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({
     setIsLoading(true)
     try {
       const response = await fetch(
-        `/api/audio?path=${encodeURIComponent(nasPath)}` // change to IP before pushing to production
+        `http://10.20.30.211:3030/api/audio?path=${encodeURIComponent(nasPath)}` // change to IP before pushing to production
       )
       if (!response.ok) {
         setError(true)
