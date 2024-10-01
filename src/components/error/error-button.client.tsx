@@ -12,6 +12,8 @@ export default function ErrorRetryButton({
   reset?: () => void
   locale?: z.infer<typeof SupportedLocales>
 }) {
+  if (!reset) return null
+
   return (
     <Button
       variant='outline'

@@ -6,19 +6,19 @@ import { getErrorStringLocale } from "@/lib/get-error-string-locale"
 import { SupportedLocales } from "@/lib/types.d"
 import { Button } from "../ui/button"
 import { handleCopyToClipboard } from "@/lib/utils"
-import { useToast } from "../ui/use-toast"
 import { z } from "zod"
 
 interface ErrorCodeUserFriendlyProps {
   error: any
   locale: z.infer<typeof SupportedLocales>
+  reset?: () => void
 }
 
 export function ErrorCodeUserFriendly({
   error,
   locale,
+  reset,
 }: ErrorCodeUserFriendlyProps) {
-  const { toast } = useToast()
   if (!error) return null
   const content = {
     [SupportedLocales.Values.es]: {
@@ -53,26 +53,9 @@ export function ErrorCodeUserFriendly({
       <TitleH1>{localizedContent.title}</TitleH1>
       <ParagraphP>{localizedContent.paragraph}</ParagraphP>
       <SubtitleH2>{getErrorStringLocale({ error, locale })}</SubtitleH2>
-      <code>
-        {localizedContent.messagePrefix + error.message}
-        <br />
-        <br />
-        {localizedContent.stackPrefix + error.stack.slice(0, 512)}
-      </code>
+      <code>{localizedContent.messagePrefix + error.message}</code>
       <div className='flex flex-row space-x-2 justify-start'>
-        <ErrorRetryButton locale={locale} />
-        <Button
-          variant='outline'
-          className='w-fit p-2'
-          onClick={() => {
-            handleCopyToClipboard(error.stack)
-            toast({
-              title: "Copiado al portapapeles",
-            })
-          }}
-        >
-          Copiar código de error
-        </Button>
+        <ErrorRetryButton locale={locale} reset={reset} />
       </div>
     </div>
   )
