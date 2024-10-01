@@ -6,7 +6,9 @@ import { SupportedLocales, TableSupportedDataTypes, Tasks } from "@/lib/types.d"
 import DashboardSkeleton from "@/components/skeletons/dashboard-skeleton"
 import { useEffect, useState } from "react"
 import { TESTING } from "@/lib/consts"
-
+/**
+ * @deprecated
+ */
 export default function TasksTable() {
   if (TESTING) {
     return (
@@ -22,7 +24,7 @@ export default function TasksTable() {
 
   useEffect(() => {
     async function fetchData() {
-      const [err, res] = await fetch("http://10.20.30.211:3030/api/tasks", {
+      const [err, res] = await fetch("/api/tasks", {
         method: "GET",
       }).then(async res => await res.json())
       if (err !== null) {

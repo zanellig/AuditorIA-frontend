@@ -12,7 +12,9 @@ import DataTable from "@/components/tables/table-core/data-table"
 import { SupportedLocales, type Recordings } from "@/lib/types.d"
 import { ErrorCodeUserFriendly } from "@/components/error/error-code-user-friendly"
 import DashboardSkeleton from "@/components/skeletons/dashboard-skeleton"
-
+/**
+ * @deprecated
+ */
 export default async function RecordingsTable() {
   if (TESTING_RECORDINGS) {
     return (
@@ -24,12 +26,9 @@ export default async function RecordingsTable() {
 
   useEffect(() => {
     async function fetchData() {
-      const [err, res] = await fetch(
-        `http://10.20.30.211:3030/api/recordings`,
-        {
-          method: "GET",
-        }
-      ).then(async res => await res.json())
+      const [err, res] = await fetch("/api/recordings", {
+        method: "GET",
+      }).then(async res => await res.json())
       setErr(err)
       setRecordings(res)
     }

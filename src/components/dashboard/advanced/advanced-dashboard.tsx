@@ -8,10 +8,10 @@ import { SupportedLocales } from "@/lib/types.d"
 import TableContainer from "@/components/tables/table-core/table-container"
 
 async function fetchAdvancedDashboardData() {
-  const recordings = fetch("http://10.20.30.211:3030/api/recordings", {
+  const recordings = fetch("/api/recordings", {
     cache: "no-store",
   })
-  const tasks = fetch("http://10.20.30.211:3030/api/tasks", {
+  const tasks = fetch("/api/tasks", {
     cache: "no-store",
   })
   const [taskResponse, recordingResponse] = await Promise.all([
@@ -26,7 +26,9 @@ async function fetchAdvancedDashboardData() {
   }
   return [taskResponse.json(), recordingResponse.json()]
 }
-
+/**
+ * @deprecated
+ */
 export default function AdvancedDashboard() {
   const { data, error, isLoading } = useQuery({
     queryKey: ["all"],
