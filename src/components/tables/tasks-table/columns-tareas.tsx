@@ -1,6 +1,6 @@
 "use client"
 
-import { ColumnDef, Table } from "@tanstack/react-table"
+import { ColumnDef, Row, Table } from "@tanstack/react-table"
 import { Task } from "@/lib/types"
 
 import {
@@ -39,6 +39,7 @@ import { API_CANARY } from "@/lib/consts"
 import { actionRevalidatePath, analyzeTask } from "@/lib/actions"
 import { ToastAction } from "@/components/ui/toast"
 import { usePathname } from "next/navigation"
+import A from "@/components/typography/a"
 
 function renderMarker(status: Status) {
   switch (status) {
@@ -66,6 +67,15 @@ function renderArrow(sorted: false | "asc" | "desc") {
     return <ArrowUp className='ml-2 h-4 w-4' />
   }
 }
+/**
+ * Don't export or use this function more than it's needed. It's only a helper function to centralize the URL building in this file
+ */
+function _URLBuilder(task: Task) {
+  const taskURL = `/dashboard/transcription?identifier=${task?.identifier}${
+    task?.file_name ? `&file_name=${task?.file_name}` : ""
+  }`
+  return taskURL
+}
 
 export const columns: ColumnDef<Task | null>[] = [
   /**
@@ -79,9 +89,14 @@ export const columns: ColumnDef<Task | null>[] = [
       return <div className='text-start'>ID</div>
     },
     cell: ({ row }) => {
+      const ID = row.original?.identifier as Task["identifier"]
+      const slicedID = `${ID.slice(0, 6)}...`
+
       return (
         <div key={`check-${row.original?.identifier}`}>
-          {row.original?.identifier as Task["identifier"]}
+          <Link href={_URLBuilder(row?.original as Task)}>
+            <A>{slicedID}</A>
+          </Link>
         </div>
       )
     },
@@ -121,21 +136,6 @@ export const columns: ColumnDef<Task | null>[] = [
       )
     },
   },
-  // {
-  //   accessorKey: "created_at",
-  //   header: () => <div>Hora</div>,
-  //   cell: ({ row }) => {
-  //     const date = new Date(row.original?.created_at as Task["created_at"])
-  //     const hora = date.toLocaleTimeString("es-US", {
-  //       hour: "2-digit",
-  //       minute: "2-digit",
-  //       second: "2-digit",
-  //       hour12: false,
-  //     })
-
-  //     return <div>{hora}</div>
-  //   },
-  // },
   {
     accessorKey: "file_name",
     header: ({ column }) => {
@@ -175,17 +175,7 @@ export const columns: ColumnDef<Task | null>[] = [
       const task = row.original
       const { toast } = useToast()
       const currentUrl = usePathname()
-      const taskURL = `/dashboard/transcription?identifier=${task?.identifier}&file_name=${task?.file_name}`
-
-      // {
-      //   "identifier": "9b5113b1-47f4-4850-a978-3df81dc95489",
-      //   "status": "Analyzed",
-      //   "task_type": "full_process",
-      //   "file_name": "12410-14726091-20240307133302.mp3",
-      //   "language": "es",
-      //   "audio_duration": 785.58,
-      //   "created_at": "2024-07-17T04:47:22"
-      // }
+      const taskURL = _URLBuilder(task as Task)
       return (
         <div className='flex flex-row justify-end space-x-2'>
           <DropdownMenu>
