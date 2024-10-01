@@ -1,44 +1,50 @@
 import { SupportedLocales } from "@/lib/types.d"
+import { z } from "zod"
 
+type ErrorMessages = Record<string, string>
+type SupportedLocales = z.infer<typeof SupportedLocales>
+
+// Dictionary of error messages by locale and error code
+const errorMessages: Record<SupportedLocales, ErrorMessages> = {
+  [SupportedLocales.Values.en]: {
+    UND_ERR_CONNECT_TIMEOUT: "Check your VPN connection 🔒",
+    ECONNREFUSED: "Connection refused from server ❌",
+    ENETUNREACH: "Check your internet connection 🌎",
+    DEFAULT: "An unexpected error has occurred 🤨",
+    "": "An unexpected error has occurred 🤨",
+  },
+  [SupportedLocales.Values.es]: {
+    UND_ERR_CONNECT_TIMEOUT: "Compruebe la conexión a la VPN 🔒",
+    ECONNREFUSED: "Se ha rechazado la conexión desde el servidor ❌",
+    ENETUNREACH: "Compruebe la conexión a internet 🌎",
+    DEFAULT: "Ha ocurrido un error inesperado 🤨",
+    "": "Ha ocurrido un error inesperado 🤨",
+  },
+  // Add more locales here in the future...
+}
+
+// Function to get a user-friendly error message
 export function getErrorStringLocale({
   error,
   locale,
+  logError = false,
 }: {
   error: any
   locale: SupportedLocales
+  logError?: boolean // Optional logging
 }) {
-  switch (locale) {
-    case SupportedLocales.Values.en:
-      return getErrorCodeUserFriendlyEnglish(error)
-    case SupportedLocales.Values.es:
-      return getErrorCodeUserFriendlySpanish(error)
-    default:
-      return getErrorCodeUserFriendlySpanish(error)
-  }
-}
+  const errorCode = error?.cause?.code
 
-function getErrorCodeUserFriendlySpanish(error: any) {
-  switch (error?.cause?.code) {
-    case "UND_ERR_CONNECT_TIMEOUT":
-      return "Compruebe la conexión a la VPN 🔒"
-    case "ECONNREFUSED":
-      return "Se ha rechazado la conexión desde el servidor ❌"
-    case "ENETUNREACH":
-      return "Compruebe la conexión a internet 🌎"
-    default:
-      return "Ha ocurrido un error inesperado 🤨"
+  if (logError && !errorMessages[locale]?.[errorCode]) {
+    console.warn(
+      `Error code "${errorCode}" not found for locale "${locale}". Using fallback message.`
+    )
   }
-}
 
-function getErrorCodeUserFriendlyEnglish(error: any) {
-  switch (error?.cause?.code) {
-    case "UND_ERR_CONNECT_TIMEOUT":
-      return "Check your VPN connection 🔒"
-    case "ECONNREFUSED":
-      return "Connection refused from server ❌"
-    case "ENETUNREACH":
-      return "Check your internet connection 🌎"
-    default:
-      return "An unexpected error has occurred 🤨"
-  }
+  // Get localized error message, fallback to DEFAULT if error code is not found
+  const localizedError =
+    errorMessages[locale]?.[errorCode] || errorMessages[locale]?.DEFAULT
+
+  // If locale-specific messages don't exist, fallback to Spanish as default
+  return localizedError || errorMessages[SupportedLocales.Values.es].DEFAULT
 }
