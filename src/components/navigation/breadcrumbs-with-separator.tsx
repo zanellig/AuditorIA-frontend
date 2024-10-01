@@ -11,6 +11,7 @@ import {
 import { capitalizeOnlyFirstLetter, cn } from "@/lib/utils"
 import { useRouter } from "next/navigation"
 import { usePathname } from "next/navigation"
+import Link from "next/link"
 
 export function BreadcrumbWithCustomSeparator({
   className,
@@ -46,12 +47,12 @@ export function BreadcrumbWithCustomSeparator({
                 className='flex flex-row items-center space-x-2'
               >
                 <BreadcrumbItem>
-                  <BreadcrumbLink
+                  <Link
                     href={`/${pathnames.slice(0, index + 1).join("/")}`}
                     key={`${index}-${pathname}-link`}
                   >
                     {displayName}
-                  </BreadcrumbLink>
+                  </Link>
                 </BreadcrumbItem>
                 {pathnames.length - 1 !== index && <BreadcrumbSeparator />}
               </div>
