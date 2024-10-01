@@ -26,7 +26,22 @@ export const FEEDBACK_PATH = "help/send-feedback"
 export const FEATURE_PATH = "help/recommend-feature"
 export const BUG_PATH = "help/report-bug"
 export const SPEAKER_ANALYSIS_PATH = "spkanalysis"
-export const ACCEPTED_ORIGINS = [API_MAIN, API_CANARY]
+export const ACCEPTED_ORIGINS = [
+  API_MAIN,
+  API_CANARY,
+  "http://10.20.30.211:3030",
+]
+export const ACCEPTED_AUDIO_TYPES = [
+  "wav",
+  "x-wav",
+  "mp3",
+  "mpeg",
+  "aac",
+  "ogg",
+  "webm",
+  "flac",
+  "x-flac",
+]
 
 // for testing
 export const TESTING = false

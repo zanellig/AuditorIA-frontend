@@ -1,6 +1,6 @@
 import { _get, _post } from "@/lib/fetcher"
 import { API_MAIN, SPEECH_TO_TEXT_PATH, TASK_PATH } from "@/lib/consts"
-import { getHeaders } from "@/lib/utils"
+import { AllowedContentTypes, getHeaders } from "@/lib/utils"
 import { TaskPOSTResponse } from "@/lib/types.d"
 import { NextRequest, NextResponse } from "next/server"
 
@@ -13,11 +13,15 @@ export async function GET(request: NextRequest) {
   const url = new URL(request.url)
   const identifier = request.nextUrl.searchParams.get("identifier")
 
-  const headers = getHeaders(API_MAIN)
+  const headers = getHeaders(API_MAIN, AllowedContentTypes.Json)
   if (!identifier) {
     return new NextResponse(
       JSON.stringify([new Error("Task ID was not provided"), null]),
-      { status: 400 }
+      {
+        status: 400,
+        headers: headers,
+        statusText: "Task ID was not provided",
+      }
     )
   }
   // transform into array
@@ -28,19 +32,47 @@ export async function GET(request: NextRequest) {
     expectJson: true,
   })
   if (err !== null) {
-    return new NextResponse(JSON.stringify([JSON.stringify(err), null]), {
-      status: err.status || 500,
+    /**
+     * The ECONNREFUSED (Connection refused) could fall in this case if the server is not running, but we can't access that error message,
+     * as far as I know.
+     *
+     * The message, stack, cause and name don't show anything useful, but if we log the error, we can see that the error message is
+     * "ECONNREFUSED".
+     *
+     * We return a generic 500 error, as we don't want to leak information about the server, but we should improve this.
+     * Maybe returning a 503, 522 or 523; I don't know which one is the best fit.
+     * */
+    return new NextResponse(JSON.stringify([err.message, null]), {
+      status: 500,
+      headers: headers,
+      statusText: "Unknown internal server error while fetching task.",
     })
   }
   if (res === null) {
-    return new NextResponse(JSON.stringify([null, "No content"]), {
-      status: 204,
-    })
+    return new NextResponse(
+      JSON.stringify([new Error("Task not found."), null]),
+      {
+        status: 404,
+        headers: headers,
+        statusText: "Task not found.",
+      }
+    )
   }
   if (res.ok) {
-    return new NextResponse(JSON.stringify([null, res]), { status: 200 })
+    return new NextResponse(JSON.stringify([null, res]), {
+      status: 200,
+      headers: headers,
+      statusText: "Task fetched successfully.",
+    })
   }
-  return new NextResponse(JSON.stringify([null, res]), { status: 200 })
+  return new NextResponse(
+    JSON.stringify([new Error("Unknown error fetching task."), null]),
+    {
+      status: 500,
+      headers: headers,
+      statusText: "Unknown error fetching task.",
+    }
+  )
 }
 export async function POST(request: NextRequest) {
   const headers = getHeaders(API_MAIN)
@@ -64,7 +96,7 @@ export async function POST(request: NextRequest) {
   responseHeaders.append("Content-Type", "application/json")
   if (err !== null) {
     return new NextResponse(JSON.stringify([err, null]), {
-      status: err.status || 500,
+      status: 500,
       headers: responseHeaders,
     })
   }

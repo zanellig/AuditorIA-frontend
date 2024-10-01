@@ -1,6 +1,6 @@
 import { z } from "zod"
 
-const ACCEPTED_FILE_TYPES = [
+const AudioFileTypesSchema = z.enum([
   "audio/wav",
   "audio/x-wav",
   "audio/x-wav;codecs=1",
@@ -13,22 +13,12 @@ const ACCEPTED_FILE_TYPES = [
   "audio/x-flac",
   "audio/ogg;codecs=vorbis",
   "audio/mpeg;codecs=mp3",
-]
+])
 
-export const ACCEPTED_AUDIO_TYPES = [
-  "wav",
-  "x-wav",
-  "mp3",
-  "mpeg",
-  "aac",
-  "ogg",
-  "webm",
-  "flac",
-  "x-flac",
-]
+export type AudioFileTypes = z.infer<typeof AudioFileTypesSchema>
 
 export const taskFormSchema = z.object({
-  language: z.enum(["es", "en", "fr"], {
+  language: z.enum(["es", "en", "fr", "de"], {
     required_error: "Por favor seleccione un idioma.",
     invalid_type_error: "Por favor seleccione un idioma.",
     message: "Por favor seleccione un idioma.",

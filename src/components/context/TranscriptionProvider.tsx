@@ -28,11 +28,17 @@ export const useTranscription = () => {
 }
 
 const fetchTranscription = async (taskId: string) => {
-  const [err, response] = await fetch(`/api/task?identifier=${taskId}`).then(
-    async res => await res.json()
-  )
+  const [err, response] = await fetch(`/api/task?identifier=${taskId}`, {
+    method: "GET",
+    headers: { "Content-Type": "application/json" },
+  }).then(async res => {
+    if (res.ok) {
+      return await res.json()
+    }
+    return [new Error(res.statusText), null]
+  })
   if (err !== null) {
-    throw new Error("Network response was not ok")
+    throw new Error(err.message)
   }
   console.log(taskId, response)
   return { taskId, transcription: response }
