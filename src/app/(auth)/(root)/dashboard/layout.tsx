@@ -1,6 +1,5 @@
 "use client"
 import FloatingAudioPlayer from "@/components/audio/floating-audio-player"
-import { AudioProvider } from "@/components/context/AudioProvider"
 import { usePathname, useSearchParams } from "next/navigation"
 import * as React from "react"
 
@@ -31,10 +30,8 @@ export default function DashboardLayout({
   }, [path, params])
   return (
     <>
-      <AudioProvider>
-        {children}
-        <FloatingAudioPlayer fileName={transcriptionState.fileName} />
-      </AudioProvider>
+      {children}
+      <FloatingAudioPlayer fileName={transcriptionState.fileName} />
     </>
   )
 }
