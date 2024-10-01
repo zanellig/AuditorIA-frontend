@@ -54,13 +54,14 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({
     setIsLoading(true)
     try {
       const response = await fetch(
-        `http://10.20.30.211:3030/api/audio?path=${encodeURIComponent(nasPath)}`
+        `/api/audio?path=${encodeURIComponent(nasPath)}` // change to IP before pushing to production
       )
       if (!response.ok) {
         setError(true)
       }
       const blob = await response.blob()
       const url = URL.createObjectURL(blob)
+
       if (audioRef.current) {
         audioRef.current.src = url
         audioRef.current.load()

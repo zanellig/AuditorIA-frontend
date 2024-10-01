@@ -5,16 +5,6 @@ import { useAudioPlayer } from "@/components/context/AudioProvider"
 import { Slider } from "@/components/ui/slider"
 import { Button } from "@/components/ui/button"
 import {
-  Cross1Icon,
-  ExclamationTriangleIcon,
-  PauseIcon,
-  PlayIcon,
-  SpeakerLoudIcon,
-  SpeakerModerateIcon,
-  SpeakerOffIcon,
-  SpeakerQuietIcon,
-} from "@radix-ui/react-icons"
-import {
   Select,
   SelectContent,
   SelectItem,
@@ -25,7 +15,18 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { HashLoader } from "react-spinners"
 import { getAudioPath } from "@/lib/actions"
 import { cn } from "@/lib/utils"
-import { Music, Pause, Play, TriangleAlert } from "lucide-react"
+import {
+  X,
+  Music,
+  Pause,
+  Play,
+  TriangleAlert,
+  VolumeOff,
+  Volume,
+  Volume1,
+  Volume2,
+  VolumeX,
+} from "lucide-react"
 import { GLOBAL_ICON_SIZE } from "@/lib/consts"
 
 interface FloatingAudioPlayerProps {
@@ -57,6 +58,7 @@ export default function FloatingAudioPlayer({
 
   useEffect(() => {
     if (fileName) {
+      pause()
       getAudioPath(fileName).then(fileUrl => {
         if (fileUrl) loadAudio(fileUrl)
       })
@@ -126,15 +128,15 @@ export default function FloatingAudioPlayer({
     { label: "2x", value: 2 },
   ]
 
-  const isReproducing = !!fileName && !isLoading && !hasError
   const isLoadingAudio = isLoading && !!fileName
   const hasLoadingError = hasError && !!fileName
+  const isReproducing = !!fileName && !isLoadingAudio && !hasLoadingError
 
   return (
     <Card
       className={cn(
-        "fixed w-80 select-none",
-        isAudioPlayerHidden ? "rounded-full h-fit w-fit" : null
+        "fixed w-80 select-none p-4",
+        isAudioPlayerHidden ? "rounded-full h-fit w-fit p-0" : null
       )}
       style={{
         right: `${position.right}px`,
@@ -145,7 +147,7 @@ export default function FloatingAudioPlayer({
     >
       {!isAudioPlayerHidden ? (
         <>
-          <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+          <CardHeader className='flex flex-row items-center justify-between space-y-0 p-0 mb-2'>
             <div className='relative h-9 overflow-hidden rounded-md w-full'>
               <div
                 className='absolute inset-0 flex'
@@ -165,11 +167,16 @@ export default function FloatingAudioPlayer({
                 </div>
               </div>
             </div>
-            <Button variant='ghost' size='icon' onClick={toggleHide}>
-              <Cross1Icon className='h-4 w-4' />
+            <Button
+              variant='ghost'
+              size='icon'
+              className='p-2 rounded-full'
+              onClick={toggleHide}
+            >
+              <X size={GLOBAL_ICON_SIZE} />
             </Button>
           </CardHeader>
-          <CardContent className='space-y-2'>
+          <CardContent className='space-y-2 p-0 mb-2'>
             <div className='flex items-center justify-between'>
               {hasLoadingError ? (
                 <Button
@@ -187,10 +194,10 @@ export default function FloatingAudioPlayer({
                   disabled={isLoading}
                   variant='outline'
                   size='icon'
-                  className='rounded-md hover:text-secondary-foreground bg-popover p-2'
+                  className='rounded-full hover:text-secondary-foreground bg-popover p-2'
                   aria-label={isPlaying ? "Pause" : "Play"}
                 >
-                  {isLoading ? (
+                  {isLoadingAudio ? (
                     <HashLoader
                       color='currentColor'
                       loading={true}
@@ -219,7 +226,7 @@ export default function FloatingAudioPlayer({
               aria-label='Seek audio'
             />
           </CardContent>
-          <CardFooter className='flex items-center space-x-2'>
+          <CardFooter className='flex items-center space-x-2 p-0'>
             <Button
               onClick={toggleMute}
               variant='ghost'
@@ -227,14 +234,16 @@ export default function FloatingAudioPlayer({
               className='rounded-sm hover:bg-transparent hover:text-secondary-foreground'
               aria-label={muted ? "Unmute" : "Mute"}
             >
-              {muted || volume === 0 ? (
-                <SpeakerOffIcon className='h-4 w-4' />
-              ) : volume > 50 ? (
-                <SpeakerLoudIcon className='h-4 w-4' />
+              {muted ? (
+                <VolumeOff size={GLOBAL_ICON_SIZE} />
+              ) : volume === 0 ? (
+                <VolumeX size={GLOBAL_ICON_SIZE} />
+              ) : volume > 75 ? (
+                <Volume2 size={GLOBAL_ICON_SIZE} />
               ) : volume > 25 ? (
-                <SpeakerModerateIcon className='h-4 w-4' />
+                <Volume1 size={GLOBAL_ICON_SIZE} />
               ) : (
-                <SpeakerQuietIcon className='h-4 w-4' />
+                <Volume size={GLOBAL_ICON_SIZE} />
               )}
             </Button>
             <Slider
