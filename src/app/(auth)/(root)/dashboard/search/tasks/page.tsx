@@ -1,10 +1,4 @@
 import * as React from "react"
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
 
 import { SupportedLocales, TableSupportedDataTypes } from "@/lib/types.d"
 import DataTable from "@/components/tables/table-core/data-table"
@@ -13,16 +7,19 @@ import TableContainer from "@/components/tables/table-core/table-container"
 import { ErrorCodeUserFriendly } from "@/components/error/error-code-user-friendly"
 import { CustomBorderCard } from "@/components/custom-border-card"
 
-export default async function Test() {
-  const [err, res] = await fetch("http://10.20.30.211:3030/api/tasks").then(
-    async res => {
-      return await res.json()
+export default async function Page() {
+  // Server rendering done the right way pa 😎
+  const [err, res] = await fetch("/api/tasks").then(async res => {
+    if (!res.ok) {
+      return [new Error("No se pudo recuperar la lista de tareas"), null]
     }
-  )
+    return await res.json()
+  })
   let description: string = !res
     ? "No se han encontrado tareas."
     : `Se han encontrado ${res && res?.length} tareas.`
-  description = res.length > 0 ? description : `No se han encontrado tareas.`
+  description =
+    !!res && res.length > 0 ? description : `No se han encontrado tareas.`
   return (
     <TableContainer>
       {err !== null && (
@@ -33,7 +30,18 @@ export default async function Test() {
       )}
       {res !== null && err === null && (
         <div className='flex flex-col gap-2'>
-          <CustomBorderCard description={description} variant={"success"} />
+          <CustomBorderCard
+            description={description}
+            variant={
+              err !== null
+                ? "error"
+                : res === null
+                ? "warning"
+                : res.length === 0
+                ? "default"
+                : "success"
+            }
+          />
           <DataTable
             columns={columns}
             data={res}
