@@ -73,10 +73,9 @@ export default function TranscriptionClient({
       fetchTranscription(taskId)
     }
   }, [taskId, fetchTranscription])
-
+  if (isLoading) return <TranscriptionSkeleton />
   return (
     <>
-      {isLoading && <TranscriptionSkeleton />}
       {drawerOptions?.show && (
         <TranscriptionNotReady text={`${drawerOptions?.text || ""}`} />
       )}
