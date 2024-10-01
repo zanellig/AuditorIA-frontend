@@ -36,7 +36,7 @@ export function SendUsFeedbackButton({
         <Button
           variant='ghost'
           className={cn(
-            "flex bg-popover w-full items-center justify-start space-x-4 overflow-hidden",
+            "flex bg-popover w-fit items-center justify-start space-x-4 pr-12",
             className
           )}
         >

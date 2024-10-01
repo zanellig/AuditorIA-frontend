@@ -71,6 +71,7 @@ export function Sidebar({ className }: { className?: string }) {
     {
       icon: <Home className={iconSize} />,
       title: "Dashboard",
+      href: "/dashboard",
       clickOptions: {
         onClick: () => {},
       },
@@ -146,7 +147,7 @@ export function Sidebar({ className }: { className?: string }) {
               href: "/activity-log",
               icon: <Clock className={iconSize} />,
               title: "Log de actividad",
-              disabled: true,
+              disabled: false,
             },
           ],
         },

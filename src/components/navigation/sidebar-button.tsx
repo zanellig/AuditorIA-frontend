@@ -1,11 +1,13 @@
-import React, { Key, useState } from "react"
+import React, { Key } from "react"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
+import { cn, normalizeString } from "@/lib/utils"
 import { ChevronDown, ChevronUp } from "lucide-react"
 import { GLOBAL_ICON_SIZE } from "@/lib/consts"
 import { motion, AnimatePresence } from "framer-motion"
+
+// We should store the state of the buttons in the server because we are getting a hydration error when loading the page and accessing the local storage.
 
 export interface SidebarButtonProps {
   className?: string
@@ -36,44 +38,71 @@ export function SidebarButton({
   const isActive = pathname === href
   const selectedClassAttributes =
     "text-accent-foreground shadow-md shadow-accent-foreground/50 dark:shadow-accent-foreground/80 dark:bg-accent"
-  const [isOpen, setIsOpen] = useState(false)
+
+  const [isOpen, setIsOpen] = React.useState(() => {
+    return false
+    const storedState =
+      typeof window !== "undefined"
+        ? JSON.parse(localStorage.getItem("openButtons") || "{}")
+        : {}
+    return (
+      storedState[normalizeString(title).toLowerCase().replace(/ /g, "_")] ||
+      false
+    )
+  })
+  /**
+   * Uncomment this to store the state of the buttons in the local storage.
+   */
+  // React.useEffect(() => {
+  //   if (typeof window !== "undefined") {
+  //     const storedState =
+  //       typeof window !== "undefined"
+  //         ? JSON.parse(localStorage.getItem("openButtons") || "{}")
+  //         : {}
+  //     localStorage.setItem(
+  //       "openButtons",
+  //       JSON.stringify({
+  //         ...storedState,
+  //         [normalizeString(title).toLowerCase().replace(/ /g, "_")]: isOpen,
+  //       })
+  //     )
+  //   }
+  // }, [isOpen])
 
   // Memoize the mapped children to avoid unnecessary re-renders
-  const renderedChildren = React.useMemo(() => {
-    return (
+  const renderedChildren = React.useMemo(
+    () => (
       <div className='flex flex-col ml-4'>
         {Achildren?.map((child, index) => {
           const { key, ...props } = child
-          return (
-            <SidebarButton key={`${child.key}-child-${index}`} {...props} />
-          )
+          return <SidebarButton key={`${key}-child-${index}`} {...props} />
         })}
-        {React.Children.map(children, (child, index) => {
-          if (React.isValidElement<SidebarButtonProps>(child)) {
-            return React.cloneElement(child, {
-              key: child.key ?? `${key}-react-child-${index}`,
-            })
-          }
-          return null
-        })}
+        {React.Children.map(children, (child, index) =>
+          React.isValidElement(child)
+            ? React.cloneElement(child, { key: `${key}-child-${index}` })
+            : null
+        )}
       </div>
-    )
-  }, [Achildren, children, key])
+    ),
+    [Achildren, children, key]
+  )
 
   const hasChildren =
     (children && Array.isArray(children) && children.length > 0) ||
     (Achildren && Achildren.length > 0)
-
   return (
     <section
       id={`sidebar-${hasChildren ? "expandable" : "normal"}-${title
         .toLowerCase()
         .replace(/ /g, "-")}-button`}
       key={key}
-      className='flex flex-col pr-4 pl-2 w-full'
+      className='flex flex-col pr-2 pl-2 w-full'
     >
       <div
-        className={cn(className, "flex flex-row justify-between items-center space-x-2")}
+        className={cn(
+          className,
+          "flex flex-row justify-between items-center space-x-2 mb-1"
+        )}
       >
         <Link
           href={href && !disabled ? href : "#"}
