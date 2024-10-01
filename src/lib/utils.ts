@@ -220,7 +220,7 @@ export function _replaceSpecialCharacters(
   const specialCharsRegex = /[^a-zA-Z0-9\sáéíóúÁÉÍÓÚ]/g
 
   // Replace all special characters with the specified replacement string
-  const sanitizedString = input.replace(specialCharsRegex, replacement)
+  const sanitizedString = input.replace(specialCharsRegex, replacement).trim()
 
   return sanitizedString
 }
