@@ -50,6 +50,9 @@ export default function SearchRecords({
   _route,
   inputOptions,
 }: TSearchRecordsProps) {
+  const queryClient = useQueryClient()
+  const [queryKey, setQueryKey] = React.useState<string | null>(null)
+
   const { inputType, selectOptions } = inputOptions || {
     inputType: "text",
     selectOptions: null,
@@ -61,6 +64,10 @@ export default function SearchRecords({
 
   React.useEffect(() => {
     // intercept the fetching and cancel it if the search or date or input change
+    setQueryKey(`${date ? date.toISOString() : search}`)
+    queryClient.cancelQueries({
+      queryKey: [queryKey],
+    })
   }, [search, date, input])
 
   // Function to fetch recordings based on input or date
@@ -70,7 +77,7 @@ export default function SearchRecords({
       : `${_route}=${search}`
 
     const res = await fetch(
-      `http://10.20.30.211:3030/api/recordings?${queryParam}`, // changed to localhost as it's not working on the server, because of CORS
+      `/api/recordings?${queryParam}`, // changed to localhost as it's not working on the server, because of CORS
       { method: "GET", signal }
     )
     if (!res.ok) {
@@ -87,13 +94,6 @@ export default function SearchRecords({
     }
     return data.records as Recordings
   }
-
-  const queryClient = useQueryClient()
-
-  const [queryKey, setQueryKey] = React.useState<string | null>(null)
-  React.useEffect(() => {
-    setQueryKey(`${date ? date.toISOString() : search}`)
-  }, [date, search])
 
   const {
     data: recordings,
