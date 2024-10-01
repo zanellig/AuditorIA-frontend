@@ -268,9 +268,9 @@ export const fetchLLMAnalysis = async (taskId: string) => {
 export const getAudioPath = async (
   file_name: string
 ): Promise<Recording["URL"] | null> => {
+  // Seeing this, we're calling a fetch on a server action. What? Why?
   const [err, res] = await fetch(
-    `http://10.20.30.211:3030/api/recordings?GRABACION=${file_name}`, // I reckon CORS header is implemented in the route; will have to test. Good time to start making unit tests or a testing branch.
-    { method: "GET" }
+    `/api/recordings?GRABACION=${file_name}` // TODO: before commiting, change to the correct IP. We have to specify a full URL or the fetch throws
   ).then(async res => {
     if (!res.ok) {
       return [new Error("Failed to fetch audio from file name"), null]
@@ -284,4 +284,45 @@ export const getAudioPath = async (
     return res.records[0].URL
   }
   return null
+}
+
+/**
+ * @deprecated
+ * @param formData
+ * @param options
+ * @returns
+ */
+export async function handleTaskUpload(
+  formData: FormData,
+  options: { file?: File; nasUrl?: string; fileName?: string } = {}
+): Promise<[Error | null, Response | null]> {
+  const headers = getHeaders(API_MAIN, AllowedContentTypes.Multipart)
+  const url = [API_MAIN, TASK_PATH].join("/")
+
+  if (options.file && options.file instanceof File) {
+    const file = options.file
+    formData.append("file", file, file.name)
+  } else if (options.nasUrl && options.fileName) {
+    const nasUrl = options.nasUrl
+    const fileName = options.fileName
+    try {
+      const binaryFromNAS = await readFile(nasUrl)
+      const fileType = fileName.split(".").pop()
+      if (binaryFromNAS) {
+        const blob = new File([binaryFromNAS], fileName, {
+          type: `audio/${fileType}`,
+        })
+        formData.append("file", blob, fileName)
+      } else {
+        return [new Error("Failed to read file at createTask"), null]
+      }
+    } catch (error: any) {
+      return [new Error(`${error.message} at createTask`), null]
+    }
+  }
+
+  return await _post(url, formData, headers, {
+    revalidate: false,
+    expectJson: true,
+  })
 }
