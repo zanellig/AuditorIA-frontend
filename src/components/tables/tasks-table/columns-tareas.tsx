@@ -1,8 +1,8 @@
 "use client"
 
+import * as React from "react"
 import { ColumnDef, Row, Table } from "@tanstack/react-table"
 import { Task } from "@/lib/types"
-
 import {
   ArrowUpDown,
   MoreHorizontal,
@@ -12,6 +12,9 @@ import {
   ArrowDown,
   ArrowUp,
   BrainCircuitIcon,
+  Cog,
+  Clock,
+  Globe,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -40,6 +43,14 @@ import { actionRevalidatePath, analyzeTask } from "@/lib/actions"
 import { ToastAction } from "@/components/ui/toast"
 import { usePathname } from "next/navigation"
 import A from "@/components/typography/a"
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card"
+import { Badge } from "@/components/ui/badge"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import languageManager from "@/lib/locales"
 
 function renderMarker(status: Status) {
   switch (status) {
@@ -90,15 +101,99 @@ export const columns: ColumnDef<Task | null>[] = [
       return <div className='text-start'>ID</div>
     },
     cell: ({ row }) => {
+      const [activeTab, setActiveTab] = React.useState("info")
       const ID = row.original?.identifier as Task["identifier"]
       const slicedID = `${ID.slice(0, 6)}...`
 
       return (
-        <div key={`check-${row.original?.identifier}`}>
-          <Link href={_URLBuilder(row?.original as Task)}>
-            <A>{slicedID}</A>
-          </Link>
-        </div>
+        <HoverCard>
+          <HoverCardTrigger asChild>
+            <Link
+              href={_URLBuilder(row?.original as Task)}
+              key={`check-${row.original?.identifier}`}
+            >
+              <span className='font-medium text-primary underline underline-offset-4'>
+                {slicedID}
+              </span>
+            </Link>
+          </HoverCardTrigger>
+          <HoverCardContent className='w-fit'>
+            {/* En una columna pondremos el sentimiento y la emoción generales del llamado */}
+            {/* En la otra columna pondremos otra información de la tarea */}
+            <div className='space-y-4'>
+              <div className='flex justify-between items-center space-x-4'>
+                <h4 className='text-sm font-semibold capitalize hover:underline hover:underline-offset-4 hover:cursor-pointer select-none'>
+                  {row.original?.identifier}
+                </h4>
+                <Badge
+                  variant={`${
+                    row.original?.status === "analyzed"
+                      ? "success"
+                      : row.original?.status === "failed"
+                      ? "destructive"
+                      : row.original?.status === "pending"
+                      ? "warning"
+                      : row.original?.status === "processing"
+                      ? "error"
+                      : row.original?.status === "completed"
+                      ? "successOutline"
+                      : "default"
+                  }`}
+                >
+                  {row.original?.status}
+                </Badge>
+              </div>
+              <Tabs
+                value={activeTab}
+                onValueChange={setActiveTab}
+                className='w-full'
+              >
+                <TabsList className='grid w-full grid-cols-2'>
+                  <TabsTrigger value='info'>Info</TabsTrigger>
+                  <TabsTrigger value='details'>Detalles</TabsTrigger>
+                </TabsList>
+                <TabsContent value='info' className='space-y-4'>
+                  <div className='flex items-center justify-between'>
+                    <span className='flex items-center text-sm'>
+                      <Clock size={GLOBAL_ICON_SIZE} className='mr-2' />
+                      Duración
+                    </span>
+                    <span className='text-sm font-medium'>
+                      {formatTimestamp(
+                        secondsToHMS(row.original?.audio_duration as number),
+                        true
+                      )}
+                    </span>
+                  </div>
+                  <div className='flex items-center justify-between'>
+                    <span className='flex items-center text-sm'>
+                      <Cog size={GLOBAL_ICON_SIZE} className='mr-2' />
+                      Tipo de tarea
+                    </span>
+                    <span className='text-sm font-medium capitalize'>
+                      {row.original?.task_type}
+                    </span>
+                  </div>
+                  <div className='flex items-center justify-between'>
+                    <span className='flex items-center text-sm'>
+                      <Globe size={GLOBAL_ICON_SIZE} className='mr-2' />
+                      Idioma
+                    </span>
+                    <span className='text-sm font-medium capitalize'>
+                      {languageManager.getLanguageName(
+                        row.original?.language as string,
+                        { locale: "es" }
+                      )}
+                    </span>
+                  </div>
+                </TabsContent>
+                <TabsContent value='details'>
+                  <h5>Nothing to see here yet... 😯</h5>
+                </TabsContent>
+              </Tabs>
+            </div>
+          </HoverCardContent>
+        </HoverCard>
       )
     },
   },
