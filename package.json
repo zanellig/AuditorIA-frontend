@@ -10,6 +10,7 @@
   "scripts": {
     "dev": "next dev --port 3030",
     "build": "next build",
+    "winbuild": "powershell.exe -ExecutionPolicy ByPass -File build.ps1",
     "start": "next start --port 80",
     "lint": "next lint",
     "test": "jest",

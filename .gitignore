@@ -42,3 +42,9 @@ src/lib/laboratorio_testing/
 
 # Sentry Config File
 .env.sentry-build-plugin
+
+# Logs
+build-logs.txt
+build_logs.txt
+*_logs.txt
+*-logs.txt
