@@ -1,8 +1,8 @@
 # auditorIA
 
-> Ahora auditorIA es Linux-based, por lo que debemos actualizar este instructivo.
-
 ## Como correr en desarrollo
+
+### Windows
 
 1.0. Nos aseguramos de tener la versión correcta de Node.js
 
@@ -70,10 +70,10 @@
 $ npm run dev
 
 > next@0.1.0 dev
-> next dev --port 3001
+> next dev --port 3030
 
  ⨯ Failed to start server
-Error: listen EADDRINUSE: address already in use :::3001
+Error: listen EADDRINUSE: address already in use :::3030
     at Server.setupListenHandle [as _listen2] (node:net:1898:16)
     at listenInCluster (node:net:1946:12)
     at Server.listen (node:net:2044:7)
@@ -83,14 +83,14 @@ Error: listen EADDRINUSE: address already in use :::3001
   errno: -4091,
   syscall: 'listen',
   address: '::',
-  port: 3001
+  port: 3030
 }
 ```
 
 Podemos correr el siguiente comando en PowerShell
 
 ```pwsh
-  Get-Process -Id (Get-NetTCPConnection -LocalPort 3001).OwningProcess
+  Get-Process -Id (Get-NetTCPConnection -LocalPort 3030).OwningProcess
 ```
 
 Si encontramos el siguiente output, diciéndonos que hay un proceso de Node escuchando ese puerto
