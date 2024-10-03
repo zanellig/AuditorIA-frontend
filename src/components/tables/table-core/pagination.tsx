@@ -125,6 +125,7 @@ export default function Pagination<TData>({
         size='sm'
         onClick={async () => {
           table.firstPage()
+          await actionRevalidatePath("/dashboard")
         }}
         disabled={!table.getCanPreviousPage()}
       >
@@ -135,6 +136,7 @@ export default function Pagination<TData>({
         size='sm'
         onClick={async () => {
           table.previousPage()
+          await actionRevalidatePath("/dashboard")
         }}
         disabled={!table.getCanPreviousPage()}
       >
@@ -153,6 +155,7 @@ export default function Pagination<TData>({
         size='sm'
         onClick={async () => {
           table.nextPage()
+          await actionRevalidatePath("/dashboard")
         }}
         disabled={!table.getCanNextPage()}
       >
@@ -163,6 +166,7 @@ export default function Pagination<TData>({
         size='sm'
         onClick={async () => {
           table.lastPage()
+          await actionRevalidatePath("/dashboard")
         }}
         disabled={!table.getCanNextPage()}
       >

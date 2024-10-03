@@ -1,3 +1,4 @@
+import "server-only"
 import { z } from "zod"
 
 // Define supported languages and locales
@@ -96,7 +97,7 @@ class LanguageManager {
     }
   }
 
-  getLanguageName(code: string, config: { locale?: SupportedLocale } = {}): string {
+  getLanguageName(code: string, config: { locale?: string } = {}): string {
     // Default to 'en' locale if not provided, normalize inputs
     const locale = SupportedLocale.parse(config.locale?.toLowerCase() || "en")
     const normalizedCode = SupportedLanguage.safeParse(code.toLowerCase())
@@ -162,5 +163,5 @@ class LanguageManager {
   }
 }
 
-const languageManager = new LanguageManager()
-export default languageManager
+const m = new LanguageManager()
+export default m

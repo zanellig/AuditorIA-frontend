@@ -39,3 +39,6 @@ next.zip
 # server data files
 /cache
 src/lib/laboratorio_testing/
+
+# Sentry Config File
+.env.sentry-build-plugin
