@@ -25,15 +25,11 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { useToast } from "@/components/ui/use-toast"
-
 import { ChevronLeft, ClipboardIcon, MessageCircleQuestion } from "lucide-react"
-
 import { GLOBAL_ICON_SIZE } from "@/lib/consts"
 import { cn, secondsToHMS, formatTimestamp } from "@/lib/utils"
-
 import TitleH1 from "@/components/typography/titleH1"
 import SubtitleH2 from "@/components/typography/subtitleH2"
-
 import Analysis from "@/components/transcription/analysis"
 import TranscriptionSkeleton from "../skeletons/transcription-skeleton"
 import { ErrorCodeUserFriendly } from "../error/error-code-user-friendly"

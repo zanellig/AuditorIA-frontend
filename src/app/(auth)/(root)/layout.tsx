@@ -1,7 +1,5 @@
 "use client"
-import React, { useState } from "react"
 import type { ReactNode } from "react"
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 import { Toaster } from "@/components/ui/toaster"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { ScrollProvider } from "@/components/context/ScrollProvider"

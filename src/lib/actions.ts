@@ -80,7 +80,7 @@ export const fetchAudioData = async (nasPath: string) => {
 
 export const getOperatorQuality = async (taskId: string) => {
   const res = await fetch(
-    `http://${env.HOST}:${env.PORT}/api/task/operator_quality/` + taskId
+    `${await getHost()}/api/task/operator_quality/${taskId}`
   )
   return res.json()
 }
@@ -90,7 +90,7 @@ export const getAudioPath = async (
 ): Promise<Recording["URL"] | null> => {
   // Seeing this, we're calling a fetch on a server action. What? Why?
   const [err, res] = await fetch(
-    `http://${env.HOST}:${env.PORT}/api/recordings?GRABACION=${file_name}` // TODO: before commiting, change to the correct IP. We have to specify a full URL or the fetch throws
+    `${await getHost()}/api/recordings?GRABACION=${file_name}`
   ).then(async res => {
     if (!res.ok) {
       return [new Error("Failed to fetch audio from file name"), null]

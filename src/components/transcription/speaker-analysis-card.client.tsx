@@ -1,5 +1,5 @@
 "use client"
-import React, { useState } from "react"
+import React, { Suspense, useState } from "react"
 import {
   _replaceSpecialCharacters,
   cn,
@@ -70,7 +70,9 @@ export default function SpeakerAnalysisCard({
         <div id='analysis-content'>
           <Accordion type='single' collapsible className='lg:w-[500px]'>
             <LocalWordSearch words={uniqueWords} />
-            <EvalSpeakerProfile id={id as Task["identifier"]} />
+            <Suspense fallback={<div>Cargando...</div>}>
+              <EvalSpeakerProfile id={id as Task["identifier"]} />
+            </Suspense>
           </Accordion>
         </div>
       </div>

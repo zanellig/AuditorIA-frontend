@@ -1,6 +1,6 @@
 "use client"
 
-import React from "react"
+import React, { Suspense } from "react"
 import { useAudioPlayer } from "@/components/context/AudioProvider"
 import { Slider } from "@/components/ui/slider"
 import { Button } from "@/components/ui/button"
@@ -13,7 +13,6 @@ import {
 } from "@/components/ui/select"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { HashLoader } from "react-spinners"
-import { getAudioPath } from "@/lib/actions"
 import { cn } from "@/lib/utils"
 import {
   X,
@@ -29,13 +28,11 @@ import {
 } from "lucide-react"
 import { GLOBAL_ICON_SIZE } from "@/lib/consts"
 
-interface FloatingAudioPlayerProps {
-  fileName: string
-}
-
 export default function FloatingAudioPlayer({
-  fileName,
-}: FloatingAudioPlayerProps) {
+  fileName = "",
+}: {
+  fileName?: string
+}) {
   const {
     isAudioPlayerHidden,
     isPlaying,
@@ -56,14 +53,35 @@ export default function FloatingAudioPlayer({
     loadAudio,
   } = useAudioPlayer()
 
-  React.useEffect(() => {
-    if (fileName) {
-      pause()
-      getAudioPath(fileName).then(fileUrl => {
-        if (fileUrl) loadAudio(fileUrl)
-      })
-    }
-  }, [fileName, loadAudio])
+  // const [transcriptionState, setTranscriptionState] = React.useState({
+  //   fileName: "",
+  // })
+  // const params = useSearchParams()
+  // const path = usePathname()
+
+  // React.useEffect(() => {
+  //   if (path.includes("/transcription")) {
+  //     const fileName = params.get("file_name")
+  //     if (
+  //       fileName &&
+  //       fileName.length > 0 &&
+  //       fileName !== null &&
+  //       fileName != undefined
+  //     )
+  //       setTranscriptionState({
+  //         fileName: fileName,
+  //       })
+  //   }
+  // }, [path, params])
+
+  // React.useEffect(() => {
+  //   if (transcriptionState.fileName) {
+  //     pause()
+  //     getAudioPath(transcriptionState.fileName).then(fileUrl => {
+  //       if (fileUrl) loadAudio(fileUrl)
+  //     })
+  //   }
+  // }, [transcriptionState, loadAudio])
 
   const [isDragging, setIsDragging] = React.useState(false)
   const [position, setPosition] = React.useState({ right: 20, bottom: 20 })
@@ -133,175 +151,189 @@ export default function FloatingAudioPlayer({
   const isReproducing = !!fileName && !isLoadingAudio && !hasLoadingError
 
   return (
-    <Card
-      className={cn(
-        "fixed w-80 select-none p-4",
-        isAudioPlayerHidden ? "rounded-full h-fit w-fit p-0" : null
-      )}
-      style={{
-        right: `${position.right}px`,
-        bottom: `${position.bottom}px`,
-        cursor: isDragging ? "grabbing" : "grab",
-      }}
-      onMouseDown={handleMouseDown}
+    <Suspense
+      fallback={
+        <Card
+          className='fixed w-80 select-none p-4 cursor-wait'
+          style={{
+            right: `${position.right}px`,
+            bottom: `${position.bottom}px`,
+          }}
+        >
+          Cargando...
+        </Card>
+      }
     >
-      {!isAudioPlayerHidden ? (
-        <>
-          <CardHeader className='flex flex-row items-center justify-between space-y-0 p-0 mb-2'>
-            <div className='relative h-9 overflow-hidden rounded-md w-full'>
-              <div
-                className='absolute inset-0 flex'
-                style={{ top: "50%", transform: "translateY(-50%)" }}
-              >
-                <div className='marquee-content whitespace-nowrap font-mono text-sm'>
-                  {isReproducing ? (
-                    "Reproduciendo audio:"
-                  ) : isLoadingAudio ? (
-                    <span className='text-warning'>Cargando audio:</span>
-                  ) : hasLoadingError ? (
-                    <span className='text-destructive'>
-                      Error al cargar audio:
-                    </span>
-                  ) : null}{" "}
-                  {!!fileName && String(fileName)}
+      <Card
+        className={cn(
+          "fixed w-80 select-none p-4",
+          isAudioPlayerHidden ? "rounded-full h-fit w-fit p-0" : null
+        )}
+        style={{
+          right: `${position.right}px`,
+          bottom: `${position.bottom}px`,
+          cursor: isDragging ? "grabbing" : "grab",
+        }}
+        onMouseDown={handleMouseDown}
+      >
+        {!isAudioPlayerHidden ? (
+          <>
+            <CardHeader className='flex flex-row items-center justify-between space-y-0 p-0 mb-2'>
+              <div className='relative h-9 overflow-hidden rounded-md w-full'>
+                <div
+                  className='absolute inset-0 flex'
+                  style={{ top: "50%", transform: "translateY(-50%)" }}
+                >
+                  <div className='marquee-content whitespace-nowrap font-mono text-sm'>
+                    {isReproducing ? (
+                      "Reproduciendo audio:"
+                    ) : isLoadingAudio ? (
+                      <span className='text-warning'>Cargando audio:</span>
+                    ) : hasLoadingError ? (
+                      <span className='text-destructive'>
+                        Error al cargar audio:
+                      </span>
+                    ) : null}{" "}
+                    {!!fileName && String(fileName)}
+                  </div>
                 </div>
               </div>
-            </div>
-            <Button
-              variant='ghost'
-              size='icon'
-              className='p-2 rounded-full'
-              onClick={toggleHide}
-            >
-              <X size={GLOBAL_ICON_SIZE} />
-            </Button>
-          </CardHeader>
-          <CardContent className='space-y-2 p-0 mb-2'>
-            <div className='flex items-center justify-between'>
-              {hasLoadingError ? (
-                <Button
-                  className='rounded-md text-destructive-foreground p-2'
-                  disabled
-                  variant='destructive'
-                  size='icon'
-                  aria-label={"Error playing audio"}
-                >
-                  <TriangleAlert size={GLOBAL_ICON_SIZE} />
-                </Button>
-              ) : (
-                <Button
-                  onClick={isPlaying ? pause : play}
-                  disabled={isLoading}
-                  variant='outline'
-                  size='icon'
-                  className='rounded-full hover:text-secondary-foreground bg-popover p-2'
-                  aria-label={isPlaying ? "Pause" : "Play"}
-                >
-                  {isLoadingAudio ? (
-                    <HashLoader
-                      color='currentColor'
-                      loading={true}
-                      size={GLOBAL_ICON_SIZE}
-                      className='animate-spin'
-                    />
-                  ) : isPlaying ? (
-                    <Pause size={GLOBAL_ICON_SIZE} />
-                  ) : (
-                    <Play size={GLOBAL_ICON_SIZE} />
-                  )}
-                </Button>
-              )}
-              <span className='text-sm'>
-                {formatTime(currentTime)} / {formatTime(audioDuration)}
-              </span>
-            </div>
-            <Slider
-              value={[currentTime]}
-              max={audioDuration}
-              step={0.1}
-              onValueChange={([value]) =>
-                seekAudio((value / audioDuration) * 100)
-              }
-              className='w-full'
-              aria-label='Seek audio'
-            />
-          </CardContent>
-          <CardFooter className='flex items-center space-x-2 p-0'>
-            <Button
-              onClick={toggleMute}
-              variant='ghost'
-              size='icon'
-              className='rounded-sm hover:bg-transparent hover:text-secondary-foreground'
-              aria-label={muted ? "Unmute" : "Mute"}
-            >
-              {muted ? (
-                <VolumeOff size={GLOBAL_ICON_SIZE} />
-              ) : volume === 0 ? (
-                <VolumeX size={GLOBAL_ICON_SIZE} />
-              ) : volume > 75 ? (
-                <Volume2 size={GLOBAL_ICON_SIZE} />
-              ) : volume > 25 ? (
-                <Volume1 size={GLOBAL_ICON_SIZE} />
-              ) : (
-                <Volume size={GLOBAL_ICON_SIZE} />
-              )}
-            </Button>
-            <Slider
-              value={[volume]}
-              max={100}
-              step={1}
-              onValueChange={([value]) => setVolume(value)}
-              className='w-24'
-              aria-label='Adjust volume'
-            />
-            <Select
-              value={playbackSpeed.toString()}
-              onValueChange={value => setPlaybackSpeed(parseFloat(value))}
-            >
-              <SelectTrigger
-                className='w-[80px] bg-popover'
-                aria-label='Select playback speed'
+              <Button
+                variant='ghost'
+                size='icon'
+                className='p-2 rounded-full'
+                onClick={toggleHide}
               >
-                <SelectValue placeholder='Speed' />
-              </SelectTrigger>
-              <SelectContent>
-                {speeds.map((speed, index) => (
-                  <SelectItem
-                    key={`speed-selector-${index}`}
-                    value={speed.value.toString()}
+                <X size={GLOBAL_ICON_SIZE} />
+              </Button>
+            </CardHeader>
+            <CardContent className='space-y-2 p-0 mb-2'>
+              <div className='flex items-center justify-between'>
+                {hasLoadingError ? (
+                  <Button
+                    className='rounded-md text-destructive-foreground p-2'
+                    disabled
+                    variant='destructive'
+                    size='icon'
+                    aria-label={"Error playing audio"}
                   >
-                    {speed.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </CardFooter>
-          <style jsx>{`
-            @keyframes marquee {
-              0% {
-                transform: translateX(100%);
+                    <TriangleAlert size={GLOBAL_ICON_SIZE} />
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={isPlaying ? pause : play}
+                    disabled={isLoading}
+                    variant='outline'
+                    size='icon'
+                    className='rounded-full hover:text-secondary-foreground bg-popover p-2'
+                    aria-label={isPlaying ? "Pause" : "Play"}
+                  >
+                    {isLoadingAudio ? (
+                      <HashLoader
+                        color='currentColor'
+                        loading={true}
+                        size={GLOBAL_ICON_SIZE}
+                        className='animate-spin'
+                      />
+                    ) : isPlaying ? (
+                      <Pause size={GLOBAL_ICON_SIZE} />
+                    ) : (
+                      <Play size={GLOBAL_ICON_SIZE} />
+                    )}
+                  </Button>
+                )}
+                <span className='text-sm'>
+                  {formatTime(currentTime)} / {formatTime(audioDuration)}
+                </span>
+              </div>
+              <Slider
+                value={[currentTime]}
+                max={audioDuration}
+                step={0.1}
+                onValueChange={([value]) =>
+                  seekAudio((value / audioDuration) * 100)
+                }
+                className='w-full'
+                aria-label='Seek audio'
+              />
+            </CardContent>
+            <CardFooter className='flex items-center space-x-2 p-0'>
+              <Button
+                onClick={toggleMute}
+                variant='ghost'
+                size='icon'
+                className='rounded-sm hover:bg-transparent hover:text-secondary-foreground'
+                aria-label={muted ? "Unmute" : "Mute"}
+              >
+                {muted ? (
+                  <VolumeOff size={GLOBAL_ICON_SIZE} />
+                ) : volume === 0 ? (
+                  <VolumeX size={GLOBAL_ICON_SIZE} />
+                ) : volume > 75 ? (
+                  <Volume2 size={GLOBAL_ICON_SIZE} />
+                ) : volume > 25 ? (
+                  <Volume1 size={GLOBAL_ICON_SIZE} />
+                ) : (
+                  <Volume size={GLOBAL_ICON_SIZE} />
+                )}
+              </Button>
+              <Slider
+                value={[volume]}
+                max={100}
+                step={1}
+                onValueChange={([value]) => setVolume(value)}
+                className='w-24'
+                aria-label='Adjust volume'
+              />
+              <Select
+                value={playbackSpeed.toString()}
+                onValueChange={value => setPlaybackSpeed(parseFloat(value))}
+              >
+                <SelectTrigger
+                  className='w-[80px] bg-popover'
+                  aria-label='Select playback speed'
+                >
+                  <SelectValue placeholder='Speed' />
+                </SelectTrigger>
+                <SelectContent>
+                  {speeds.map((speed, index) => (
+                    <SelectItem
+                      key={`speed-selector-${index}`}
+                      value={speed.value.toString()}
+                    >
+                      {speed.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </CardFooter>
+            <style jsx>{`
+              @keyframes marquee {
+                0% {
+                  transform: translateX(100%);
+                }
+                100% {
+                  transform: translateX(-100%);
+                }
               }
-              100% {
-                transform: translateX(-100%);
+              .marquee-content {
+                display: inline-block;
+                padding-left: 50%;
+                animation: marquee 15s linear infinite;
               }
-            }
-            .marquee-content {
-              display: inline-block;
-              padding-left: 50%;
-              animation: marquee 15s linear infinite;
-            }
-          `}</style>
-        </>
-      ) : (
-        <Button
-          onClick={toggleHide}
-          className='rounded-full shadow-md hover:shadow-lg transition-shadow w-fit h-fit p-3'
-          size='icon'
-          variant='secondary'
-        >
-          <Music size={GLOBAL_ICON_SIZE} />
-        </Button>
-      )}
-    </Card>
+            `}</style>
+          </>
+        ) : (
+          <Button
+            onClick={toggleHide}
+            className='rounded-full shadow-md hover:shadow-lg transition-shadow w-fit h-fit p-3'
+            size='icon'
+            variant='secondary'
+          >
+            <Music size={GLOBAL_ICON_SIZE} />
+          </Button>
+        )}
+      </Card>
+    </Suspense>
   )
 }

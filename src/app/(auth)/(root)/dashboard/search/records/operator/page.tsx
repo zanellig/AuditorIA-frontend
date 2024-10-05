@@ -1,8 +1,6 @@
 import React from "react"
-
 import { PersonIcon } from "@radix-ui/react-icons"
 import { DASHBOARD_ICON_CLASSES } from "@/lib/consts"
-
 import SearchRecords from "@/components/search-records"
 
 export default function Page() {

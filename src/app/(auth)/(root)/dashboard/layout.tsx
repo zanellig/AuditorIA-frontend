@@ -1,37 +1,35 @@
-"use client"
+import React, { Suspense } from "react"
+import AudioPlayerContent from "@/components/audio/audio-player-content"
 import FloatingAudioPlayer from "@/components/audio/floating-audio-player"
-import { usePathname, useSearchParams } from "next/navigation"
-import React from "react"
+import { Card } from "@/components/ui/card"
+import { Loader2 } from "lucide-react"
+import { GLOBAL_ICON_SIZE } from "@/lib/consts"
 
-export default function DashboardLayout({
+export default function AudioPlayerWrapper({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const [transcriptionState, setTranscriptionState] = React.useState({
-    fileName: "",
-  })
-  const params = useSearchParams()
-  const path = usePathname()
-
-  React.useEffect(() => {
-    if (path.includes("/transcription")) {
-      const fileName = params.get("file_name")
-      if (
-        fileName &&
-        fileName.length > 0 &&
-        fileName !== null &&
-        fileName != undefined
-      )
-        setTranscriptionState({
-          fileName: fileName,
-        })
-    }
-  }, [path, params])
   return (
     <>
       {children}
-      <FloatingAudioPlayer fileName={transcriptionState.fileName} />
+      <Suspense
+        fallback={
+          <Card
+            className='fixed w-80 select-none p-4 cursor-wait'
+            style={{
+              right: `${20}px`,
+              bottom: `${20}px`,
+            }}
+          >
+            <Loader2 size={GLOBAL_ICON_SIZE} className='animate-spin' />
+          </Card>
+        }
+      >
+        <AudioPlayerContent>
+          <FloatingAudioPlayer />
+        </AudioPlayerContent>
+      </Suspense>
     </>
   )
 }
