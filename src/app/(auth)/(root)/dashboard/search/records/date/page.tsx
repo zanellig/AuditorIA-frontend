@@ -10,7 +10,7 @@ export default function Page() {
       title='fecha'
       icon={<CalendarIcon className={DASHBOARD_ICON_CLASSES} />}
       shouldEnterText='la fecha del llamado'
-      _route='FECHA'
+      _route='fecha'
       inputOptions={{
         inputType: "date",
       }}

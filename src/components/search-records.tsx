@@ -76,7 +76,7 @@ export default function SearchRecords({
   // Function to fetch recordings based on input or date
   const fetchRecordings = async (signal: AbortSignal) => {
     const queryParam = date
-      ? `FECHA=${extractYearMonthDayFromDate(date)}`
+      ? `fecha=${extractYearMonthDayFromDate(date)}`
       : `${_route}=${search}`
 
     const res = await fetch(`${await getHost()}/api/recordings?${queryParam}`, {
