@@ -1,4 +1,4 @@
-import { ALL_RECORDS_PATH, API_CANARY } from "@/lib/consts"
+import { ALL_RECORDS_PATH } from "@/server-constants"
 import { _get } from "@/lib/fetcher"
 import {
   extractQueryParamsFromUrl,
@@ -6,31 +6,20 @@ import {
   concatParamsToUrlString,
 } from "@/lib/utils"
 import { NextRequest } from "next/server"
+import { env } from "@/env"
+import { getHost } from "@/lib/actions"
 
 export async function GET(request: NextRequest) {
-  const headers = getHeaders(API_CANARY)
+  const headers = getHeaders(env.API_CANARY)
   // It could have been done easier by removing everything after the ? and parsing it, but I prefer to have the utils just in case...
   // Basically, it extracts the query params from the URL we pass in the request and concatenates them to the URL we're going to pass to the API
   // Additionally, we might have other things in the URL later that aren't params, so to avoid future problems we do it this way, and if we need to change it later, we change it here and nowhere else
   const params = extractQueryParamsFromUrl(request.nextUrl.search)
-  const baseUrl = [API_CANARY, ALL_RECORDS_PATH].join("/")
+  const baseUrl = [env.API_CANARY, ALL_RECORDS_PATH].join("/")
   const url = concatParamsToUrlString(baseUrl, params)
+  console.log(url)
   const [err, res] = await _get(url, headers, { revalidate: true })
-  const responseHeaders = new Headers()
-  responseHeaders.append(
-    "Access-Control-Allow-Origin",
-    `${API_CANARY}, http://localhost:3030, http://10.20.30.211:3030, http://10.20.30.211:3030 `
-  )
-  responseHeaders.append(
-    "Access-Control-Allow-Methods",
-    "GET, POST, PUT, DELETE, OPTIONS"
-  )
-  responseHeaders.append(
-    "Access-Control-Allow-Headers",
-    "Content-Type, Authorization"
-  )
-  responseHeaders.append("Content-Type", "application/json")
-
+  const responseHeaders = getHeaders(await getHost())
   if (err !== null) {
     if (
       // @ts-ignore

@@ -4,6 +4,7 @@ import { exec } from "child_process"
 import fs from "fs/promises"
 import path from "path"
 import os from "os"
+import { env } from "@/env"
 
 const execAsync = promisify(exec)
 
@@ -27,11 +28,6 @@ export async function getNetworkAudio(
     console.groupEnd()
   }
 
-  // Normalize audioPath to split into server/share and file path components
-  const [, , server, share, ...filePath] = audioPath.split(/[\/\\]/)
-  const sharePath = `//${server}/${share}`
-  const filePathOnShare = filePath.join("/")
-
   // Create a temporary file to store the downloaded audio
   let tempDir: string
   try {
@@ -54,7 +50,7 @@ export async function getNetworkAudio(
     console.group("Windows handling")
     try {
       console.log("Reading file directly from UNC path")
-      const audioBuffer = await retryReadFile(audioPath, 3, 2000) // 3 retries with a 2-second delay
+      const audioBuffer = await retryReadFile(audioPath, 3, 5000) // 3 retries with a 5-second delay
       console.groupEnd()
       console.groupEnd()
       return [null, audioBuffer]
@@ -71,12 +67,15 @@ export async function getNetworkAudio(
         null,
       ]
     }
-  } else {
+  } else if (os.platform() === "linux" || os.platform() === "darwin") {
     console.group("Linux/macOS handling")
     // Linux/macOS smbclient handling
-    const username = process.env.LDAP_USERNAME
-    const password = process.env.LDAP_PASSWORD
-    const domain = process.env.LDAP_DOMAIN
+    const username = env.LDAP_USERNAME
+    const password = env.LDAP_PASSWORD
+    const domain = env.LDAP_DOMAIN
+    const [, , server, share, ...filePath] = audioPath.split(/[\/\\]/)
+    const sharePath = `//${server}/${share}`
+    const filePathOnShare = filePath.join("/")
 
     if (!username || !password || !domain) {
       return [new Error("LDAP credentials are not properly configured"), null]
@@ -149,11 +148,13 @@ export async function getNetworkAudio(
 async function retryReadFile(
   filePath: string,
   retries: number = 3,
-  delay: number = 1000
+  delay: number = 5000
 ): Promise<Buffer> {
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
+      console.log(`Attempt ${attempt} to read file: ${filePath}`)
       const audioBuffer = await fs.readFile(filePath)
+      console.log("Successfully read file")
       return audioBuffer // Return on success
     } catch (err) {
       if (attempt === retries) {

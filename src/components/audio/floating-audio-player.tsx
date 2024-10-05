@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect, useRef } from "react"
+import React from "react"
 import { useAudioPlayer } from "@/components/context/AudioProvider"
 import { Slider } from "@/components/ui/slider"
 import { Button } from "@/components/ui/button"
@@ -56,7 +56,7 @@ export default function FloatingAudioPlayer({
     loadAudio,
   } = useAudioPlayer()
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (fileName) {
       pause()
       getAudioPath(fileName).then(fileUrl => {
@@ -65,9 +65,9 @@ export default function FloatingAudioPlayer({
     }
   }, [fileName, loadAudio])
 
-  const [isDragging, setIsDragging] = useState(false)
-  const [position, setPosition] = useState({ right: 20, bottom: 20 })
-  const dragRef = useRef<{ startX: number; startY: number } | null>(null)
+  const [isDragging, setIsDragging] = React.useState(false)
+  const [position, setPosition] = React.useState({ right: 20, bottom: 20 })
+  const dragRef = React.useRef<{ startX: number; startY: number } | null>(null)
 
   const formatTime = (time: number) => {
     const minutes = Math.floor(time / 60)
@@ -110,7 +110,7 @@ export default function FloatingAudioPlayer({
     dragRef.current = null
   }
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (isDragging) {
       document.addEventListener("mousemove", handleMouseMove as any)
       document.addEventListener("mouseup", handleMouseUp)

@@ -35,8 +35,7 @@ import { secondsToHMS, formatTimestamp } from "@/lib/utils"
 import Link from "next/link"
 
 import ButtonBorderMagic from "@/components/ui/button-border-magic"
-import { API_CANARY } from "@/lib/consts"
-import { actionRevalidatePath, analyzeTask } from "@/lib/actions"
+import { actionRevalidatePath, getHost } from "@/lib/actions"
 import { ToastAction } from "@/components/ui/toast"
 import { usePathname } from "next/navigation"
 import A from "@/components/typography/a"
@@ -197,15 +196,34 @@ export const columns: ColumnDef<Task | null>[] = [
                       description: "La tarea se está analizando",
                       variant: "default",
                     })
-                    const [err, res] = await analyzeTask(
-                      [API_CANARY, "tasks"],
-                      row.original?.identifier,
-                      row.original?.language
-                    )
-                    console.log(res)
+                    const [err, res] = await fetch(
+                      `${await getHost()}/api/tasks`,
+                      {
+                        method: "PUT",
+                        body: JSON.stringify({
+                          identifier: row.original?.identifier,
+                          language: row.original?.language,
+                        }),
+                      }
+                    ).then(res => {
+                      if (!res.ok) {
+                        toast({
+                          title: "La tarea no pudo ser analizada",
+                          description: res.statusText,
+                          variant: "destructive",
+                        })
+                      }
+                      return res.json()
+                    })
+
+                    // const [err, res] = await analyzeTask(
+                    //   [API_CANARY, "tasks"],
+                    //   row.original?.identifier,
+                    //   row.original?.language
+                    // )
                     if (err !== null) {
                       toast({
-                        title: "Error",
+                        title: "La tarea no pudo ser analizada",
                         description: "La tarea no pudo ser analizada",
                         variant: "destructive",
                       })

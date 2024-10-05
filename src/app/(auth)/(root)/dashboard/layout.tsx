@@ -1,7 +1,7 @@
 "use client"
 import FloatingAudioPlayer from "@/components/audio/floating-audio-player"
 import { usePathname, useSearchParams } from "next/navigation"
-import * as React from "react"
+import React from "react"
 
 export default function DashboardLayout({
   children,

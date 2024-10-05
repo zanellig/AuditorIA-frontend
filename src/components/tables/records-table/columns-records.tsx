@@ -1,31 +1,12 @@
 "use client"
+import React from "react"
 import type { ColumnDef, Row } from "@tanstack/react-table"
 import type { Recording } from "@/lib/types"
-
 import { ArrowUpDown, ArrowDown, ArrowUp } from "lucide-react"
-
 import { getLocaleMonth } from "@/lib/utils"
-import { API_MAIN, API_CANARY } from "@/lib/consts"
-
 import { Badge } from "@/components/ui/badge"
 import AudioProcessingTaskStarter from "./audio-processing/audio-processing-task-starter"
 
-// function renderMarker(status: Status) {
-//   switch (status) {
-//     case "completed":
-//     case "analyzed":
-//       return <CircleCheck size={GLOBAL_ICON_SIZE} className='text-green-500' />
-//     case "processing":
-//       return (
-//         <CircleDashed
-//           size={GLOBAL_ICON_SIZE}
-//           className='text-muted-foreground'
-//         />
-//       )
-//     case "failed":
-//       return <CircleAlert size={GLOBAL_ICON_SIZE} className='text-red-500' />
-//   }
-// }
 
 function renderArrow(sorted: false | "asc" | "desc") {
   if (sorted === false) {
@@ -52,13 +33,9 @@ export const columns: ColumnDef<Recording | null>[] = [
           key={`check-${row.original?.IDLLAMADA}`}
           className='flex flex-row items-center justify-start w-fit space-x-2'
         >
-          {/* <Badge className='capitalize' variant={"outline"}>
+          <Badge className='capitalize' variant={"outline"}>
             {row.original?.DIRECCION.toLocaleLowerCase()}
-          </Badge> */}
-          {/* <InfoIcon
-            className='ml-2 mr-0 inline-block'
-            size={GLOBAL_ICON_SIZE}
-          /> */}
+          </Badge>
           <div className='w-20'>
             {row.original?.IDLLAMADA as Recording["IDLLAMADA"]}
           </div>
@@ -96,17 +73,6 @@ export const columns: ColumnDef<Recording | null>[] = [
       )
     },
   },
-  // {
-  //   accessorKey: "DIRECCION",
-  //   header: () => <div>Dirección</div>,
-  //   cell: ({ row }) => {
-  //     return (
-  //       <div className='capitalize'>
-  //         {row.original?.DIRECCION.toLocaleLowerCase()}
-  //       </div>
-  //     )
-  //   },
-  // },
   {
     accessorKey: "INICIO",
     header: () => <div>Fecha</div>,

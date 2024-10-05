@@ -16,21 +16,6 @@ export const SPEAKER_ICON_CLASSES = cn(
   DASHBOARD_ICON_CLASSES,
   "w-[1rem] h-[1rem]"
 )
-export const API_MAIN = "http://10.20.30.30:8000"
-export const API_CANARY = "http://10.20.30.108:7000"
-export const ALL_TASKS_PATH = "tasks"
-export const TASK_PATH = "task"
-export const ALL_RECORDS_PATH = "records"
-export const SPEECH_TO_TEXT_PATH = "speech-to-text"
-export const FEEDBACK_PATH = "help/send-feedback"
-export const FEATURE_PATH = "help/recommend-feature"
-export const BUG_PATH = "help/report-bug"
-export const SPEAKER_ANALYSIS_PATH = "spkanalysis"
-export const ACCEPTED_ORIGINS = [
-  API_MAIN,
-  API_CANARY,
-  "http://10.20.30.211:3030",
-]
 export const ACCEPTED_AUDIO_TYPES = [
   "wav",
   "x-wav",
@@ -43,6 +28,5 @@ export const ACCEPTED_AUDIO_TYPES = [
   "x-flac",
 ]
 
-// for testing
 export const TESTING = false
 export const TESTING_RECORDINGS = false

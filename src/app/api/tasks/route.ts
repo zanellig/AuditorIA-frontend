@@ -1,12 +1,13 @@
-import { ALL_TASKS_PATH, API_MAIN, SPEECH_TO_TEXT_PATH } from "@/lib/consts"
+import { ALL_TASKS_PATH, SPEECH_TO_TEXT_PATH } from "@/server-constants"
 import { AllowedContentTypes, getHeaders } from "@/lib/utils"
-import { _get, _post } from "@/lib/fetcher"
+import { _get, _post, _put } from "@/lib/fetcher"
 import { Tasks } from "@/lib/types.d"
 import { NextRequest, NextResponse } from "next/server"
-
+import { env } from "@/env"
+import { getHost } from "@/lib/actions"
 export async function GET() {
-  const headers = getHeaders(API_MAIN, AllowedContentTypes.Json)
-  const url = [API_MAIN, ALL_TASKS_PATH].join("/")
+  const headers = getHeaders(env.API_MAIN, AllowedContentTypes.Json)
+  const url = [env.API_MAIN, ALL_TASKS_PATH].join("/")
   const [err, res] = await _get(url, headers)
 
   if (err !== null) {
@@ -43,30 +44,30 @@ export async function POST(request: NextRequest) {
   if (!contentType || !contentType.includes("multipart/form-data")) {
     return new NextResponse(JSON.stringify(["Unsupported Media Type", null]), {
       status: 415,
-      headers: getHeaders(API_MAIN, AllowedContentTypes.Json),
+      headers: getHeaders(env.API_MAIN, AllowedContentTypes.Json),
     })
   }
 
   if (file instanceof File && file.size > 10000000) {
     return new NextResponse(JSON.stringify(["Payload Too Large", null]), {
       status: 413,
-      headers: getHeaders(API_MAIN, AllowedContentTypes.Json),
+      headers: getHeaders(env.API_MAIN, AllowedContentTypes.Json),
     })
   }
 
   if (file === null) {
     return new NextResponse(JSON.stringify(["No file provided", null]), {
       status: 400,
-      headers: getHeaders(API_MAIN, AllowedContentTypes.Json),
+      headers: getHeaders(env.API_MAIN, AllowedContentTypes.Json),
     })
   }
 
-  const headers = getHeaders(API_MAIN)
-  const url = [API_MAIN, SPEECH_TO_TEXT_PATH].join("/")
+  const headers = getHeaders(env.API_MAIN)
+  const url = [env.API_MAIN, SPEECH_TO_TEXT_PATH].join("/")
   const [err, res] = await _post(url, formData, headers)
   const responseHeaders = new Headers()
 
-  responseHeaders.set("Access-Control-Allow-Origin", API_MAIN)
+  responseHeaders.set("Access-Control-Allow-Origin", env.API_MAIN)
   responseHeaders.set(
     "Access-Control-Allow-Methods",
     "GET, POST, PUT, DELETE, OPTIONS"
@@ -93,5 +94,19 @@ export async function POST(request: NextRequest) {
   return new NextResponse(JSON.stringify([null, res]), {
     status: 200,
     headers: responseHeaders,
+  })
+}
+
+export async function PUT(request: NextRequest) {
+  const body = await request.json()
+  const { identifier, language } = body
+  const headers = getHeaders(env.API_CANARY, AllowedContentTypes.Json)
+  const url = [env.API_CANARY, "task", identifier]
+    .join("/")
+    .concat(`?lang=${language}`)
+  const [err, res] = await _put(url, body, headers)
+  return new NextResponse(JSON.stringify([err, res]), {
+    status: 200,
+    headers: getHeaders(await getHost(), AllowedContentTypes.Json),
   })
 }

@@ -1,3 +1,4 @@
+import React from "react"
 import {
   ArrowRightIcon,
   CalendarIcon,
@@ -6,18 +7,15 @@ import {
   FileIcon,
   FileTextIcon,
   GlobeIcon,
-  LoopIcon,
   PersonIcon,
   UploadIcon,
 } from "@radix-ui/react-icons"
-import * as React from "react"
 import { CardBody, CardContainer, CardItem } from "@/components/ui/3d-card"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
 import { DASHBOARD_ICON_CLASSES } from "@/lib/consts"
 import { StatefulButton } from "@/components/stateful-button"
-import { ArrowRightLeft } from 'lucide-react'
+import { ArrowRightLeft } from "lucide-react"
 
 export default function BasicDashboard() {
   const dashboardItems = [

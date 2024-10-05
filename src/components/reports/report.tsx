@@ -1,5 +1,5 @@
 "use client"
-
+import React from "react"
 import ReportHateMonth from "./report-hate-month"
 import { ReportEmotionCall } from "./report-emotion-call"
 import { Component } from "./report-call-ponderation"

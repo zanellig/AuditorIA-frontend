@@ -1,8 +1,7 @@
 // @/components/transcription/transcription.client.tsx
 "use client"
-import * as React from "react"
+import React from "react"
 import { useRouter } from "next/navigation"
-
 import {
   Segment,
   Task,
@@ -10,7 +9,6 @@ import {
   SegmentAnalysisProperties,
   SupportedLocales,
 } from "@/lib/types.d"
-
 import { Button } from "@/components/ui/button"
 import {
   Drawer,

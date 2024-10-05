@@ -13,8 +13,7 @@ export function AvatarButton({
         showButtons ? "translate-x-0" : "translate-x-12"
       }`}
     >
-      {/* aca le pueden poner su avatar de github (o cualquier imagen que quieran), si lo cambian asegúrense de no meter este archivo / linea en el commit */}
-      {/* <AvatarImage src='https://github.com/agustinbouzonn.png' />{" "} */}
+      {/* <AvatarImage src={}/>{" "} */}
       <AvatarFallback>GZ</AvatarFallback>
     </Avatar>
   )

@@ -8,7 +8,7 @@ import React, {
   useCallback,
   useEffect,
 } from "react"
-
+import { getHost } from "@/lib/actions"
 interface AudioContextProps {
   isAudioPlayerHidden: boolean
   isPlaying: boolean
@@ -54,7 +54,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({
     setIsLoading(true)
     try {
       const response = await fetch(
-        `http://10.20.30.211:3030/api/audio?path=${encodeURIComponent(nasPath)}` // change to IP before pushing to production
+        `${getHost()}/api/audio?path=${encodeURIComponent(nasPath)}`
       )
       if (!response.ok) {
         setError(true)

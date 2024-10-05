@@ -4,8 +4,6 @@ import TitleH1 from "@/components/typography/titleH1"
 import ErrorRetryButton from "@/components/error/error-button.client"
 import { getErrorStringLocale } from "@/lib/get-error-string-locale"
 import { SupportedLocales } from "@/lib/types.d"
-import { Button } from "../ui/button"
-import { handleCopyToClipboard } from "@/lib/utils"
 import { z } from "zod"
 
 interface ErrorCodeUserFriendlyProps {

@@ -1,5 +1,5 @@
 "use client"
-import * as React from "react"
+import React from "react"
 import { cn } from "@/lib/utils"
 import { Card, CardContent, CardDescription, CardHeader } from "./ui/card"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -21,10 +21,10 @@ import {
 import { SelectField } from "@/components/tables/records-table/audio-processing/select-field"
 
 import { taskFormOptions, taskFormSchema, type FormValues } from "@/lib/forms"
-import { Input } from "./ui/input"
 import { Badge } from "./ui/badge"
 import { StatefulButton } from "./stateful-button"
 import { ACCEPTED_AUDIO_TYPES } from "@/lib/consts"
+import { getHost } from "@/lib/actions"
 
 export default function TaskUploadForm({ className }: { className?: string }) {
   const { toast } = useToast()
@@ -35,11 +35,6 @@ export default function TaskUploadForm({ className }: { className?: string }) {
   const [uploadIdentifier, setUploadIdentifier] = React.useState<string | null>(
     new Date().toISOString()
   )
-
-  React.useEffect(() => {
-    // @ts-ignore
-    form.reset({ language: "", task_type: "", model: "", device: "cuda" })
-  }, [form])
 
   const mutation = useMutation({
     mutationFn: async (values: FormValues) => {
@@ -55,17 +50,18 @@ export default function TaskUploadForm({ className }: { className?: string }) {
       /**
        * Form works, but API is currently down.
        */
-      const [error, task] = await fetch("http://10.20.30.211:3030/api/task", {
+      const [error, task] = await fetch(`${await getHost()}/api/task`, {
         method: "POST",
         body: formData,
       }).then(async res => {
-        if (res.ok) {
+        if (!res.ok) {
+          throw new Error(res.statusText)
+        } else {
           return await res.json()
         }
-        return [new Error("Error al subir la tarea"), null]
       })
       if (error) {
-        throw new Error(error.message)
+        throw new Error(error)
       }
       return task
     },
@@ -86,8 +82,13 @@ export default function TaskUploadForm({ className }: { className?: string }) {
           </ToastAction>
         ),
       })
-      // @ts-ignore
-      form.reset({ language: "", task_type: "", model: "", device: "cuda" })
+      form.reset({
+        language: "es",
+        task_type: "transcribe",
+        model: "large-v3",
+        device: "cuda",
+        file: [],
+      })
       queryClient.invalidateQueries({ queryKey: ["tasks"] })
     },
     onError: (error: Error) => {
@@ -95,7 +96,7 @@ export default function TaskUploadForm({ className }: { className?: string }) {
       toast({
         variant: "destructive",
         title: "Error al enviar la tarea",
-        description: error.message.slice(0, 100),
+        description: error.message,
         action: (
           <ToastAction
             className='border border-ring'
@@ -167,16 +168,6 @@ export default function TaskUploadForm({ className }: { className?: string }) {
                   <FormLabel>Archivo</FormLabel>
                   <FormControl>
                     <div className='flex flex-col'>
-                      {/* <Input
-                        placeholder='Seleccione un archivo'
-                        accept={"audio/*"}
-                        type='file'
-                        name='file'
-                        className='mt-2 hidden'
-                        onChange={(e: any) => {
-                          field.onChange(e.target.files[0])
-                        }}
-                      /> */}
                       <FileUpload
                         onChange={(files: File[]) => {
                           field.onChange(files[0])

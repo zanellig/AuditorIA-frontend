@@ -1,17 +1,17 @@
-import React, { useEffect, useState } from "react"
+import React from "react"
 import { Switch } from "@/components/ui/switch"
 import { useDashboard } from "@/components/context/DashboardProvider"
 import { Label } from "../ui/label"
 
 export default function DashboardSwitch() {
   // Local state to control the Switch
-  const [localIsAdvanced, setLocalIsAdvanced] = useState(false)
+  const [localIsAdvanced, setLocalIsAdvanced] = React.useState(false)
 
   // Access context values
   const { isAdvanced, toggleDashboard } = useDashboard()
 
   // Sync local state with context on mount and context change
-  useEffect(() => {
+  React.useEffect(() => {
     setLocalIsAdvanced(isAdvanced)
   }, [isAdvanced])
 

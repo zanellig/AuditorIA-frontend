@@ -1,6 +1,6 @@
 "use client"
 // 100% prompt engineered with v0.dev
-import * as React from "react"
+import React from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"

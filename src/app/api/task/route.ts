@@ -1,32 +1,31 @@
 import { _get, _post } from "@/lib/fetcher"
-import { API_MAIN, SPEECH_TO_TEXT_PATH, TASK_PATH } from "@/lib/consts"
+import { TASK_PATH } from "@/server-constants"
 import { AllowedContentTypes, getHeaders } from "@/lib/utils"
 import { TaskPOSTResponse } from "@/lib/types.d"
 import { NextRequest, NextResponse } from "next/server"
+import { fetchAudioData } from "@/lib/actions"
+import { env } from "@/env"
 
 export const revalidate = 5
 
-const TASK_API = [API_MAIN, TASK_PATH].join("/")
-const SPEECH_TO_TEXT_API = [API_MAIN, SPEECH_TO_TEXT_PATH].join("/")
-
 export async function GET(request: NextRequest) {
-  const url = new URL(request.url)
   const identifier = request.nextUrl.searchParams.get("identifier")
 
-  const headers = getHeaders(API_MAIN, AllowedContentTypes.Json)
+  const headers = getHeaders(env.API_MAIN, AllowedContentTypes.Json)
   if (!identifier) {
     return new NextResponse(
-      JSON.stringify([new Error("Task ID was not provided"), null]),
+      JSON.stringify([
+        new Error("1001: No se proporcionó un ID de tarea."),
+        null,
+      ]),
       {
         status: 400,
         headers: headers,
-        statusText: "Task ID was not provided",
+        statusText: "1001: No se proporcionó un ID de tarea.",
       }
     )
   }
-  // transform into array
-  const reqUrl = [API_MAIN, TASK_PATH, identifier].join("/")
-
+  const reqUrl = [env.API_MAIN, TASK_PATH, identifier].join("/")
   const [err, res] = await _get(reqUrl, headers, {
     revalidate: true,
     expectJson: true,
@@ -42,19 +41,25 @@ export async function GET(request: NextRequest) {
      * We return a generic 500 error, as we don't want to leak information about the server, but we should improve this.
      * Maybe returning a 503, 522 or 523; I don't know which one is the best fit.
      * */
-    return new NextResponse(JSON.stringify([err.message, null]), {
-      status: 500,
-      headers: headers,
-      statusText: "Unknown internal server error while fetching task.",
-    })
+    return new NextResponse(
+      JSON.stringify([
+        "(1002): Error interno desconocido al obtener la tarea.",
+        null,
+      ]),
+      {
+        status: 500,
+        headers: headers,
+        statusText: "(1002): Error interno desconocido al obtener la tarea.",
+      }
+    )
   }
   if (res === null) {
     return new NextResponse(
-      JSON.stringify([new Error("Task not found."), null]),
+      JSON.stringify([new Error("(1003): Tarea no encontrada."), null]),
       {
         status: 404,
         headers: headers,
-        statusText: "Task not found.",
+        statusText: "(1003): Tarea no encontrada.",
       }
     )
   }
@@ -62,50 +67,124 @@ export async function GET(request: NextRequest) {
     return new NextResponse(JSON.stringify([null, res]), {
       status: 200,
       headers: headers,
-      statusText: "Task fetched successfully.",
+      statusText: "Tarea obtenida correctamente.",
     })
   }
   return new NextResponse(
-    JSON.stringify([new Error("Unknown error fetching task."), null]),
+    JSON.stringify([
+      new Error("(1004): Error desconocido al obtener la tarea."),
+      null,
+    ]),
     {
       status: 500,
       headers: headers,
-      statusText: "Unknown error fetching task.",
+      statusText: "(1004): Error desconocido al obtener la tarea.",
     }
   )
 }
+
 export async function POST(request: NextRequest) {
-  const headers = getHeaders(API_MAIN)
-  const data = await request.formData()
+  const params = request.nextUrl.searchParams
+  const headers = getHeaders(env.API_MAIN)
+  const form = await request.formData()
+  const nasUrl = params.get("nasUrl")
+  const fileName = params.get("fileName")
+  const responseHeaders = getHeaders(env.API_MAIN, AllowedContentTypes.Json)
+  console.group("Request reached endpoint /api/task with the following data:")
+  console.log("nasUrl:", nasUrl)
+  console.log("fileName:", fileName)
+  console.log("data:", form)
+  console.groupEnd()
+  const rejectCondition =
+    !form ||
+    !form.get("language") ||
+    !form.get("task_type") ||
+    !form.get("model") ||
+    !form.get("device")
+  if (rejectCondition) {
+    return new NextResponse(
+      JSON.stringify([
+        new Error(
+          "(1005): No se han proveído los datos necesarios para ejecutar la consulta."
+        ),
+        null,
+      ]),
+      {
+        status: 400,
+        statusText:
+          "(1005): No se han proveído los datos necesarios para ejecutar la consulta.",
+        headers: responseHeaders,
+      }
+    )
+  }
+  if (nasUrl && fileName) {
+    try {
+      const binaryFromNAS = await fetchAudioData(nasUrl)
+      const fileType = fileName.split(".").pop() || "octet-stream"
+      if (binaryFromNAS) {
+        // Convert Buffer to Blob
+        const blob = new Blob([binaryFromNAS], { type: `audio/${fileType}` })
+        form.set("file", blob, fileName)
+      } else {
+        return new NextResponse(
+          JSON.stringify([new Error("(1006): Archivo no encontrado."), null]),
+          {
+            status: 404,
+            statusText: "(1006): Archivo no encontrado.",
+            headers: responseHeaders,
+          }
+        )
+      }
+    } catch (error: any) {
+      if (error instanceof Error) {
+        console.error("Error posting audio to API:", error.message)
+        return new NextResponse(
+          JSON.stringify([new Error("(1007): Error al crear la tarea."), null]),
+          {
+            status: 500,
+            statusText: "(1007): Error al crear la tarea.",
+            headers: responseHeaders,
+          }
+        )
+      }
+      return new NextResponse(
+        JSON.stringify([
+          new Error("(1008): Error desconocido al crear la tarea."),
+          null,
+        ]),
+        {
+          status: 500,
+          statusText: "(1008): Error desconocido al crear la tarea.",
+          headers: responseHeaders,
+        }
+      )
+    }
+  }
   const [err, res] = await _post<TaskPOSTResponse>(
-    SPEECH_TO_TEXT_API,
-    data,
+    [env.API_MAIN, TASK_PATH].join("/"),
+    form,
     headers,
     {
       revalidate: true,
       expectJson: true,
     }
   )
-  const responseHeaders = new Headers()
-  responseHeaders.append("Access-Control-Allow-Origin", API_MAIN)
-  responseHeaders.append("Access-Control-Allow-Methods", " POST")
-  responseHeaders.append(
-    "Access-Control-Allow-Headers",
-    "Content-Type, Authorization"
-  )
-  responseHeaders.append("Content-Type", "application/json")
   if (err !== null) {
-    return new NextResponse(JSON.stringify([err, null]), {
-      status: 500,
-      headers: responseHeaders,
-    })
+    /**
+     * If the error falls here, check if the API is running.
+     */
+    return new NextResponse(
+      JSON.stringify(["(1009): Error al crear la tarea.", null]),
+      {
+        status: 500,
+        statusText: "(1009): Error al crear la tarea.",
+        headers: responseHeaders,
+      }
+    )
   }
   return new NextResponse(JSON.stringify([null, res]), {
-    status: 201,
+    status: 200,
+    statusText: "Tarea creada",
     headers: responseHeaders,
   })
 }
-
-/*
-{"identifier":"c20c5808-f0a8-4697-a0ed-8a856b7fa2eb","message":"Task queued"}
-*/

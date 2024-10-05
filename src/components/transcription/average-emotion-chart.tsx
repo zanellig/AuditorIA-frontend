@@ -1,3 +1,4 @@
+import React from "react"
 import { Bar, BarChart, XAxis, YAxis } from "recharts"
 import {
   ChartContainer,
@@ -19,9 +20,9 @@ import {
   CardDescription,
   CardFooter,
   CardHeader,
-  CardTitle,
 } from "@/components/ui/card"
 import { TrendingUp } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 export default function AverageEmotionChart({
   chartData,
@@ -69,7 +70,7 @@ export default function AverageEmotionChart({
   return (
     <>
       {chartData && (
-        <Card className='w-[350px] bg-transparent border-none'>
+        <Card className={cn("w-[350px] bg-transparent border-none", className)}>
           <CardHeader>
             <CardDescription>Promedio de emoción</CardDescription>
           </CardHeader>

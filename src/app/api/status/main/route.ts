@@ -1,5 +1,5 @@
 import { _get } from "@/lib/fetcher"
-import { API_MAIN } from "@/lib/consts"
+import { env } from "@/env"
 import { getHeaders } from "@/lib/utils"
 import { ServerStatusBadgeVariant } from "@/lib/types.d"
 import { NextResponse } from "next/server"
@@ -7,10 +7,10 @@ import { NextResponse } from "next/server"
 export const revalidate = 5
 
 export async function GET() {
-  const headers = getHeaders(API_MAIN)
+  const headers = getHeaders(env.API_MAIN)
 
   // Fetch data
-  const [error, response] = await _get(API_MAIN + "/docs", headers, {
+  const [error, response] = await _get(env.API_MAIN + "/docs", headers, {
     expectJson: false,
   })
 

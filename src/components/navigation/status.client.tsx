@@ -1,29 +1,33 @@
 "use client"
 import { Badge } from "@/components/ui/badge"
-import { Suspense, useEffect, useState } from "react"
+import React from "react"
 import { ServerStatusBadgeVariant, ServerStatusResponse } from "@/lib/types.d"
 import { Skeleton } from "../ui/skeleton"
 export default function StatusBadges() {
   const [mainServerStatusBadgeOptions, setMainServerStatusBadgeOptions] =
-    useState<ServerStatusResponse>({
+    React.useState<ServerStatusResponse>({
       variant: ServerStatusBadgeVariant.Unknown,
       text: "",
     })
   const [canaryServerStatusOptions, setCanaryServerStatusOptions] =
-    useState<ServerStatusResponse>({
+    React.useState<ServerStatusResponse>({
       variant: ServerStatusBadgeVariant.Unknown,
       text: "",
     })
-
-  useEffect(() => {
-    fetch("http://10.20.30.211:3030/api/status/main", { method: "GET" }).then(async res => {
-      const response = await res.json()
-      setMainServerStatusBadgeOptions(response)
-    })
-    fetch("http://10.20.30.211:3030/api/status/canary", { method: "GET" }).then(async res => {
-      const response = await res.json()
-      setCanaryServerStatusOptions(response)
-    })
+  // WRONG
+  React.useEffect(() => {
+    // fetch(`http://localhost:3030/api/status/main`, { method: "GET" }).then(
+    //   async res => {
+    //     const response = await res.json()
+    //     setMainServerStatusBadgeOptions(response)
+    //   }
+    // )
+    // fetch("http://10.20.30.211:3030/api/status/canary", { method: "GET" }).then(
+    //   async res => {
+    //     const response = await res.json()
+    //     setCanaryServerStatusOptions(response)
+    //   }
+    // )
   }, [])
 
   return (

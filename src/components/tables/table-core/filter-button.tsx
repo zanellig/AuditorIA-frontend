@@ -1,4 +1,4 @@
-import * as React from "react"
+import React from "react"
 import { Column, Table } from "@tanstack/react-table"
 import { Button } from "@/components/ui/button"
 import {

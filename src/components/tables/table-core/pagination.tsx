@@ -1,6 +1,5 @@
 "use client"
-import { useState } from "react"
-
+import React from "react"
 import {
   PaginationState,
   Table as ReactTableInstance,
@@ -37,7 +36,7 @@ export default function Pagination<TData>({
   type: string
   pagination: PaginationState
 }) {
-  const [inputValue, setInputValue] = useState<string>("") // Estado para el valor del input
+  const [inputValue, setInputValue] = React.useState<string>("") // Estado para el valor del input
   const pageSizeOptions = [10, 20, 30, 40, 50]
   return (
     <div className='flex items-center justify-between space-x-2 py-4'>

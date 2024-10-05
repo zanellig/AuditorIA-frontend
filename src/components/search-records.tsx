@@ -1,5 +1,5 @@
 "use client"
-import * as React from "react"
+import React from "react"
 import {
   Card,
   CardContent,
@@ -30,6 +30,7 @@ import { TableSupportedDataTypes } from "@/lib/types.d"
 import { CustomBorderCard } from "./custom-border-card"
 import { StatefulButton } from "./stateful-button"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { getHost } from "@/lib/actions"
 
 type InputType = "text" | "date" | "number" | "select"
 type TSearchRecordsProps = {
@@ -62,12 +63,14 @@ export default function SearchRecords({
   const [search, setSearch] = React.useState<string | null>(null)
   const [date, setDate] = React.useState<Date | null>(null)
 
+  const [shouldFetch, setShouldFetch] = React.useState(false)
+
   React.useEffect(() => {
     // intercept the fetching and cancel it if the search or date or input change
-    setQueryKey(`${date ? date.toISOString() : search}`)
     queryClient.cancelQueries({
       queryKey: [queryKey],
     })
+    setQueryKey(`${date ? date.toISOString() : search}`)
   }, [search, date, input])
 
   // Function to fetch recordings based on input or date
@@ -76,10 +79,10 @@ export default function SearchRecords({
       ? `FECHA=${extractYearMonthDayFromDate(date)}`
       : `${_route}=${search}`
 
-    const res = await fetch(
-      `http://10.20.30.211:3030/api/recordings?${queryParam}`, // changed to localhost as it's not working on the server, because of CORS
-      { method: "GET", signal }
-    )
+    const res = await fetch(`${await getHost()}/api/recordings?${queryParam}`, {
+      method: "GET",
+      signal,
+    })
     if (!res.ok) {
       if (res.status === 404) {
         throw new Error("No recordings found")
@@ -102,10 +105,12 @@ export default function SearchRecords({
   } = useQuery({
     queryKey: [queryKey],
     queryFn: async ({ signal }) => {
-      return await fetchRecordings(signal)
+      const res = await fetchRecordings(signal)
+      setShouldFetch(false)
+      return res
     },
-    enabled: !!search || !!date, // Fetch only when there's a search or date value
-    refetchOnWindowFocus: false, // Avoid refetching when window is focused
+    enabled: shouldFetch, // Fetch only when the button is clicked
+    refetchOnWindowFocus: false,
   })
 
   const handleSearch = () => {
@@ -117,7 +122,8 @@ export default function SearchRecords({
       return
     }
     setSearch(input)
-    queryClient.fetchQuery({ queryKey: [queryKey] })
+    setQueryKey(date ? date.toISOString() : input)
+    setShouldFetch(true)
   }
 
   React.useEffect(() => {
@@ -130,7 +136,7 @@ export default function SearchRecords({
   }, [error])
 
   return (
-    <div className='flex flex-col gap-2 w-full justify-center'>
+    <div className='flex flex-col gap-2 w-full justify-center items-center'>
       <Card className='h-fit min-w-[350px] w-[350px]'>
         <CardHeader>
           <CardTitle className='flex flex-row items-center gap-2'>

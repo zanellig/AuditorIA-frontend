@@ -1,17 +1,17 @@
 "use client"
 
+import React from "react"
 import { Table as ReactTableInstance } from "@tanstack/react-table"
 import { Input } from "@/components/ui/input"
-import { useEffect, useState } from "react"
 
 interface SearchInputProps<TData> {
   table: ReactTableInstance<TData>
 }
 
 export default function SearchInput<TData>({ table }: SearchInputProps<TData>) {
-  const [searchValue, setSearchValue] = useState<string>("")
+  const [searchValue, setSearchValue] = React.useState<string>("")
 
-  useEffect(() => {
+  React.useEffect(() => {
     // Set the filter value for all columns when search value changes
     table.setGlobalFilter(searchValue)
     // Reset to the first page when search input changes

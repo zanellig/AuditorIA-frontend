@@ -10,7 +10,7 @@ import {
   HateValues,
   SentimentValues,
 } from "@/lib/types.d"
-import { ACCEPTED_ORIGINS, API_CANARY, API_MAIN } from "@/lib/consts"
+import { _validateOrigin } from "./actions"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -149,12 +149,6 @@ export async function calculateAverageForSegments(
   }
 }
 
-export function _validateOrigin(origin: string): string {
-  return (
-    ACCEPTED_ORIGINS.find(originFromList => origin === originFromList) || ""
-  )
-}
-
 export enum AllowedContentTypes {
   Json = "json",
   Form = "form",
@@ -176,16 +170,12 @@ export function getHeaders(
     case "multipart":
       // Don't set Content-Type for multipart/form-data, let the browser set it with the boundary
       break
+    default:
+      headers.set("Content-Type", "application/json")
   }
-  const validatedOrigin = _validateOrigin(origin)
-
-  headers.set(
-    "Access-Control-Allow-Origin",
-    `${API_MAIN}, ${API_CANARY}, http://10.20.30.211:3030`
-  )
+  headers.set("Access-Control-Allow-Origin", origin)
   headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
   headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-
   return headers
 }
 

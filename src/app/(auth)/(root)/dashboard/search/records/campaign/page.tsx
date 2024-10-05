@@ -1,7 +1,7 @@
 "use client"
-import * as React from "react"
+import React from "react"
 
-import {  GlobeIcon } from "@radix-ui/react-icons"
+import { GlobeIcon } from "@radix-ui/react-icons"
 import { DASHBOARD_ICON_CLASSES } from "@/lib/consts"
 
 import SearchRecords from "@/components/search-records"

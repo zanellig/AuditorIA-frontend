@@ -1,5 +1,5 @@
 "use client"
-import React, { Suspense, useState } from "react"
+import React from "react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { BarChart, Icon, PieChart, Plug, TrendingUp } from "lucide-react"
@@ -16,7 +16,6 @@ import {
   Bell,
   Calendar,
   MessageSquare,
-  ChevronLeft,
   Clock,
   AlertTriangle,
   File,
@@ -24,14 +23,9 @@ import {
   Settings,
   Globe,
   Home,
-  RefreshCcw,
   User,
   Upload,
   ArrowRightLeft,
-  ChevronDown,
-  ChevronsDownIcon,
-  ChevronsUpIcon,
-  ChevronUp,
   KeyIcon,
   MailIcon,
   UsersIcon,
@@ -269,7 +263,7 @@ export function TopNavbar({
   const pathname = usePathname()
   const isSettingsPage = pathname.includes("/settings")
 
-  const [showButtons, setShowButtons] = useState(false)
+  const [showButtons, setShowButtons] = React.useState(false)
 
   React.useEffect(() => {
     if (scrollY >= 0 && scrollY < 20) {

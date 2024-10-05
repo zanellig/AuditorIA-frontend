@@ -2,7 +2,7 @@ import React, { Key } from "react"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { cn, normalizeString } from "@/lib/utils"
+import { cn } from "@/lib/utils"
 import { ChevronDown, ChevronUp } from "lucide-react"
 import { GLOBAL_ICON_SIZE } from "@/lib/consts"
 import { motion, AnimatePresence } from "framer-motion"
@@ -41,14 +41,14 @@ export function SidebarButton({
 
   const [isOpen, setIsOpen] = React.useState(() => {
     return false
-    const storedState =
-      typeof window !== "undefined"
-        ? JSON.parse(localStorage.getItem("openButtons") || "{}")
-        : {}
-    return (
-      storedState[normalizeString(title).toLowerCase().replace(/ /g, "_")] ||
-      false
-    )
+    // const storedState =
+    //   typeof window !== "undefined"
+    //     ? JSON.parse(localStorage.getItem("openButtons") || "{}")
+    //     : {}
+    // return (
+    //   storedState[normalizeString(title).toLowerCase().replace(/ /g, "_")] ||
+    //   false
+    // )
   })
   /**
    * Uncomment this to store the state of the buttons in the local storage.

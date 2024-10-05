@@ -1,7 +1,8 @@
-import { API_CANARY, SPEAKER_ANALYSIS_PATH, TASK_PATH } from "@/lib/consts"
+import {  SPEAKER_ANALYSIS_PATH, TASK_PATH } from "@/server-constants"
 import { _get } from "@/lib/fetcher"
 import { getHeaders } from "@/lib/utils"
 import { NextRequest, NextResponse } from "next/server"
+import { env } from "@/env"
 
 export async function GET(request: NextRequest) {
   const id = request.nextUrl.searchParams.get("identifier")
@@ -16,8 +17,8 @@ export async function GET(request: NextRequest) {
       { status: 400 }
     )
   }
-  const url = [API_CANARY, TASK_PATH, SPEAKER_ANALYSIS_PATH, id].join("/")
-  const headers = getHeaders(API_CANARY)
+  const url = [env.API_CANARY, TASK_PATH, SPEAKER_ANALYSIS_PATH, id].join("/")
+  const headers = getHeaders(env.API_CANARY)
 
   const [err, res] = await _get(url, headers)
 

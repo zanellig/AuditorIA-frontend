@@ -1,4 +1,4 @@
-import * as React from "react"
+import React from "react"
 
 import { SupportedLocales, TableSupportedDataTypes } from "@/lib/types.d"
 import DataTable from "@/components/tables/table-core/data-table"
@@ -6,15 +6,18 @@ import { columns } from "@/components/tables/tasks-table/columns-tareas"
 import TableContainer from "@/components/tables/table-core/table-container"
 import { ErrorCodeUserFriendly } from "@/components/error/error-code-user-friendly"
 import { CustomBorderCard } from "@/components/custom-border-card"
+import { getHost } from '@/lib/actions'
 
 export default async function Page() {
   // Server rendering done the right way pa 😎
-  const [err, res] = await fetch("http://10.20.30.211:3030/api/tasks").then(async res => {
-    if (!res.ok) {
-      return [new Error("No se pudo recuperar la lista de tareas"), null]
+  const [err, res] = await fetch(`${await getHost()}/api/tasks`).then(
+    async res => {
+      if (!res.ok) {
+        return [new Error("No se pudo recuperar la lista de tareas"), null]
+      }
+      return await res.json()
     }
-    return await res.json()
-  })
+  )
   let description: string = !res
     ? "No se han encontrado tareas."
     : `Se han encontrado ${res && res?.length} tareas.`

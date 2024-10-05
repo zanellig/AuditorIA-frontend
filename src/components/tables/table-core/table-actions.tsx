@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useMemo, useState } from "react"
+import React from "react"
 import {
   Table as ReactTableInstance,
   ColumnFiltersState,
@@ -21,7 +21,9 @@ export default function TableActions<TData>({
   table,
   data,
 }: TableActionsProps<TData>) {
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    []
+  )
 
   // React.useEffect(() => {
   //   console.group("TableActions")
@@ -33,7 +35,7 @@ export default function TableActions<TData>({
   const columns = table.getAllColumns()
 
   // Memoized filter logic
-  const filters = useMemo(
+  const filters = React.useMemo(
     () =>
       columns
         .filter(column => column.getCanFilter())
@@ -55,7 +57,7 @@ export default function TableActions<TData>({
   )
 
   // Update table options
-  useMemo(() => {
+  React.useMemo(() => {
     table.setOptions(prev => ({
       ...prev,
       state: {
@@ -72,7 +74,7 @@ export default function TableActions<TData>({
       <div className='flex flex-row space-x-2'>
         <SearchInput<TData> table={table} />
         {filters.map(
-          filter =>
+          (filter: any) =>
             table.getColumn(filter.id)?.getCanFilter() && (
               <FilterButton<TData>
                 key={filter.id}
@@ -90,7 +92,7 @@ export default function TableActions<TData>({
     </div>
   )
 }
-
+// Do not delete this, we might implement it later. For now it's not being used.
 /*
       <div className='flex flex-row space-x-2'>
         <DropdownMenu>
