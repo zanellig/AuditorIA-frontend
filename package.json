@@ -12,6 +12,7 @@
     "winbuild": "powershell.exe -ExecutionPolicy ByPass -File build.ps1",
     "start": "next start --port 80",
     "lint": "next lint",
+    "lint:log": "script -c 'npm run lint' lint.log",
     "test": "jest",
     "test:watch": "jest --watchAll"
   },
@@ -74,7 +75,7 @@
     "zod": "3.23.8"
   },
   "devDependencies": {
-    "@tanstack/eslint-plugin-query": "^5.53.0",
+    "@tanstack/eslint-plugin-query": "^5.59.1",
     "@tanstack/react-query-devtools": "^5.55.0",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.5.0",
@@ -83,8 +84,10 @@
     "@types/node": "^20.16.5",
     "@types/react": "18",
     "@types/react-dom": "18",
+    "@typescript-eslint/eslint-plugin": "^8.8.1",
+    "@typescript-eslint/parser": "^8.8.1",
     "eslint": "8",
-    "eslint-config-next": "14.2.4",
+    "eslint-config-next": "^14.2.14",
     "eslint-plugin-jest-dom": "^5.4.0",
     "eslint-plugin-testing-library": "^6.3.0",
     "jest": "^29.7.0",

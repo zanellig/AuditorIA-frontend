@@ -1,6 +1,25 @@
 {
-  "extends": ["next", "next/core-web-vitals", "eslint:recommended"],
+  "extends": [
+    "eslint:recommended",
+    "next",
+    "next/core-web-vitals",
+    "next/typescript",
+    "plugin:@typescript-eslint/strict",
+    "plugin:@typescript-eslint/stylistic",
+    "plugin:@tanstack/eslint-plugin-query/recommended"
+  ],
   "globals": {
     "React": true
-  }
+  },
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    // this setting is required to use rules that require type information
+    "project": true
+  },
+  "plugins": [
+    "@typescript-eslint",
+    "react",
+    "react-hooks",
+    "@tanstack/eslint-plugin-query"
+  ]
 }

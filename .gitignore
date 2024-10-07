@@ -44,7 +44,7 @@ src/lib/laboratorio_testing/
 .env.sentry-build-plugin
 
 # Logs
-build-logs.txt
-build_logs.txt
-*_logs.txt
-*-logs.txt
+*_logs*
+*-logs*
+*.log*
+*.logs*
