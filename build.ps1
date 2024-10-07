@@ -1,4 +1,4 @@
-$logFilePath = ".\build-logs.txt"
+$logFilePath = ".\build.log"
 $ErrorActionPreference="Continue"
 
 # Clear the log file before starting a new build
@@ -18,5 +18,5 @@ try {
 } catch {
     # Directly append the error message to the log file
     "`nBuild failed: $($_.Exception.Message)`n" | Out-File -Append $logFilePath
-    Write-Host "Build failed. See build-logs.txt for details." -ForegroundColor Red
+    Write-Host "Build failed. See $logFilePath for details." -ForegroundColor Red
 }
