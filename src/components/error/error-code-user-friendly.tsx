@@ -20,14 +20,14 @@ export function ErrorCodeUserFriendly({
   if (!error) return null
   const content = {
     [SupportedLocales.Values.es]: {
-      title: "¡Ha ocurrido un error cargando la lista! 😯",
+      title: "¡Ha ocurrido un error cargando este sitio!",
       paragraph:
         "Contacte a su administrador de IT y otorgue el siguiente código de error:",
       messagePrefix: "Mensaje: ",
       stackPrefix: "Stack: ",
     },
     [SupportedLocales.Values.en]: {
-      title: "An error occurred loading the list! 😯",
+      title: "An error occurred loading this site!",
       paragraph:
         "Contact your IT administrator and give the following error code:",
       messagePrefix: "Message: ",
