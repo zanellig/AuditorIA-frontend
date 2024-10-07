@@ -50,38 +50,7 @@ export default function FloatingAudioPlayer({
     setVolume,
     seekAudio,
     setPlaybackSpeed,
-    loadAudio,
   } = useAudioPlayer()
-
-  // const [transcriptionState, setTranscriptionState] = React.useState({
-  //   fileName: "",
-  // })
-  // const params = useSearchParams()
-  // const path = usePathname()
-
-  // React.useEffect(() => {
-  //   if (path.includes("/transcription")) {
-  //     const fileName = params.get("file_name")
-  //     if (
-  //       fileName &&
-  //       fileName.length > 0 &&
-  //       fileName !== null &&
-  //       fileName != undefined
-  //     )
-  //       setTranscriptionState({
-  //         fileName: fileName,
-  //       })
-  //   }
-  // }, [path, params])
-
-  // React.useEffect(() => {
-  //   if (transcriptionState.fileName) {
-  //     pause()
-  //     getAudioPath(transcriptionState.fileName).then(fileUrl => {
-  //       if (fileUrl) loadAudio(fileUrl)
-  //     })
-  //   }
-  // }, [transcriptionState, loadAudio])
 
   const [isDragging, setIsDragging] = React.useState(false)
   const [position, setPosition] = React.useState({ right: 20, bottom: 20 })
