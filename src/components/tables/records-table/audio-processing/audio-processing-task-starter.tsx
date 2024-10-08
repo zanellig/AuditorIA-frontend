@@ -31,6 +31,13 @@ import { StatefulButton } from "@/components/stateful-button"
 import { getHost } from "@/lib/actions"
 
 export default function AudioProcessingTaskStarter({ row }: { row: any }) {
+  /**
+   * The URL can be null if the audio is not yet on the NAS.
+   * This will make the button disabled.
+   */
+  const url = row.original?.URL
+  const id = row.original?.IDLLAMADA
+
   const { toast } = useToast()
   const form = useForm<FormValues>({
     resolver: zodResolver(taskFormSchema),
@@ -129,11 +136,12 @@ export default function AudioProcessingTaskStarter({ row }: { row: any }) {
   return (
     <Sheet>
       <Tooltip>
-        <SheetTrigger>
+        <SheetTrigger disabled={!url}>
           <TooltipTrigger asChild>
             <Button
-              id={`button-deploy-transcribe-${row.original?.URL}`}
+              id={`button-deploy-transcribe-${url}-${id}`}
               variant='ghost'
+              disabled={!url}
             >
               <CaptionsIcon size={GLOBAL_ICON_SIZE + 4} strokeWidth={2} />
             </Button>
