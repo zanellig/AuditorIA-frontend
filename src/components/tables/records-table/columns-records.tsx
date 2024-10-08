@@ -3,10 +3,9 @@ import React from "react"
 import type { ColumnDef, Row } from "@tanstack/react-table"
 import type { Recording } from "@/lib/types"
 import { ArrowUpDown, ArrowDown, ArrowUp } from "lucide-react"
-import { getLocaleMonth } from "@/lib/utils"
+import { cn, getLocaleMonth } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import AudioProcessingTaskStarter from "./audio-processing/audio-processing-task-starter"
-
 
 function renderArrow(sorted: false | "asc" | "desc") {
   if (sorted === false) {
@@ -28,17 +27,29 @@ export const columns: ColumnDef<Recording | null>[] = [
       if (row.original) {
         row.original.IDLLAMADA = String(row.original.IDLLAMADA)
       }
+      let direction
+      if (!!row.original?.DIRECCION) {
+        direction = row.original?.DIRECCION.toLocaleLowerCase()
+      }
       return (
         <div
           key={`check-${row.original?.IDLLAMADA}`}
-          className='flex flex-row items-center justify-start w-fit space-x-2'
+          className='flex flex-row items-center justify-between w-fit space-x-4'
         >
-          <Badge className='capitalize' variant={"outline"}>
-            {row.original?.DIRECCION.toLocaleLowerCase()}
-          </Badge>
           <div className='w-20'>
             {row.original?.IDLLAMADA as Recording["IDLLAMADA"]}
           </div>
+          {direction ? (
+            direction === "entrante" ? (
+              <Badge className='capitalize' variant={"outline"}>
+                {direction}
+              </Badge>
+            ) : direction === "saliente" ? (
+              <Badge className='capitalize' variant={"secondary"}>
+                {direction}
+              </Badge>
+            ) : null
+          ) : null}
         </div>
       )
     },
@@ -124,8 +135,11 @@ export const columns: ColumnDef<Recording | null>[] = [
       return <></>
     },
     cell: ({ row }) => {
+      const url = row.original?.URL
       return (
-        <div className='flex flex-row space-x-2  justify-center'>
+        <div className={cn("flex flex-row space-x-2 justify-end items-center")}>
+          {url && <Badge variant={"success"}>Listo para procesar</Badge>}
+          {!url && <Badge variant={"warning"}>Audio no encontrado</Badge>}
           <AudioProcessingTaskStarter row={row as Row<Recording>} />
         </div>
       )
