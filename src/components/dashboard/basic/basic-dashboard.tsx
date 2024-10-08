@@ -2,7 +2,7 @@ import React from "react"
 import { CardBody, CardContainer, CardItem } from "@/components/ui/3d-card"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
-import { DASHBOARD_ICON_CLASSES, GLOBAL_ICON_SIZE } from "@/lib/consts"
+import { DASHBOARD_ICON_CLASSES } from "@/lib/consts"
 import { StatefulButton } from "@/components/stateful-button"
 import {
   ArrowRight,
@@ -16,7 +16,6 @@ import {
   Upload,
   User,
 } from "lucide-react"
-import { ArrowRightIcon } from "@radix-ui/react-icons"
 
 const ButtonArrow = React.forwardRef<
   SVGSVGElement,
