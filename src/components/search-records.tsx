@@ -32,7 +32,7 @@ import { StatefulButton } from "./stateful-button"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { getHost } from "@/lib/actions"
 
-type InputType = "text" | "date" | "number" | "select"
+type InputType = HTMLInputElement["type"]
 type TSearchRecordsProps = {
   title: string
   icon: JSX.Element
@@ -126,6 +126,12 @@ export default function SearchRecords({
     setShouldFetch(true)
   }
 
+  const handleCancel = () => {
+    queryClient.cancelQueries({
+      queryKey: [queryKey],
+    })
+  }
+
   React.useEffect(() => {
     if (error) {
       toast({
@@ -137,7 +143,17 @@ export default function SearchRecords({
 
   return (
     <div className='flex flex-col gap-2 w-full justify-center items-center'>
-      <Card className='h-fit min-w-[350px] w-[350px]'>
+      <Card
+        className='h-fit min-w-[350px] w-[350px]'
+        onKeyDown={e => {
+          if (e.key === "Enter") {
+            handleSearch()
+          }
+          if (e.key === "Escape") {
+            handleCancel()
+          }
+        }}
+      >
         <CardHeader>
           <CardTitle className='flex flex-row items-center gap-2'>
             {icon}
@@ -146,14 +162,15 @@ export default function SearchRecords({
           <CardDescription>Ingrese {shouldEnterText} a buscar.</CardDescription>
         </CardHeader>
         <CardContent>
-          {inputType === "text" && (
-            <Input value={input} onChange={e => setInput(e.target.value)} />
+          {(inputType === "text" || inputType === "number") && (
+            <Input
+              value={input}
+              onChange={e => setInput(e.target.value)}
+              type={inputType}
+            />
           )}
           {inputType === "date" && (
             <DatePickerWithPresets onDateChange={setDate} />
-          )}
-          {inputType === "number" && (
-            <Input value={input} onChange={e => setInput(e.target.value)} />
           )}
           {inputType === "select" && (
             <Select value={input} onValueChange={value => setInput(value)}>
@@ -180,14 +197,7 @@ export default function SearchRecords({
             <span>Buscar audios</span>
           </StatefulButton>
           {isLoading && (
-            <Button
-              variant={"destructive"}
-              onClick={() =>
-                queryClient.cancelQueries({
-                  queryKey: [queryKey],
-                })
-              }
-            >
+            <Button variant={"destructive"} onClick={handleCancel}>
               Cancelar
             </Button>
           )}
