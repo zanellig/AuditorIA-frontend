@@ -1,12 +1,12 @@
 import SearchRecords from "@/components/search-records"
 import { DASHBOARD_ICON_CLASSES } from "@/lib/consts"
-import { LoopIcon } from "@radix-ui/react-icons"
+import { Repeat } from 'lucide-react'
 
 export default function Page() {
   return (
     <SearchRecords
       title='dirección'
-      icon={<LoopIcon className={DASHBOARD_ICON_CLASSES} />}
+      icon={<Repeat className={DASHBOARD_ICON_CLASSES}/>}
       shouldEnterText='la dirección del llamado'
       _route='DIRECCION'
       inputOptions={{
