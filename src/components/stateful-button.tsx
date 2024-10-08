@@ -34,20 +34,25 @@ const StatefulButton = React.forwardRef<HTMLButtonElement, StatefulButtonProps>(
         ref={ref}
         {...props}
       >
-        <span className='flex items-center justify-center transition-opacity duration-200'>
-          {icon}
-          <span className={cn("text-sm", icon && "ml-2")}>{children}</span>
-        </span>
+        <motion.span
+          className='absolute inset-0 flex items-center justify-center text-sm'
+          initial={{ y: 0, opacity: 1 }}
+          animate={{ y: isLoading ? -20 : 0, opacity: isLoading ? 0 : 1 }}
+          transition={{ duration: 0.3 }}
+        >
+          {children}
+        </motion.span>
         <AnimatePresence>
           {isLoading && (
             <motion.div
-              className='absolute inset-0 flex items-center justify-center'
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
+              className='absolute inset-0 flex items-center justify-center space-x-2'
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 20, opacity: 0 }}
+              transition={{ duration: 0.3 }}
             >
               <Loader2 className='h-5 w-5 animate-spin' />
+              <span>Cargando...</span>
             </motion.div>
           )}
         </AnimatePresence>

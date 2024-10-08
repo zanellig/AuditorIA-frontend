@@ -1,125 +1,94 @@
 import React from "react"
-import {
-  ArrowRightIcon,
-  CalendarIcon,
-  ChatBubbleIcon,
-  ExclamationTriangleIcon,
-  FileIcon,
-  FileTextIcon,
-  GlobeIcon,
-  PersonIcon,
-  UploadIcon,
-} from "@radix-ui/react-icons"
 import { CardBody, CardContainer, CardItem } from "@/components/ui/3d-card"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
-import { DASHBOARD_ICON_CLASSES } from "@/lib/consts"
+import { DASHBOARD_ICON_CLASSES, GLOBAL_ICON_SIZE } from "@/lib/consts"
 import { StatefulButton } from "@/components/stateful-button"
-import { ArrowRightLeft } from "lucide-react"
+import {
+  ArrowRight,
+  ArrowRightLeft,
+  Calendar,
+  File,
+  Headset,
+  History,
+  MessageSquare,
+  TriangleAlert,
+  Upload,
+  User,
+} from "lucide-react"
+import { ArrowRightIcon } from "@radix-ui/react-icons"
+
+const ButtonArrow = React.forwardRef<
+  SVGSVGElement,
+  React.SVGProps<SVGSVGElement>
+>((props, ref) => (
+  <ArrowRight
+    ref={ref}
+    className={cn(DASHBOARD_ICON_CLASSES, "text-foreground")}
+    {...props}
+  />
+))
+
+ButtonArrow.displayName = "ButtonArrow"
 
 export default function BasicDashboard() {
   const dashboardItems = [
     {
       title: "Subir archivos",
-      icon: <UploadIcon className={DASHBOARD_ICON_CLASSES} />,
+      icon: <Upload className={DASHBOARD_ICON_CLASSES} />,
       description:
         "En este módulo, podrá subir audios de manera manual y enviarlos al sistema de procesamiento.",
-      buttonIcon: (
-        <ArrowRightIcon
-          className={DASHBOARD_ICON_CLASSES + "text-foreground"}
-        />
-      ),
       href: "/upload",
     },
 
     {
       title: "Ver tu historial",
-      icon: <FileTextIcon className={DASHBOARD_ICON_CLASSES} />,
+      icon: <History className={DASHBOARD_ICON_CLASSES} />,
       description: "En este módulo, podrá ver su historial de transcripciones.",
-      buttonIcon: (
-        <ArrowRightIcon
-          className={DASHBOARD_ICON_CLASSES + "text-foreground"}
-        />
-      ),
       href: "/dashboard/search/tasks",
     },
     {
       title: "Buscar por campaña",
-      icon: <GlobeIcon className={DASHBOARD_ICON_CLASSES} />,
+      icon: <Headset className={DASHBOARD_ICON_CLASSES} />,
       description: "En este módulo, podrá ver los audios por campaña.",
-      buttonIcon: (
-        <ArrowRightIcon
-          className={DASHBOARD_ICON_CLASSES + "text-foreground"}
-        />
-      ),
       href: "/dashboard/search/records/campaign",
     },
     {
       title: "Buscar por operador",
-      icon: <PersonIcon className={DASHBOARD_ICON_CLASSES} />,
+      icon: <User className={DASHBOARD_ICON_CLASSES} />,
       description: "En este módulo, podrá ver los audios por operador.",
-      buttonIcon: (
-        <ArrowRightIcon
-          className={DASHBOARD_ICON_CLASSES + "text-foreground"}
-        />
-      ),
       href: "/dashboard/search/records/operator",
     },
     {
       title: "Ver audios problemáticos",
-      icon: <ExclamationTriangleIcon className={DASHBOARD_ICON_CLASSES} />,
+      icon: <TriangleAlert className={DASHBOARD_ICON_CLASSES} />,
       description:
         "En este módulo, podrá ver y revisar los audios marcados como problemáticos.",
-      buttonIcon: (
-        <ArrowRightIcon
-          className={DASHBOARD_ICON_CLASSES + "text-foreground"}
-        />
-      ),
       href: "/dashboard/search/tasks/ponderation",
       disabled: true,
     },
     {
       title: "Buscar por fecha",
-      icon: <CalendarIcon className={DASHBOARD_ICON_CLASSES} />,
+      icon: <Calendar className={DASHBOARD_ICON_CLASSES} />,
       description: "En este módulo, podrá buscar los audios por fecha.",
-      buttonIcon: (
-        <ArrowRightIcon
-          className={DASHBOARD_ICON_CLASSES + "text-foreground"}
-        />
-      ),
       href: "/dashboard/search/records/date",
     },
     {
       title: "Buscar por dirección",
       icon: <ArrowRightLeft className={DASHBOARD_ICON_CLASSES} />,
       description: "En este módulo, podrá buscar los audios por dirección.",
-      buttonIcon: (
-        <ArrowRightIcon
-          className={DASHBOARD_ICON_CLASSES + "text-foreground"}
-        />
-      ),
       href: "/dashboard/search/records/direction",
     },
     {
       title: "Ver reportes",
-      icon: <FileIcon className={DASHBOARD_ICON_CLASSES} />,
+      icon: <File className={DASHBOARD_ICON_CLASSES} />,
       description: "En este módulo, podrá ver los reportes.",
-      buttonIcon: (
-        <ArrowRightIcon
-          className={DASHBOARD_ICON_CLASSES + "text-foreground"}
-        />
-      ),
       href: "/reportes",
     },
     {
       title: "Ver chats",
-      icon: <ChatBubbleIcon className={DASHBOARD_ICON_CLASSES} />,
+      icon: <MessageSquare className={DASHBOARD_ICON_CLASSES} />,
       description: "En este módulo, podrá ver y analizar los chats.",
-      buttonIcon: (
-        <ArrowRightIcon
-          className={DASHBOARD_ICON_CLASSES + "text-foreground"}
-        />
-      ),
       href: "/chats",
       disabled: true,
     },
@@ -136,7 +105,7 @@ export default function BasicDashboard() {
             title={dashboardItem.title}
             description={dashboardItem.description}
             icon={dashboardItem.icon}
-            buttonIcon={dashboardItem.buttonIcon}
+            buttonIcon={<ArrowRight className={cn(DASHBOARD_ICON_CLASSES)} />}
             href={dashboardItem.href}
             disabled={dashboardItem.disabled}
             key={`${dashboardItem}-${index}-card`}
@@ -173,10 +142,10 @@ function Card3D({
 
   const buttonContent = () => {
     return (
-      <>
-        {"Ir a " + title.toLowerCase()}
-        <span className='sr-only'>{"Ir a " + title.toLowerCase()}</span>
-      </>
+      <div className='flex items-center justify-center space-x-2'>
+        <span>{buttonIcon}</span>
+        <span>{"Ir a " + title.toLowerCase()}</span>
+      </div>
     )
   }
   return (
@@ -207,12 +176,15 @@ function Card3D({
 
         <CardItem translateZ='100' className='w-full'>
           {!disabled && href ? (
-            <Link href={href} onClick={() => setIsRedirecting(true)}>
+            <Link
+              href={href}
+              className={"w-full h-full"}
+              onClick={() => setIsRedirecting(true)}
+            >
               <StatefulButton
                 variant={"default"}
                 className='w-full'
                 isLoading={isRedirecting}
-                icon={buttonIcon}
               >
                 {buttonContent()}
               </StatefulButton>
@@ -224,7 +196,6 @@ function Card3D({
               disabled={disabled}
               onClick={() => setIsRedirecting(true)}
               isLoading={isRedirecting}
-              icon={buttonIcon}
             >
               {buttonContent()}
             </StatefulButton>

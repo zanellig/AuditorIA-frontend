@@ -1,8 +1,28 @@
 "use client"
 import React from "react"
 import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { BarChart, Icon, PieChart, Plug, TrendingUp } from "lucide-react"
+import {
+  AlertTriangle,
+  ArrowRightLeft,
+  BarChart,
+  Bell,
+  Calendar,
+  Clock,
+  File,
+  FileText,
+  Headset,
+  Home,
+  KeyIcon,
+  MailIcon,
+  MessageSquare,
+  PieChart,
+  Plug,
+  Settings,
+  TrendingUp,
+  Upload,
+  User,
+  UsersIcon,
+} from "lucide-react"
 import { SendUsFeedbackButton } from "@/components/navigation/feedback-button"
 import { useScroll } from "../context/ScrollProvider"
 import { usePathname } from "next/navigation"
@@ -10,26 +30,8 @@ import { BreadcrumbWithCustomSeparator } from "./breadcrumbs-with-separator"
 import { AvatarButton } from "./avatar"
 import { ModeToggle } from "./mode-toggle"
 import Link from "next/link"
-import { GLOBAL_ICON_SIZE, TESTING, TESTING_RECORDINGS } from "@/lib/consts"
+import { TESTING, TESTING_RECORDINGS } from "@/lib/consts"
 import StatusBadges from "./status.client"
-import {
-  Bell,
-  Calendar,
-  MessageSquare,
-  Clock,
-  AlertTriangle,
-  File,
-  FileText,
-  Settings,
-  Globe,
-  Home,
-  User,
-  Upload,
-  ArrowRightLeft,
-  KeyIcon,
-  MailIcon,
-  UsersIcon,
-} from "lucide-react"
 import { SidebarButton, SidebarButtonProps } from "./sidebar-button"
 import { ScrollArea } from "../ui/scroll-area"
 import Image from "next/image"
@@ -79,7 +81,7 @@ export function Sidebar({ className }: { className?: string }) {
         {
           href: "/dashboard/search/records/campaign",
           title: "Campañas",
-          icon: <Globe className={iconSize} />,
+          icon: <Headset className={iconSize} />,
         },
         {
           href: "/dashboard/search/records/operator",
