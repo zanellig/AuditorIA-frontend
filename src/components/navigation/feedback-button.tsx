@@ -252,33 +252,44 @@ function FormFactory({
               Acepto los términos y condiciones
             </Label>
           </HoverCardTrigger>
-          <HoverCardContent>
-            <p className='text-sm'>
-              Los datos enviados se procesarán y se almacenan en nuestros
-              sistemas de registro hasta un máximo de 365 días luego de
-              enviados.
-              <br />
-              <br />
-              Estos no serán compartidos con ningún tercero ni utilizados para
-              fines maliciosos o no autorizados y se rigen bajo la{" "}
-              <strong>Ley 25.326 de PROTECCION DE LOS DATOS PERSONALES</strong>
-              .
-              <br />
-              <br />
-              La empresa no se hace responsable de los datos que envíe o del uso
-              que se le otorgue a los servicios prestados por medio de esta
-              aplicación.
-              <br />
-              <br />
-              En caso de requerir acceso a tus datos, podrás solicitar un HABEAS
-              DATA a través del siguiente enlace:
-              <br />
-              <br />
-              <Button variant='default'>Envíanos un correo</Button>
-              <br />
-              <br />
-            </p>
-            <p className='text-muted-foreground'>LinkSolution S.R.L.</p>
+          <HoverCardContent className='w-96'>
+            <article className='text-sm flex flex-col space-y-2'>
+              <span>
+                Tus datos personales serán procesados y almacenados en nuestros
+                sistemas. Garantizamos que estos datos no serán compartidos con
+                terceros ni utilizados para fines maliciosos o no autorizados,
+                cumpliendo con la{" "}
+                <strong>
+                  Ley 25.326 de Protección de los Datos Personales
+                </strong>
+                . Los datos serán eliminados cuando dejen de ser necesarios o
+                pertinentes para los fines para los cuales fueron recopilados.
+              </span>
+              <span>
+                Aunque nos esforzamos por proteger tus datos, la empresa no se
+                responsabiliza por la información que decidas enviar ni por el
+                uso de los servicios ofrecidos a través de esta aplicación.
+              </span>
+              <span>
+                Es responsabilidad del usuario solicitar la actualización y
+                especificación de los datos almacenados para asegurar que sean
+                precisos. Si deseas acceder a tus datos o ejercer tus derechos
+                de protección de datos, puedes solicitarlo a través del
+                siguiente enlace:
+              </span>
+              <Button
+                onClick={() =>
+                  window.open(
+                    "mailto:auditoria@linksolution.com.ar?subject=Solicitud%20de%20acceso%20a%20datos",
+                    "_blank"
+                  )
+                }
+                variant='default'
+              >
+                Contactanos
+              </Button>
+              <p className='text-muted-foreground'>LinkSolution S.R.L.</p>
+            </article>
           </HoverCardContent>
         </HoverCard>
       </div>
