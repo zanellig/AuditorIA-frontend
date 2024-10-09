@@ -5,19 +5,31 @@ import { Tasks } from "@/lib/types.d"
 import { NextRequest, NextResponse } from "next/server"
 import { env } from "@/env"
 import { getHost } from "@/lib/actions"
+import fs from "fs/promises"
 export async function GET() {
   const headers = getHeaders(env.API_MAIN, AllowedContentTypes.Json)
   const url = [env.API_MAIN, ALL_TASKS_PATH].join("/")
   const [err, res] = await _get(url, headers)
-
+  /**
+   * If you want to use the mock data, uncomment the following lines and comment the lines below.
+   */
+  // const mockTasks = await fs.readFile("./public/mock/updated_tasks.json")
+  // return new NextResponse(
+  //   JSON.stringify([null, mockTasks ? JSON.parse(mockTasks.toString()) : []]),
+  //   {
+  //     status: 200,
+  //     headers,
+  //     statusText: "Mock",
+  //   }
+  // )
   if (err !== null) {
     return new NextResponse(JSON.stringify([JSON.stringify(err), null]), {
-      status: 500,
+      status: 404,
       headers,
     })
   }
   if (res === null) {
-    return new NextResponse(JSON.stringify([null, null]), {
+    return new NextResponse(JSON.stringify([null, []]), {
       status: 200,
       headers,
     })

@@ -1,23 +1,43 @@
+"use client"
 import React from "react"
-
+import { useQuery } from "@tanstack/react-query"
 import { SupportedLocales, TableSupportedDataTypes } from "@/lib/types.d"
 import DataTable from "@/components/tables/table-core/data-table"
 import { columns } from "@/components/tables/tasks-table/columns-tareas"
 import TableContainer from "@/components/tables/table-core/table-container"
 import { ErrorCodeUserFriendly } from "@/components/error/error-code-user-friendly"
 import { CustomBorderCard } from "@/components/custom-border-card"
-import { getHost } from '@/lib/actions'
+import { getHost } from "@/lib/actions"
+import DashboardSkeleton from "@/components/skeletons/dashboard-skeleton"
 
-export default async function Page() {
-  // Server rendering done the right way pa 😎
-  const [err, res] = await fetch(`${await getHost()}/api/tasks`).then(
-    async res => {
-      if (!res.ok) {
-        return [new Error("No se pudo recuperar la lista de tareas"), null]
-      }
-      return await res.json()
-    }
-  )
+export default function TasksPage() {
+  const {
+    data: res,
+    error: err,
+    isLoading,
+  } = useQuery({
+    queryKey: ["tasks"],
+    queryFn: async () => {
+      const res = await fetch(`${await getHost()}/api/tasks`).then(
+        async res => {
+          // we could fallback to this error if the 30:8000 server is down
+          if (!res.ok) {
+            throw new Error("(1019): Error de red.")
+          }
+          const [err, tasks] = await res.json()
+          console.group("Tasks fetched")
+          console.log("err:", err)
+          console.log("tasks:", tasks)
+          console.groupEnd()
+          if (err) {
+            throw new Error(err)
+          }
+          return tasks
+        }
+      )
+      return res
+    },
+  })
   let description: string = !res
     ? "No se han encontrado tareas."
     : `Se han encontrado ${res && res?.length} tareas.`
@@ -25,20 +45,21 @@ export default async function Page() {
     !!res && res.length > 0 ? description : `No se han encontrado tareas.`
   return (
     <TableContainer>
+      {isLoading && <DashboardSkeleton />}
       {err !== null && (
         <ErrorCodeUserFriendly
           error={err}
           locale={SupportedLocales.Values.es}
         />
       )}
-      {res !== null && err === null && (
+      {!isLoading && !!res && (
         <div className='flex flex-col gap-2'>
           <CustomBorderCard
             description={description}
             variant={
               err !== null
                 ? "error"
-                : res === null
+                : !res
                 ? "warning"
                 : res.length === 0
                 ? "default"
