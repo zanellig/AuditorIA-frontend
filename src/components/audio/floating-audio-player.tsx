@@ -51,8 +51,8 @@ export default function FloatingAudioPlayer({
     seekAudio,
     setPlaybackSpeed,
   } = useAudioPlayer()
-  // render the player hidden by default
-  toggleHide()
+  // Do not hide the audio player on render
+
   const [isDragging, setIsDragging] = React.useState(false)
   const [position, setPosition] = React.useState({ right: 20, bottom: 20 })
   const dragRef = React.useRef<{ startX: number; startY: number } | null>(null)

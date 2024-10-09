@@ -44,7 +44,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({
   const [audioDuration, setAudioDuration] = useState(0)
   const [currentTime, setCurrentTime] = useState(0)
   const [playbackSpeed, setPlaybackSpeed] = useState(1)
-  const [isAudioPlayerHidden, toggleAudioPlayerHidden] = useState(false)
+  const [isAudioPlayerHidden, toggleAudioPlayerHidden] = useState(true)
 
   const toggleHide = useCallback(() => {
     toggleAudioPlayerHidden(prev => !prev)
