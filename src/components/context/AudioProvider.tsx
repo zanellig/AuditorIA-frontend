@@ -70,6 +70,9 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({
       setError(true)
     } finally {
       setIsLoading(false)
+      if (isAudioPlayerHidden) {
+        toggleHide()
+      }
     }
   }, [])
 
