@@ -33,7 +33,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                     "border-s border-solid border-muted relative bg-primary-foreground w-full"
                   )}
                 >
-                  <ScrollArea className='max-h-dvh h-dvh'>
+                  <ScrollArea className='max-h-dvh h-dvh min-h-dvh'>
                     <TopNavbar>
                       <DashboardSwitch />
                     </TopNavbar>

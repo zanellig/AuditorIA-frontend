@@ -6,17 +6,18 @@ import {
   ArrowRightLeft,
   BarChart,
   Bell,
-  Calendar,
+  CalendarSearch,
   Clock,
-  File,
-  FileText,
+  FileChartColumn,
   Headset,
+  History,
   Home,
   KeyIcon,
   MailIcon,
   MessageSquare,
   PieChart,
   Plug,
+  Server,
   Settings,
   TrendingUp,
   Upload,
@@ -75,7 +76,7 @@ export function Sidebar({ className }: { className?: string }) {
         {
           href: "/dashboard/search/tasks",
           title: "Historial",
-          icon: <FileText className={iconSize} />,
+          icon: <History className={iconSize} />,
           disabled: false,
         },
         {
@@ -96,7 +97,7 @@ export function Sidebar({ className }: { className?: string }) {
         {
           href: "/dashboard/search/records/date",
           title: "Fecha",
-          icon: <Calendar className={iconSize} />,
+          icon: <CalendarSearch className={iconSize} />,
         },
         {
           href: "/dashboard/search/records/direction",
@@ -112,7 +113,7 @@ export function Sidebar({ className }: { className?: string }) {
     },
     {
       href: "/reportes",
-      icon: <File className={iconSize} />,
+      icon: <FileChartColumn className={iconSize} />,
       title: "Reportes",
     },
     {
@@ -132,6 +133,11 @@ export function Sidebar({ className }: { className?: string }) {
           title: "Cuenta",
           icon: <User className={iconSize} />,
           disabled: true,
+        },
+        {
+          href: "/status",
+          title: "Estado de los servicios",
+          icon: <Server className={iconSize} />,
         },
         {
           href: "/notifications",

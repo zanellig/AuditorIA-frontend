@@ -2,13 +2,13 @@ import React from "react"
 import { CardBody, CardContainer, CardItem } from "@/components/ui/3d-card"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
-import { DASHBOARD_ICON_CLASSES } from "@/lib/consts"
+import { DASHBOARD_ICON_CLASSES, GLOBAL_ICON_SIZE } from "@/lib/consts"
 import { StatefulButton } from "@/components/stateful-button"
 import {
   ArrowRight,
   ArrowRightLeft,
-  Calendar,
-  File,
+  CalendarSearch,
+  FileChartColumn,
   Headset,
   History,
   MessageSquare,
@@ -20,10 +20,11 @@ import {
 const ButtonArrow = React.forwardRef<
   SVGSVGElement,
   React.SVGProps<SVGSVGElement>
->((props, ref) => (
+>(({ className, ...props }, ref) => (
   <ArrowRight
     ref={ref}
-    className={cn(DASHBOARD_ICON_CLASSES, "text-foreground")}
+    className={cn(className)}
+    size={GLOBAL_ICON_SIZE}
     {...props}
   />
 ))
@@ -68,7 +69,7 @@ export default function BasicDashboard() {
     },
     {
       title: "Buscar por fecha",
-      icon: <Calendar className={DASHBOARD_ICON_CLASSES} />,
+      icon: <CalendarSearch className={DASHBOARD_ICON_CLASSES} />,
       description: "En este módulo, podrá buscar los audios por fecha.",
       href: "/dashboard/search/records/date",
     },
@@ -80,7 +81,7 @@ export default function BasicDashboard() {
     },
     {
       title: "Ver reportes",
-      icon: <File className={DASHBOARD_ICON_CLASSES} />,
+      icon: <FileChartColumn className={DASHBOARD_ICON_CLASSES} />,
       description: "En este módulo, podrá ver los reportes.",
       href: "/reportes",
     },
@@ -104,7 +105,7 @@ export default function BasicDashboard() {
             title={dashboardItem.title}
             description={dashboardItem.description}
             icon={dashboardItem.icon}
-            buttonIcon={<ArrowRight className={cn(DASHBOARD_ICON_CLASSES)} />}
+            buttonIcon={<ButtonArrow className='text-primary-foreground' />}
             href={dashboardItem.href}
             disabled={dashboardItem.disabled}
             key={`${dashboardItem}-${index}-card`}
