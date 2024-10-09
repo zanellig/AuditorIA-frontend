@@ -19,9 +19,13 @@ export async function GET() {
     return new NextResponse(
       JSON.stringify({
         variant: ServerStatusBadgeVariant.Error,
-        text: "Main server error",
+        text: "(1014): Error al obtener el estado del servidor principal.",
       }),
-      { status: 500 }
+      {
+        status: 500,
+        statusText:
+          "(1014): Error al obtener el estado del servidor principal.",
+      }
     )
   }
 
@@ -40,25 +44,36 @@ export async function GET() {
         return new NextResponse(
           JSON.stringify({
             variant: ServerStatusBadgeVariant.Error,
-            text: "Main server not found",
+            text: "(1011): Servidor principal no encontrado.",
           }),
-          { status: 404 }
+          {
+            status: 404,
+            statusText: "(1011): Servidor principal no encontrado.",
+          }
         )
       case 500:
         return new NextResponse(
           JSON.stringify({
             variant: ServerStatusBadgeVariant.Error,
-            text: "Main server error",
+            text: "(1012): Error al obtener el estado del servidor principal.",
           }),
-          { status: 500 }
+          {
+            status: 500,
+
+            statusText:
+              "(1012): Error al obtener el estado del servidor principal.",
+          }
         )
       default:
         return new NextResponse(
           JSON.stringify({
             variant: ServerStatusBadgeVariant.Error,
-            text: "Main server unavailable",
+            text: "(1013): Servidor principal no disponible.",
           }),
-          { status: 521 }
+          {
+            status: 521,
+            statusText: "(1013): Servidor principal no disponible.",
+          }
         )
     }
   }
