@@ -1,3 +1,5 @@
+import SearchRecordsSkeleton from "@/components/search-records-skeleton"
+
 export default function DateLoading() {
-  return <div>Loading...</div>
+  return <SearchRecordsSkeleton />
 }
