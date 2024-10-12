@@ -2,7 +2,7 @@ import "server-only"
 import { env } from "@/env"
 export const INTERNAL_API =
   env.NODE_ENV === "development"
-  ? `http://localhost:${env.PORT}`
+  ? `http://0.0.0.0:${env.PORT}`
     : `http://${env.HOST}:${env.PORT}`
 export const ACCEPTED_ORIGINS = [
   env.API_MAIN,
