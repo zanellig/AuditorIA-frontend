@@ -8,7 +8,7 @@
 
 ```bash
   $ node -v
-  > v22.2.0
+  > v20.18.0
 ```
 
 > Personalmente utilizo [**Node Version Manager**](https://github.com/coreybutler/nvm-windows) en Windows para manejar las versiones de Node, por lo que voy a mostrar cómo hacerlo con este software.
@@ -17,21 +17,21 @@
 
 ```bash
   $ nvm current
-  > v22.2.0
+  > v20.18.0
 
 ```
 
-1.2. Si tenemos una versión antigua o no compatible, instalaremos la **22.2.0**
+1.2. Si tenemos una versión antigua o no compatible, instalaremos la **20.18.0**
 
 ```bash
-  $ nvm install 22.2.0 [arch = 32 | 64]
-  > Downloading node.js version 22.2.0 (64-bit)...
+  $ nvm install 20.18.0 [arch = 32 | 64]
+  > Downloading node.js version 20.18.0 (64-bit)...
   > Extracting node and npm...
   > Complete
-  > npm v10.7.0 installed successfully.
+  > npm v10.8.2 installed successfully.
 
   > Installation complete. If you want to use this version, type
-  > nvm use 22.2.0
+  > nvm use 20.18.0
 ```
 
 1.3.0. Corroboramos que estamos usando nvm
@@ -39,20 +39,20 @@
 ```bash
   $ nvm on
   > nvm enabled
-  > Now using node v20.15.1 (64-bit)
+  > Now using node v22.2.0 (64-bit)
 ```
 
 1.3.1. Cambiaremos a la versión instalada si teníamos otra
 
 ```bash
-  $ nvm use 22.2.0
-  > Now using node v22.2.0 (64-bit)
+  $ nvm use 20.18
+  > Now using node v20.18.0 (64-bit)
 ```
 
 2. Nos dirigimos a la ruta donde se encuentra el repositorio e instalamos las dependencias
 
 ```bash
-  z auditorIA
+  z auditorIA # Para correr este comando es necesario tener instalado zoxide y haber navegado anteriormente al repositorio
   npm install
 ```
 
@@ -64,7 +64,7 @@
 ```
 
 > [!IMPORTANT]
-> Si nos sale el error de que ya existe un listen en el puerto 3001 seguimos los siguientes pasos
+> Si nos sale el error de que ya existe un listen en el puerto 3030 seguimos los siguientes pasos
 
 ```bash
 $ npm run dev
