@@ -11,10 +11,11 @@
     "build": "next build",
     "winbuild": "powershell.exe -ExecutionPolicy ByPass -File build.ps1",
     "start": "next start --port 80",
-    "lint": "next lint",
-    "lint:log": "script -c 'npm run lint' lint.log",
+    "lint": "npm run format && next lint",
+    "lint:log": "npm run format && script -c 'npm run lint' lint.log",
     "test": "jest",
-    "test:watch": "jest --watchAll"
+    "test:watch": "jest --watchAll",
+    "format": "prettier --write ."
   },
   "dependencies": {
     "@hookform/resolvers": "3.9.0",
