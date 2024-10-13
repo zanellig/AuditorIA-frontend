@@ -7,17 +7,17 @@ type SupportedLocales = z.infer<typeof SupportedLocales>
 // Dictionary of error messages by locale and error code
 const errorMessages: Record<SupportedLocales, ErrorMessages> = {
   [SupportedLocales.Values.en]: {
-    UND_ERR_CONNECT_TIMEOUT: "Check your VPN connection 🔒",
-    ECONNREFUSED: "Connection refused from server ❌",
-    ENETUNREACH: "Check your internet connection 🌎",
-    DEFAULT: "An unexpected error has occurred 🤨",
+    "UND_ERR_CONNECT_TIMEOUT": "Check your VPN connection 🔒",
+    "ECONNREFUSED": "Connection refused from server ❌",
+    "ENETUNREACH": "Check your internet connection 🌎",
+    "DEFAULT": "An unexpected error has occurred 🤨",
     "": "An unexpected error has occurred 🤨",
   },
   [SupportedLocales.Values.es]: {
-    UND_ERR_CONNECT_TIMEOUT: "Compruebe la conexión a la VPN 🔒",
-    ECONNREFUSED: "Se ha rechazado la conexión desde el servidor ❌",
-    ENETUNREACH: "Compruebe la conexión a internet 🌎",
-    DEFAULT: "Ha ocurrido un error inesperado 🤨",
+    "UND_ERR_CONNECT_TIMEOUT": "Compruebe la conexión a la VPN 🔒",
+    "ECONNREFUSED": "Se ha rechazado la conexión desde el servidor ❌",
+    "ENETUNREACH": "Compruebe la conexión a internet 🌎",
+    "DEFAULT": "Ha ocurrido un error inesperado 🤨",
     "": "Ha ocurrido un error inesperado 🤨",
   },
   // Add more locales here in the future...

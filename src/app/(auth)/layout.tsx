@@ -1,5 +1,5 @@
 "use client"
-import { AudioProvider } from '@/components/context/AudioProvider'
+import { AudioProvider } from "@/components/context/AudioProvider"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 const queryClient = new QueryClient()
 export default function AuthLayout({
@@ -9,9 +9,7 @@ export default function AuthLayout({
 }) {
   return (
     <QueryClientProvider client={queryClient}>
-      <AudioProvider>
-        {children}
-      </AudioProvider>
-      </QueryClientProvider>
+      <AudioProvider>{children}</AudioProvider>
+    </QueryClientProvider>
   )
 }

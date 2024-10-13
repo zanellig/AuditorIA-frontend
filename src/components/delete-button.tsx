@@ -67,12 +67,9 @@ export default function DeleteButton<TData>({
               onClick={async () => {
                 if (ids) {
                   table.resetRowSelection()
-                  const responses = await deleteTasks(
-                    [...ids],
-                    true
-                  )
+                  const responses = await deleteTasks([...ids], true)
                 } else if (identifier) {
-                  await deleteTask( identifier, true)
+                  await deleteTask(identifier, true)
                 }
                 // this is made to avoid empty pages
                 if (

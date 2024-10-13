@@ -9,9 +9,7 @@ import { revalidatePath } from "next/cache"
 import { calculateAverageForSegments } from "@/lib/utils"
 import { getHeaders, AllowedContentTypes } from "@/lib/utils"
 import { _request, _get, _post, _put, _patch, _delete } from "@/lib/fetcher"
-import { TESTING } from "@/lib/consts"
 import { getNetworkAudio } from "./audio"
-import { NextResponse } from "next/server"
 import { env } from "@/env"
 
 export async function readFile(filePath: string): Promise<Buffer | null> {

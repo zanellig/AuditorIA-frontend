@@ -56,7 +56,7 @@ async function _request<T, R extends boolean | undefined = undefined>(
   } catch (e) {
     return [new Error("Failed to fetch", { cause: e }), null] as [
       Error,
-      R extends true ? number : T
+      R extends true ? number : T,
     ]
   }
 }

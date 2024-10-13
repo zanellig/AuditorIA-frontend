@@ -1,6 +1,6 @@
 import SearchRecords from "@/components/search-records"
 import { DASHBOARD_ICON_CLASSES } from "@/lib/consts"
-import { ArrowRightLeft } from 'lucide-react'
+import { ArrowRightLeft } from "lucide-react"
 
 export default function Page() {
   return (

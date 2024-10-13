@@ -156,15 +156,18 @@ export const MultiStepLoader = ({
       return
     }
 
-    const interval = setInterval(() => {
-      setCurrentState(prevState => {
-        if (loop) {
-          return prevState + 1
-        } else {
-          return Math.min(prevState + 1, loadingStates.length - 1)
-        }
-      })
-    }, Math.round(duration / loadingStates.length))
+    const interval = setInterval(
+      () => {
+        setCurrentState(prevState => {
+          if (loop) {
+            return prevState + 1
+          } else {
+            return Math.min(prevState + 1, loadingStates.length - 1)
+          }
+        })
+      },
+      Math.round(duration / loadingStates.length)
+    )
 
     return () => clearInterval(interval)
   }, [loading, loop, loadingStates.length, duration])

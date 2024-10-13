@@ -5,7 +5,7 @@ import { Tasks } from "@/lib/types.d"
 import { NextRequest, NextResponse } from "next/server"
 import { env } from "@/env"
 import { getHost } from "@/lib/actions"
-import fs from "fs/promises"
+// import fs from "fs/promises"
 export async function GET() {
   const headers = getHeaders(env.API_MAIN, AllowedContentTypes.Json)
   const url = [env.API_MAIN, ALL_TASKS_PATH].join("/")
