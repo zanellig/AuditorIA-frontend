@@ -194,7 +194,6 @@ function Card3D({
               variant={"default"}
               className='w-full'
               disabled={disabled}
-              onClick={() => setIsRedirecting(true)}
               isLoading={isRedirecting}
             >
               {buttonContent()}
