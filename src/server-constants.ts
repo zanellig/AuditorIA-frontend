@@ -1,9 +1,11 @@
 import "server-only"
 import { env } from "@/env"
 export const INTERNAL_API =
-  env.NODE_ENV === "development"
+  env.APP_ENV === "local"
     ? `http://localhost:${env.PORT}`
-    : `http://${env.HOST}:${env.PORT}`
+    : env.APP_ENV === "remote"
+      ? `http://${env.HOST}:${env.PORT}`
+      : "no-host-defined"
 export const ACCEPTED_ORIGINS = [env.API_MAIN, env.API_CANARY, INTERNAL_API]
 export const ALL_TASKS_PATH = "tasks"
 export const TASK_PATH = "task"
