@@ -24,6 +24,8 @@ async function _request<T, R extends boolean | undefined = undefined>(
 
   if (options?.cacheResponse !== undefined && !options?.cacheResponse) {
     fetchOptions.cache = "no-store" as RequestCache
+  } else if (options?.cacheResponse) {
+    fetchOptions.cache = "force-cache" as RequestCache
   }
 
   if (body && body instanceof FormData) {
