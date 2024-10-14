@@ -44,7 +44,6 @@ const fetchTranscription = async (taskId: string) => {
   if (err !== null) {
     throw new Error(err.message)
   }
-  console.log(taskId, response)
   return { taskId, transcription: response }
 }
 
