@@ -252,6 +252,11 @@ export function concatParamsToUrlString(
   return url
 }
 
+/**
+ * Extracts the year, month, and day from a Date object.
+ * @param date The Date object to extract the year, month, and day from
+ * @returns A string in the format "YYYYMMDD" representing the extracted year, month, and day
+ */
 export function extractYearMonthDayFromDate(date: Date): string {
   const year = date.getFullYear().toString().padStart(4, "0")
   const month = (date.getMonth() + 1).toString().padStart(2, "0")
@@ -261,4 +266,33 @@ export function extractYearMonthDayFromDate(date: Date): string {
 
 export function capitalizeOnlyFirstLetter(text: string) {
   return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase()
+}
+
+/**
+ * Extracts JSON from a string that contains a code block with the JSON content.
+ * Eg. ```json{"key": "value"}```
+ * @param input The input string containing the JSON code block
+ * @returns The extracted JSON object or the original input string if no JSON was found
+ */
+export function extractJsonFromString(
+  input: string
+): Record<string, string> | string {
+  const jsonPattern = /```json([\s\S]*?)```/
+  const match = input.match(jsonPattern)
+
+  if (match && match[1]) {
+    try {
+      // Trim whitespace and parse the JSON
+      return JSON.parse(match[1].trim())
+    } catch (error) {
+      throw new Error(`Failed to parse JSON: ${JSON.stringify(error)}`)
+    }
+  }
+  // Return the original input if no JSON was found
+  return input
+}
+
+export function convertSpeakerToHablante(input: string) {
+  const speakerPattern = /^SPEAKER_(\d+)$/
+  return input.replace(speakerPattern, "Hablante $1")
 }
