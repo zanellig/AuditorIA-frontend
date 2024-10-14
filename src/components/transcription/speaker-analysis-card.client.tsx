@@ -1,5 +1,6 @@
+// @/components/transcription/speaker-analysis-card.client.tsx
 "use client"
-import React, { Suspense, useState } from "react"
+import React from "react"
 import {
   _replaceSpecialCharacters,
   cn,
@@ -30,17 +31,19 @@ import { DASHBOARD_ICON_CLASSES } from "@/lib/consts"
 import { useToast } from "../ui/use-toast"
 import { LoadingState, MultiStepLoader } from "../ui/multi-step-loader"
 import EvalSpeakerProfile from "./eval-speaker-profile"
+import { Trash2 } from "lucide-react"
+import { ScrollArea } from "../ui/scroll-area"
 
 export default function SpeakerAnalysisCard({
   children,
   className,
   segments,
 }: {
-  children: React.ReactNode
+  children?: React.ReactNode
   className?: string
   segments: Segment[]
 }) {
-  const [isOpen, setIsOpen] = useState<boolean>(false)
+  const [isOpen, setIsOpen] = React.useState<boolean>(false)
   const searchParams = useSearchParams()
   const id = searchParams.get("identifier")
   const uniqueWords = getUniqueWords(segments || [])
@@ -68,11 +71,9 @@ export default function SpeakerAnalysisCard({
           />
         </Button>
         <div id='analysis-content'>
-          <Accordion type='single' collapsible className='lg:w-[500px]'>
+          <Accordion type='multiple' className='lg:w-[500px]'>
             <LocalWordSearch words={uniqueWords} />
-            <Suspense fallback={<div>Cargando...</div>}>
-              <EvalSpeakerProfile id={id as Task["identifier"]} />
-            </Suspense>
+            <EvalSpeakerProfile id={id as Task["identifier"]} />
           </Accordion>
         </div>
       </div>
@@ -88,17 +89,16 @@ function LocalWordSearch({
   words: Set<string>
 }) {
   const { toast } = useToast()
-  const [inputs, setInputs] = useState<string[]>([])
-  const [currentInput, setCurrentInput] = useState<string>("")
+  const [inputs, setInputs] = React.useState<string[]>([])
+  const [currentInput, setCurrentInput] = React.useState<string>("")
   type EditingState = [boolean, string, number]
-  const [edit, setEdit] = useState<EditingState>([false, "", -1])
+  const [edit, setEdit] = React.useState<EditingState>([false, "", -1])
   // this is only while we figure out how to change the component to accept the FoundWordsState[] as a prop
-  const [loadingStates, setLoadingStates] = useState<LoadingState[]>([])
+  const [loadingStates, setLoadingStates] = React.useState<LoadingState[]>([])
   const [searchingWordsForUser, setSearchingWordsForUser] =
-    useState<boolean>(false)
-  const [timer, setTimer] = useState<number>(0)
-
-  const [foundWords, setFoundWords] = useState<FoundWordsState[]>([])
+    React.useState<boolean>(false)
+  const [timer, setTimer] = React.useState<number>(0)
+  const [foundWords, setFoundWords] = React.useState<FoundWordsState[]>([])
   function searchWords(
     searchWords: string[],
     targetWords: Set<string>
@@ -108,6 +108,9 @@ function LocalWordSearch({
       return [hasTargetWord, searchWord, i]
     })
   }
+  // Create refs for each input
+  const inputRefs = React.useRef<Array<HTMLInputElement | null>>([])
+
   React.useEffect(() => {
     // timer
     if (searchingWordsForUser) {
@@ -120,6 +123,14 @@ function LocalWordSearch({
       return () => clearTimeout(loadingTimer)
     }
   }, [searchingWordsForUser])
+
+  // Focus input when editing starts
+  React.useEffect(() => {
+    if (edit[0] && inputRefs.current[edit[2]]) {
+      inputRefs.current[edit[2]]?.focus()
+    }
+  }, [edit])
+
   function _reset() {
     setCurrentInput("")
     setInputs([])
@@ -137,7 +148,7 @@ function LocalWordSearch({
         />
       )}
       <AccordionItem value='1'>
-        <AccordionTrigger>Buscar palabras </AccordionTrigger>
+        <AccordionTrigger>Buscar palabras</AccordionTrigger>
         <AccordionContent className='flex flex-col space-y-2'>
           <div className='flex flex-row space-x-2 items-center'>
             <Input
@@ -149,7 +160,7 @@ function LocalWordSearch({
                 if (e.key === "Enter") {
                   if (currentInput === "") {
                     toast({
-                      title: "Ingrese una palabra para buscar",
+                      title: "Ingrese una palabra a buscar",
                       variant: "destructive",
                     })
                     return
@@ -164,7 +175,7 @@ function LocalWordSearch({
               onClick={() => {
                 if (currentInput === "") {
                   toast({
-                    title: "Ingrese una palabra para buscar",
+                    title: "Ingrese una palabra a buscar",
                     variant: "destructive",
                   })
                   return
@@ -173,80 +184,126 @@ function LocalWordSearch({
                 setCurrentInput("")
               }}
             >
-              <CheckIcon className={DASHBOARD_ICON_CLASSES} />
+              <CheckIcon
+                className={cn(
+                  DASHBOARD_ICON_CLASSES,
+                  currentInput && "text-foreground"
+                )}
+              />
             </Button>
           </div>
           {inputs.map((input, i) => {
             return (
-              <div
-                key={`word-container-${i}`}
-                className='flex flex-row items-center space-x-2'
-              >
-                <Button
-                  key={`word-remove-${i}`}
-                  variant='outline'
-                  onClick={() =>
-                    setInputs(inputs.filter((_, index) => index !== i))
-                  }
+              <div className='flex flex-col gap-2'>
+                {edit[0] && edit[2] === i && (
+                  <span className='text-sm text-muted-foreground'>
+                    Para salir del modo edición presione{" "}
+                    <code className='text-foreground'>Esc</code>. <br /> Para
+                    confirmar la edición presione{" "}
+                    <code className='text-foreground'>Enter</code>.
+                  </span>
+                )}
+                <div
+                  key={`word-container-${i}`}
+                  className='flex flex-row items-center space-x-2'
                 >
-                  <Cross2Icon className={DASHBOARD_ICON_CLASSES} />
-                </Button>
-                <Button
-                  variant='outline'
-                  onClick={() => {
-                    if (edit[0] && edit[2] === i) {
-                      // change the value of the input[i] to the new value
-                      setInputs(
-                        inputs.map((_, i) => {
-                          if (i === edit[2]) {
-                            return edit[1]
-                          }
-                          return _
-                        })
-                      )
+                  <Button
+                    key={`word-remove-${i}`}
+                    variant='outline'
+                    onClick={() => {
+                      setInputs(inputs.filter((_, index) => index !== i))
                       setEdit([false, "", -1])
-                      return
-                    }
-                    setEdit([true, input, i])
-                  }}
-                >
-                  {edit[0] && edit[2] === i ? (
-                    <CheckIcon className={DASHBOARD_ICON_CLASSES} />
-                  ) : (
-                    <Pencil2Icon className={DASHBOARD_ICON_CLASSES} />
-                  )}
-                </Button>
-                {edit[0] && edit[2] === i ? (
-                  <Input
-                    value={normalizeString(edit[1])}
-                    onChange={e => setEdit([true, e.target.value, edit[2]])}
-                    onKeyDown={e => {
-                      if (e.key === "Enter") {
+                    }}
+                  >
+                    <Trash2
+                      className={cn(DASHBOARD_ICON_CLASSES, "text-foreground")}
+                    />
+                  </Button>
+                  <Button
+                    variant='outline'
+                    onClick={() => {
+                      if (edit[0] && edit[2] === i) {
+                        // Check if edit[1] (input value) is not empty
+                        if (edit[1].trim() === "") {
+                          toast({
+                            title: "La palabra no puede estar vacía",
+                            variant: "destructive",
+                          })
+                          return
+                        }
+                        // change the value of the input[i] to the new value
                         setInputs(
                           inputs.map((_, i) => {
                             if (i === edit[2]) {
-                              return normalizeString(edit[1])
+                              return edit[1]
                             }
                             return _
                           })
                         )
                         setEdit([false, "", -1])
+                        return
                       }
-                      if (e.key === "Escape") {
-                        setEdit([false, "", -1])
-                      }
-                    }}
-                  />
-                ) : (
-                  <div
-                    className='rounded-md bg-popover p-2 text-sm border border-input w-full'
-                    style={{
-                      userSelect: "none",
+                      setEdit([true, input, i])
                     }}
                   >
-                    {input}
-                  </div>
-                )}
+                    {edit[0] && edit[2] === i ? (
+                      <CheckIcon
+                        className={cn(
+                          DASHBOARD_ICON_CLASSES,
+                          "text-foreground"
+                        )}
+                      />
+                    ) : (
+                      <Pencil2Icon
+                        className={cn(
+                          DASHBOARD_ICON_CLASSES,
+                          "text-foreground"
+                        )}
+                      />
+                    )}
+                  </Button>
+                  {edit[0] && edit[2] === i ? (
+                    <Input
+                      ref={el => {
+                        inputRefs.current[i] = el
+                      }}
+                      value={normalizeString(edit[1])}
+                      onChange={e => setEdit([true, e.target.value, edit[2]])}
+                      onKeyDown={e => {
+                        if (e.key === "Enter") {
+                          if (edit[1].trim() === "") {
+                            toast({
+                              title: "La palabra no puede estar vacía",
+                              variant: "destructive",
+                            })
+                            return
+                          }
+                          setInputs(
+                            inputs.map((_, i) => {
+                              if (i === edit[2]) {
+                                return normalizeString(edit[1])
+                              }
+                              return _
+                            })
+                          )
+                          setEdit([false, "", -1])
+                        }
+                        if (e.key === "Escape") {
+                          setEdit([false, "", -1])
+                        }
+                      }}
+                    />
+                  ) : (
+                    <div
+                      className='rounded-md bg-popover p-2 text-sm border border-input w-full'
+                      style={{
+                        userSelect: "none",
+                      }}
+                    >
+                      {input}
+                    </div>
+                  )}
+                </div>
               </div>
             )
           })}
@@ -262,6 +319,7 @@ function LocalWordSearch({
                   }
                   setLoadingStates(prev => [...prev, loadingState])
                 }
+                setEdit([false, "", -1])
                 setSearchingWordsForUser(true)
                 _reset()
               }}

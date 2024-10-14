@@ -1,6 +1,6 @@
 // @/components/transcription/transcription.client.tsx
 "use client"
-import React from "react"
+import React, { RefObject } from "react"
 import { useRouter } from "next/navigation"
 import {
   Segment,
@@ -29,12 +29,12 @@ import { ChevronLeft, ClipboardIcon, MessageCircleQuestion } from "lucide-react"
 import { GLOBAL_ICON_SIZE } from "@/lib/consts"
 import { cn, secondsToHMS, formatTimestamp } from "@/lib/utils"
 import TitleH1 from "@/components/typography/titleH1"
-import SubtitleH2 from "@/components/typography/subtitleH2"
-import Analysis from "@/components/transcription/analysis"
 import TranscriptionSkeleton from "../skeletons/transcription-skeleton"
 import { ErrorCodeUserFriendly } from "../error/error-code-user-friendly"
 import SpeakerAnalysisCard from "./speaker-analysis-card.client"
 import { useTranscription } from "../context/TranscriptionProvider"
+import TypographyH3 from "../typography/h3"
+import { useAudioPlayer } from "../context/AudioProvider"
 
 const BASIC_STYLE = "flex text-sm rounded-md p-2 gap-2"
 
@@ -50,10 +50,15 @@ export default function TranscriptionClient({
   taskId?: string
   drawerOptions?: DrawerOptions
 }) {
-  const { toast } = useToast()
-
   const { transcription, isLoading, error, fetchTranscription } =
     useTranscription()
+
+  if (isLoading) return <TranscriptionSkeleton />
+
+  const { toast } = useToast()
+
+  const segmentRefs = React.useRef<(HTMLDivElement | null)[]>([])
+
   let isAnalysisNotReady =
     transcription &&
     [
@@ -67,7 +72,33 @@ export default function TranscriptionClient({
       fetchTranscription(taskId)
     }
   }, [taskId, fetchTranscription])
-  if (isLoading) return <TranscriptionSkeleton />
+
+  const player = useAudioPlayer()
+
+  React.useEffect(() => {
+    if (player.isPlaying && player.currentTime > 0) {
+      // console.log("player.currentTime", player.currentTime)
+      scrollToSegment(player.currentTime)
+    }
+  }, [player.isPlaying, player.currentTime, , transcription?.result?.segments])
+
+  const scrollToSegment = (timestamp: number) => {
+    if (!transcription?.result?.segments) return
+
+    const currentSegment = transcription.result.segments.find(
+      segment => timestamp >= segment.start && timestamp <= segment.end
+    )
+
+    if (currentSegment) {
+      const ref = segmentRefs.current[Number(currentSegment.start.toFixed(2))]
+      ref?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+        inline: "center",
+      })
+    }
+  }
+
   return (
     <>
       {drawerOptions?.show && (
@@ -80,14 +111,15 @@ export default function TranscriptionClient({
           {isAnalysisNotReady && (
             <TranscriptionNotReady status={transcription?.status} />
           )}
-          <SpeakerAnalysisCard segments={transcription?.result?.segments}>
-            {""}
-          </SpeakerAnalysisCard>
-          <div className='flex flex-col space-y-2 py-10 pl-4 pr-16'>
+          <SpeakerAnalysisCard segments={transcription?.result?.segments} />
+          <div className='flex flex-col space-y-2 p-0 px-2 w-full justify-start'>
             {taskId && <TaskHeader taskId={taskId} toast={toast} />}
-            <Analysis transcription={transcription} />
+            {/* <Analysis transcription={transcription} /> */}
             {transcription?.result?.segments.map((segment, index) => (
               <SegmentRenderer
+                ref={el => {
+                  segmentRefs.current[Number(segment.start.toFixed(2))] = el
+                }}
                 key={`${segment.speaker}-segment-${index}`}
                 segment={segment}
               />
@@ -111,11 +143,11 @@ interface TaskHeaderProps {
 }
 
 const TaskHeader: React.FC<TaskHeaderProps> = ({ taskId, toast }) => (
-  <div className='flex flex-row items-center space-x-4 self-center'>
-    <SubtitleH2>
+  <div className='flex flex-row items-center space-x-4 w-full justify-center'>
+    <TypographyH3 className='font-normal'>
       Transcripción de llamado con ID
       <span className='font-bold'> {taskId}</span>
-    </SubtitleH2>
+    </TypographyH3>
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
@@ -218,37 +250,41 @@ const EmotionBox: React.FC = () => (
     </Button>
   </div>
 )
+
 interface SegmentRendererProps {
   segment: Segment
 }
+const SegmentRenderer = React.forwardRef<HTMLDivElement, SegmentRendererProps>(
+  ({ segment }, ref) => {
+    const speakerNumber = parseInt(segment?.speaker?.split("_")[1], 10)
+    const isEvenSpeaker = speakerNumber % 2 === 0
 
-const SegmentRenderer: React.FC<SegmentRendererProps> = ({ segment }) => {
-  const speakerNumber = parseInt(segment?.speaker?.split("_")[1], 10)
-  const isEvenSpeaker = speakerNumber % 2 === 0
-
-  return (
-    <div
-      className={cn(
-        "flex flex-row space-x-2",
-        isEvenSpeaker ? "self-start" : "self-end"
-      )}
-    >
-      {isEvenSpeaker ? (
-        <>
-          {segment.analysis && <Emoji emotion={segment.analysis.emotion} />}
-          <TextContainer segment={segment} />
-          {segment.analysis && <EmotionBox />}
-        </>
-      ) : (
-        <>
-          {segment.analysis && <EmotionBox />}
-          <TextContainer segment={segment} />
-          {segment.analysis && <Emoji emotion={segment.analysis.emotion} />}
-        </>
-      )}
-    </div>
-  )
-}
+    return (
+      <div
+        ref={ref}
+        className={cn(
+          "flex flex-row space-x-2",
+          isEvenSpeaker ? "self-start" : "self-end"
+        )}
+      >
+        {isEvenSpeaker ? (
+          <>
+            {segment.analysis && <Emoji emotion={segment.analysis.emotion} />}
+            <TextContainer segment={segment} />
+            {segment.analysis && <EmotionBox />}
+          </>
+        ) : (
+          <>
+            {segment.analysis && <EmotionBox />}
+            <TextContainer segment={segment} />
+            {segment.analysis && <Emoji emotion={segment.analysis.emotion} />}
+          </>
+        )}
+      </div>
+    )
+  }
+)
+SegmentRenderer.displayName = "SegmentRenderer"
 
 interface TextContainerProps {
   segment: Segment
@@ -264,9 +300,9 @@ const TextContainer: React.FC<TextContainerProps> = ({ segment }) => (
     {segment.analysis?.sentiment && (
       <SentimentMarker sentiment={segment.analysis.sentiment} />
     )}
-    <div className='flex flex-col justify-between gap-2 text-sm'>
+    <div className='flex flex-col justify-between gap-2 text-sm text-card-foreground'>
       {segment.text}
-      <div className='text-xs text-muted-foreground'>
+      <div className='text-xs dark:text-muted-foreground'>
         ({formatTimestamp(secondsToHMS(segment.start), false)} -{" "}
         {formatTimestamp(secondsToHMS(segment.end), false)})
       </div>
