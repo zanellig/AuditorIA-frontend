@@ -8,8 +8,14 @@ import { getHost } from "@/lib/actions"
 // import fs from "fs/promises"
 export async function GET() {
   const headers = getHeaders(env.API_MAIN, AllowedContentTypes.Json)
-  const url = [env.API_MAIN, ALL_TASKS_PATH].join("/")
+  const url = [
+    env.API_MAIN,
+    ALL_TASKS_PATH,
+    //  "/not_valid_endpoint" // Uncomment to force 404 on server
+  ].join("/")
+
   const [err, res] = await _get(url, headers)
+  const responseHeaders = getHeaders(await getHost(), AllowedContentTypes.Json)
   /**
    * If you want to use the mock data, uncomment the following lines and comment the lines below.
    */
@@ -25,25 +31,27 @@ export async function GET() {
   if (err !== null) {
     return new NextResponse(JSON.stringify([JSON.stringify(err), null]), {
       status: 404,
-      headers,
+      headers: responseHeaders,
+      statusText: err.message,
     })
   }
   if (res === null) {
     return new NextResponse(JSON.stringify([null, []]), {
       status: 200,
-      headers,
+      headers: responseHeaders,
     })
   }
   if (res.ok) {
     const tasks: Tasks = (await res.json()).tasks
     return new NextResponse(JSON.stringify([null, tasks]), {
       status: 200,
-      headers,
+      headers: responseHeaders,
     })
   }
   return new NextResponse(JSON.stringify(["Unexpected error", null]), {
     status: 500,
-    headers,
+    statusText: res.statusText,
+    headers: responseHeaders,
   })
 }
 

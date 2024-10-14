@@ -24,7 +24,7 @@ export default function TasksPage() {
         headers: getHeaders(host, AllowedContentTypes.Json),
       }).then(async res => {
         if (!res.ok) {
-          throw new Error("(1019): Error de red.")
+          throw new Error(res.statusText)
         }
         const [err, tasks] = await res.json()
         if (err) {
