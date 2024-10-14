@@ -12,6 +12,10 @@ Creamos una interfaz de usuario intuitiva y accesible utilizando componentes apt
 
 ## Análisis con inteligencia artificial y machine learning para mejorar tus resultados 🧠
 
+Evaluá la gestión de tus colaboradores
+
+![SpkAnalysis](.github/assets/spkanalysis.png?raw=true)
+
 Proveéte de resultados precisos y confiables
 
 ![analysis](.github/assets/analysis.png?raw=true)
