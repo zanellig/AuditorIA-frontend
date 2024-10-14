@@ -9,6 +9,7 @@ import { ErrorCodeUserFriendly } from "@/components/error/error-code-user-friend
 import { CustomBorderCard } from "@/components/custom-border-card"
 import { getHost } from "@/lib/actions"
 import DashboardSkeleton from "@/components/skeletons/dashboard-skeleton"
+import { AllowedContentTypes, getHeaders } from "@/lib/utils"
 
 export default function TasksPage() {
   const {
@@ -18,23 +19,19 @@ export default function TasksPage() {
   } = useQuery({
     queryKey: ["tasks"],
     queryFn: async () => {
-      const res = await fetch(`${await getHost()}/api/tasks`).then(
-        async res => {
-          // we could fallback to this error if the 30:8000 server is down
-          if (!res.ok) {
-            throw new Error("(1019): Error de red.")
-          }
-          const [err, tasks] = await res.json()
-          console.group("Tasks fetched")
-          console.log("err:", err)
-          console.log("tasks:", tasks)
-          console.groupEnd()
-          if (err) {
-            throw new Error(err)
-          }
-          return tasks
+      const host = await getHost()
+      const res = await fetch(`${host}/api/tasks`, {
+        headers: getHeaders(host, AllowedContentTypes.Json),
+      }).then(async res => {
+        if (!res.ok) {
+          throw new Error("(1019): Error de red.")
         }
-      )
+        const [err, tasks] = await res.json()
+        if (err) {
+          throw new Error(err)
+        }
+        return tasks
+      })
       return res
     },
   })
@@ -60,10 +57,10 @@ export default function TasksPage() {
               err !== null
                 ? "error"
                 : !res
-                ? "warning"
-                : res.length === 0
-                ? "default"
-                : "success"
+                  ? "warning"
+                  : res.length === 0
+                    ? "default"
+                    : "success"
             }
           />
           <DataTable
