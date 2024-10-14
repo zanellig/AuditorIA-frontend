@@ -54,7 +54,8 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({
     setIsLoading(true)
     try {
       const response = await fetch(
-        `${getHost()}/api/audio?path=${encodeURIComponent(nasPath)}`
+        `${await getHost()}/api/audio?path=${encodeURIComponent(nasPath)}`,
+        { cache: "force-cache" }
       )
       if (!response.ok) {
         setError(true)
