@@ -30,6 +30,9 @@ export async function GET(request: NextRequest) {
     revalidate: true,
     expectJson: true,
   })
+  // console.log("task url requested:", reqUrl);
+  // console.log("task error:", err);
+  // console.log("task response:", res);
   if (err !== null) {
     /**
      * The ECONNREFUSED (Connection refused) could fall in this case if the server is not running, but we can't access that error message,
@@ -63,7 +66,7 @@ export async function GET(request: NextRequest) {
       }
     )
   }
-  if (res.ok) {
+  if (res !== null) {
     return new NextResponse(JSON.stringify([null, res]), {
       status: 200,
       headers: headers,
@@ -95,6 +98,7 @@ export async function POST(request: NextRequest) {
   console.log("fileName:", fileName)
   console.log("data:", form)
   console.groupEnd()
+  // CHECK IF THE API TAKES THE FORM ARGUMENTS AS URL PARAMETERS OR WORKS AS FORM DATA
   const rejectCondition =
     !form ||
     !form.get("language") ||
