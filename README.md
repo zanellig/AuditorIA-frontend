@@ -1,113 +1,63 @@
-# auditorIA
+# AuditorIA
 
-## Como correr en desarrollo
+Revolucioná tu forma de auditar llamados
 
-### Windows
+![AuditorIA](.github/assets/logo.png?raw=true)
 
-1.0. Nos aseguramos de tener la versión correcta de Node.js
+## Interfaz de usuario intuitiva y accesible 👨‍💻
 
-```bash
-  $ node -v
-  > v20.18.0
-```
+Creamos una interfaz de usuario intuitiva y accesible utilizando componentes aptos para personas con discapacidades visuales cumpliendo con estándares WCAG 2.1 y WAI-ARIA
 
-> Personalmente utilizo [**Node Version Manager**](https://github.com/coreybutler/nvm-windows) en Windows para manejar las versiones de Node, por lo que voy a mostrar cómo hacerlo con este software.
+![Dashboard](.github/assets/dashboard.png?raw=true)
 
-1.1. Chequeamos qué versión tenemos activa (lo mismo que `node -v`)
+## Análisis con inteligencia artificial y machine learning para mejorar tus resultados 🧠
 
-```bash
-  $ nvm current
-  > v20.18.0
+Proveéte de resultados precisos y confiables
 
-```
+![analysis](.github/assets/analysis.png?raw=true)
 
-1.2. Si tenemos una versión antigua o no compatible, instalaremos la **20.18.0**
+Buscá las palabras clave que más te interesan
 
-```bash
-  $ nvm install 20.18.0 [arch = 32 | 64]
-  > Downloading node.js version 20.18.0 (64-bit)...
-  > Extracting node and npm...
-  > Complete
-  > npm v10.8.2 installed successfully.
+![WordSearch](.github/assets/word_search_1.png?raw=true)
+![WordSearch2](.github/assets/word_search_2.png?raw=true)
 
-  > Installation complete. If you want to use this version, type
-  > nvm use 20.18.0
-```
+## Más que una herramienta de auditoría 💪
 
-1.3.0. Corroboramos que estamos usando nvm
+Subí tus propias grabaciones, transcribí y analizá on-demand
 
-```bash
-  $ nvm on
-  > nvm enabled
-  > Now using node v22.2.0 (64-bit)
-```
+![Upload](.github/assets/upload.png?raw=true)
 
-1.3.1. Cambiaremos a la versión instalada si teníamos otra
+## Integración con soluciones de telefonía y chats 📞
 
-```bash
-  $ nvm use 20.18
-  > Now using node v20.18.0 (64-bit)
-```
+Integrá tu central telefónica y buscá tus llamados con nuestros algoritmos avanzados, filtrando por los datos que más te interesan
 
-2. Nos dirigimos a la ruta donde se encuentra el repositorio e instalamos las dependencias
+![Search](.github/assets/search.png?raw=true)
 
-```bash
-  z auditorIA # Para correr este comando es necesario tener instalado zoxide y haber navegado anteriormente al repositorio
-  npm install
-```
+Transcribí, analizá y generá reportes de manera masiva
 
-3. Abrimos el proyecto en modo dev para ver los cambios en tiempo real
+![Found](.github/assets/found.png?raw=true)
 
-```bash
+## Herramientas de reporting integradas 📊
 
-  npm run dev
-```
+![Reporting](.github/assets/reporting.png?raw=true)
 
-> [!IMPORTANT]
-> Si nos sale el error de que ya existe un listen en el puerto 3030 seguimos los siguientes pasos
+## Todos tus datos se quedan acá 🌎
 
-```bash
-$ npm run dev
+Cumplimos estrictamente con la **Ley 25.326 de Protección de los Datos Personales** y nos encargamos de que todos los datos de su organización sean procesados y almacenados de manera segura y dentro del país.
 
-> next@0.1.0 dev
-> next dev --port 3030
+![Statement](.github/assets/law-statement.png?raw=true)
 
- ⨯ Failed to start server
-Error: listen EADDRINUSE: address already in use :::3030
-    at Server.setupListenHandle [as _listen2] (node:net:1898:16)
-    at listenInCluster (node:net:1946:12)
-    at Server.listen (node:net:2044:7)
-    [...]
-    at process.emit (node:events:520:28) {
-  code: 'EADDRINUSE',
-  errno: -4091,
-  syscall: 'listen',
-  address: '::',
-  port: 3030
-}
-```
+### Licencia
 
-Podemos correr el siguiente comando en PowerShell
+#### ES
 
-```pwsh
-  Get-Process -Id (Get-NetTCPConnection -LocalPort 3030).OwningProcess
-```
+© 2024 Gonzalo Zanelli. Todos los derechos reservados.
 
-Si encontramos el siguiente output, diciéndonos que hay un proceso de Node escuchando ese puerto
+Este software y su código fuente están sujetos a la propiedad intelectual. Ni el software, ni su código fuente, puede ser reproducido, almacenado o transmitido sin el permiso previo y expreso de los titulares de los derechos de autor.
 
-```bash
-  NPM(K)    PM(M)      WS(M)     CPU(s)      Id  SI ProcessName
-  ------    -----      -----     ------      --  -- -----------
-      195   610,96     292,90      12,39   12852   1 node
-```
+El permiso para usar, copiar, modificar y distribuir este software está estrictamente prohibido a menos que se haya obtenido el permiso previo y expreso de los titulares de los derechos de autor.
 
-Podemos proceder a cerrarlo
-
-```pwsh
-  taskkill /PID [id del proceso] /F
-```
-
-## License
+#### EN
 
 © 2024 Gonzalo Zanelli. All rights reserved.
 
