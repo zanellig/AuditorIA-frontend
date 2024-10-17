@@ -12,8 +12,9 @@ export async function GET() {
   // Fetch data
   const [error, response] = await _get(env.API_MAIN + "/docs", headers, {
     expectJson: false,
+    onlyReturnStatus: true,
+    cacheResponse: true,
   })
-
   // Handle errors
   if (error) {
     return new NextResponse(
@@ -36,7 +37,8 @@ export async function GET() {
         return new NextResponse(
           JSON.stringify({
             variant: ServerStatusBadgeVariant.OK,
-            text: "Main server OK",
+            server: "main",
+            release: "STABLE",
           }),
           { status: 200 }
         )
@@ -44,7 +46,8 @@ export async function GET() {
         return new NextResponse(
           JSON.stringify({
             variant: ServerStatusBadgeVariant.Error,
-            text: "(1011): Servidor principal no encontrado.",
+            server: "main",
+            release: "STABLE",
           }),
           {
             status: 404,
@@ -55,7 +58,8 @@ export async function GET() {
         return new NextResponse(
           JSON.stringify({
             variant: ServerStatusBadgeVariant.Error,
-            text: "(1012): Error al obtener el estado del servidor principal.",
+            server: "main",
+            release: "STABLE",
           }),
           {
             status: 500,
@@ -68,7 +72,8 @@ export async function GET() {
         return new NextResponse(
           JSON.stringify({
             variant: ServerStatusBadgeVariant.Error,
-            text: "(1013): Servidor principal no disponible.",
+            server: "main",
+            release: "STABLE",
           }),
           {
             status: 521,

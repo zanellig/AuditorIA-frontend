@@ -5,10 +5,11 @@ import { DASHBOARD_ICON_CLASSES, GLOBAL_ICON_SIZE } from "@/lib/consts"
 import { CheckCircle, CircleAlert, Server, XCircle } from "lucide-react"
 import React from "react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { useQuery } from "@tanstack/react-query"
+import { useQueries } from "@tanstack/react-query"
 import { getHost } from "@/lib/actions"
 import { ServerStatusBadgeVariant } from "@/lib/types.d"
 import { Skeleton } from "@/components/ui/skeleton"
+import RotatingTextDiv from "@/components/rotating-text-div"
 
 function getStatusAlert(variant: ServerStatusBadgeVariant, server: string) {
   switch (variant) {
@@ -64,62 +65,75 @@ function getStatusAlert(variant: ServerStatusBadgeVariant, server: string) {
 }
 
 export default function Page() {
-  const {
-    data: mainStatus,
-    isLoading: isLoadingMain,
-    isError: isErrorMain,
-  } = useQuery({
-    queryKey: ["main-status"],
-    queryFn: async () => {
-      const res = await fetch(`${await getHost()}/api/status/main`)
-      if (!res.ok) {
-        throw new Error("Failed to fetch status")
+  const statusQueries = useQueries({
+    queries: ["main", "canary"].map(server => {
+      return {
+        queryKey: [server],
+        queryFn: async () => {
+          const res = await fetch(`${await getHost()}/api/status/${server}`)
+          if (!res.ok) {
+            throw new Error("Failed to fetch status")
+          }
+          return await res.json()
+        },
+        enabled: true,
+        staleTime: Infinity,
+        refetchOnWindowFocus: true,
       }
-      return await res.json()
-    },
+    }),
   })
-  const {
-    data: canaryStatus,
-    isLoading: isLoadingCanary,
-    isError: isErrorCanary,
-  } = useQuery({
-    queryKey: ["canary-status"],
-    queryFn: async () => {
-      const res = await fetch(`${await getHost()}/api/status/canary`)
-      if (!res.ok) {
-        throw new Error("Failed to fetch status")
-      }
-      return await res.json()
-    },
-  })
+
   return (
     <main className='flex flex-col w-full space-y-2'>
-      <section className={"flex flex-col w-full space-y-4"}>
-        <TitleContainer separate>
-          <Server className={DASHBOARD_ICON_CLASSES} />
-          <TypographyH4>
-            Servidor de tareas{" "}
-            <span className={"text-muted-foreground text-sm"}>[STABLE]</span>
-          </TypographyH4>
-        </TitleContainer>
-        {isLoadingMain && (
-          <Skeleton className='h-16 rounded-xl w-[400px] bg-pulse dark:bg-secondary' />
-        )}
-        {!isLoadingMain && getStatusAlert(mainStatus?.variant, "STABLE")}
-      </section>
-      <section className={"flex flex-col w-full space-y-4"}>
-        <TitleContainer separate>
-          <Server className={DASHBOARD_ICON_CLASSES} />
-          <TypographyH4>
-            Servidor de tareas{" "}
-            <span className={"text-muted-foreground text-sm"}>[CANARY]</span>
-          </TypographyH4>
-        </TitleContainer>
-        {isLoadingCanary && (
-          <Skeleton className='h-16 rounded-xl w-[400px] bg-pulse dark:bg-secondary' />
-        )}
-        {!isLoadingCanary && getStatusAlert(canaryStatus?.variant, "CANARY")}
-      </section>
+      {statusQueries.map(query => {
+        return (
+          <section className={"flex flex-col w-full space-y-4"}>
+            <TitleContainer separate>
+              <Server className={DASHBOARD_ICON_CLASSES} />
+              <TypographyH4 className='flex gap-2 items-center'>
+                {!query.isLoading && (
+                  <>
+                    <span>
+                      Servidor {query.data?.server.toLocaleUpperCase()}
+                    </span>
+                    <span className={"text-muted-foreground text-sm"}>
+                      [{query.data?.release}]
+                    </span>
+                  </>
+                )}
+                {query.isLoading && !query.isError && (
+                  <RotatingTextDiv
+                    className='text-muted-foreground'
+                    rotatingTexts={[
+                      "Cargando datos del servidor...",
+                      "Obteniendo métricas de estabilidad...",
+                      "Esto puede demorar unos segundos...",
+                    ]}
+                  />
+                )}
+                {query.isError && (
+                  <RotatingTextDiv
+                    className='text-error'
+                    rotatingTexts={[
+                      "Error al obtener datos...",
+                      "Intente nuevamente más tarde...",
+                    ]}
+                  />
+                )}
+              </TypographyH4>
+            </TitleContainer>
+            {query.isLoading && !query.isError && (
+              <Skeleton className='h-16 rounded-xl w-[400px] bg-pulse dark:bg-secondary' />
+            )}
+            {!query.isLoading &&
+              !query.isError &&
+              query.data &&
+              getStatusAlert(query.data?.variant, query.data?.server)}
+            {query.isError &&
+              getStatusAlert(ServerStatusBadgeVariant.Error, "UNKNOWN")}
+          </section>
+        )
+      })}
     </main>
   )
 }

@@ -20,7 +20,8 @@ export async function GET() {
     return new NextResponse(
       JSON.stringify({
         variant: ServerStatusBadgeVariant.Error,
-        text: "(1015): Error al obtener el estado del servidor de pruebas.",
+        server: "canary",
+        release: "CANARY",
       }),
       {
         status: 500,
@@ -37,7 +38,8 @@ export async function GET() {
         return new NextResponse(
           JSON.stringify({
             variant: ServerStatusBadgeVariant.OK,
-            text: "Canary server OK",
+            server: "canary",
+            release: "CANARY",
           }),
           { status: 200 }
         )
@@ -45,7 +47,8 @@ export async function GET() {
         return new NextResponse(
           JSON.stringify({
             variant: ServerStatusBadgeVariant.Error,
-            text: "(1016): Servidor de pruebas no encontrado.",
+            server: "canary",
+            release: "CANARY",
           }),
           {
             status: 404,
@@ -56,7 +59,8 @@ export async function GET() {
         return new NextResponse(
           JSON.stringify({
             variant: ServerStatusBadgeVariant.Error,
-            text: "(1017): Error al obtener el estado del servidor de pruebas.",
+            server: "canary",
+            release: "CANARY",
           }),
           {
             status: 500,
@@ -68,7 +72,8 @@ export async function GET() {
         return new NextResponse(
           JSON.stringify({
             variant: ServerStatusBadgeVariant.Error,
-            text: "(1018): Servidor de pruebas no disponible.",
+            server: "canary",
+            release: "CANARY",
           }),
           {
             status: 521,
