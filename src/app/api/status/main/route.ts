@@ -13,7 +13,7 @@ export async function GET() {
   const [error, response] = await _get(env.API_MAIN + "/docs", headers, {
     expectJson: false,
     onlyReturnStatus: true,
-    cacheResponse: true,
+    cacheResponse: false,
   })
   // Handle errors
   if (error) {

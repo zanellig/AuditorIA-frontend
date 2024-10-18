@@ -13,8 +13,9 @@ export async function GET() {
   const [error, response] = await _get(env.API_CANARY + "/docs", headers, {
     expectJson: false,
     onlyReturnStatus: true,
-    cacheResponse: true,
+    cacheResponse: false,
   })
+  console.log("response:", response)
   // Handle errors
   if (error) {
     return new NextResponse(
