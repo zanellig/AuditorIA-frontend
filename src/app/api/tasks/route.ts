@@ -16,6 +16,7 @@ export async function GET() {
 
   const [err, res] = await _get(url, headers)
   const responseHeaders = getHeaders(await getHost(), AllowedContentTypes.Json)
+  console.log("headers: ", responseHeaders, "\nhost:", await getHost())
   /**
    * If you want to use the mock data, uncomment the following lines and comment the lines below.
    */
@@ -28,7 +29,21 @@ export async function GET() {
   //     statusText: "Mock",
   //   }
   // )
+
+  // Type guard to check if cause has a code property
+  function hasErrorCode(cause: any): cause is { code: string } {
+    return cause && typeof cause.code === "string"
+  }
   if (err !== null) {
+    let errorCode = "Unknown error code"
+
+    if (hasErrorCode(err.cause)) {
+      errorCode = err.cause.code
+    }
+
+    console.error("Error cause: ", err.cause)
+    console.error("Error code: ", errorCode)
+
     return new NextResponse(JSON.stringify([JSON.stringify(err), null]), {
       status: 404,
       headers: responseHeaders,
