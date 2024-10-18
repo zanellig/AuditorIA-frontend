@@ -3,7 +3,7 @@ import { TASK_PATH } from "@/server-constants"
 import { AllowedContentTypes, getHeaders } from "@/lib/utils"
 import { TaskPOSTResponse } from "@/lib/types.d"
 import { NextRequest, NextResponse } from "next/server"
-import { fetchAudioData } from "@/lib/actions"
+import { fetchAudioData, getHost } from "@/lib/actions"
 import { env } from "@/env"
 
 export const revalidate = 5
@@ -30,9 +30,7 @@ export async function GET(request: NextRequest) {
     revalidate: true,
     expectJson: true,
   })
-  // console.log("task url requested:", reqUrl);
-  // console.log("task error:", err);
-  // console.log("task response:", res);
+
   if (err !== null) {
     /**
      * The ECONNREFUSED (Connection refused) could fall in this case if the server is not running, but we can't access that error message,
@@ -87,108 +85,185 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const params = request.nextUrl.searchParams
-  const headers = getHeaders(env.API_MAIN)
-  const form = await request.formData()
-  const nasUrl = params.get("nasUrl")
-  const fileName = params.get("fileName")
-  const responseHeaders = getHeaders(env.API_MAIN, AllowedContentTypes.Json)
-  console.group("Request reached endpoint /api/task with the following data:")
-  console.log("nasUrl:", nasUrl)
-  console.log("fileName:", fileName)
-  console.log("data:", form)
-  console.groupEnd()
-  // CHECK IF THE API TAKES THE FORM ARGUMENTS AS URL PARAMETERS OR WORKS AS FORM DATA
-  const rejectCondition =
-    !form ||
-    !form.get("language") ||
-    !form.get("task_type") ||
-    !form.get("model") ||
-    !form.get("device")
-  if (rejectCondition) {
-    return new NextResponse(
-      JSON.stringify([
-        new Error(
-          "(1005): No se han proveído los datos necesarios para ejecutar la consulta."
-        ),
-        null,
-      ]),
-      {
-        status: 400,
-        statusText:
-          "(1005): No se han proveído los datos necesarios para ejecutar la consulta.",
-        headers: responseHeaders,
+  const responseHeaders = getHeaders(await getHost(), AllowedContentTypes.Json)
+  try {
+    const params = request.nextUrl.searchParams
+    const headers = getHeaders(env.API_MAIN)
+    const clientForm = await request.formData().catch(e => {
+      if (e) {
+        return null
       }
-    )
-  }
-  if (nasUrl && fileName) {
-    try {
-      const binaryFromNAS = await fetchAudioData(nasUrl)
-      const fileType = fileName.split(".").pop() || "octet-stream"
-      if (binaryFromNAS) {
-        // Convert Buffer to Blob
-        const blob = new Blob([binaryFromNAS], { type: `audio/${fileType}` })
-        form.set("file", blob, fileName)
-      } else {
-        return new NextResponse(
-          JSON.stringify([new Error("(1006): Archivo no encontrado."), null]),
-          {
-            status: 404,
-            statusText: "(1006): Archivo no encontrado.",
-            headers: responseHeaders,
-          }
-        )
-      }
-    } catch (error: any) {
-      if (error instanceof Error) {
-        console.error("Error posting audio to API:", error.message)
-        return new NextResponse(
-          JSON.stringify([new Error("(1007): Error al crear la tarea."), null]),
-          {
-            status: 500,
-            statusText: "(1007): Error al crear la tarea.",
-            headers: responseHeaders,
-          }
-        )
-      }
-      return new NextResponse(
+    })
+    /**
+     * The serverForm is used to send the file to the API.
+     */
+    const serverForm = new FormData()
+    const nasUrl = params.get("nasUrl")
+    const fileName = params.get("fileName")
+    const rejectResponse = ({
+      missingData = "Some",
+    }: {
+      missingData?: string
+    }) =>
+      new NextResponse(
         JSON.stringify([
-          new Error("(1008): Error desconocido al crear la tarea."),
+          new Error(
+            `(1005): No se pudo ejecutar la consulta. ${missingData} data is missing.`
+          ),
           null,
         ]),
         {
-          status: 500,
-          statusText: "(1008): Error desconocido al crear la tarea.",
+          status: 400,
+          statusText: `(1005): No se pudo ejecutar la consulta. ${missingData} data is missing.`,
+          headers: responseHeaders,
+        }
+      )
+
+    if (!clientForm) {
+      return rejectResponse({ missingData: "Form" })
+    }
+
+    const rejectCondition =
+      !clientForm.get("language") ||
+      !clientForm.get("task_type") ||
+      !clientForm.get("model") ||
+      !clientForm.get("device")
+
+    if (rejectCondition) {
+      return rejectResponse({ missingData: "Form fields" })
+    }
+
+    const languageParam = `${clientForm.get("language")}`
+    const taskTypeParam = `${clientForm.get("task_type")}`
+    const modelParam = `${clientForm.get("model")}`
+    const deviceParam = `${clientForm.get("device")}`
+
+    const externalRequestUrl = new URL([env.API_MAIN, TASK_PATH].join("/"))
+    externalRequestUrl.searchParams.append("language", languageParam)
+    externalRequestUrl.searchParams.append("task_type", taskTypeParam)
+    externalRequestUrl.searchParams.append("model", modelParam)
+    externalRequestUrl.searchParams.append("device", deviceParam)
+
+    // Reject if one of the parameters is missing when trying to upload from NAS
+    if ((nasUrl && !fileName) || (!nasUrl && fileName)) {
+      return rejectResponse({ missingData: "File URL or fileName" })
+    }
+
+    if (nasUrl && fileName) {
+      try {
+        const binaryFromNAS = await fetchAudioData(nasUrl)
+        const fileType = fileName.split(".").pop() || "octet-stream"
+        if (binaryFromNAS) {
+          // Convert Buffer to Blob
+          const blob = new Blob([binaryFromNAS], { type: `audio/${fileType}` })
+          serverForm.set("file", blob, fileName)
+        } else {
+          return new NextResponse(
+            JSON.stringify([new Error("(1006): Archivo no encontrado."), null]),
+            {
+              status: 404,
+              statusText: "(1006): Archivo no encontrado.",
+              headers: responseHeaders,
+            }
+          )
+        }
+      } catch (error: any) {
+        if (error instanceof Error) {
+          console.error("Error posting audio to API:", error.message)
+          return new NextResponse(
+            JSON.stringify([
+              new Error("(1007): Error al crear la tarea."),
+              null,
+            ]),
+            {
+              status: 500,
+              statusText: "(1007): Error al crear la tarea.",
+              headers: responseHeaders,
+            }
+          )
+        }
+        return new NextResponse(
+          JSON.stringify([
+            new Error("(1008): Error desconocido al crear la tarea."),
+            null,
+          ]),
+          {
+            status: 500,
+            statusText: "(1008): Error desconocido al crear la tarea.",
+            headers: responseHeaders,
+          }
+        )
+      }
+    }
+
+    if (!clientForm.has("file")) {
+      return rejectResponse({ missingData: "Attached file in form" })
+    }
+
+    const file = clientForm.get("file")
+    // router rejects files larger than 50MB
+    if (file && file instanceof File) {
+      if (file.size >= 50000000) {
+        return new NextResponse(
+          JSON.stringify([
+            "(1021): El archivo proporcionado es demasiado grande.",
+            null,
+          ]),
+          {
+            status: 413,
+            statusText: "(1021): El archivo proporcionado es demasiado grande.",
+            headers: responseHeaders,
+          }
+        )
+      }
+
+      serverForm.set("file", file)
+    } else {
+      return new NextResponse(
+        JSON.stringify([
+          new Error("(1009): No se ha proporcionado un archivo para subir."),
+          null,
+        ]),
+        {
+          status: 400,
+          statusText: "(1009): No se ha proporcionado un archivo para subir.",
           headers: responseHeaders,
         }
       )
     }
-  }
-  const [err, res] = await _post<TaskPOSTResponse>(
-    [env.API_MAIN, TASK_PATH].join("/"),
-    form,
-    headers,
-    {
-      revalidate: true,
-      expectJson: true,
-    }
-  )
-  if (err !== null) {
-    /**
-     * If the error falls here, check if the API is running.
-     */
-    return new NextResponse(
-      JSON.stringify(["(1009): Error al crear la tarea.", null]),
+
+    const [err, res] = await _post<TaskPOSTResponse>(
+      externalRequestUrl.toString(),
+      serverForm,
+      headers,
       {
-        status: 500,
-        statusText: "(1009): Error al crear la tarea.",
-        headers: responseHeaders,
+        revalidate: true,
+        expectJson: true,
       }
     )
+    if (err !== null) {
+      /**
+       * If the error falls here, check if the API is running.
+       */
+      return new NextResponse(
+        JSON.stringify(["(1009): Error al crear la tarea.", null]),
+        {
+          status: 500,
+          statusText: "(1009): Error al crear la tarea.",
+          headers: responseHeaders,
+        }
+      )
+    }
+    return new NextResponse(JSON.stringify([null, res]), {
+      status: 200,
+      statusText: "Tarea creada",
+      headers: responseHeaders,
+    })
+  } catch (e) {
+    return new NextResponse(JSON.stringify([e, null]), {
+      status: 500,
+      statusText: "(1020): Ha ocurrido un error inesperado.",
+      headers: responseHeaders,
+    })
   }
-  return new NextResponse(JSON.stringify([null, res]), {
-    status: 200,
-    statusText: "Tarea creada",
-    headers: responseHeaders,
-  })
 }
