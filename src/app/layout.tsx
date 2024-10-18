@@ -1,10 +1,11 @@
 import React from "react"
 import type { Metadata } from "next"
-import { Inter } from "next/font/google"
+import { Inter, Open_Sans } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/context/ThemeProvider"
 
 const inter = Inter({ subsets: ["latin"] })
+const openSans = Open_Sans({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "AuditorIA",
@@ -25,7 +26,7 @@ export default function RootLayout({
       <head>
         <link rel='icon' href='/favicon.ico' sizes='any' />
       </head>
-      <body className={inter.className + " w-dvw h-dvh"}>
+      <body className={openSans.className + " w-dvw h-dvh"}>
         <ThemeProvider
           attribute='class'
           defaultTheme='system'
