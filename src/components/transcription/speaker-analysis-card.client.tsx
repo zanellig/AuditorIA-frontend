@@ -51,7 +51,7 @@ export default function SpeakerAnalysisCard({
       <Button
         variant={"outline"}
         className={cn(
-          "p-2 rounded-full space-x-2 flex self-end justify-self-end mb-2 transition-all duration-300 fixed right-0"
+          "p-2 rounded-full space-x-2 flex transition-all duration-300 fixed right-2"
         )}
         onClick={() => setIsOpen(!isOpen)}
         id='close-speaker-analysis-card-button'
@@ -67,9 +67,8 @@ export default function SpeakerAnalysisCard({
       <div
         className={cn(
           "shadow-lg border bg-popover rounded-md fixed right-0 flex h-fit px-2 transition-transform duration-400 z-10 top-[104px]",
-          // "fixed right-4 rounded-md border bg-popover w-fit h-fit py-4 px-2 transition-transform duration-400 z-10 shadow-lg",
           className,
-          isOpen ? "translate-x-0" : "translate-x-full"
+          isOpen ? "-translate-x-2" : "translate-x-full"
         )}
       >
         <div className='flex flex-row items-center justify-between space-x-4'>
