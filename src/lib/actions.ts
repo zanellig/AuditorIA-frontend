@@ -89,12 +89,14 @@ export const getAudioPath = async (
   // Seeing this, we're calling a fetch on a server action. What? Why?
   const [err, res] = await fetch(
     `${await getHost()}/api/recordings?GRABACION=${file_name}`
-  ).then(async res => {
-    if (!res.ok) {
-      return [new Error("Failed to fetch audio from file name"), null]
-    }
-    return await res.json()
-  })
+  )
+    .then(async res => {
+      if (!res.ok) {
+        return [new Error("Failed to fetch audio from file name"), null]
+      }
+      return await res.json()
+    })
+    .catch(e => [e, null])
   if (err !== null) {
     return null
   }
