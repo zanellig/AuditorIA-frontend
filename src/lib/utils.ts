@@ -296,6 +296,7 @@ export function extractJsonFromString(
 }
 
 export function convertSpeakerToHablante(input: string) {
+  if (!input) return input
   const speakerPattern = /^SPEAKER_(\d+)$/
   return input.replace(speakerPattern, "Hablante $1")
 }
