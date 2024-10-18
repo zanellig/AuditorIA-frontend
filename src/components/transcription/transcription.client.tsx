@@ -118,7 +118,7 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
             <TranscriptionNotReady status={transcription?.status} />
           )}
           <SpeakerAnalysisCard segments={transcription?.result?.segments} />
-          <div className='flex flex-col space-y-2 p-0 px-2 w-full justify-start'>
+          <div className='flex flex-col space-y-2 p-0 px-2 w-full justify-start mt-10'>
             {taskId && <TaskHeader taskId={taskId} toast={toast} />}
             {/* <Analysis transcription={transcription} /> */}
             {transcription?.result?.segments.map((segment, index) => {

@@ -241,19 +241,17 @@ export function PerformanceDashboard({ initialData }: DashboardProps) {
             </div>
           </TabsContent>
           <TabsContent value='details'>
-            <ScrollArea className='h-[600px] w-full rounded-md border p-4'>
-              {Object.entries(data).map(([key, value]) => (
-                <div key={key} className='mb-4'>
-                  <Label htmlFor={key}>{key}</Label>
-                  <Input
-                    type='number'
-                    id={key}
-                    value={value}
-                    onChange={e => handleInputChange(key, e.target.value)}
-                  />
-                </div>
-              ))}
-            </ScrollArea>
+            {Object.entries(data).map(([key, value]) => (
+              <div key={key} className='mb-4'>
+                <Label htmlFor={key}>{key}</Label>
+                <Input
+                  type='number'
+                  id={key}
+                  value={value}
+                  onChange={e => handleInputChange(key, e.target.value)}
+                />
+              </div>
+            ))}
           </TabsContent>
         </Tabs>
       </CardContent>

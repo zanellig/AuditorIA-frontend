@@ -47,39 +47,45 @@ export default function SpeakerAnalysisCard({
   const uniqueWords = getUniqueWords(segments || [])
 
   return (
-    <div
-      className={cn(
-        "fixed right-4 rounded-md border bg-popover w-fit h-fit py-4 px-2 transition-transform duration-400 z-10 shadow-lg",
-        className,
-        isOpen ? "" : "translate-x-[94%]"
-      )}
-    >
-      <div className='flex flex-row items-center justify-between space-x-4'>
-        <Button
-          variant={"ghost"}
-          className='p-2 rounded-full'
-          onClick={() => setIsOpen(!isOpen)}
-          id='close-speaker-analysis-card-button'
-        >
-          <ChevronLeftIcon
-            className={cn(
-              "w-[1.2rem] h-[1.2rem] transition-transform duration-300",
-              isOpen ? "rotate-180" : "rotate-0"
-            )}
-          />
-        </Button>
-        <ScrollArea className='lg:max-h-[500px] lg:min-w-[500px]'>
-          <Accordion type='multiple'>
-            <LocalWordSearch words={uniqueWords} />
-            <EvalSpeakerProfile
-              id={id as Task["identifier"]}
-              className='lg:max-w-[650px]'
-            />
-            <OperatorQualityAccordionWrapper id={id as Task["identifier"]} />
-          </Accordion>
-        </ScrollArea>
+    <>
+      <Button
+        variant={"outline"}
+        className={cn(
+          "p-2 rounded-full space-x-2 flex self-end justify-self-end mb-2 transition-all duration-300 fixed right-0"
+        )}
+        onClick={() => setIsOpen(!isOpen)}
+        id='close-speaker-analysis-card-button'
+      >
+        <ChevronLeftIcon
+          className={cn(
+            "w-[1.2rem] h-[1.2rem] transition-transform duration-300",
+            isOpen ? "rotate-180" : "rotate-0"
+          )}
+        />
+        <span>{isOpen ? "Ocultar" : "Mostrar"} dashboard de auditoría</span>
+      </Button>
+      <div
+        className={cn(
+          "shadow-lg border bg-popover rounded-md fixed right-0 flex h-fit px-2 transition-transform duration-400 z-10 top-[104px]",
+          // "fixed right-4 rounded-md border bg-popover w-fit h-fit py-4 px-2 transition-transform duration-400 z-10 shadow-lg",
+          className,
+          isOpen ? "translate-x-0" : "translate-x-full"
+        )}
+      >
+        <div className='flex flex-row items-center justify-between space-x-4'>
+          <ScrollArea className='h-[600px] lg:min-w-[500px]'>
+            <Accordion type='multiple' className='h-full'>
+              <LocalWordSearch words={uniqueWords} />
+              <EvalSpeakerProfile
+                id={id as Task["identifier"]}
+                className='lg:max-w-[650px]'
+              />
+              <OperatorQualityAccordionWrapper id={id as Task["identifier"]} />
+            </Accordion>
+          </ScrollArea>
+        </div>
       </div>
-    </div>
+    </>
   )
 }
 
