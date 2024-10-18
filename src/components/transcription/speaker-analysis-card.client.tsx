@@ -5,16 +5,13 @@ import {
   _replaceSpecialCharacters,
   cn,
   getUniqueWords,
-  handleCopyToClipboard,
   normalizeString,
-  replaceNonASCIIChars,
 } from "@/lib/utils"
 import { Button } from "../ui/button"
 import {
   ArrowRightIcon,
   CheckIcon,
   ChevronLeftIcon,
-  Cross2Icon,
   Pencil2Icon,
 } from "@radix-ui/react-icons"
 import { FoundWordsState, Segment, Task } from "@/lib/types.d"
@@ -32,6 +29,7 @@ import { useToast } from "../ui/use-toast"
 import { LoadingState, MultiStepLoader } from "../ui/multi-step-loader"
 import EvalSpeakerProfile from "./eval-speaker-profile"
 import { Trash2 } from "lucide-react"
+import OperatorQualityAccordionWrapper from "./operator-quality/operator-quality-accordion-wrapper"
 import { ScrollArea } from "../ui/scroll-area"
 
 export default function SpeakerAnalysisCard({
@@ -70,12 +68,16 @@ export default function SpeakerAnalysisCard({
             )}
           />
         </Button>
-        <div id='analysis-content'>
-          <Accordion type='multiple' className='lg:w-[500px]'>
+        <ScrollArea className='lg:max-h-[500px] lg:min-w-[500px]'>
+          <Accordion type='multiple'>
             <LocalWordSearch words={uniqueWords} />
-            <EvalSpeakerProfile id={id as Task["identifier"]} />
+            <EvalSpeakerProfile
+              id={id as Task["identifier"]}
+              className='lg:max-w-[650px]'
+            />
+            <OperatorQualityAccordionWrapper id={id as Task["identifier"]} />
           </Accordion>
-        </div>
+        </ScrollArea>
       </div>
     </div>
   )

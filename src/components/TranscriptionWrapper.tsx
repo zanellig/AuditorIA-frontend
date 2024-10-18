@@ -1,7 +1,7 @@
 "use client"
 
 import { useSearchParams } from "next/navigation"
-import TranscriptionClient from "@/components/transcription/transcription.client"
+import { TranscriptionClient } from "@/components/transcription/transcription.client"
 
 export default function TranscriptionWrapper() {
   const searchParams = useSearchParams()

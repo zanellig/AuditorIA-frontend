@@ -27,7 +27,12 @@ import {
 import { useToast } from "@/components/ui/use-toast"
 import { ChevronLeft, ClipboardIcon, MessageCircleQuestion } from "lucide-react"
 import { GLOBAL_ICON_SIZE } from "@/lib/consts"
-import { cn, secondsToHMS, formatTimestamp } from "@/lib/utils"
+import {
+  cn,
+  secondsToHMS,
+  formatTimestamp,
+  convertSpeakerToHablante,
+} from "@/lib/utils"
 import TitleH1 from "@/components/typography/titleH1"
 import TranscriptionSkeleton from "../skeletons/transcription-skeleton"
 import { ErrorCodeUserFriendly } from "../error/error-code-user-friendly"
@@ -42,16 +47,20 @@ type DrawerOptions = {
   show?: boolean
   text?: string
 }
-
-export default function TranscriptionClient({
-  taskId,
-  drawerOptions,
-}: {
+interface TSClientProps {
   taskId?: string
   drawerOptions?: DrawerOptions
-}) {
+}
+
+export const TranscriptionClient: React.FC<TSClientProps> = ({
+  taskId,
+  drawerOptions,
+}) => {
   const { transcription, isLoading, error, fetchTranscription } =
     useTranscription()
+
+  let lastSpeaker: string | undefined = ""
+  let lastEmotion: string | undefined = ""
 
   if (isLoading) return <TranscriptionSkeleton />
 
@@ -77,18 +86,15 @@ export default function TranscriptionClient({
 
   React.useEffect(() => {
     if (player.isPlaying && player.currentTime > 0) {
-      // console.log("player.currentTime", player.currentTime)
       scrollToSegment(player.currentTime)
     }
   }, [player.isPlaying, player.currentTime, , transcription?.result?.segments])
 
   const scrollToSegment = (timestamp: number) => {
     if (!transcription?.result?.segments) return
-
     const currentSegment = transcription.result.segments.find(
       segment => timestamp >= segment.start && timestamp <= segment.end
     )
-
     if (currentSegment) {
       const ref = segmentRefs.current[Number(currentSegment.start.toFixed(2))]
       ref?.scrollIntoView({
@@ -115,15 +121,26 @@ export default function TranscriptionClient({
           <div className='flex flex-col space-y-2 p-0 px-2 w-full justify-start'>
             {taskId && <TaskHeader taskId={taskId} toast={toast} />}
             {/* <Analysis transcription={transcription} /> */}
-            {transcription?.result?.segments.map((segment, index) => (
-              <SegmentRenderer
-                ref={el => {
-                  segmentRefs.current[Number(segment.start.toFixed(2))] = el
-                }}
-                key={`${segment.speaker}-segment-${index}`}
-                segment={segment}
-              />
-            ))}
+            {transcription?.result?.segments.map((segment, index) => {
+              const isNewSpeaker = segment?.speaker !== lastSpeaker
+              lastSpeaker = segment.speaker
+              const isNewEmotion =
+                segment?.analysis?.emotion !== lastEmotion || isNewSpeaker
+              lastEmotion = segment?.analysis?.emotion
+              return (
+                <>
+                  <SegmentRenderer
+                    ref={el => {
+                      segmentRefs.current[Number(segment.start.toFixed(2))] = el
+                    }}
+                    key={`${segment.speaker}-segment-${index}`}
+                    segment={segment}
+                    renderSpeakerText={isNewSpeaker}
+                    renderEmotion={isNewEmotion}
+                  />
+                </>
+              )
+            })}
           </div>
         </>
       )}
@@ -221,26 +238,24 @@ const SentimentMarker: React.FC<{ sentiment: string }> = ({ sentiment }) => (
       },
       "inline-block w-1 min-w-1 h-full rounded-md p-0.5"
     )}
-  />
+  ></div>
 )
 interface EmojiProps {
   emotion: SegmentAnalysisProperties["emotion"]
 }
 
 const Emoji: React.FC<EmojiProps> = ({ emotion }) => (
-  <div className={`${BASIC_STYLE} flex-row justify-between items-center`}>
-    <span className='text-3xl' role='img'>
-      {{
-        joy: "😀",
-        fear: "😱",
-        anger: "😡",
-        others: "😐",
-        sadness: "😢",
-        disgust: "🤢",
-        surprise: "😮",
-      }[emotion] || ""}
-    </span>
-  </div>
+  <span className='text-3xl' role='img'>
+    {{
+      joy: "😀",
+      fear: "😱",
+      anger: "😡",
+      others: "😐",
+      sadness: "😢",
+      disgust: "🤢",
+      surprise: "😮",
+    }[emotion] || ""}
+  </span>
 )
 
 const EmotionBox: React.FC = () => (
@@ -253,9 +268,11 @@ const EmotionBox: React.FC = () => (
 
 interface SegmentRendererProps {
   segment: Segment
+  renderSpeakerText?: boolean
+  renderEmotion?: boolean
 }
 const SegmentRenderer = React.forwardRef<HTMLDivElement, SegmentRendererProps>(
-  ({ segment }, ref) => {
+  ({ segment, renderSpeakerText = true, renderEmotion = true }, ref) => {
     const speakerNumber = parseInt(segment?.speaker?.split("_")[1], 10)
     const isEvenSpeaker = speakerNumber % 2 === 0
 
@@ -263,23 +280,38 @@ const SegmentRenderer = React.forwardRef<HTMLDivElement, SegmentRendererProps>(
       <div
         ref={ref}
         className={cn(
-          "flex flex-row space-x-2",
-          isEvenSpeaker ? "self-start" : "self-end"
+          isEvenSpeaker ? "self-start items-start" : "self-end items-end mr-8",
+          "flex flex-col gap-2"
         )}
       >
-        {isEvenSpeaker ? (
-          <>
-            {segment.analysis && <Emoji emotion={segment.analysis.emotion} />}
-            <TextContainer segment={segment} />
-            {segment.analysis && <EmotionBox />}
-          </>
-        ) : (
-          <>
-            {segment.analysis && <EmotionBox />}
-            <TextContainer segment={segment} />
-            {segment.analysis && <Emoji emotion={segment.analysis.emotion} />}
-          </>
+        {renderSpeakerText && (
+          <span className='text-sm text-muted-foreground'>
+            {convertSpeakerToHablante(segment.speaker)}
+          </span>
         )}
+        <div className='flex flex-row space-x-2'>
+          {isEvenSpeaker ? (
+            <>
+              {segment.analysis && renderEmotion && (
+                <Emoji emotion={segment.analysis.emotion} />
+              )}
+              <TextContainer segment={segment} />
+              {segment.analysis && <EmotionBox />}
+            </>
+          ) : (
+            <>
+              {segment.analysis && <EmotionBox />}
+              <TextContainer segment={segment} />
+              {segment.analysis && renderEmotion ? (
+                <Emoji emotion={segment.analysis.emotion} />
+              ) : (
+                <span className='text-3xl p-2' role='img'>
+                  {" "}
+                </span>
+              )}
+            </>
+          )}
+        </div>
       </div>
     )
   }

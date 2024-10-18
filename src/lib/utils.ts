@@ -275,8 +275,11 @@ export function capitalizeOnlyFirstLetter(text: string) {
  * @returns The extracted JSON object or the original input string if no JSON was found
  */
 export function extractJsonFromString(
-  input: string
+  input: string | undefined
 ): Record<string, string> | string {
+  if (!input) {
+    return {}
+  }
   const jsonPattern = /```json([\s\S]*?)```/
   const match = input.match(jsonPattern)
 
