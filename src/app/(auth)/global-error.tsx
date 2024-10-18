@@ -1,11 +1,8 @@
 "use client"
 import "globals.css"
 import ErrorScreen from "@/components/error/error-screen"
-import { Inter } from "next/font/google"
 
 import { ThemeProvider } from "@/components/context/ThemeProvider"
-
-const inter = Inter({ subsets: ["latin"] })
 
 export default function GlobalError({
   error,
@@ -15,14 +12,12 @@ export default function GlobalError({
   reset: () => void
 }) {
   return (
-    <html lang='es'>
-      <body className={inter.className}>
-        <ThemeProvider>
-          <div className='flex flex-col items-start justify-start max-w-2xl my-auto mx-auto pt-16'>
-            <ErrorScreen error={error} reset={reset} />
-          </div>
-        </ThemeProvider>
-      </body>
-    </html>
+    <div className='justify-center items-center flex h-dvh w-dvw'>
+      <ThemeProvider>
+        <div className='flex flex-col items-start justify-start max-w-2xl my-auto mx-auto pt-16'>
+          <ErrorScreen error={error} reset={reset} />
+        </div>
+      </ThemeProvider>
+    </div>
   )
 }
