@@ -39,7 +39,7 @@ async function _request<T, R extends boolean | undefined = undefined>(
     const res = await fetch(url, fetchOptions)
     if (!res.ok) {
       try {
-        err = await res.json()
+        err = new Error(JSON.stringify(await res.json()))
       } catch (e) {
         err = new Error("Failed to parse error response", { cause: e })
       }
@@ -82,7 +82,7 @@ function _post<T, R extends boolean | undefined = undefined>(
   headers?: Headers,
   options?: {
     revalidate?: boolean
-    onlyReturnStatus?: R
+    onlyReturnStatus?: boolean
     expectJson?: boolean
     cacheResponse?: boolean
   }
@@ -96,7 +96,7 @@ function _put<T, R extends boolean | undefined = undefined>(
   headers?: Headers,
   options?: {
     revalidate?: boolean
-    onlyReturnStatus?: R
+    onlyReturnStatus?: boolean
     expectJson?: boolean
     cacheResponse?: boolean
   }
@@ -110,7 +110,7 @@ function _patch<T, R extends boolean | undefined = undefined>(
   headers?: Headers,
   options?: {
     revalidate?: boolean
-    onlyReturnStatus?: R
+    onlyReturnStatus?: boolean
     expectJson?: boolean
     cacheResponse?: boolean
   }
@@ -123,7 +123,7 @@ function _delete<T, R extends boolean | undefined = undefined>(
   headers?: Headers,
   options?: {
     revalidate?: boolean
-    onlyReturnStatus?: R
+    onlyReturnStatus?: boolean
     expectJson?: boolean
     cacheResponse?: boolean
   }
