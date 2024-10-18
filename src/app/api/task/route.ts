@@ -1,4 +1,4 @@
-import { _get, _post } from "@/lib/fetcher"
+import { _get, _post, _put } from "@/lib/fetcher"
 import { TASK_PATH } from "@/server-constants"
 import { AllowedContentTypes, getHeaders } from "@/lib/utils"
 import { TaskPOSTResponse } from "@/lib/types.d"
@@ -42,6 +42,7 @@ export async function GET(request: NextRequest) {
      * We return a generic 500 error, as we don't want to leak information about the server, but we should improve this.
      * Maybe returning a 503, 522 or 523; I don't know which one is the best fit.
      * */
+    console.error(err)
     return new NextResponse(
       JSON.stringify([
         "(1002): Error interno desconocido al obtener la tarea.",
@@ -266,4 +267,48 @@ export async function POST(request: NextRequest) {
       headers: responseHeaders,
     })
   }
+}
+
+export async function PUT(request: NextRequest) {
+  const responseHeaders = getHeaders(await getHost(), AllowedContentTypes.Json)
+  const identifier = request.nextUrl.searchParams.get("identifier")
+  const language = request.nextUrl.searchParams.get("language")
+  if (!identifier) {
+    return new NextResponse(
+      JSON.stringify([
+        new Error("ID was not provided", {
+          cause: "Bad request",
+        }),
+        null,
+      ]),
+      { status: 400, headers: responseHeaders }
+    )
+  }
+  const url = new URL([env.API_CANARY, TASK_PATH, identifier].join("/"))
+  url.searchParams.append("lang", `${language}`)
+  const headers = getHeaders(env.API_CANARY)
+  console.log("URL OBJECT ON /api/task PUT request:", url)
+  const [err, res] = await _put<Response>(url.href, null, headers)
+
+  if (err) {
+    console.error(`Error from API on ${url.href} PUT request:`, err.message)
+    return new NextResponse(JSON.stringify(err?.message), {
+      status: 500,
+      statusText: "", // TODO: add a documented error message
+      headers: responseHeaders,
+    })
+  }
+
+  if (res && res.ok) {
+    const data = await res?.json()
+    return new NextResponse(JSON.stringify(data), {
+      status: 200,
+      headers: responseHeaders,
+    })
+  }
+  return new NextResponse(JSON.stringify(null), {
+    status: 404,
+    statusText: "", // TODO: add a documented error message
+    headers: responseHeaders,
+  })
 }
