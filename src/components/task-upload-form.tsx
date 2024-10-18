@@ -23,8 +23,9 @@ import { SelectField } from "@/components/tables/records-table/audio-processing/
 import { taskFormOptions, taskFormSchema, type FormValues } from "@/lib/forms"
 import { Badge } from "./ui/badge"
 import { StatefulButton } from "./stateful-button"
-import { ACCEPTED_AUDIO_TYPES } from "@/lib/consts"
+import { ACCEPTED_AUDIO_TYPES, GLOBAL_ICON_SIZE } from "@/lib/consts"
 import { getHost } from "@/lib/actions"
+import { Sparkles } from "lucide-react"
 
 export default function TaskUploadForm({ className }: { className?: string }) {
   const { toast } = useToast()
@@ -185,6 +186,7 @@ export default function TaskUploadForm({ className }: { className?: string }) {
               className='w-full'
             >
               <span>Iniciar tarea</span>
+              <Sparkles size={GLOBAL_ICON_SIZE} className='animate-sparkle' />
             </StatefulButton>
           </form>
         </Form>
