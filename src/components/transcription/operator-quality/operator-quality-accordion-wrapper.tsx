@@ -43,7 +43,7 @@ export default function OperatorQualityAccordionWrapper({
           <Sparkles size={GLOBAL_ICON_SIZE} className='animate-sparkle' />
         </span>
       </AccordionTrigger>
-      <AccordionContent className={cn(className)}>
+      <AccordionContent className={cn(className, "min-w-[800px]")}>
         {query.isLoading && (
           <div className='flex justify-center w-full'>
             <Loader2 className={cn(DASHBOARD_ICON_CLASSES, "animate-spin")} />

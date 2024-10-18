@@ -34,10 +34,10 @@ export default function SpkAnalysis({
     <>
       {LLMAnalysis && (
         <Tabs value={activeTab} onValueChange={setActiveTab} className='w-full'>
-          <TabsList className='w-full'>
+          <TabsList>
             {speakers &&
               speakers.map(speaker => (
-                <TabsTrigger key={speaker} value={speaker} className='w-full'>
+                <TabsTrigger key={speaker} value={speaker}>
                   {convertSpeakerToHablante(speaker)}
                 </TabsTrigger>
               ))}
