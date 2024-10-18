@@ -1,5 +1,7 @@
 "use client"
 
+import * as React from "react"
+
 import { ColumnDef, Row, Table } from "@tanstack/react-table"
 import { Task } from "@/lib/types"
 
@@ -39,6 +41,7 @@ import { actionRevalidatePath, getHost } from "@/lib/actions"
 import { ToastAction } from "@/components/ui/toast"
 import { usePathname } from "next/navigation"
 import A from "@/components/typography/a"
+import { useQuery } from "@tanstack/react-query"
 
 function renderMarker(status: Status) {
   switch (status) {
@@ -175,7 +178,21 @@ export const columns: ColumnDef<Task | null>[] = [
       const task = row.original
       const { toast } = useToast()
       const currentUrl = usePathname()
+      const [canAnalyze, setCanAnalyze] = React.useState(false)
       const taskURL = _URLBuilder(task as Task)
+      const query = useQuery({
+        queryKey: ["task-analysis", row.original?.identifier],
+        queryFn: async () => {
+          const url = new URL(`${await getHost()}/api/task`)
+          url.searchParams.append("language", `${row.original?.language}`)
+          url.searchParams.append("identifier", `${row.original?.identifier}`)
+          return await fetch(url, { method: "PUT" }).then(async res => {
+            if (!res.ok) throw new Error("Failed to start LLM analysis")
+            return (await res.json())[1]
+          })
+        },
+        enabled: canAnalyze,
+      })
       return (
         <div className='flex flex-row justify-end space-x-2'>
           <DropdownMenu>
@@ -191,64 +208,44 @@ export const columns: ColumnDef<Task | null>[] = [
                   className='w-full h-full text-start'
                   id={row.original?.identifier}
                   onClick={async () => {
-                    toast({
-                      title: "Analizando tarea",
-                      description: "La tarea se está analizando",
-                      variant: "default",
-                    })
-                    const [err, res] = await fetch(
-                      `${await getHost()}/api/tasks`,
-                      {
-                        method: "PUT",
-                        body: JSON.stringify({
-                          identifier: row.original?.identifier,
-                          language: row.original?.language,
-                        }),
-                      }
-                    ).then(res => {
-                      if (!res.ok) {
+                    setCanAnalyze(true)
+                    try {
+                      if (query.isLoading)
+                        toast({
+                          title: "Analizando tarea",
+                          description: "La tarea se está analizando",
+                          variant: "default",
+                        })
+
+                      if (!query.isError && !query.isLoading)
                         toast({
                           title: "La tarea no pudo ser analizada",
-                          description: res.statusText,
+                          description: "Por favor intente más tarde",
                           variant: "destructive",
                         })
-                      }
-                      return res.json()
-                    })
 
-                    // const [err, res] = await analyzeTask(
-                    //   [API_CANARY, "tasks"],
-                    //   row.original?.identifier,
-                    //   row.original?.language
-                    // )
-                    if (err !== null) {
-                      toast({
-                        title: "La tarea no pudo ser analizada",
-                        description: "La tarea no pudo ser analizada",
-                        variant: "destructive",
-                      })
+                      if (query.data && !query.isLoading && !query.isError)
+                        toast({
+                          title: "Tarea analizada",
+                          description: `Ya puede visualizar el análisis de la tarea ${row.original?.identifier}`,
+                          variant: "success",
+                          action: (
+                            <ToastAction altText='Ir a la transcripción'>
+                              <Link
+                                href={taskURL}
+                                className='w-full h-full cursor-default'
+                                onClick={() => {
+                                  actionRevalidatePath(taskURL)
+                                }}
+                              >
+                                Ir a la transcripción
+                              </Link>
+                            </ToastAction>
+                          ),
+                        })
+                    } finally {
+                      setCanAnalyze(false)
                     }
-                    if (res) {
-                      toast({
-                        title: "Tarea analizada",
-                        description: `Ya puede visualizar el análisis de la tarea ${row.original?.identifier}`,
-                        variant: "success",
-                        action: (
-                          <ToastAction altText='Ir a la transcripción'>
-                            <Link
-                              href={taskURL}
-                              className='w-full h-full cursor-default'
-                              onClick={() => {
-                                actionRevalidatePath(taskURL)
-                              }}
-                            >
-                              Ir a la transcripción
-                            </Link>
-                          </ToastAction>
-                        ),
-                      })
-                    }
-
                     actionRevalidatePath(currentUrl)
                   }}
                 >
