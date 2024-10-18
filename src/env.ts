@@ -28,8 +28,6 @@ const parsedEnv = envSchema.safeParse(process.env)
 if (!parsedEnv.success) {
   console.error("❌ Invalid environment variables:", parsedEnv.error.format())
   throw new Error("Invalid environment variables.")
-} else {
-  console.log("✅ Environment variables are valid:", parsedEnv.data)
 }
 
 export const env = parsedEnv.data
