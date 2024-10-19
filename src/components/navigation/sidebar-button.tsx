@@ -11,7 +11,7 @@ import { motion, AnimatePresence } from "framer-motion"
 
 export interface SidebarButtonProps {
   className?: string
-  key: Key
+  customKey: Key
   href?: string
   icon: React.JSX.Element
   title: string
@@ -25,7 +25,7 @@ export interface SidebarButtonProps {
 
 export function SidebarButton({
   className,
-  key,
+  customKey,
   href,
   icon,
   title,
@@ -40,7 +40,7 @@ export function SidebarButton({
     "text-accent-foreground shadow-md shadow-accent-foreground/50 dark:shadow-accent-foreground/80 dark:bg-accent"
 
   const [isOpen, setIsOpen] = React.useState(() => {
-    return false
+    return true
     // const storedState =
     //   typeof window !== "undefined"
     //     ? JSON.parse(localStorage.getItem("openButtons") || "{}")
@@ -74,17 +74,22 @@ export function SidebarButton({
     () => (
       <div className='flex flex-col ml-4'>
         {Achildren?.map((child, index) => {
-          const { key, ...props } = child
-          return <SidebarButton key={`${key}-child-${index}`} {...props} />
+          const { customKey, ...props } = child
+          return (
+            <SidebarButton
+              customKey={`${customKey}-child-${index}`}
+              {...props}
+            />
+          )
         })}
         {React.Children.map(children, (child, index) =>
           React.isValidElement(child)
-            ? React.cloneElement(child, { key: `${key}-child-${index}` })
+            ? React.cloneElement(child, { key: `${customKey}-child-${index}` })
             : null
         )}
       </div>
     ),
-    [Achildren, children, key]
+    [Achildren, children, customKey]
   )
 
   const hasChildren =
@@ -95,7 +100,7 @@ export function SidebarButton({
       id={`sidebar-${hasChildren ? "expandable" : "normal"}-${title
         .toLowerCase()
         .replace(/ /g, "-")}-button`}
-      key={key}
+      key={customKey}
       className='flex flex-col pr-2 pl-2 w-full'
     >
       <div
@@ -106,7 +111,7 @@ export function SidebarButton({
       >
         <Link
           href={href && !disabled ? href : "#"}
-          key={key + "-link"}
+          key={customKey + "-link"}
           className={cn("w-full h-full", disabled && "cursor-not-allowed")}
         >
           <SidebarButtonWrapper
@@ -115,16 +120,16 @@ export function SidebarButton({
               "flex justify-between items-center w-full"
             )}
             onClick={clickOptions?.onClick ? clickOptions.onClick : () => null}
-            key={key + "-wrapper"}
+            key={customKey + "-wrapper"}
             disabled={disabled}
           >
             <div className='flex flex-row space-x-4 justify-start items-center'>
-              <div key={key + "-icon"}>{icon}</div>
+              <div key={customKey + "-icon"}>{icon}</div>
               <div
-                key={key + "-title"}
+                key={customKey + "-title"}
                 className={cn(
-                  "text-sm",
-                  isOpen && "underline underline-offset-4"
+                  "text-sm"
+                  // isOpen && "underline underline-offset-4"
                 )}
               >
                 {title}

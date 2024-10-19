@@ -236,7 +236,7 @@ export function Sidebar({ className }: { className?: string }) {
 
       {links.map((link, index) => (
         <SidebarButton
-          key={"sidebar-button-" + index}
+          customKey={"sidebar-button-" + index}
           href={link.href}
           icon={link.icon}
           title={link.title}
