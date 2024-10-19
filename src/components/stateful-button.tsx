@@ -35,7 +35,7 @@ const StatefulButton = React.forwardRef<HTMLButtonElement, StatefulButtonProps>(
         {...props}
       >
         <motion.span
-          className='absolute inset-0 flex items-center justify-center text-sm'
+          className='absolute inset-0 flex items-center justify-center gap-2 text-sm'
           initial={{ y: 0, opacity: 1 }}
           animate={{ y: isLoading ? -20 : 0, opacity: isLoading ? 0 : 1 }}
           transition={{ duration: 0.3 }}
