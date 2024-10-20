@@ -32,6 +32,7 @@ import {
   secondsToHMS,
   formatTimestamp,
   convertSpeakerToHablante,
+  handleCopyToClipboard,
 } from "@/lib/utils"
 import TitleH1 from "@/components/typography/titleH1"
 import TranscriptionSkeleton from "../skeletons/transcription-skeleton"
@@ -172,7 +173,7 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({ taskId, toast }) => (
             variant='outline'
             onClick={() => {
               toast({ title: "Se copió el ID", description: taskId })
-              navigator.clipboard.writeText(taskId)
+              handleCopyToClipboard(taskId)
             }}
           >
             <ClipboardIcon size={GLOBAL_ICON_SIZE} />
