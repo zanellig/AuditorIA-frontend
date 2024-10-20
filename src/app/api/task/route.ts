@@ -1,10 +1,13 @@
 import { _get, _post, _put } from "@/lib/fetcher"
-import { TASK_PATH } from "@/server-constants"
+import { SPEECH_TO_TEXT_PATH, TASK_PATH } from "@/server-constants"
 import { AllowedContentTypes, getHeaders } from "@/lib/utils"
 import { TaskPOSTResponse } from "@/lib/types.d"
 import { NextRequest, NextResponse } from "next/server"
 import { fetchAudioData, getHost } from "@/lib/actions"
 import { env } from "@/env"
+import { validateMimeType } from "@/lib/forms"
+import { SpeechToTextParams } from "./speech-to-text.d.js"
+import { speechToTextSchema } from "./speech-to-text"
 
 export const revalidate = 5
 
@@ -87,83 +90,129 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   const responseHeaders = getHeaders(await getHost(), AllowedContentTypes.Json)
+  const rejectResponse = ({ missingData }: { missingData?: string }) =>
+    new NextResponse(
+      JSON.stringify([
+        `(1005): No se pudo ejecutar la consulta. ${missingData ? `${missingData} is missing.` : ""}`,
+        null,
+      ]),
+      {
+        status: 400,
+        statusText: `(1005): No se pudo ejecutar la consulta. ${missingData ? `${missingData} is missing.` : ""}`,
+        headers: responseHeaders,
+      }
+    )
+
   try {
     const params = request.nextUrl.searchParams
-    const headers = getHeaders(env.API_MAIN)
-    const clientForm = await request.formData().catch(e => {
-      if (e) {
-        return null
-      }
-    })
-    /**
-     * The serverForm is used to send the file to the API.
-     */
-    const serverForm = new FormData()
     const nasUrl = params.get("nasUrl")
     const fileName = params.get("fileName")
-    const rejectResponse = ({
-      missingData = "Some",
-    }: {
-      missingData?: string
-    }) =>
-      new NextResponse(
+    const headers = getHeaders(env.API_MAIN, AllowedContentTypes.Multipart)
+    const clientForm = await request.formData().catch(e => {
+      if (e) return null
+    })
+    if (!clientForm) return rejectResponse({ missingData: "Form" })
+    /** The serverForm is used to send the file to the API. */
+    const serverForm = new FormData()
+    /** ### The API accepts a no-param URL.
+     * **Optional** appendable parameters:
+     *  - `language`: the language of the transcription
+     *  - `task`: the type of task (transcribe or translate)
+     *  - `model`: the Whisper model used to transcribe
+     *  - `device`: the device used for inference
+     *  - `device_index`: the index of the device used for inference
+     *  - `threads`: number of threads used for CPU inference
+     *  - `batch_size`: preferred batch size for inference
+     *  - `compute_type`: type of computation (float16, int8, float32)
+     *  - `align_model`: phoneme-level ASR model for alignment
+     *  - `interpolate_method`: method to assign timestamps to non-aligned words
+     *  - `return_char_alignments`: whether to return character-level alignments
+     *  - `min_speakers`: minimum number of speakers in the audio
+     *  - `max_speakers`: maximum number of speakers in the audio
+     *  - `beam_size`: number of beams in beam search
+     *  - `patience`: patience value for beam decoding
+     *  - `length_penalty`: token length penalty coefficient
+     *  - `temperatures`: temperature to use for sampling
+     *  - `compression_ratio_threshold`: gzip compression ratio threshold for failure
+     *  - `log_prob_threshold`: average log probability threshold for failure
+     *  - `no_speech_threshold`: silence threshold when logprob threshold fails
+     *  - `initial_prompt`: optional text prompt for the first window
+     *  - `suppress_tokens`: list of token ids to suppress during sampling
+     *  - `suppress_numerals`: suppress numeric and currency symbols during sampling
+     *  - `vad_onset`: onset threshold for voice activity detection (VAD)
+     *  - `vad_offset`: offset threshold for voice activity detection (VAD)
+     */
+    const externalRequestUrl = new URL(
+      [env.API_MAIN, SPEECH_TO_TEXT_PATH].join("/")
+    )
+    const isRecordForm = !!(clientForm && nasUrl && fileName)
+    const isManualFileUpload = !!(clientForm && !nasUrl && !fileName)
+
+    if (isManualFileUpload && !clientForm?.has("file"))
+      return rejectResponse({ missingData: "File in FormData" })
+    const file = clientForm.get("file")
+
+    if (isManualFileUpload || isRecordForm) {
+      clientForm.has("language") &&
+        externalRequestUrl.searchParams.append(
+          "language",
+          `${clientForm?.get("language")}`
+        )
+      clientForm.has("task_type") &&
+        externalRequestUrl.searchParams.append(
+          "task",
+          `${clientForm?.get("task_type")}`
+        )
+      clientForm.has("model") &&
+        externalRequestUrl.searchParams.append(
+          "model",
+          `${clientForm?.get("model")}`
+        )
+      clientForm.has("device") &&
+        externalRequestUrl.searchParams.append(
+          "device",
+          `${clientForm?.get("device")}`
+        )
+    }
+    if (isRecordForm && isManualFileUpload)
+      return new NextResponse(
         JSON.stringify([
-          new Error(
-            `(1005): No se pudo ejecutar la consulta. ${missingData} data is missing.`
-          ),
+          new Error("(1023): No se puede enviar ambos tipos de archivos."),
           null,
         ]),
         {
           status: 400,
-          statusText: `(1005): No se pudo ejecutar la consulta. ${missingData} data is missing.`,
+          statusText: "(1023): No se puede enviar ambos tipos de archivos.",
           headers: responseHeaders,
         }
       )
 
-    if (!clientForm) {
-      return rejectResponse({ missingData: "Form" })
-    }
-
-    const rejectCondition =
-      !clientForm.get("language") ||
-      !clientForm.get("task_type") ||
-      !clientForm.get("model") ||
-      !clientForm.get("device")
-
-    if (rejectCondition) {
-      return rejectResponse({ missingData: "Form fields" })
-    }
-
-    const languageParam = `${clientForm.get("language")}`
-    const taskTypeParam = `${clientForm.get("task_type")}`
-    const modelParam = `${clientForm.get("model")}`
-    const deviceParam = `${clientForm.get("device")}`
-
-    const externalRequestUrl = new URL([env.API_MAIN, TASK_PATH].join("/"))
-    externalRequestUrl.searchParams.append("language", languageParam)
-    externalRequestUrl.searchParams.append("task_type", taskTypeParam)
-    externalRequestUrl.searchParams.append("model", modelParam)
-    externalRequestUrl.searchParams.append("device", deviceParam)
+    console.group("Form origin validation:")
+    console.log("isRecordForm:", isRecordForm)
+    console.log("isManualFileUpload:", isManualFileUpload)
+    console.groupEnd()
 
     // Reject if one of the parameters is missing when trying to upload from NAS
-    if ((nasUrl && !fileName) || (!nasUrl && fileName)) {
-      return rejectResponse({ missingData: "File URL or fileName" })
-    }
+    if (isRecordForm && ((nasUrl && !fileName) || (!nasUrl && fileName)))
+      return rejectResponse({ missingData: "NAS URL or fileName" })
 
-    if (nasUrl && fileName) {
+    if (isRecordForm) {
       try {
         const binaryFromNAS = await fetchAudioData(nasUrl)
         const fileType = fileName.split(".").pop() || "octet-stream"
-        if (binaryFromNAS) {
+        const mimeType = `audio/${fileType}`
+        const isValidMimeType = validateMimeType(mimeType)
+        if (binaryFromNAS && isValidMimeType) {
           // Convert Buffer to Blob
-          const blob = new Blob([binaryFromNAS], { type: `audio/${fileType}` })
+          const blob = new Blob([binaryFromNAS], { type: mimeType })
           serverForm.set("file", blob, fileName)
         } else {
+          const errorMessage = `(1006): ${!isValidMimeType ? "Tipo de archivo no soportado." : "Archivo no encontrado."}`
           return new NextResponse(
-            JSON.stringify([new Error("(1006): Archivo no encontrado."), null]),
+            JSON.stringify([new Error(errorMessage), null]),
             {
-              status: 404,
-              statusText: "(1006): Archivo no encontrado.",
+              status: !isValidMimeType ? 415 : 404,
+              statusText: errorMessage,
               headers: responseHeaders,
             }
           )
@@ -197,13 +246,8 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    if (!clientForm.has("file")) {
-      return rejectResponse({ missingData: "Attached file in form" })
-    }
-
-    const file = clientForm.get("file")
     // router rejects files larger than 50MB
-    if (file && file instanceof File) {
+    if (isManualFileUpload && file && file instanceof File) {
       if (file.size >= 50000000) {
         return new NextResponse(
           JSON.stringify([
@@ -217,22 +261,28 @@ export async function POST(request: NextRequest) {
           }
         )
       }
-
-      serverForm.set("file", file)
-    } else {
-      return new NextResponse(
-        JSON.stringify([
-          new Error("(1009): No se ha proporcionado un archivo para subir."),
-          null,
-        ]),
-        {
-          status: 400,
-          statusText: "(1009): No se ha proporcionado un archivo para subir.",
-          headers: responseHeaders,
-        }
-      )
+      const mimeType = file.type
+      const isValidMimeType = validateMimeType(mimeType)
+      if (isValidMimeType) {
+        serverForm.set("file", file)
+      } else {
+        return new NextResponse(
+          JSON.stringify([
+            new Error("(1022): Tipo de archivo no soportado."),
+            null,
+          ]),
+          {
+            status: 415,
+            statusText: "(1022): Tipo de archivo no soportado.",
+            headers: responseHeaders,
+          }
+        )
+      }
     }
-
+    console.log(
+      `Sending task to API with URL ${externalRequestUrl.href} and FormData`,
+      serverForm
+    )
     const [err, res] = await _post<TaskPOSTResponse>(
       externalRequestUrl.toString(),
       serverForm,
@@ -246,6 +296,10 @@ export async function POST(request: NextRequest) {
       /**
        * If the error falls here, check if the API is running.
        */
+      console.error(
+        `Error encountered while sending data successfully to API:`,
+        err.message
+      )
       return new NextResponse(
         JSON.stringify(["(1009): Error al crear la tarea.", null]),
         {

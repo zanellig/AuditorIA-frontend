@@ -30,8 +30,15 @@ async function _request<T, R extends boolean | undefined = undefined>(
 
   if (body && body instanceof FormData) {
     fetchOptions.body = body
-  } else if (body !== null) {
-    fetchOptions.body = JSON.stringify(body)
+    if (fetchOptions.headers instanceof Headers) {
+      fetchOptions.headers.delete("Content-Type")
+    } else {
+      fetchOptions.headers = Object.fromEntries(
+        Object.entries(fetchOptions.headers || {}).filter(
+          ([key]) => key.toLowerCase() !== "content-type"
+        )
+      )
+    }
   }
 
   options?.revalidate ? (fetchOptions.next = { revalidate: 5 }) : null

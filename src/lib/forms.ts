@@ -15,6 +15,20 @@ const AudioFileTypesSchema = z.enum([
   "audio/mpeg;codecs=mp3",
 ])
 
+/**
+ * MIME type validator
+ * @param mimeType Pass a string representing a MIME type. Example: "audio/wav"
+ * @returns `true` if the MIME type is valid, `false` otherwise
+ */
+export const validateMimeType = (mimeType: string) => {
+  try {
+    AudioFileTypesSchema.parse(mimeType)
+    return true
+  } catch (err) {
+    return false
+  }
+}
+
 export type AudioFileTypes = z.infer<typeof AudioFileTypesSchema>
 
 export const taskFormSchema = z.object({
