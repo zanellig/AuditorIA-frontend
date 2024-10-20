@@ -27,7 +27,11 @@ const StatefulButton = React.forwardRef<HTMLButtonElement, StatefulButtonProps>(
   ) => {
     return (
       <Button
-        className={cn("relative", isLoading && "[&>span]:opacity-0", className)}
+        className={cn(
+          "relative w-full",
+          isLoading && "[&>span]:opacity-0",
+          className
+        )}
         variant={variant}
         size={size}
         disabled={isLoading || disabled}
