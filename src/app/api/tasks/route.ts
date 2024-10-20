@@ -99,7 +99,6 @@ export async function POST(request: NextRequest) {
   const headers = getHeaders(env.API_MAIN)
   const url = [env.API_MAIN, SPEECH_TO_TEXT_PATH].join("/")
   const [err, res] = await _post(url, formData, headers)
-
   const responseHeaders = new Headers()
 
   responseHeaders.set("Access-Control-Allow-Origin", env.API_MAIN)
