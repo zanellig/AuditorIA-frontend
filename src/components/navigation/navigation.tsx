@@ -74,18 +74,18 @@ export function Sidebar({ className }: { className?: string }) {
       },
       Achildren: [
         {
-          href: "/dashboard/search/tasks",
+          href: "/dashboard/tasks",
           title: "Historial",
           icon: <History className={iconSize} />,
           disabled: false,
         },
         {
-          href: "/dashboard/search/records/campaign",
+          href: "/dashboard/records/campaign",
           title: "Campañas",
           icon: <Headset className={iconSize} />,
         },
         {
-          href: "/dashboard/search/records/operator",
+          href: "/dashboard/records/operator",
           title: "Operador",
           icon: <User className={iconSize} />,
         },
@@ -95,12 +95,12 @@ export function Sidebar({ className }: { className?: string }) {
           disabled: true,
         },
         {
-          href: "/dashboard/search/records/date",
+          href: "/dashboard/records/date",
           title: "Fecha",
           icon: <CalendarSearch className={iconSize} />,
         },
         {
-          href: "/dashboard/search/records/direction",
+          href: "/dashboard/records/direction",
           title: "Dirección",
           icon: <ArrowRightLeft className={iconSize} />,
         },

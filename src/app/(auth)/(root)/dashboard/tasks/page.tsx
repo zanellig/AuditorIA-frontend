@@ -34,6 +34,7 @@ export default function TasksPage() {
       })
       return res
     },
+    refetchInterval: 5000,
   })
   let description: string = !res
     ? "No se han encontrado tareas."

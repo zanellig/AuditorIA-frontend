@@ -64,9 +64,7 @@ export default function AudioProcessingTaskStarter({ row }: { row: any }) {
       formData.append("model", values.model)
       formData.append("device", values.device)
       const [err, res] = await fetch(
-        `${await getHost()}/api/task?nasUrl=${row.original?.URL}&fileName=${
-          row.original?.GRABACION
-        }`,
+        `${await getHost()}/api/task?nasUrl=${row.original?.URL}&fileName=${row.original?.GRABACION}`,
         {
           method: "POST",
           body: formData,

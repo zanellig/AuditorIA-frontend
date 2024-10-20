@@ -10,7 +10,7 @@ export default function Page() {
       icon={<Headset className={DASHBOARD_ICON_CLASSES} />}
       shouldEnterText='el ID de la campaña'
       _route='IDAPLICACION'
-      inputOptions={{ inputType: "text" }}
+      inputOptions={{ inputType: "number" }}
     />
   )
 }

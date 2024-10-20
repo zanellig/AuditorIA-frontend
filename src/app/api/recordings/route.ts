@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
       err.detail ===
       "Error al obtener los registros: 404: No se encontraron registros"
     ) {
-      return new Response(JSON.stringify([null, []]), { status: 404 })
+      return new Response(JSON.stringify([null, []]), { status: 204 })
     }
     // @ts-ignore
     // API hasn't changed yet to return a normalized response, we have to access the detail key if it returns an error
@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
   }
   // API never falls back to this clause because when it returns a good response but with no content, it treats it as an error
   if (res === null) {
-    return new Response(JSON.stringify([null, null]), { status: 204 })
+    return new Response(JSON.stringify([null, []]), { status: 204 })
   }
   const response = await res.json()
   if (res.ok) {
@@ -45,5 +45,5 @@ export async function GET(request: NextRequest) {
       headers: responseHeaders,
     })
   }
-  return new Response(JSON.stringify([err, null]), { status: 500 })
+  return new Response(JSON.stringify([err, []]), { status: 500 })
 }

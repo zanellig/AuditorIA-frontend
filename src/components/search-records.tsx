@@ -84,18 +84,16 @@ export default function SearchRecords({
       signal,
     })
     if (!res.ok) {
-      if (res.status === 404) {
-        throw new Error("No recordings found")
-      }
-      if (res.status === 500) {
-        throw new Error("Failed to fetch recordings")
-      }
+      return []
     }
     const [err, data] = await res.json()
-    if (typeof data === "string") {
-      throw new Error(data)
+    if (err) {
+      throw new Error(err.message)
     }
-    return data.records as Recordings
+    if (data) {
+      return data.records as Recordings
+    }
+    return []
   }
 
   const {

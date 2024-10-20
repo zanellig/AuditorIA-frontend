@@ -14,9 +14,8 @@ export async function GET() {
     //  "/not_valid_endpoint" // Uncomment to force 404 on server
   ].join("/")
 
-  const [err, res] = await _get(url, headers)
+  const [err, res] = await _get(url, headers, { cacheResponse: true })
   const responseHeaders = getHeaders(await getHost(), AllowedContentTypes.Json)
-  console.log("headers: ", responseHeaders, "\nhost:", await getHost())
   /**
    * If you want to use the mock data, uncomment the following lines and comment the lines below.
    */
@@ -100,6 +99,7 @@ export async function POST(request: NextRequest) {
   const headers = getHeaders(env.API_MAIN)
   const url = [env.API_MAIN, SPEECH_TO_TEXT_PATH].join("/")
   const [err, res] = await _post(url, formData, headers)
+
   const responseHeaders = new Headers()
 
   responseHeaders.set("Access-Control-Allow-Origin", env.API_MAIN)
