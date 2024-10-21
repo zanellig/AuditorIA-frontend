@@ -208,8 +208,7 @@ const TranscriptionNotReady: React.FC<TranscriptionNotReadyProps> = ({
               status === "failed"
                 ? "falló"
                 : "no está lista para ser visualizada"
-            }
-            .`}
+            }.`}
             </TitleH1>
           </DrawerTitle>
         </DrawerHeader>
