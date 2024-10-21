@@ -3,32 +3,21 @@ import { z } from "zod"
 import nodemailer from "nodemailer"
 import { env } from "@/env"
 import { generateFeedbackEmailTemplate } from "./template"
-
-const feedbackSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  email: z.string().email("Invalid email address"),
-  message: z.string().min(1, "Message is required"),
-  rating: z.number().min(1).max(5, "Rating must be between 1 and 5"),
-})
+import { feedbackSchema } from "@/lib/forms"
+import { transporter } from "@/lib/mailer"
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json()
-    console.log(body)
-    const validatedData = feedbackSchema.parse(body)
-
-    // Setup Nodemailer
-    const transporter = nodemailer.createTransport({
-      host: env.MAIL_HOST,
-      port: Number(env.MAIL_PORT),
-      auth: {
-        user: env.MAIL_USER,
-        pass: env.MAIL_PASS,
-      },
-      tls: {
-        ciphers: "SSLv3",
-        rejectUnauthorized: false,
-      },
+    const formData = await req.formData()
+    const name: string = formData.get("name")?.toString() || ""
+    const email: string = formData.get("email")?.toString() || ""
+    const message: string = formData.get("message")?.toString() || ""
+    const rating: number = Number(formData.get("rating")?.toString()) || 1
+    const validatedData = feedbackSchema.parse({
+      name,
+      email,
+      message,
+      rating,
     })
 
     // Prepare the email options
@@ -50,8 +39,17 @@ export async function POST(req: Request) {
     ]
 
     await Promise.all(emailPromises)
-
-    return NextResponse.json("Recibimos tu feedback! 💃🏼")
+    if (rating >= 4) {
+      return NextResponse.json({
+        title: "Muchas gracias por tu feedback! 💃🏼",
+        variant: "success",
+      })
+    } else {
+      return NextResponse.json({
+        title: "Recibimos tu feedback",
+        description: "¡Trabajaremos para mejorar!",
+      })
+    }
   } catch (error) {
     console.error(error)
     return NextResponse.json(error, { status: 400 })

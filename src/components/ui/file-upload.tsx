@@ -28,9 +28,11 @@ const secondaryVariant = {
 export const FileUpload = ({
   onChange,
   className,
+  acceptInput = "audio",
 }: {
   onChange?: (files: File[]) => void
   className?: string
+  acceptInput?: string
 }) => {
   const [files, setFiles] = useState<File[]>([])
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -61,7 +63,7 @@ export const FileUpload = ({
         className='group/file block rounded-lg cursor-pointer w-full relative overflow-visible'
       >
         <input
-          accept={"audio/*"}
+          accept={`${acceptInput}/*`}
           ref={fileInputRef}
           id='file-upload-handle'
           type='file'

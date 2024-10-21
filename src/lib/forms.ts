@@ -120,23 +120,45 @@ export const taskFormOptions = {
   file: [{ value: null, label: "Seleccionar archivo" }],
 }
 
-export const feedbackFormSchema = z.object({
-  name: z
-    .string({
-      required_error: "Por favor, introduce tu nombre.",
-      invalid_type_error: "Por favor, introduce un nombre válido.",
-    })
-    .min(1)
-    .max(50)
-    // name only includes letters and spaces
-    .regex(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/)
-    // name has to include al least one space character to be a valid full name (e.g. "John Doe")
-    .refine(value => value.includes(" "), {
-      message: "Por favor, introduce tu nombre completo.",
-      path: ["name"],
-    }),
-  email: z.string().email(),
-  message: z.string().min(1).max(1000),
-  rating: z.number().min(1).max(5),
-  has_accepted_terms: z.boolean(),
+const NAME_VALIDATOR = z
+  .string({ message: "Su nombre es requerido" })
+  .min(1, "El nombre introducido es demasiado corto")
+  .max(50, "El nombre introducido es demasiado largo")
+  .regex(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/, "Nombre inválido")
+
+const EMAIL_VALIDATOR = z
+  .string({ message: "Introduzca su dirección de correo" })
+  .email("Dirección de correo inválida")
+
+export const feedbackSchema = z.object({
+  name: NAME_VALIDATOR,
+  email: EMAIL_VALIDATOR,
+  message: z
+    .string()
+    .default("El usuario no ha ingresado un mensaje")
+    .optional(),
+  rating: z
+    .number()
+    .min(1, "La calificación debe ser mayor a 1")
+    .max(5, "La calificación debe estar entre 1 y 5"),
+})
+export const bugReportSchema = z.object({
+  name: NAME_VALIDATOR,
+  email: EMAIL_VALIDATOR,
+  description: z.string().min(1, "Bug description is required"),
+  stepsToReproduce: z.string().min(1, "Steps to reproduce are required"),
+  severity: z.enum(["low", "medium", "high"], {
+    message: "Severity must be low, medium, or high",
+  }),
+})
+export const featureSuggestionSchema = z.object({
+  name: NAME_VALIDATOR,
+  email: EMAIL_VALIDATOR.includes("@linksolution.com.ar", {
+    message:
+      "Por el momento solamente aceptamos sugerencias de usuarios de LinkSolution",
+  }),
+  suggestion: z.string().min(1, "Feature suggestion is required"),
+  benefit: z
+    .string()
+    .min(1, "Please describe how this feature would be beneficial"),
 })

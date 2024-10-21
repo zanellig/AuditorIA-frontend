@@ -39,35 +39,7 @@ export function SidebarButton({
   const selectedClassAttributes =
     "text-accent-foreground shadow-md shadow-accent-foreground/50 dark:shadow-accent-foreground/80 dark:bg-accent"
 
-  const [isOpen, setIsOpen] = React.useState(() => {
-    return true
-    // const storedState =
-    //   typeof window !== "undefined"
-    //     ? JSON.parse(localStorage.getItem("openButtons") || "{}")
-    //     : {}
-    // return (
-    //   storedState[normalizeString(title).toLowerCase().replace(/ /g, "_")] ||
-    //   false
-    // )
-  })
-  /**
-   * Uncomment this to store the state of the buttons in the local storage.
-   */
-  // React.useEffect(() => {
-  //   if (typeof window !== "undefined") {
-  //     const storedState =
-  //       typeof window !== "undefined"
-  //         ? JSON.parse(localStorage.getItem("openButtons") || "{}")
-  //         : {}
-  //     localStorage.setItem(
-  //       "openButtons",
-  //       JSON.stringify({
-  //         ...storedState,
-  //         [normalizeString(title).toLowerCase().replace(/ /g, "_")]: isOpen,
-  //       })
-  //     )
-  //   }
-  // }, [isOpen])
+  const [isOpen, setIsOpen] = React.useState(true)
 
   // Memoize the mapped children to avoid unnecessary re-renders
   const renderedChildren = React.useMemo(

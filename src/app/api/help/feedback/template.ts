@@ -1,7 +1,7 @@
 interface FeedbackData {
   name: string
   email: string
-  message: string
+  message?: string
   rating: number
 }
 
@@ -25,7 +25,7 @@ export function generateFeedbackEmailTemplate(data: FeedbackData): string {
           
           <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin-bottom: 15px;">
             <p><strong>Mensaje:</strong></p>
-            <p style="white-space: pre-wrap;">${data.message}</p>
+            <p style="white-space: pre-wrap;">${data.message || "<i>El usuario no proporcionó un mensaje...</i>"}</p>
           </div>
           
           <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin-bottom: 15px;">

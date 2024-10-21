@@ -11,6 +11,7 @@ import {
   SentimentValues,
 } from "@/lib/types.d"
 import { useToast } from "@/components/ui/use-toast"
+import { getHost } from "@/lib/actions"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -319,4 +320,35 @@ export function convertSpeakerToHablante(input: string) {
   if (!input) return input
   const speakerPattern = /^SPEAKER_(\d+)$/
   return input.replace(speakerPattern, "Hablante $1")
+}
+
+export async function submitForm({
+  data,
+  path,
+}: {
+  data: object
+  path: string
+}) {
+  const host = await getHost()
+  const url = `${host}${path}`
+
+  const formData = new FormData()
+  Object.entries(data).forEach(([key, value]) => {
+    if (value instanceof File) {
+      formData.append(key, value)
+    } else {
+      formData.append(key, String(value))
+    }
+  })
+
+  const response = await fetch(url, {
+    method: "POST",
+    body: formData,
+  })
+
+  if (!response.ok) {
+    throw new Error("Failed to submit")
+  }
+
+  return response.json()
 }

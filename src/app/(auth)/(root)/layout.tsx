@@ -43,7 +43,7 @@ export default function Layout({ children }: { children: ReactNode }) {
             <Toaster />
             <ReactQueryDevtools
               initialIsOpen={true}
-              buttonPosition='bottom-left'
+              buttonPosition='top-left'
             />
           </TranscriptionProvider>
         </TooltipProvider>

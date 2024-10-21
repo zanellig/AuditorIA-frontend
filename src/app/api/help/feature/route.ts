@@ -1,35 +1,21 @@
 import { NextRequest, NextResponse } from "next/server"
-import { z } from "zod"
-import nodemailer from "nodemailer"
 import { env } from "@/env"
 import { generateFeatureSuggestionEmailTemplate } from "./template"
-
-const featureSuggestionSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  email: z.string().email("Invalid email address"),
-  suggestion: z.string().min(1, "Feature suggestion is required"),
-  benefit: z
-    .string()
-    .min(1, "Please describe how this feature would be beneficial"),
-})
+import { featureSuggestionSchema } from "@/lib/forms"
+import { transporter } from "@/lib/mailer"
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json()
-    console.log(body)
-    const validatedData = featureSuggestionSchema.parse(body)
-
-    const transporter = nodemailer.createTransport({
-      host: env.MAIL_HOST,
-      port: Number(env.MAIL_PORT),
-      auth: {
-        user: env.MAIL_USER,
-        pass: env.MAIL_PASS,
-      },
-      tls: {
-        ciphers: "SSLv3",
-        rejectUnauthorized: false,
-      },
+    const formData = await req.formData()
+    const name: string = formData.get("name")?.toString() || ""
+    const email: string = formData.get("email")?.toString() || ""
+    const suggestion: string = formData.get("suggestion")?.toString() || ""
+    const benefit: string = formData.get("benefit")?.toString() || ""
+    const validatedData = featureSuggestionSchema.parse({
+      name,
+      email,
+      suggestion,
+      benefit,
     })
 
     // Prepare the email options
@@ -52,11 +38,7 @@ export async function POST(req: NextRequest) {
     ]
     await Promise.all(emailPromises)
 
-    return NextResponse.json({
-      success: true,
-      data: JSON.stringify(validatedData),
-      error: null,
-    })
+    return NextResponse.json({ title: "Recibimos tu sugerencia! 🫡" })
   } catch (error) {
     console.error(error)
     return NextResponse.json(error, { status: 400 })

@@ -1,7 +1,6 @@
 import React from "react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-import { EnvelopeClosedIcon, StarIcon } from "@radix-ui/react-icons"
 import {
   Dialog,
   DialogClose,
@@ -19,10 +18,16 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card"
-import { Slider } from "@/components/ui/slider"
 import { Checkbox } from "@/components/ui/checkbox"
 import { useToast } from "@/components/ui/use-toast"
+import { z } from "zod"
+import FeedbackForm from "./forms/feedback-form"
+import BugReportForm from "./forms/bug-report-form"
+import FeatureRequestForm from "./forms/feature-form"
+import { Send } from "lucide-react"
+import { DASHBOARD_ICON_CLASSES } from "@/lib/consts"
 
+/** Soy una bestia. Implementé las tres rutas con sistema de mailing, template estilado compatible con todos los clientes de correo, tres forms con distintas funcionalidades y validaciones, y no sé qué más, pero todo en una noche. La verdad me felicito. */
 export function SendUsFeedbackButton({
   children,
   className,
@@ -41,7 +46,7 @@ export function SendUsFeedbackButton({
           )}
         >
           <div>
-            <EnvelopeClosedIcon className='h-[1.2rem] w-[1.2rem]' />
+            <Send className={DASHBOARD_ICON_CLASSES} />
           </div>
           <div>{children}</div>
         </Button>
@@ -77,128 +82,28 @@ export function SendUsFeedbackButton({
   )
 }
 
-function FeedbackForm({ className }: { className?: string }) {
-  const [sliderValue, setSliderValue] = React.useState<number[]>()
-  return (
-    <FormFactory
-      className={className}
-      textAreaPlaceholder='Dejanos tus comentarios...'
-      formType={FormTypes.FEEDBACK}
-      toastDescriptionText='¡Muchas gracias por tu feedback!'
-      toastVariant='success'
-    >
-      <div className='grid w-full gap-3'>
-        <Label
-          htmlFor={FormTypes.FEEDBACK + "-feedback-nps"}
-          className='flex flex-row items-center space-x-2'
-        >
-          <StarIcon className='h-4 w-4' />
-          <span>Califica tu uso de la app</span>
-        </Label>
-        <FeedbackSlider
-          id={FormTypes.FEEDBACK + "-feedback-nps"}
-          shareSliderValue={setSliderValue}
-        >
-          <ul className='flex flex-row items-center space-x-2 justify-between'>
-            <li className='text-primary text-sm'>1</li>
-            <li className='text-primary text-sm'>2</li>
-            <li className='text-primary text-sm'>3</li>
-            <li className='text-primary text-sm'>4</li>
-            <li className='text-primary text-sm'>5</li>
-          </ul>
-        </FeedbackSlider>
-      </div>
-    </FormFactory>
-  )
-}
-type SliderProps = React.ComponentProps<typeof Slider>
-interface FeedbackSliderProps extends SliderProps {
-  shareSliderValue?: (value: number[]) => void
-}
-function FeedbackSlider({
-  children,
-  className,
-  shareSliderValue,
-  ...props
-}: FeedbackSliderProps) {
-  "use client"
-  const DEFAULT_VALUE = [2]
-  const [value, setValue] = React.useState<number[]>(DEFAULT_VALUE)
-  React.useEffect(() => {
-    if (shareSliderValue) {
-      shareSliderValue(value)
-    }
-  }, [value])
-  return (
-    <div className='grid w-full gap-3'>
-      <Slider
-        defaultValue={DEFAULT_VALUE}
-        max={4}
-        step={1}
-        onValueChange={values => {
-          setValue(values)
-        }}
-        value={value}
-        className={cn("", className)}
-      />
-      {children}
-    </div>
-  )
-}
-
-function BugReportForm({ className }: { className?: string }) {
-  return (
-    <FormFactory
-      className={className}
-      textAreaPlaceholder='Describe el error...'
-      formType={FormTypes.BUG}
-      toastDescriptionText='Trabajaremos para resolverlo lo antes posible.'
-      toastVariant='default'
-    >
-      <div className='grid w-full gap-1.5'>
-        <Label htmlFor={FormTypes.BUG + "-report-file"}>
-          Adjunta una captura de pantalla
-        </Label>
-        <Input type='file' id='bug-report-file'></Input>
-      </div>
-    </FormFactory>
-  )
-}
-
-function FeatureRequestForm({ className }: { className?: string }) {
-  return (
-    <FormFactory
-      className={className}
-      textAreaPlaceholder='¿Qué funcionalidad te gustaría que se incluyera?'
-      formType={FormTypes.FEATURE}
-      toastDescriptionText='¡Gracias por compartirnos tu sugerencia!'
-      toastVariant='success'
-    />
-  )
-}
-
 enum FormTypes {
   FEEDBACK = "feedback",
   BUG = "bug",
   FEATURE = "feature",
 }
-
+/** El único motivo por el cual no borro este componente es porque tiene el copy legal, y hasta que no lo relocalice a un componente de la app, no lo voy a borrar */
 function FormFactory({
   children,
   className,
-  internalEndpoint,
   textAreaPlaceholder,
   formType,
   toastDescriptionText,
   toastVariant = "success",
+  validationSchema,
 }: {
   children?: React.ReactNode
   className?: string
-  internalEndpoint?: string
   textAreaPlaceholder?: string
   formType?: FormTypes
   toastDescriptionText?: string
   toastVariant?: "default" | "success" | "destructive" | null | undefined
+  validationSchema: z.ZodSchema
 }) {
   "use client"
   const { toast } = useToast()

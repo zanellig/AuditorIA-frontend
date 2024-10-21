@@ -5,20 +5,8 @@ import { env } from "@/env"
 import { promises as fs } from "fs"
 import path from "path"
 import { generateBugReportEmailTemplate } from "./template"
-
-// Bug report schema for non-file fields
-const bugReportSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  email: z.string().email("Invalid email address"),
-  description: z.string().min(1, "Bug description is required"),
-  stepsToReproduce: z.string().min(1, "Steps to reproduce are required"),
-  severity: z.enum(["low", "medium", "high"], {
-    message: "Severity must be low, medium, or high",
-  }),
-})
-
-// Define accepted image MIME types
-const acceptedImageTypes = ["image/jpeg", "image/png"]
+import { bugReportSchema } from "@/lib/forms"
+import { transporter } from "@/lib/mailer"
 
 // Max file size (e.g., 5MB)
 const MAX_FILE_SIZE = 5 * 1024 * 1024
@@ -44,16 +32,11 @@ export async function POST(req: NextRequest) {
     })
 
     // Handle image file
-    const image = formData.get("image") as File | null
+    const image = formData.get("file") as File | null
     let imageBuffer: Buffer | undefined
 
     if (image) {
       // Validate the image file
-      if (!acceptedImageTypes.includes(image.type)) {
-        throw new Error(
-          "Invalid file type. Only JPEG and PNG images are allowed."
-        )
-      }
       if (image.size > MAX_FILE_SIZE) {
         throw new Error("Image size exceeds the 5MB limit.")
       }
@@ -67,20 +50,6 @@ export async function POST(req: NextRequest) {
       const imagePath = path.join(tempDir, image.name)
       await fs.writeFile(imagePath, imageBuffer)
     }
-
-    // Setup Nodemailer
-    const transporter = nodemailer.createTransport({
-      host: env.MAIL_HOST,
-      port: Number(env.MAIL_PORT),
-      auth: {
-        user: env.MAIL_USER,
-        pass: env.MAIL_PASS,
-      },
-      tls: {
-        ciphers: "SSLv3",
-        rejectUnauthorized: false,
-      },
-    })
 
     // Prepare the email options
     const mailOptions: nodemailer.SendMailOptions = {
@@ -105,13 +74,16 @@ export async function POST(req: NextRequest) {
       transporter.sendMail({
         ...mailOptions,
         to: validatedData.email,
-        subject: "Recibimos tu reporte de error!",
+        subject: "Recibimos tu reporte de error.",
       }),
     ]
 
     await Promise.all(emailPromises)
 
-    return NextResponse.json("Se ha enviado el reporte de error correctamente")
+    return NextResponse.json({
+      title: "Se ha enviado el reporte de error correctamente",
+      description: "Trabajaremos para solucionarlo lo más pronto posible!",
+    })
   } catch (error) {
     console.error(error)
     return NextResponse.json(error, { status: 400 })
