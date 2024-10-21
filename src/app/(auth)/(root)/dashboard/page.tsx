@@ -1,5 +1,5 @@
 import { Metadata } from "next"
-import Dashboard from "@/components/dashboard/dashboard"
+import BasicDashboard from "@/components/dashboard/basic-dashboard"
 
 export const metadata: Metadata = {
   title: "Dashboard | AuditorIA",
@@ -7,5 +7,5 @@ export const metadata: Metadata = {
 }
 
 export default function Page() {
-  return <Dashboard />
+  return <BasicDashboard />
 }

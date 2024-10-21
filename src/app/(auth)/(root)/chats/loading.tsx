@@ -1,11 +1,5 @@
-import LoadingScreen from "@/components/loading-screen"
+import Loader from "@/app/_loader/loader"
 
 export default function Loading() {
-  return (
-    <LoadingScreen
-      className='self-center'
-      words={["chats", "conversaciones"]}
-      usingAI={false}
-    />
-  )
+  return <Loader />
 }

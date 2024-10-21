@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { useToast } from "@/components/ui/use-toast"
 
-import DeleteButton from "@/components/delete-button"
+import DeleteButton from "@/components/tables/tasks-table/delete-button"
 
 import type { Status } from "@/lib/types"
 

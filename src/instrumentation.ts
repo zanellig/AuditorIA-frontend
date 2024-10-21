@@ -12,6 +12,7 @@ export async function register() {
     if (env.NEXT_RUNTIME === "edge") {
       await import("../sentry.edge.config")
     }
+    console.log("Registered Sentry")
   }
 }
 

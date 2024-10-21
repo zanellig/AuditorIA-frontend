@@ -1,5 +1,4 @@
 import Loader from "@/app/_loader/loader"
-
-export default function LoadingTranscription() {
+export default function RecordRedirectLoading() {
   return <Loader />
 }

@@ -1,10 +1,5 @@
-import { GLOBAL_ICON_SIZE } from "@/lib/consts"
-import { Loader2 } from "lucide-react"
+import Loader from "@/app/_loader/loader"
 
 export default function DashboardLoadingScreen() {
-  return (
-    <main className='h-full w-full flex items-center justify-center'>
-      <Loader2 size={GLOBAL_ICON_SIZE} className='animate-spin' />
-    </main>
-  )
+  return <Loader />
 }
