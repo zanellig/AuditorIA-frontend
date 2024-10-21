@@ -20,6 +20,14 @@ const envSchema = z.object({
   LDAP_PASSWORD: z.string(),
   LDAP_DOMAIN: z.string(),
   SENTRY_AUTH_TOKEN: z.string(),
+  MAIL_HOST: z.string(),
+  MAIL_PORT: z.string(),
+  MAIL_USER: z.string(),
+  MAIL_PASS: z.string(),
+  MAIL_FROM: z.string(),
+  MAIL_TO: z
+    .string()
+    .transform(val => val.split(",").map(email => email.trim())),
 })
 
 // Parse and validate the environment variables

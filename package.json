@@ -1,6 +1,6 @@
 {
-  "name": "next",
-  "version": "0.1.0",
+  "name": "auditoria",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
   "engines": {
@@ -51,6 +51,7 @@
     "@visx/scale": "^3.5.0",
     "@visx/text": "^3.3.0",
     "@visx/wordcloud": "^3.3.0",
+    "chalk": "^5.3.0",
     "chart.js": "^4.4.4",
     "class-variance-authority": "0.7.0",
     "clsx": "2.1.1",
@@ -61,6 +62,7 @@
     "lucide-react": "^0.434.0",
     "next": "^14.2.10",
     "next-themes": "0.3.0",
+    "nodemailer": "^6.9.15",
     "react": "18",
     "react-chartjs-2": "^5.2.0",
     "react-day-picker": "8.10.1",
@@ -84,6 +86,7 @@
     "@testing-library/react": "^16.0.1",
     "@types/jest": "^29.5.13",
     "@types/node": "^20.16.5",
+    "@types/nodemailer": "^6.4.16",
     "@types/react": "18",
     "@types/react-dom": "18",
     "@types/recharts": "^1.8.29",
