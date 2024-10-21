@@ -1,3 +1,4 @@
+"use client"
 import React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
@@ -41,14 +42,27 @@ export interface ButtonProps
   asChild?: boolean
 }
 
+interface ButtonState {
+  isMouseDown?: boolean
+}
+
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
+    const [buttonState, setButtonState] = React.useState<ButtonState>({})
     const Comp = asChild ? Slot : "button"
     return (
       <Comp
-        className={cn(buttonVariants({ variant, size, className }))}
+        className={cn(
+          buttonVariants({ variant, size, className }),
+          buttonState.isMouseDown && "scale-95",
+          "transition-transform duration-100"
+        )}
         ref={ref}
         {...props}
+        onMouseDown={() => setButtonState({ isMouseDown: true })}
+        onMouseUp={() => setButtonState({ isMouseDown: false })}
+        onMouseLeave={() => setButtonState({ isMouseDown: false })}
+        onMouseOut={() => setButtonState({ isMouseDown: false })}
       />
     )
   }
