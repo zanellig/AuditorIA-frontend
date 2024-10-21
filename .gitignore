@@ -48,3 +48,6 @@ src/lib/laboratorio_testing/
 *-logs*
 *.log*
 *.logs*
+
+# Temporal files
+temp*

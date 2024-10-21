@@ -39,23 +39,17 @@ export default function BugReportForm() {
 
   const mutation = useMutation({
     mutationFn: submitForm,
-    onSuccess: () => {
-      toast({
-        title: "Reporte enviado",
-        description:
-          "Gracias por tu reporte de error. Trabajaremos para resolverlo.",
-        variant: "default",
-      })
+    onSuccess: data => {
+      toast(data)
       reset()
     },
     onError: error => {
       toast({
         title: "Error",
-        description:
-          "Hubo un problema al enviar tu reporte. Por favor, intentá de nuevo.",
+        description: "No pudimos contactar al servidor de mailing 😟",
         variant: "destructive",
       })
-      console.error("Error submitting bug report:", error)
+      console.error("Error submitting bug report:", error.message)
     },
   })
 

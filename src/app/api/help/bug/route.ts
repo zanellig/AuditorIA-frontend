@@ -7,6 +7,8 @@ import path from "path"
 import { generateBugReportEmailTemplate } from "./template"
 import { bugReportSchema } from "@/lib/forms"
 import { transporter } from "@/lib/mailer"
+import { format } from "date-fns"
+import { es } from "date-fns/locale"
 
 // Max file size (e.g., 5MB)
 const MAX_FILE_SIZE = 5 * 1024 * 1024
@@ -38,43 +40,71 @@ export async function POST(req: NextRequest) {
     if (image) {
       // Validate the image file
       if (image.size > MAX_FILE_SIZE) {
-        throw new Error("Image size exceeds the 5MB limit.")
+        throw new Error(
+          JSON.stringify({
+            title: "Error",
+            description: "El tamaño de imagen no debe superar los 5MB.",
+            variant: "destructive",
+          })
+        )
       }
 
       // Convert image to a Buffer
       imageBuffer = Buffer.from(await image.arrayBuffer())
 
       // Save the image to a temporary location (optional, if needed)
-      const tempDir = path.join(process.cwd(), "temp")
-      await fs.mkdir(tempDir, { recursive: true })
-      const imagePath = path.join(tempDir, image.name)
-      await fs.writeFile(imagePath, imageBuffer)
+      const tempDir = path.join(process.cwd(), "temp-")
+      const tempPath = await fs.mkdtemp(tempDir)
+      const imagePath = path.join(tempPath, image.name)
+      await fs.writeFile(imagePath, imageBuffer.toString())
     }
 
     // Prepare the email options
     const mailOptions: nodemailer.SendMailOptions = {
       from: env.MAIL_FROM,
-      subject: "AuditorIA | New Bug Report",
-      html: generateBugReportEmailTemplate(validatedData),
     }
-
+    // Generate a unique CID
+    const cid =
+      new Date().getTime().toString() + Math.random().toString(36) + image?.name
     // Attach image if present
     if (imageBuffer && image) {
       mailOptions.attachments = [
         {
           filename: image.name,
           content: imageBuffer,
+          cid,
         },
       ]
     }
 
+    const now = format(Date.now(), "PPPP, pppp", { locale: es })
+    const clientData = {
+      geo: JSON.stringify(req.geo),
+      referrer: req.referrer,
+      ip: req.ip,
+      integrity: req.integrity,
+      headers: JSON.stringify(req.headers),
+      date: now,
+    }
     // Send emails in parallel
     const emailPromises = [
-      transporter.sendMail({ ...mailOptions, to: env.MAIL_TO }),
+      transporter.sendMail({
+        ...mailOptions,
+        to: env.MAIL_TO,
+        subject: "New Bug Report",
+        html: generateBugReportEmailTemplate({
+          data: { ...validatedData, date: now, cid },
+          isDevMail: true,
+          clientData: { ...clientData },
+        }),
+      }),
       transporter.sendMail({
         ...mailOptions,
         to: validatedData.email,
-        subject: "Recibimos tu reporte de error.",
+        subject: `Reporte de error del día ${now}`,
+        html: generateBugReportEmailTemplate({
+          data: validatedData,
+        }),
       }),
     ]
 
@@ -82,9 +112,10 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       title: "Se ha enviado el reporte de error correctamente",
-      description: "Trabajaremos para solucionarlo lo más pronto posible!",
+      description: "¡Trabajaremos para solucionarlo lo más pronto posible! 💪",
+      variant: "default",
     })
-  } catch (error) {
+  } catch (error: any) {
     console.error(error)
     return NextResponse.json(error, { status: 400 })
   }
