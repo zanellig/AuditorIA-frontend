@@ -180,11 +180,7 @@ export default function TaskUploadForm({ className }: { className?: string }) {
                 </FormItem>
               )}
             />
-            <StatefulButton
-              type='submit'
-              isLoading={mutation.isPending}
-              className='w-full'
-            >
+            <StatefulButton type='submit' isLoading={mutation.isPending}>
               <span>Iniciar tarea</span>
               <Sparkles size={GLOBAL_ICON_SIZE} className='animate-sparkle' />
             </StatefulButton>
