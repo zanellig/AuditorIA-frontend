@@ -4,7 +4,7 @@ export const INTERNAL_API =
   env.APP_ENV === "local"
     ? `http://localhost:${env.PORT}`
     : env.APP_ENV === "remote"
-      ? `http://${env.HOST}:${env.PORT}`
+      ? `http://${env.HOST}`
       : "no-host-defined"
 export const ACCEPTED_ORIGINS = [env.API_MAIN, env.API_CANARY, INTERNAL_API]
 export const ALL_TASKS_PATH = "tasks"
