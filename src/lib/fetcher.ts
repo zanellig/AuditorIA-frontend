@@ -70,16 +70,16 @@ async function _request<T, R extends boolean | undefined = undefined>(
   }
 }
 
-function _get(
+function _get<T = Response, R extends boolean | undefined = undefined>(
   url: string,
   headers?: Headers,
   options?: {
     revalidate?: boolean
-    onlyReturnStatus?: boolean
+    onlyReturnStatus?: R
     expectJson?: boolean
     cacheResponse?: boolean
   }
-): Promise<[Error | null, Response | null]> {
+): Promise<[Error | null, R extends true ? number : T | Response | null]> {
   return _request(url, Method.Get, null, headers, options)
 }
 

@@ -29,7 +29,7 @@ import {
 import { TableSupportedDataTypes } from "@/lib/types.d"
 import { CustomBorderCard } from "./custom-border-card"
 import { StatefulButton } from "./stateful-button"
-import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { QueryKey, useQuery, useQueryClient } from "@tanstack/react-query"
 import { getHost } from "@/lib/actions"
 
 type InputType = HTMLInputElement["type"]
@@ -52,7 +52,7 @@ export default function SearchRecords({
   inputOptions,
 }: TSearchRecordsProps) {
   const queryClient = useQueryClient()
-  const [queryKey, setQueryKey] = React.useState<string | null>(null)
+  const [queryKey, setQueryKey] = React.useState<QueryKey>([])
 
   const { inputType, selectOptions } = inputOptions || {
     inputType: "text",
@@ -68,9 +68,9 @@ export default function SearchRecords({
   React.useEffect(() => {
     // intercept the fetching and cancel it if the search or date or input change
     queryClient.cancelQueries({
-      queryKey: [queryKey],
+      queryKey: queryKey,
     })
-    setQueryKey(`${date ? date.toISOString() : search}`)
+    setQueryKey(["recordings", `${date ? date.toISOString() : search}`])
   }, [search, date, input])
 
   // Function to fetch recordings based on input or date
@@ -82,6 +82,7 @@ export default function SearchRecords({
     const res = await fetch(`${await getHost()}/api/recordings?${queryParam}`, {
       method: "GET",
       signal,
+      cache: "no-store",
     })
     if (!res.ok) {
       return []
@@ -91,7 +92,7 @@ export default function SearchRecords({
       throw new Error(err.message)
     }
     if (data) {
-      return data.records as Recordings
+      return data as Recordings
     }
     return []
   }
@@ -101,7 +102,7 @@ export default function SearchRecords({
     error,
     isLoading,
   } = useQuery({
-    queryKey: [queryKey],
+    queryKey: queryKey,
     queryFn: async ({ signal }) => {
       const res = await fetchRecordings(signal)
       setShouldFetch(false)
@@ -120,13 +121,13 @@ export default function SearchRecords({
       return
     }
     setSearch(input)
-    setQueryKey(date ? date.toISOString() : input)
+    setQueryKey(["recordings", date ? date.toISOString() : input])
     setShouldFetch(true)
   }
 
   const handleCancel = () => {
     queryClient.cancelQueries({
-      queryKey: [queryKey],
+      queryKey: queryKey,
     })
   }
 
@@ -142,7 +143,7 @@ export default function SearchRecords({
   return (
     <div className='flex flex-col gap-2 w-full justify-center items-center'>
       <Card
-        className='h-fit min-w-[350px] w-[350px]'
+        className='h-fit w-full'
         onKeyDown={e => {
           if (e.key === "Enter") {
             handleSearch()
@@ -214,6 +215,7 @@ export default function SearchRecords({
               data={[]}
               type={TableSupportedDataTypes.Recordings}
               className='w-full'
+              queryKey={queryKey}
             />
           </>
         )}
@@ -229,6 +231,7 @@ export default function SearchRecords({
               data={[]}
               type={TableSupportedDataTypes.Recordings}
               className='w-full'
+              queryKey={queryKey}
             />
           </>
         )}
@@ -246,6 +249,7 @@ export default function SearchRecords({
               data={recordings}
               type={TableSupportedDataTypes.Recordings}
               className='w-full'
+              queryKey={queryKey}
             />
           </>
         )}

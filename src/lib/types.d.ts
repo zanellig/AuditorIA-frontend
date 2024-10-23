@@ -66,6 +66,9 @@ export const recordingSchema = z.object({
 })
 export type Recording = z.infer<typeof recordingSchema>
 export type Recordings = Recording[]
+export interface RecordingsAPIResponse {
+  records: Recordings
+}
 
 export enum Method {
   Get = "GET",

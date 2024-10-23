@@ -20,8 +20,8 @@ export async function GET() {
    * If you want to use the mock data, uncomment the following lines and comment the lines below.
    */
   // const mockTasks = await fs.readFile("./public/mock/updated_tasks.json")
-  // return new NextResponse(
-  //  .json ([null, mockTasks ? JSON.parse(mockTasks.toString()) : []]),
+  // return NextResponse.json(
+  //   [null, mockTasks ? JSON.parse(mockTasks.toString()) : []],
   //   {
   //     status: 200,
   //     headers,

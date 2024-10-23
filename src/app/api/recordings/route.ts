@@ -4,6 +4,7 @@ import { getHeaders } from "@/lib/utils"
 import { NextRequest, NextResponse } from "next/server"
 import { env } from "@/env"
 import { getHost } from "@/lib/actions"
+import { RecordingsAPIResponse } from "@/lib/types"
 export async function GET(request: NextRequest) {
   try {
     const headers = getHeaders(env.API_CANARY)
@@ -14,40 +15,61 @@ export async function GET(request: NextRequest) {
     })
     console.log(`Searching records: ${externalUrl}`)
     // TODO: Implement a tag for the request, so that we easily identify what recordings are being cached. Also revalidation can be easier. READ THE DOCS
-    const [err, res] = await _get(externalUrl.toString(), headers, {
-      expectJson: true,
-      cacheResponse: true,
-    })
+    const [err, res] = await _get<RecordingsAPIResponse>(
+      externalUrl.toString(),
+      headers,
+      {
+        expectJson: true,
+        cacheResponse: true,
+      }
+    )
     const responseHeaders = getHeaders(await getHost())
     if (err !== null) {
-      if (
-        // @ts-ignore
-        err.detail ===
-        "Error al obtener los registros: 404: No se encontraron registros"
-      ) {
-        return NextResponse.json([null, []], { status: 200 })
+      // @ts-expect-error
+      if (err?.detail) {
+        if (
+          // @ts-ignore
+          err.detail ===
+          "Error al obtener los registros: 404: No se encontraron registros"
+        ) {
+          return NextResponse.json([null, []], {
+            status: 200,
+            headers: responseHeaders,
+          })
+        }
+        // @ts-expect-error
+        // API hasn't changed yet to return a normalized response, we have to access the detail key if it returns an error
+        return NextResponse.json([err.detail, []], {
+          status: 500,
+          headers: responseHeaders,
+        })
       }
-      console.error(err)
-      // @ts-ignore
-      // API hasn't changed yet to return a normalized response, we have to access the detail key if it returns an error
-      return NextResponse.json([err.detail, []], {
+      return NextResponse.json([err, []], {
         status: 500,
+        headers: responseHeaders,
       })
     }
     // API never falls back to this clause because when it returns a good response but with no content, it treats it as an error
     if (res === null) {
-      return NextResponse.json([null, []], { status: 200 })
-    }
-    const response = await res.json()
-    if (res.ok) {
-      return NextResponse.json([null, response], {
+      return NextResponse.json([null, []], {
         status: 200,
         headers: responseHeaders,
       })
     }
-    return NextResponse.json([err, []], { status: 500 })
+    if ("records" in res) {
+      return NextResponse.json([null, res.records], {
+        status: 200,
+        headers: responseHeaders,
+      })
+    }
+    return NextResponse.json([null, res], {
+      status: 200,
+      headers: responseHeaders,
+    })
   } catch (error) {
     console.error(error)
-    return NextResponse.json([error, []], { status: 500 })
+    return NextResponse.json([error, []], {
+      status: 500,
+    })
   }
 }

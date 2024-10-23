@@ -89,10 +89,18 @@ const config = {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
+        "sparkle": {
+          "0%": { color: "#8beac1" },
+          "25%": { color: "#9da1b8" },
+          "50%": { color: "#58a8ae" },
+          "75%": { color: "#9da1b8" },
+          "100%": { color: "#8beac1" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "sparkle": "sparkle 3s ease-in-out infinite",
       },
     },
   },

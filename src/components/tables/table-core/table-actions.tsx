@@ -1,18 +1,15 @@
 "use client"
-
 import React from "react"
-import {
-  Table as ReactTableInstance,
-  ColumnFiltersState,
-  getFilteredRowModel,
-} from "@tanstack/react-table"
-import { Button } from "@/components/ui/button"
+import { ColumnFiltersState, getFilteredRowModel } from "@tanstack/react-table"
 import SearchInput from "@/components/tables/table-core/search-input"
 import FilterButton from "@/components/tables/table-core/filter-button"
+import { TableSupportedDataTypes } from "@/lib/types"
+import RefreshButton from "./refresh-button"
+import { TableWithQueryKey } from "./data-table"
 
 interface TableActionsProps<TData> {
   children?: React.ReactNode
-  table: ReactTableInstance<TData>
+  table: TableWithQueryKey<TData>
   data: TData[]
 }
 
@@ -24,13 +21,6 @@ export default function TableActions<TData>({
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   )
-
-  // React.useEffect(() => {
-  //   console.group("TableActions")
-  //   console.log(table.getAllColumns())
-  //   console.log(table.getRowModel())
-  //   console.log(table.getRowModel().rows)
-  // }, [])
 
   const columns = table.getAllColumns()
 
@@ -89,6 +79,7 @@ export default function TableActions<TData>({
         )}
         {children}
       </div>
+      <RefreshButton queryKey={table.queryInfo?.queryKey} />
     </div>
   )
 }

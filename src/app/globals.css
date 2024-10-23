@@ -11,8 +11,8 @@
     --card-foreground: hsl(240, 10%, 3.9%);
     --popover: hsl(0, 0%, 100%);
     --popover-foreground: hsl(240, 10%, 3.9%);
-    --primary: hsl(346.8, 77.2%, 49.8%);
-    --primary-foreground: hsl(355.7, 100%, 97.3%);
+    --primary: hsl(240, 5.9%, 10%);
+    --primary-foreground: hsl(0, 0%, 98%);
     --secondary: hsl(240, 4.8%, 95.9%);
     --secondary-foreground: hsl(240, 5.9%, 10%);
     --muted: hsl(240, 4.8%, 95.9%);
@@ -31,7 +31,7 @@
     --border: hsl(240, 5.9%, 90%);
     --input: hsl(240, 5.9%, 90%);
     --input-background: hsl(177.85, 50%, 98.65%);
-    --ring: hsl(346.8, 77.2%, 49.8%);
+    --ring: hsl(240, 5.9%, 10%);
     --radius: 0.5rem;
     --chart-1: hsl(12, 76%, 61%);
     --chart-2: hsl(173, 58%, 39%);
@@ -105,29 +105,4 @@
     scroll-behavior: smooth !important;
     scrollbar-width: 250px;
   }
-}
-
-@keyframes sparkle {
-  0% {
-    color: #8beac1;
-  }
-  25% {
-    color: #9da1b8;
-  }
-  50% {
-    color: #58a8ae;
-  }
-  75% {
-    color: #9da1b8;
-  }
-  100% {
-    color: #8beac1;
-  }
-}
-
-.animate-sparkle {
-  animation: sparkle 3s ease-in-out infinite;
-}
-.animate-sparkles {
-  animation: sparkles 3s ease-in-out infinite;
 }
