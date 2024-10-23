@@ -92,7 +92,7 @@ export function generateBugReportEmailTemplate({
         ${
           data?.cid
             ? `<div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin-bottom: 15px;">
-              <img src="cid:${data.cid}" alt="Captura de pantalla" style="max-width: 100%;">
+              <img src="cid:${data.cid}" alt="Captura de pantalla" style="max-width: 500px; height: auto; width: 100%;">
           </div>`
             : ""
         }
