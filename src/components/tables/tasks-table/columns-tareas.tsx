@@ -40,11 +40,16 @@ function renderMarker(status: Status) {
       return (
         <CircleDashed
           size={GLOBAL_ICON_SIZE}
-          className='text-muted-foreground'
+          className='text-muted-foreground animate-spin'
         />
       )
     case "failed":
-      return <CircleAlert size={GLOBAL_ICON_SIZE} className='text-red-500' />
+      return (
+        <CircleAlert
+          size={GLOBAL_ICON_SIZE}
+          className='text-red-500 animate-pulse'
+        />
+      )
   }
 }
 
