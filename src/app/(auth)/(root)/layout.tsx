@@ -1,4 +1,3 @@
-"use client"
 import type { ReactNode } from "react"
 import { Toaster } from "@/components/ui/toaster"
 import { TooltipProvider } from "@/components/ui/tooltip"
@@ -10,6 +9,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import Footer from "@/components/footer"
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 import { CustomBorderCard } from "@/components/custom-border-card"
+import { env } from "@/env"
 
 const BACKGROUND = "bg-pulse"
 
@@ -35,13 +35,16 @@ export default function Layout({ children }: { children: ReactNode }) {
                 <ScrollArea className='max-h-dvh h-dvh min-h-dvh '>
                   <TopNavbar />
                   <div className='px-5 py-2 min-h-full flex flex-col gap-2'>
-                    <CustomBorderCard
-                      title={"¡Advertencia!"}
-                      description={
-                        "Este es un entorno de pruebas. La aplicación no funcionará como usted lo espera."
-                      }
-                      variant='warning'
-                    />
+                    {env.NODE_ENV === "development" && (
+                      <CustomBorderCard
+                        title={"¡Advertencia!"}
+                        description={
+                          "Este es un entorno de pruebas. La aplicación no funcionará como usted lo espera."
+                        }
+                        variant='warning'
+                        closeButton
+                      />
+                    )}
                     {children}
                     <Footer />
                   </div>

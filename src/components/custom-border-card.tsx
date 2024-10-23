@@ -1,3 +1,4 @@
+"use client"
 import React from "react"
 import {
   Card,
@@ -9,6 +10,8 @@ import {
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { cva, type VariantProps } from "class-variance-authority"
+import { X } from "lucide-react"
+import { GLOBAL_ICON_SIZE } from "@/lib/consts"
 
 // Define the card variants using cva
 const cardVariants = cva(
@@ -28,16 +31,16 @@ const cardVariants = cva(
   }
 )
 
-// Define the props for the CustomBorderCard
 export interface CustomBorderCardProps
-  extends React.HTMLAttributes<HTMLDivElement>,
+  extends Omit<React.HTMLAttributes<HTMLDivElement>, "title">, // Omit title prop
     VariantProps<typeof cardVariants> {
   className?: string
-  title?: string
-  description?: string
+  children?: React.ReactNode
+  title?: React.ReactNode
+  description?: React.ReactNode
   variant?: "success" | "error" | "warning" | "default"
-  buttonText?: string
-  onClick?: () => void
+  button?: React.ReactNode
+  closeButton?: boolean
 }
 
 export const CustomBorderCard = React.forwardRef<
@@ -47,11 +50,12 @@ export const CustomBorderCard = React.forwardRef<
   (
     {
       className,
+      children,
       title,
       description,
       variant = "default",
-      buttonText,
-      onClick,
+      button,
+      closeButton,
       ...props
     },
     ref
@@ -59,22 +63,45 @@ export const CustomBorderCard = React.forwardRef<
     // Get the variant classes from the cva function
     const variantClasses = cardVariants({ variant })
     const text = variantClasses.match(/text-\S+/)?.[0] || ""
+    const [visible, setVisible] = React.useState(true)
+    const closeCard = () => {
+      setVisible(false)
+    }
 
     return (
-      <Card ref={ref} className={cn(variantClasses, className)} {...props}>
+      <Card
+        ref={ref}
+        className={cn(variantClasses, className, !visible && "hidden")}
+        {...props}
+      >
         <CardHeader className='py-2 px-4'>
-          {title && <CardTitle className={cn(text)}>{title}</CardTitle>}
+          {title && (
+            <CardTitle
+              className={cn(
+                text,
+                closeButton && "flex items-center justify-between"
+              )}
+            >
+              {title}
+              {closeButton && (
+                <Button
+                  onClick={closeCard}
+                  size={"icon"}
+                  variant={"ghost"}
+                  className='p-1 rounded-full w-fit h-fit'
+                >
+                  <X size={GLOBAL_ICON_SIZE} />
+                </Button>
+              )}
+            </CardTitle>
+          )}
           {description && (
             <CardDescription className={cn(text)}>
               {description}
             </CardDescription>
           )}
         </CardHeader>
-        {buttonText && (
-          <CardFooter>
-            <Button onClick={onClick}>{buttonText}</Button>
-          </CardFooter>
-        )}
+        {button && <CardFooter>{button}</CardFooter>}
       </Card>
     )
   }
