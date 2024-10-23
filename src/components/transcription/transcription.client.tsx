@@ -245,7 +245,7 @@ interface EmojiProps {
 }
 
 const Emoji: React.FC<EmojiProps> = ({ emotion }) => (
-  <span className='text-3xl' role='img'>
+  <span className={cn("text-3xl w-full", emotion ? "" : "hidden")}>
     {{
       joy: "😀",
       fear: "😱",
@@ -275,6 +275,7 @@ const SegmentRenderer = React.forwardRef<HTMLDivElement, SegmentRendererProps>(
   ({ segment, renderSpeakerText = true, renderEmotion = true }, ref) => {
     const speakerNumber = parseInt(segment?.speaker?.split("_")[1], 10)
     const isEvenSpeaker = speakerNumber % 2 === 0
+    const EMOJI_CONTAINER_CLASSES = "min-w-10 relative w-10"
 
     return (
       <div
@@ -289,26 +290,28 @@ const SegmentRenderer = React.forwardRef<HTMLDivElement, SegmentRendererProps>(
             {convertSpeakerToHablante(segment.speaker)}
           </span>
         )}
-        <div className='flex flex-row space-x-2'>
+        <div className='flex flex-row gap-2'>
           {isEvenSpeaker ? (
             <>
-              {segment.analysis && renderEmotion && (
-                <Emoji emotion={segment.analysis.emotion} />
-              )}
+              <div className={EMOJI_CONTAINER_CLASSES}>
+                {segment.analysis ? (
+                  <Emoji
+                    emotion={renderEmotion ? segment.analysis.emotion : ""}
+                  />
+                ) : null}
+              </div>
               <TextContainer segment={segment} />
-              {segment.analysis && <EmotionBox />}
             </>
           ) : (
             <>
-              {segment.analysis && <EmotionBox />}
               <TextContainer segment={segment} />
-              {segment.analysis && renderEmotion ? (
-                <Emoji emotion={segment.analysis.emotion} />
-              ) : (
-                <span className='text-3xl p-2' role='img'>
-                  {" "}
-                </span>
-              )}
+              <div className={EMOJI_CONTAINER_CLASSES}>
+                {segment.analysis ? (
+                  <Emoji
+                    emotion={renderEmotion ? segment.analysis.emotion : ""}
+                  />
+                ) : null}
+              </div>
             </>
           )}
         </div>
