@@ -1,10 +1,6 @@
-"use client"
-
 import * as React from "react"
-
 import { ColumnDef, Row, Table } from "@tanstack/react-table"
 import { Task } from "@/lib/types"
-
 import {
   ArrowUpDown,
   MoreHorizontal,
@@ -13,7 +9,6 @@ import {
   CircleAlert,
   ArrowDown,
   ArrowUp,
-  BrainCircuitIcon,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -21,27 +16,18 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
-  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { useToast } from "@/components/ui/use-toast"
-
 import DeleteButton from "@/components/tables/tasks-table/delete-button"
-
 import type { Status } from "@/lib/types"
-
 import { GLOBAL_ICON_SIZE } from "@/lib/consts"
-import { handleCopyToClipboard, getLocaleMonth } from "@/lib/utils"
-
+import { getLocaleMonth, _URLBuilder } from "@/lib/utils"
 import { secondsToHMS, formatTimestamp } from "@/lib/utils"
 import Link from "next/link"
-
-import ButtonBorderMagic from "@/components/ui/button-border-magic"
-import { actionRevalidatePath, getHost } from "@/lib/actions"
-import { ToastAction } from "@/components/ui/toast"
-import { usePathname } from "next/navigation"
+import { actionRevalidatePath } from "@/lib/actions"
 import A from "@/components/typography/a"
-import { useQuery } from "@tanstack/react-query"
+import AnalyzeButton from "./analyze-button"
+import { CopyValueDropdownItem } from "./copy-value-dropdown-item"
 
 function renderMarker(status: Status) {
   switch (status) {
@@ -49,6 +35,8 @@ function renderMarker(status: Status) {
     case "analyzed":
       return <CircleCheck size={GLOBAL_ICON_SIZE} className='text-green-500' />
     case "processing":
+    case "analyzing":
+    case "pending":
       return (
         <CircleDashed
           size={GLOBAL_ICON_SIZE}
@@ -68,16 +56,6 @@ function renderArrow(sorted: false | "asc" | "desc") {
   } else if (sorted === "desc") {
     return <ArrowUp className='ml-2 h-4 w-4' />
   }
-}
-/**
- * USED ON HREF
- * Don't export or use this function more than it's needed. It's only a helper function to centralize the URL building in this file's hrefs
- */
-function _URLBuilder(task: Task) {
-  const taskURL = `/dashboard/transcription?identifier=${task?.identifier}${
-    task?.file_name ? `&file_name=${task?.file_name}` : ""
-  }`
-  return taskURL
 }
 
 export const columns: ColumnDef<Task | null>[] = [
@@ -175,24 +153,8 @@ export const columns: ColumnDef<Task | null>[] = [
   {
     id: "actions",
     cell: ({ row, table }) => {
-      const task = row.original
-      const { toast } = useToast()
-      const currentUrl = usePathname()
-      const [canAnalyze, setCanAnalyze] = React.useState(false)
-      const taskURL = _URLBuilder(task as Task)
-      const query = useQuery({
-        queryKey: ["task-analysis", row.original?.identifier],
-        queryFn: async () => {
-          const url = new URL(`${await getHost()}/api/task`)
-          url.searchParams.append("language", `${row.original?.language}`)
-          url.searchParams.append("identifier", `${row.original?.identifier}`)
-          return await fetch(url, { method: "PUT" }).then(async res => {
-            if (!res.ok) throw new Error("Failed to start LLM analysis")
-            return (await res.json())[1]
-          })
-        },
-        enabled: canAnalyze,
-      })
+      const task = row.original as Task
+      const taskURL = _URLBuilder(row.original as Task)
       return (
         <div className='flex flex-row justify-end space-x-2'>
           <DropdownMenu>
@@ -204,55 +166,11 @@ export const columns: ColumnDef<Task | null>[] = [
             </DropdownMenuTrigger>
             <DropdownMenuContent align='end'>
               <DropdownMenuItem className='p-0'>
-                <ButtonBorderMagic
-                  className='w-full h-full text-start'
-                  id={row.original?.identifier}
-                  onClick={async () => {
-                    setCanAnalyze(true)
-                    try {
-                      if (query.isLoading)
-                        toast({
-                          title: "Analizando tarea",
-                          description: "La tarea se está analizando",
-                          variant: "default",
-                        })
-
-                      if (!query.isError && !query.isLoading)
-                        toast({
-                          title: "La tarea no pudo ser analizada",
-                          description: "Por favor intente más tarde",
-                          variant: "destructive",
-                        })
-
-                      if (query.data && !query.isLoading && !query.isError)
-                        toast({
-                          title: "Tarea analizada",
-                          description: `Ya puede visualizar el análisis de la tarea ${row.original?.identifier}`,
-                          variant: "success",
-                          action: (
-                            <ToastAction altText='Ir a la transcripción'>
-                              <Link
-                                href={taskURL}
-                                className='w-full h-full cursor-default'
-                                onClick={() => {
-                                  actionRevalidatePath(taskURL)
-                                }}
-                              >
-                                Ir a la transcripción
-                              </Link>
-                            </ToastAction>
-                          ),
-                        })
-                    } finally {
-                      setCanAnalyze(false)
-                    }
-                    actionRevalidatePath(currentUrl)
-                  }}
-                >
-                  Analizar
-                </ButtonBorderMagic>
+                <AnalyzeButton
+                  row={row as Row<Task>}
+                  table={table as Table<Task>}
+                />
               </DropdownMenuItem>
-
               <DropdownMenuSeparator />
 
               <DropdownMenuItem
@@ -275,29 +193,16 @@ export const columns: ColumnDef<Task | null>[] = [
                 </Link>
               </DropdownMenuItem>
 
-              <DropdownMenuItem
-                onClick={() => {
-                  handleCopyToClipboard(task?.identifier as Task["identifier"])
-                  toast({
-                    title: "ID copiado",
-                    description: task?.identifier,
-                  })
-                }}
-              >
-                Copiar ID
-              </DropdownMenuItem>
-
-              <DropdownMenuItem
-                onClick={() => {
-                  handleCopyToClipboard(task?.file_name as Task["identifier"])
-                  toast({
-                    title: "Nombre de archivo copiado",
-                    description: task?.file_name,
-                  })
-                }}
-              >
-                Copiar nombre del archivo
-              </DropdownMenuItem>
+              <CopyValueDropdownItem
+                value={task?.identifier}
+                label='ID'
+                showToast
+              />
+              <CopyValueDropdownItem
+                value={task?.file_name}
+                label='nombre del archivo'
+                showToast
+              />
 
               <DropdownMenuSeparator />
 
