@@ -9,6 +9,7 @@ import {
   EmotionValues,
   HateValues,
   SentimentValues,
+  Task,
 } from "@/lib/types.d"
 import { useToast } from "@/components/ui/use-toast"
 import { getHost } from "@/lib/actions"
@@ -70,28 +71,13 @@ export function formatTimestamp(
 /**
  * Wrapper around the navigator.clipboard.writeText() method to handle copying text to the clipboard
  * @param items The items to copy to the clipboard. Can be a string or an array of strings
- * @param options Optionally pass an options object with a showToast property set to false to disable the toast notification
  */
-export const handleCopyToClipboard = (
-  items: string[] | string,
-  options: { showToast?: boolean } = { showToast: true }
-) => {
+export const handleCopyToClipboard = (items: string[] | string) => {
   const textToCopy = typeof items === "string" ? items : items.join(", ")
   if (typeof window !== "undefined" && navigator.clipboard) {
-    const { toast } = useToast()
-    navigator.clipboard
-      .writeText(textToCopy)
-      .catch(err => {
-        if (options.showToast) {
-          toast({ title: "Error al copiar al portapapeles", description: err })
-        }
-        console.error("Failed to copy text to clipboard", err)
-      })
-      .then(() => {
-        if (options.showToast) {
-          toast({ title: "Se copió al portapapeles", description: textToCopy })
-        }
-      })
+    navigator.clipboard.writeText(textToCopy).catch(err => {
+      console.error("Failed to copy text to clipboard", err)
+    })
   } else {
     console.warn("Clipboard API not supported or not running in client-side")
   }
@@ -351,4 +337,15 @@ export async function submitForm({
   }
 
   return response.json()
+}
+
+/**
+ * ### USED ON HREF
+ * **Don't use this function more than it's needed**. It's only a helper function to centralize the URL building in the task table's hrefs
+ */
+export function _URLBuilder(task: Task) {
+  const taskURL = `/dashboard/transcription?identifier=${task?.identifier}${
+    task?.file_name ? `&file_name=${task?.file_name}` : ""
+  }`
+  return taskURL
 }
