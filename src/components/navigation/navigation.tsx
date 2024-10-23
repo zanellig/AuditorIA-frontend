@@ -126,7 +126,7 @@ export function Sidebar({ className }: { className?: string }) {
       href: "/settings",
       icon: <Settings className={iconSize} />,
       title: "Configuración",
-      disabled: true,
+      disabled: false,
       Achildren: [
         {
           href: "/settings/account",
@@ -144,14 +144,12 @@ export function Sidebar({ className }: { className?: string }) {
           icon: <Bell className={iconSize} />,
           title: "Notificaciones",
           disabled: true,
-          Achildren: [
-            {
-              href: "/activity-log",
-              icon: <Clock className={iconSize} />,
-              title: "Log de actividad",
-              disabled: false,
-            },
-          ],
+        },
+        {
+          href: "/activity-log",
+          icon: <Clock className={iconSize} />,
+          title: "Log de actividad",
+          disabled: false,
         },
       ],
     },
@@ -268,11 +266,7 @@ export function TopNavbar({
   style?: React.CSSProperties
 }) {
   const { scrollY } = useScroll()
-  const pathname = usePathname()
-  const isSettingsPage = pathname.includes("/settings")
-
   const [showButtons, setShowButtons] = React.useState(false)
-
   React.useEffect(() => {
     if (scrollY >= 0 && scrollY < 20) {
       setShowButtons(true)
@@ -302,7 +296,6 @@ export function TopNavbar({
         )}
       </>
       <div className='flex flex-row space-x-4 items-center'>
-        {isSettingsPage && <StatusBadges />}
         {children}
         <AvatarButton showButtons={showButtons} />
         <div className={`transition-all duration-500 `}>
