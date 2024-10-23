@@ -29,6 +29,7 @@ export const Status = z.enum([
   "failed",
   "analyzed",
   "pending",
+  "analyzing",
 ])
 export type Status = z.infer<typeof Status>
 
