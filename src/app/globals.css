@@ -128,3 +128,6 @@
 .animate-sparkle {
   animation: sparkle 3s ease-in-out infinite;
 }
+.animate-sparkles {
+  animation: sparkles 3s ease-in-out infinite;
+}
