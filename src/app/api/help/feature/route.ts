@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
       transporter.sendMail({
         ...mailOptions,
         to: validatedData.email,
-        subject: "Recibimos tu sugerencia!",
+        subject: "Recibimos tu sugerencia! 🫡",
       }),
     ]
     await Promise.all(emailPromises)

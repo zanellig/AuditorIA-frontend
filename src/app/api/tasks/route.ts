@@ -14,14 +14,14 @@ export async function GET() {
     //  "/not_valid_endpoint" // Uncomment to force 404 on server
   ].join("/")
 
-  const [err, res] = await _get(url, headers, { cacheResponse: true })
+  const [err, res] = await _get(url, headers, { cacheResponse: false })
   const responseHeaders = getHeaders(await getHost(), AllowedContentTypes.Json)
   /**
    * If you want to use the mock data, uncomment the following lines and comment the lines below.
    */
   // const mockTasks = await fs.readFile("./public/mock/updated_tasks.json")
   // return new NextResponse(
-  //   JSON.stringify([null, mockTasks ? JSON.parse(mockTasks.toString()) : []]),
+  //  .json ([null, mockTasks ? JSON.parse(mockTasks.toString()) : []]),
   //   {
   //     status: 200,
   //     headers,
@@ -29,7 +29,7 @@ export async function GET() {
   //   }
   // )
 
-  // Type guard to check if cause has a code property
+  /** Type guard to check if cause has a code property */
   function hasErrorCode(cause: any): cause is { code: string } {
     return cause && typeof cause.code === "string"
   }
@@ -43,26 +43,26 @@ export async function GET() {
     console.error("Error cause: ", err.cause)
     console.error("Error code: ", errorCode)
 
-    return new NextResponse(JSON.stringify([JSON.stringify(err), null]), {
+    return NextResponse.json([null, []], {
       status: 404,
       headers: responseHeaders,
       statusText: err.message,
     })
   }
   if (res === null) {
-    return new NextResponse(JSON.stringify([null, []]), {
+    return NextResponse.json([null, []], {
       status: 200,
       headers: responseHeaders,
     })
   }
   if (res.ok) {
     const tasks: Tasks = (await res.json()).tasks
-    return new NextResponse(JSON.stringify([null, tasks]), {
+    return NextResponse.json([null, tasks], {
       status: 200,
       headers: responseHeaders,
     })
   }
-  return new NextResponse(JSON.stringify(["Unexpected error", null]), {
+  return NextResponse.json([null, []], {
     status: 500,
     statusText: res.statusText,
     headers: responseHeaders,
@@ -76,21 +76,21 @@ export async function POST(request: NextRequest) {
   // Check if the Content-Type includes "multipart/form-data"
   const contentType = request.headers.get("Content-Type")
   if (!contentType || !contentType.includes("multipart/form-data")) {
-    return new NextResponse(JSON.stringify(["Unsupported Media Type", null]), {
+    return NextResponse.json(["Unsupported Media Type", null], {
       status: 415,
       headers: getHeaders(env.API_MAIN, AllowedContentTypes.Json),
     })
   }
 
   if (file instanceof File && file.size > 10000000) {
-    return new NextResponse(JSON.stringify(["Payload Too Large", null]), {
+    return NextResponse.json(["Payload Too Large", null], {
       status: 413,
       headers: getHeaders(env.API_MAIN, AllowedContentTypes.Json),
     })
   }
 
   if (file === null) {
-    return new NextResponse(JSON.stringify(["No file provided", null]), {
+    return NextResponse.json(["No file provided", null], {
       status: 400,
       headers: getHeaders(env.API_MAIN, AllowedContentTypes.Json),
     })
@@ -112,20 +112,20 @@ export async function POST(request: NextRequest) {
   )
   responseHeaders.set("Content-Type", "application/json")
   if (err !== null) {
-    return new NextResponse(JSON.stringify([JSON.stringify(err), null]), {
+    return NextResponse.json([err, null], {
       status: 500,
       headers: responseHeaders,
     })
   }
 
   if (res === null) {
-    return new NextResponse(JSON.stringify([null, null]), {
+    return NextResponse.json([null, null], {
       status: 200,
       headers: responseHeaders,
     })
   }
 
-  return new NextResponse(JSON.stringify([null, res]), {
+  return NextResponse.json([null, res], {
     status: 200,
     headers: responseHeaders,
   })
@@ -139,7 +139,7 @@ export async function PUT(request: NextRequest) {
     .join("/")
     .concat(`?lang=${language}`)
   const [err, res] = await _put(url, body, headers)
-  return new NextResponse(JSON.stringify([err, res]), {
+  return NextResponse.json([err, res], {
     status: 200,
     headers: getHeaders(await getHost(), AllowedContentTypes.Json),
   })

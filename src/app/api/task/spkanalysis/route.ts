@@ -7,13 +7,13 @@ import { env } from "@/env"
 export async function GET(request: NextRequest) {
   const id = request.nextUrl.searchParams.get("identifier")
   if (!id) {
-    return new NextResponse(
-      JSON.stringify([
+    return NextResponse.json(
+      [
         new Error("ID was not provided", {
           cause: "Bad request",
         }),
         null,
-      ]),
+      ],
       { status: 400 }
     )
   }
@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
   const [err, res] = await _get(url, headers, { cacheResponse: true })
 
   if (err !== null) {
-    return new NextResponse(JSON.stringify(err), {
+    return NextResponse.json(err, {
       status: 500,
       statusText: "", // TODO: add a documented error message
     })
@@ -31,11 +31,11 @@ export async function GET(request: NextRequest) {
   if (res !== null && res.ok) {
     const data = await res?.json()
     const llmResult = extractJsonFromString(data?.processed_result)
-    return new NextResponse(JSON.stringify(llmResult), {
+    return NextResponse.json(llmResult, {
       status: 200,
     })
   }
-  return new NextResponse(JSON.stringify(null), {
+  return NextResponse.json(null, {
     status: 404,
     statusText: "", // TODO: add a documented error message
   })
