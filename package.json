@@ -7,10 +7,10 @@
     "node": "20.x"
   },
   "scripts": {
-    "dev": "next dev --port 3030",
+    "dev": "next dev",
     "build": "next build",
     "winbuild": "powershell.exe -ExecutionPolicy ByPass -File build.ps1",
-    "start": "next start --port 80",
+    "start": "next start",
     "lint": "npm run format && next lint",
     "lint:log": "npm run format && script -c 'npm run lint' lint.log",
     "test": "jest",
