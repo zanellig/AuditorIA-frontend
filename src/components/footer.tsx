@@ -3,13 +3,12 @@ import { GLOBAL_ICON_SIZE } from "@/lib/consts"
 import ParagraphP from "@/components/typography/paragraphP"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
-import A from "./typography/a"
 
 export default function Footer({ className }: { className?: string }) {
   return (
     <footer
       className={cn(
-        "sticky bottom-0 w-full p-4 flex flex-row justify-center items-center  bg-muted shadow-md text-muted-foreground z-1 h-14",
+        "w-full p-4 flex flex-row justify-center items-center bg-muted shadow-md text-muted-foreground z-1 h-fit",
         className
       )}
     >
