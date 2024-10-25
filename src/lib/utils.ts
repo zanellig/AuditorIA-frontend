@@ -10,12 +10,54 @@ import {
   HateValues,
   SentimentValues,
   Task,
+  EmotionsSchema,
 } from "@/lib/types.d"
-import { useToast } from "@/components/ui/use-toast"
 import { getHost } from "@/lib/actions"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
+}
+
+export function getSpanishEmotion(emotion: string) {
+  switch (emotion) {
+    case EmotionsSchema.Values.joy:
+      return "disfrute"
+    case EmotionsSchema.Values.fear:
+      return "miedo"
+    case EmotionsSchema.Values.anger:
+      return "enojo"
+    case EmotionsSchema.Values.others:
+      return "otros"
+    case EmotionsSchema.Values.disgust:
+      return "disgust"
+    case EmotionsSchema.Values.sadness:
+      return "tristeza"
+    case EmotionsSchema.Values.surprise:
+      return "sorpresa"
+    default:
+      return "desconocido"
+  }
+}
+
+export function getColorForEmotion(emotion: string) {
+  switch (emotion) {
+    case EmotionsSchema.Values.joy:
+      return "blue-500"
+    case EmotionsSchema.Values.fear:
+      return "yellow-500"
+    case EmotionsSchema.Values.anger:
+      return "red-500"
+    case EmotionsSchema.Values.others:
+      return "gray-500"
+    case EmotionsSchema.Values.disgust:
+      return "green-500"
+    case EmotionsSchema.Values.sadness:
+      return "indigo-500"
+    case EmotionsSchema.Values.surprise:
+      return "purple-500"
+    default:
+      return "gray-500"
+  }
 }
 
 export function getLocaleMonth(mes: number): string {

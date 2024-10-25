@@ -22,7 +22,7 @@ import {
   CardHeader,
 } from "@/components/ui/card"
 import { TrendingUp } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { cn, getSpanishEmotion } from "@/lib/utils"
 
 export default function AverageEmotionChart({
   chartData,
@@ -117,21 +117,4 @@ export default function AverageEmotionChart({
       )}
     </>
   )
-}
-
-function getSpanishEmotion(emotion: string) {
-  switch (emotion) {
-    case "joy":
-      return "disfrute"
-    case "fear":
-      return "miedo"
-    case "anger":
-      return "enojo"
-    case "others":
-      return "otros"
-    case "disgust":
-      return "disgust"
-    default:
-      return "desconocido"
-  }
 }
