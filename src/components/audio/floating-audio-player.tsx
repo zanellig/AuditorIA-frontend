@@ -120,11 +120,13 @@ export default function FloatingAudioPlayer({
   const hasLoadingError = hasError && !!fileName
   const isReproducing = !!fileName && !isLoadingAudio && !hasLoadingError
 
+  const AUDIO_PLAYER_CLASSES = "fixed w-80 select-none p-4 z-10"
+
   return (
     <Suspense
       fallback={
         <Card
-          className='fixed w-80 select-none p-4 cursor-wait'
+          className={cn(AUDIO_PLAYER_CLASSES, "cursor-wait")}
           style={{
             right: `${position.right}px`,
             bottom: `${position.bottom}px`,
@@ -136,7 +138,7 @@ export default function FloatingAudioPlayer({
     >
       <Card
         className={cn(
-          "fixed w-80 select-none p-4",
+          AUDIO_PLAYER_CLASSES,
           isAudioPlayerHidden ? "rounded-full h-fit w-fit p-0" : null
         )}
         style={{
