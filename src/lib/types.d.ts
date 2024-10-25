@@ -225,5 +225,15 @@ export enum Emotions {
   Disgust = "Disgust" | "Disgusto",
 }
 
+export const EmotionsSchema = z.enum([
+  "joy",
+  "fear",
+  "anger",
+  "others",
+  "disgust",
+  "sadness",
+  "surprise",
+])
+
 export const FoundWordsState = z.tuple([z.boolean(), z.string(), z.number()])
 export type FoundWordsState = z.infer<typeof FoundWordsState>
