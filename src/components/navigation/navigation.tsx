@@ -223,7 +223,7 @@ export function Sidebar({ className }: { className?: string }) {
           className='w-[1.2rem] h-[1.2rem]'
         />
         <p
-          className='duration-300 transition-colors font-bold hover:text-foreground'
+          className='duration-300 transition-colors font-bold hover:animate-sparkle'
           style={{
             fontSize: "1.2rem",
           }}
@@ -249,7 +249,7 @@ export function Sidebar({ className }: { className?: string }) {
             : null}
         </SidebarButton>
       ))}
-      <SendUsFeedbackButton className='mx-2'>
+      <SendUsFeedbackButton className='mx-2 mb-2'>
         <div>Envianos tus comentarios</div>
       </SendUsFeedbackButton>
     </ScrollArea>
