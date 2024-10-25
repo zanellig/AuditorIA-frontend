@@ -25,7 +25,16 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { useToast } from "@/components/ui/use-toast"
-import { ChevronLeft, ClipboardIcon, MessageCircleQuestion } from "lucide-react"
+import {
+  Angry,
+  Annoyed,
+  ChevronLeft,
+  ClipboardIcon,
+  Frown,
+  Laugh,
+  Meh,
+  MessageCircleQuestion,
+} from "lucide-react"
 import { GLOBAL_ICON_SIZE } from "@/lib/consts"
 import {
   cn,
@@ -33,6 +42,8 @@ import {
   formatTimestamp,
   convertSpeakerToHablante,
   handleCopyToClipboard,
+  getSpanishEmotion,
+  getColorForEmotion,
 } from "@/lib/utils"
 import TitleH1 from "@/components/typography/titleH1"
 import TranscriptionSkeleton from "../skeletons/transcription-skeleton"
@@ -41,6 +52,8 @@ import SpeakerAnalysisCard from "./speaker-analysis-card.client"
 import { useTranscription } from "../context/TranscriptionProvider"
 import TypographyH3 from "../typography/h3"
 import { useAudioPlayer } from "../context/AudioProvider"
+import ParagraphP from "../typography/paragraphP"
+import { SurpriseIcon } from "../emoji-icons"
 
 const BASIC_STYLE = "flex text-sm rounded-md p-2 gap-2"
 
@@ -119,9 +132,8 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
             <TranscriptionNotReady status={transcription?.status} />
           )}
           <SpeakerAnalysisCard segments={transcription?.result?.segments} />
-          <div className='flex flex-col space-y-2 p-0 px-2 w-full justify-start mt-10'>
+          <div className='flex flex-col p-0 w-full justify-start mt-10'>
             {taskId && <TaskHeader taskId={taskId} toast={toast} />}
-            {/* <Analysis transcription={transcription} /> */}
             {transcription?.result?.segments.map((segment, index) => {
               const isNewSpeaker = segment?.speaker !== lastSpeaker
               lastSpeaker = segment.speaker
@@ -243,19 +255,61 @@ const SentimentMarker: React.FC<{ sentiment: string }> = ({ sentiment }) => (
 interface EmojiProps {
   emotion: SegmentAnalysisProperties["emotion"]
 }
-
+const EMOJI_SIZE = GLOBAL_ICON_SIZE * 2
 const Emoji: React.FC<EmojiProps> = ({ emotion }) => (
-  <span className={cn("text-3xl w-full", emotion ? "" : "hidden")}>
-    {{
-      joy: "😀",
-      fear: "😱",
-      anger: "😡",
-      others: "😐",
-      sadness: "😢",
-      disgust: "🤢",
-      surprise: "😮",
-    }[emotion] || ""}
-  </span>
+  <Tooltip>
+    <TooltipTrigger asChild>
+      <span className={cn("flex items-center w-full", emotion ? "" : "hidden")}>
+        {{
+          joy: (
+            <Laugh
+              size={EMOJI_SIZE}
+              className={"text-" + getColorForEmotion(emotion)}
+            />
+          ),
+          fear: (
+            <SurpriseIcon
+              size={EMOJI_SIZE}
+              className={"text-" + getColorForEmotion(emotion)}
+            />
+          ),
+          anger: (
+            <Angry
+              size={EMOJI_SIZE}
+              className={"text-" + getColorForEmotion(emotion)}
+            />
+          ),
+          others: (
+            <Meh
+              size={EMOJI_SIZE}
+              className={"text-" + getColorForEmotion(emotion)}
+            />
+          ),
+          sadness: (
+            <Frown
+              size={EMOJI_SIZE}
+              className={"text-" + getColorForEmotion(emotion)}
+            />
+          ),
+          disgust: (
+            <Annoyed
+              size={EMOJI_SIZE}
+              className={"text-" + getColorForEmotion(emotion)}
+            />
+          ),
+          surprise: (
+            <SurpriseIcon
+              size={EMOJI_SIZE}
+              className={"text-" + getColorForEmotion(emotion)}
+            />
+          ),
+        }[emotion] || ""}
+      </span>
+    </TooltipTrigger>
+    <TooltipContent className='capitalize text-md'>
+      {getSpanishEmotion(emotion)}
+    </TooltipContent>
+  </Tooltip>
 )
 
 const EmotionBox: React.FC = () => (
@@ -276,13 +330,19 @@ const SegmentRenderer = React.forwardRef<HTMLDivElement, SegmentRendererProps>(
     const speakerNumber = parseInt(segment?.speaker?.split("_")[1], 10)
     const isEvenSpeaker = speakerNumber % 2 === 0
     const EMOJI_CONTAINER_CLASSES = "min-w-10 relative w-10"
+    const { isPlaying, currentTime } = useAudioPlayer()
+    const isCurrentSegmentFocused =
+      currentTime >= segment.start && currentTime <= segment.end + 0.5
 
     return (
       <div
         ref={ref}
         className={cn(
-          isEvenSpeaker ? "self-start items-start" : "self-end items-end mr-8",
-          "flex flex-col gap-2"
+          "flex flex-col gap-2 w-full transition-colors duration-200 rounded-md px-4 py-1",
+          isEvenSpeaker ? "self-start items-start" : "self-end items-end",
+          isPlaying && isCurrentSegmentFocused
+            ? "bg-pulse"
+            : "bg-transparent dark:bg-transparent"
         )}
       >
         {renderSpeakerText && (
@@ -300,11 +360,17 @@ const SegmentRenderer = React.forwardRef<HTMLDivElement, SegmentRendererProps>(
                   />
                 ) : null}
               </div>
-              <TextContainer segment={segment} />
+              <TextContainer
+                segment={segment}
+                isCurrentSegmentFocused={isCurrentSegmentFocused}
+              />
             </>
           ) : (
             <>
-              <TextContainer segment={segment} />
+              <TextContainer
+                segment={segment}
+                isCurrentSegmentFocused={isCurrentSegmentFocused}
+              />
               <div className={EMOJI_CONTAINER_CLASSES}>
                 {segment.analysis ? (
                   <Emoji
@@ -323,20 +389,25 @@ SegmentRenderer.displayName = "SegmentRenderer"
 
 interface TextContainerProps {
   segment: Segment
+  isCurrentSegmentFocused?: boolean
 }
 
-const TextContainer: React.FC<TextContainerProps> = ({ segment }) => (
+const TextContainer: React.FC<TextContainerProps> = ({
+  segment,
+  isCurrentSegmentFocused = false,
+}) => (
   <div
     className={cn(
       "text-wrap max-w-[500px] flex-row justify-between outline outline-1 outline-muted bg-popover shadow-md dark:shadow-lg",
-      BASIC_STYLE
+      BASIC_STYLE,
+      isCurrentSegmentFocused && "ring-2 ring-inset"
     )}
   >
     {segment.analysis?.sentiment && (
       <SentimentMarker sentiment={segment.analysis.sentiment} />
     )}
-    <div className='flex flex-col justify-between gap-2 text-sm text-card-foreground'>
-      {segment.text}
+    <div className='flex flex-col justify-between gap-2 text-xl text-card-foreground'>
+      <ParagraphP>{segment.text}</ParagraphP>
       <div className='text-xs dark:text-muted-foreground'>
         ({formatTimestamp(secondsToHMS(segment.start), false)} -{" "}
         {formatTimestamp(secondsToHMS(segment.end), false)})
