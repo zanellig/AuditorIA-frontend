@@ -11,7 +11,7 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 import { CustomBorderCard } from "@/components/custom-border-card"
 import { env } from "@/env"
 
-const BACKGROUND = "bg-pulse"
+const BACKGROUND = "bg-background"
 
 export default function Layout({ children }: { children: ReactNode }) {
   return (
@@ -24,17 +24,17 @@ export default function Layout({ children }: { children: ReactNode }) {
               id='global-container'
               className={cn("flex relative bg-transparent w-dvw h-dvh")}
             >
-              <Sidebar className={cn(BACKGROUND)} />
+              <Sidebar className={cn(BACKGROUND, "dark:bg-pulse")} />
               <section
                 id='main-container'
                 className={cn(
                   BACKGROUND,
-                  "border-s border-solid border-muted relative bg-primary-foreground w-full"
+                  "border-s border-solid border-muted relative dark:bg-primary-foreground w-full h-dvh"
                 )}
               >
-                <ScrollArea className='max-h-dvh h-full min-h-dvh w-full relative'>
+                <ScrollArea className='flex flex-col relative h-full'>
                   <TopNavbar />
-                  <div className='px-5 py-2 min-h-full h-full flex flex-col gap-2 w-full'>
+                  <div className='px-5 py-2 min-h-full h-full flex flex-col gap-2 w-full flex-grow'>
                     {env.NODE_ENV === "development" && (
                       <CustomBorderCard
                         title={"¡Advertencia!"}
@@ -47,7 +47,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                     )}
                     {children}
                   </div>
-                  <Footer />
+                  <Footer className='mt-auto' />
                 </ScrollArea>
               </section>
             </div>
