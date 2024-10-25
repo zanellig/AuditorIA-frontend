@@ -2,7 +2,7 @@
 "use client"
 
 import { createContext, useContext, useState, ReactNode } from "react"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { Task, TranscriptionType } from "@/lib/types.d"
 import { getHost } from "@/lib/actions"
 
@@ -52,14 +52,19 @@ export const TranscriptionProvider = ({
 }: {
   children: ReactNode
 }) => {
+  const queryClient = useQueryClient()
   const [taskIdState, setTaskId] = useState<string | null>(null)
   const { data, error, isLoading } = useQuery({
     queryKey: ["transcription", taskIdState],
     queryFn: () => fetchTranscription(taskIdState!),
     enabled: !!taskIdState,
+    refetchOnMount: true,
   })
 
   const handleFetchTranscription = (newTaskId: string) => {
+    queryClient.invalidateQueries({
+      queryKey: ["transcription", newTaskId],
+    })
     setTaskId(newTaskId)
   }
 
