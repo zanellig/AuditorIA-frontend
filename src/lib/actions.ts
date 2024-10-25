@@ -101,7 +101,7 @@ export const getAudioPath = async (
     return null
   }
   if (res) {
-    return res.records[0].URL
+    return res[0].URL
   }
   return null
 }
