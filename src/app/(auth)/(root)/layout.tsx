@@ -32,9 +32,9 @@ export default function Layout({ children }: { children: ReactNode }) {
                   "border-s border-solid border-muted relative bg-primary-foreground w-full"
                 )}
               >
-                <ScrollArea className='max-h-dvh h-dvh min-h-dvh '>
+                <ScrollArea className='max-h-dvh h-full min-h-dvh w-full relative'>
                   <TopNavbar />
-                  <div className='px-5 py-2 min-h-full flex flex-col gap-2'>
+                  <div className='px-5 py-2 min-h-full h-full flex flex-col gap-2 w-full'>
                     {env.NODE_ENV === "development" && (
                       <CustomBorderCard
                         title={"¡Advertencia!"}
@@ -46,8 +46,8 @@ export default function Layout({ children }: { children: ReactNode }) {
                       />
                     )}
                     {children}
-                    <Footer />
                   </div>
+                  <Footer />
                 </ScrollArea>
               </section>
             </div>
