@@ -14,7 +14,7 @@ import { useToast } from "@/components/ui/use-toast"
 import { getHost } from "@/lib/actions"
 import { Task } from "@/lib/types"
 import { cn } from "@/lib/utils"
-import { useMutation } from "@tanstack/react-query"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { Table } from "@tanstack/react-table"
 
 export default function DeleteButton<TData>({
@@ -28,10 +28,17 @@ export default function DeleteButton<TData>({
   className?: string
   table: Table<TData>
 }) {
+  const queryClient = useQueryClient()
   const { toast } = useToast()
   const mutation = useMutation({
     mutationKey: ["delete-task", identifier],
     mutationFn: async () => {
+      toast({
+        description: (
+          <span>Eliminando {ids ? "las tareas" : "la tarea"}...</span>
+        ),
+        variant: "default",
+      })
       if (ids) {
         await fetch(`${await getHost()}/api/tasks`, {
           method: "DELETE",
@@ -51,7 +58,9 @@ export default function DeleteButton<TData>({
           .finally(() => table.resetRowSelection())
       }
       if (identifier) {
-        await fetch(`${await getHost()}/api/task/${identifier}`, {
+        const url = new URL(`${await getHost()}/api/task`)
+        url.searchParams.set("identifier", identifier)
+        return await fetch(url.href, {
           method: "DELETE",
           headers: new Headers({
             "Content-Type": "application/json",
@@ -59,6 +68,9 @@ export default function DeleteButton<TData>({
         })
           .then(async res => {
             if (!res.ok) throw new Error(res.statusText)
+            queryClient.refetchQueries({
+              queryKey: ["tasks"],
+            })
             return await res.json()
           })
           .catch(e => {
@@ -67,10 +79,24 @@ export default function DeleteButton<TData>({
           })
       }
     },
+    onError: err => {
+      console.error(err)
+      toast({
+        description: "Error al eliminar tarea",
+        variant: "destructive",
+      })
+    },
+    onSuccess: () => {
+      toast({
+        description: `${ids ? "Las tareas se han" : "La tarea se ha"} eliminado correctamente`,
+        variant: "success",
+      })
+    },
   })
+  /** This might be wrong, as the mutation is not awaited, but it's not a problem for now. */
   const handleDelete = async () => {
-    await mutation.mutateAsync()
-    if (mutation.isSuccess) {
+    mutation.mutate()
+    if (mutation.isSuccess && !mutation.isError) {
       toast({
         description: `${ids ? "Las tareas se han" : "La tarea se ha"} eliminado correctamente`,
         variant: "success",
@@ -84,7 +110,7 @@ export default function DeleteButton<TData>({
     }
     if (mutation.isPending) {
       toast({
-        description: `Eliminando ${ids ? "las tareas" : "la tarea"}`,
+        description: `Eliminando ${ids ? "las tareas" : "la tarea"}...`,
         variant: "default",
       })
     }
@@ -109,7 +135,7 @@ export default function DeleteButton<TData>({
         <AlertDialogTrigger asChild>
           <div
             className={cn(
-              "w-full h-full text-start cursor-default text-destructive ",
+              "w-full h-full text-start cursor-default text-destructive",
               className
             )}
             // the click event is dispatched here
