@@ -1,4 +1,4 @@
-import { _get, _post, _put } from "@/lib/fetcher"
+import { _delete, _get, _post, _put } from "@/lib/fetcher"
 import {
   ALL_TASKS_PATH,
   SPEECH_TO_TEXT_PATH,
@@ -11,6 +11,9 @@ import { fetchAudioData, getHost } from "@/lib/actions"
 import { env } from "@/env"
 import { validateMimeType } from "@/lib/forms"
 import chalk from "chalk"
+import { TESTING } from "@/lib/consts"
+import * as fs from "node:fs/promises"
+import path from "node:path"
 
 export const revalidate = 5
 
@@ -18,12 +21,37 @@ export async function GET(request: NextRequest) {
   const identifier = request.nextUrl.searchParams.get("identifier")
 
   const headers = getHeaders(env.API_MAIN, AllowedContentTypes.Json)
+  const responseHeaders = getHeaders(await getHost(), AllowedContentTypes.Json)
+
+  if (TESTING) {
+    const filePath = path.join(
+      process.cwd(),
+      "public",
+      "mock",
+      "respuesta-transcripcion.json"
+    )
+
+    try {
+      const fileContent = await fs.readFile(filePath, "utf-8")
+      return NextResponse.json([null, JSON.parse(fileContent)], {
+        status: 200,
+        headers: responseHeaders,
+      })
+    } catch (error) {
+      console.error("Error reading the mock file:", error)
+      return NextResponse.json(
+        { error: "Failed to load mock data" },
+        { status: 500 }
+      )
+    }
+  }
+
   if (!identifier) {
     return NextResponse.json(
       [new Error("1001: No se proporcionó un ID de tarea."), null],
       {
         status: 400,
-        headers: headers,
+        headers: responseHeaders,
         statusText: "1001: No se proporcionó un ID de tarea.",
       }
     )
@@ -50,7 +78,7 @@ export async function GET(request: NextRequest) {
       ["(1002): Error interno desconocido al obtener la tarea.", null],
       {
         status: 500,
-        headers: headers,
+        headers: responseHeaders,
         statusText: "(1002): Error interno desconocido al obtener la tarea.",
       }
     )
@@ -60,7 +88,7 @@ export async function GET(request: NextRequest) {
       [new Error("(1003): Tarea no encontrada."), null],
       {
         status: 404,
-        headers: headers,
+        headers: responseHeaders,
         statusText: "(1003): Tarea no encontrada.",
       }
     )
@@ -68,7 +96,7 @@ export async function GET(request: NextRequest) {
   if (res !== null) {
     return NextResponse.json([null, res], {
       status: 200,
-      headers: headers,
+      headers: responseHeaders,
       statusText: "Tarea obtenida correctamente.",
     })
   }
@@ -76,7 +104,7 @@ export async function GET(request: NextRequest) {
     [new Error("(1004): Error desconocido al obtener la tarea."), null],
     {
       status: 500,
-      headers: headers,
+      headers: responseHeaders,
       statusText: "(1004): Error desconocido al obtener la tarea.",
     }
   )
@@ -344,4 +372,38 @@ export async function PUT(request: NextRequest) {
     statusText: "", // TODO: add a documented error message
     headers: responseHeaders,
   })
+}
+
+export async function DELETE({ req }: { req: NextRequest }) {
+  const responseHeaders = getHeaders(await getHost(), AllowedContentTypes.Json)
+  const id = req.nextUrl?.searchParams?.get("identifier")
+  if (!id)
+    return NextResponse.json(null, {
+      status: 400,
+      statusText: "Missing identifier", // TODO: add a documented error message
+      headers: responseHeaders,
+    })
+  const headers = getHeaders(env.API_MAIN, AllowedContentTypes.Json)
+  const [err, res] = await _delete<NextResponse>(
+    [env.API_MAIN, TASK_PATH, id].join("/"),
+    headers
+  )
+  if (err)
+    return NextResponse.json(
+      { id },
+      {
+        status: 404,
+        statusText: "", // TODO: add a documented error message
+        headers: responseHeaders,
+      }
+    )
+  if (res && res.status === 200)
+    return NextResponse.json(
+      { id },
+      {
+        status: 200,
+        statusText: "Task deleted", // TODO: add a documented error message
+        headers: responseHeaders,
+      }
+    )
 }
