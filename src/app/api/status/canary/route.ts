@@ -7,10 +7,8 @@ import { NextResponse } from "next/server"
 export const revalidate = 5
 
 export async function GET() {
-  const headers = getHeaders(env.API_CANARY)
-
   // Fetch data
-  const [error, response] = await _get(env.API_CANARY + "/docs", headers, {
+  const [error, response] = await _get(env.API_CANARY + "/docs", undefined, {
     expectJson: false,
     onlyReturnStatus: true,
     cacheResponse: false,

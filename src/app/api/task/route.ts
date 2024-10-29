@@ -20,9 +20,6 @@ export const revalidate = 5
 export async function GET(request: NextRequest) {
   const identifier = request.nextUrl.searchParams.get("identifier")
 
-  const headers = getHeaders(env.API_MAIN, AllowedContentTypes.Json)
-  const responseHeaders = getHeaders(await getHost(), AllowedContentTypes.Json)
-
   if (TESTING) {
     const filePath = path.join(
       process.cwd(),
@@ -35,7 +32,6 @@ export async function GET(request: NextRequest) {
       const fileContent = await fs.readFile(filePath, "utf-8")
       return NextResponse.json([null, JSON.parse(fileContent)], {
         status: 200,
-        headers: responseHeaders,
       })
     } catch (error) {
       console.error("Error reading the mock file:", error)
@@ -51,13 +47,12 @@ export async function GET(request: NextRequest) {
       [new Error("1001: No se proporcionó un ID de tarea."), null],
       {
         status: 400,
-        headers: responseHeaders,
         statusText: "1001: No se proporcionó un ID de tarea.",
       }
     )
   }
   const reqUrl = [env.API_MAIN, TASK_PATH, identifier].join("/")
-  const [err, res] = await _get(reqUrl, headers, {
+  const [err, res] = await _get(reqUrl, undefined, {
     revalidate: true,
     expectJson: true,
   })
@@ -78,7 +73,6 @@ export async function GET(request: NextRequest) {
       ["(1002): Error interno desconocido al obtener la tarea.", null],
       {
         status: 500,
-        headers: responseHeaders,
         statusText: "(1002): Error interno desconocido al obtener la tarea.",
       }
     )
@@ -88,7 +82,6 @@ export async function GET(request: NextRequest) {
       [new Error("(1003): Tarea no encontrada."), null],
       {
         status: 404,
-        headers: responseHeaders,
         statusText: "(1003): Tarea no encontrada.",
       }
     )
@@ -96,7 +89,6 @@ export async function GET(request: NextRequest) {
   if (res !== null) {
     return NextResponse.json([null, res], {
       status: 200,
-      headers: responseHeaders,
       statusText: "Tarea obtenida correctamente.",
     })
   }
@@ -104,14 +96,12 @@ export async function GET(request: NextRequest) {
     [new Error("(1004): Error desconocido al obtener la tarea."), null],
     {
       status: 500,
-      headers: responseHeaders,
       statusText: "(1004): Error desconocido al obtener la tarea.",
     }
   )
 }
 
 export async function POST(request: NextRequest) {
-  const responseHeaders = getHeaders(await getHost(), AllowedContentTypes.Json)
   const rejectResponse = ({ missingData }: { missingData?: string }) =>
     NextResponse.json(
       [
@@ -121,7 +111,6 @@ export async function POST(request: NextRequest) {
       {
         status: 400,
         statusText: `(1005): No se pudo ejecutar la consulta. ${missingData ? `${missingData} is missing.` : ""}`,
-        headers: responseHeaders,
       }
     )
 
@@ -129,6 +118,7 @@ export async function POST(request: NextRequest) {
     const params = request.nextUrl.searchParams
     const nasUrl = params.get("nasUrl")
     const fileName = params.get("fileName")
+    /** Necessary headers object to tell the API the content type we're sending it */
     const headers = getHeaders(env.API_MAIN, AllowedContentTypes.Multipart)
     const clientForm = await request.formData().catch(e => {
       if (e) return null
@@ -205,7 +195,6 @@ export async function POST(request: NextRequest) {
         {
           status: 400,
           statusText: "(1023): No se puede enviar ambos tipos de archivos.",
-          headers: responseHeaders,
         }
       )
 
@@ -233,7 +222,6 @@ export async function POST(request: NextRequest) {
           return NextResponse.json([new Error(errorMessage), null], {
             status: !isValidMimeType ? 415 : 404,
             statusText: errorMessage,
-            headers: responseHeaders,
           })
         }
       } catch (error: any) {
@@ -247,7 +235,6 @@ export async function POST(request: NextRequest) {
             {
               status: 500,
               statusText: "(1007): Error al crear la tarea.",
-              headers: responseHeaders,
             }
           )
         }
@@ -256,7 +243,6 @@ export async function POST(request: NextRequest) {
           {
             status: 500,
             statusText: "(1008): Error desconocido al crear la tarea.",
-            headers: responseHeaders,
           }
         )
       }
@@ -270,7 +256,6 @@ export async function POST(request: NextRequest) {
           {
             status: 413,
             statusText: "(1021): El archivo proporcionado es demasiado grande.",
-            headers: responseHeaders,
           }
         )
       }
@@ -284,7 +269,6 @@ export async function POST(request: NextRequest) {
           {
             status: 415,
             statusText: "(1022): Tipo de archivo no soportado.",
-            headers: responseHeaders,
           }
         )
       }
@@ -313,31 +297,27 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(["(1009): Error al crear la tarea.", null], {
         status: 500,
         statusText: "(1009): Error al crear la tarea.",
-        headers: responseHeaders,
       })
     }
     return NextResponse.json([null, res], {
       status: 200,
       statusText: "Tarea creada",
-      headers: responseHeaders,
     })
   } catch (e) {
     return NextResponse.json([e, null], {
       status: 500,
       statusText: "(1020): Ha ocurrido un error inesperado.",
-      headers: responseHeaders,
     })
   }
 }
 
 export async function PUT(request: NextRequest) {
-  const responseHeaders = getHeaders(await getHost(), AllowedContentTypes.Json)
   const identifier = request.nextUrl.searchParams.get("identifier")
   const language = request.nextUrl.searchParams.get("language")
   if (!identifier) {
     return NextResponse.json(["ID was not provided", null], {
       status: 400,
-      headers: responseHeaders,
+
       statusText: "ID was not provided",
     })
   }
@@ -345,8 +325,7 @@ export async function PUT(request: NextRequest) {
    * This took me much longer to debug than it should have... */
   const url = new URL([env.API_CANARY, ALL_TASKS_PATH, identifier].join("/"))
   language && url.searchParams.append("lang", `${language}`)
-  const headers = getHeaders(env.API_CANARY)
-  const [err, res] = await _put<Response>(url.href, null, headers)
+  const [err, res] = await _put<Response>(url.href, null)
 
   if (err) {
     console.error(
@@ -356,7 +335,6 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json(err?.message, {
       status: 500,
       statusText: "", // TODO: add a documented error message
-      headers: responseHeaders,
     })
   }
 
@@ -364,29 +342,23 @@ export async function PUT(request: NextRequest) {
     const data = await res?.json()
     return NextResponse.json(data, {
       status: 200,
-      headers: responseHeaders,
     })
   }
   return NextResponse.json(null, {
     status: 404,
     statusText: "", // TODO: add a documented error message
-    headers: responseHeaders,
   })
 }
 
 export async function DELETE({ req }: { req: NextRequest }) {
-  const responseHeaders = getHeaders(await getHost(), AllowedContentTypes.Json)
   const id = req.nextUrl?.searchParams?.get("identifier")
   if (!id)
     return NextResponse.json(null, {
       status: 400,
       statusText: "Missing identifier", // TODO: add a documented error message
-      headers: responseHeaders,
     })
-  const headers = getHeaders(env.API_MAIN, AllowedContentTypes.Json)
   const [err, res] = await _delete<NextResponse>(
-    [env.API_MAIN, TASK_PATH, id].join("/"),
-    headers
+    [env.API_MAIN, TASK_PATH, id].join("/")
   )
   if (err)
     return NextResponse.json(
@@ -394,7 +366,6 @@ export async function DELETE({ req }: { req: NextRequest }) {
       {
         status: 404,
         statusText: "", // TODO: add a documented error message
-        headers: responseHeaders,
       }
     )
   if (res && res.status === 200)
@@ -403,7 +374,6 @@ export async function DELETE({ req }: { req: NextRequest }) {
       {
         status: 200,
         statusText: "Task deleted", // TODO: add a documented error message
-        headers: responseHeaders,
       }
     )
 }

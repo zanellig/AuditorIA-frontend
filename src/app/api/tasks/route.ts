@@ -7,14 +7,13 @@ import { env } from "@/env"
 import { getHost } from "@/lib/actions"
 // import fs from "fs/promises"
 export async function GET() {
-  const headers = getHeaders(env.API_MAIN, AllowedContentTypes.Json)
   const url = [
     env.API_MAIN,
     ALL_TASKS_PATH,
     //  "/not_valid_endpoint" // Uncomment to force 404 on server
   ].join("/")
 
-  const [err, res] = await _get(url, headers, { cacheResponse: false })
+  const [err, res] = await _get(url, undefined, { cacheResponse: false })
   const responseHeaders = getHeaders(await getHost(), AllowedContentTypes.Json)
   /**
    * If you want to use the mock data, uncomment the following lines and comment the lines below.
@@ -95,50 +94,32 @@ export async function POST(request: NextRequest) {
       headers: getHeaders(env.API_MAIN, AllowedContentTypes.Json),
     })
   }
-
-  const headers = getHeaders(env.API_MAIN)
   const url = [env.API_MAIN, SPEECH_TO_TEXT_PATH].join("/")
-  const [err, res] = await _post(url, formData, headers)
-  const responseHeaders = new Headers()
-
-  responseHeaders.set("Access-Control-Allow-Origin", env.API_MAIN)
-  responseHeaders.set(
-    "Access-Control-Allow-Methods",
-    "GET, POST, PUT, DELETE, OPTIONS"
-  )
-  responseHeaders.set(
-    "Access-Control-Allow-Headers",
-    "Content-Type, Authorization"
-  )
-  responseHeaders.set("Content-Type", "application/json")
+  const [err, res] = await _post(url, formData)
   if (err !== null) {
     return NextResponse.json([err, null], {
       status: 500,
-      headers: responseHeaders,
     })
   }
 
   if (res === null) {
     return NextResponse.json([null, null], {
       status: 200,
-      headers: responseHeaders,
     })
   }
 
   return NextResponse.json([null, res], {
     status: 200,
-    headers: responseHeaders,
   })
 }
 
 export async function PUT(request: NextRequest) {
   const body = await request.json()
   const { identifier, language } = body
-  const headers = getHeaders(env.API_CANARY, AllowedContentTypes.Json)
   const url = [env.API_CANARY, "task", identifier]
     .join("/")
     .concat(`?lang=${language}`)
-  const [err, res] = await _put(url, body, headers)
+  const [err, res] = await _put(url, body)
   return NextResponse.json([err, res], {
     status: 200,
     headers: getHeaders(await getHost(), AllowedContentTypes.Json),

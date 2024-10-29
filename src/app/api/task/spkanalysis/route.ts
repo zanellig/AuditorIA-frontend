@@ -18,9 +18,7 @@ export async function GET(request: NextRequest) {
     )
   }
   const url = [env.API_CANARY, TASK_PATH, SPEAKER_ANALYSIS_PATH, id].join("/")
-  const headers = getHeaders(env.API_CANARY)
-
-  const [err, res] = await _get(url, headers, { cacheResponse: true })
+  const [err, res] = await _get(url, undefined, { cacheResponse: true })
 
   if (err !== null) {
     return NextResponse.json(err, {

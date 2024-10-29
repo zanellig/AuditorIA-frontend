@@ -28,10 +28,9 @@ export async function readFile(filePath: string): Promise<Buffer | null> {
 }
 
 export async function deleteTask(id: Task["identifier"], revalidate?: boolean) {
-  const headers = getHeaders(env.API_MAIN)
   let url = `${env.API_MAIN}/${TASK_PATH}/${id}`
   revalidatePath("/", "layout")
-  return _delete(url, headers, { revalidate })
+  return _delete(url, undefined, { revalidate })
 }
 
 export async function deleteTasks(
@@ -48,6 +47,9 @@ export async function deleteTasks(
   return results
 }
 
+/**
+ * @deprecated
+ */
 export async function analyzeTask(
   urlArr: Array<string>,
   id: Task["identifier"],
@@ -106,7 +108,7 @@ export const getAudioPath = async (
   return null
 }
 
-/**
+/** This s-action should not be used
  * @deprecated
  * @param formData
  * @param options
@@ -116,6 +118,7 @@ export async function handleTaskUpload(
   formData: FormData,
   options: { file?: File; nasUrl?: string; fileName?: string } = {}
 ): Promise<[Error | null, Response | null]> {
+  /** Necessary headers object to tell the API the content type we're sending it */
   const headers = getHeaders(env.API_MAIN, AllowedContentTypes.Multipart)
   const url = [env.API_MAIN, TASK_PATH].join("/")
 
