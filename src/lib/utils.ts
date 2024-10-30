@@ -203,6 +203,12 @@ export enum AllowedContentTypes {
   Multipart = "multipart",
 }
 
+/**
+ * @deprecated
+ * @param origin
+ * @param contentType
+ * @returns
+ */
 export function getHeaders(
   origin: string,
   contentType?: AllowedContentTypes

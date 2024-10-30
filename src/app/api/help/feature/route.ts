@@ -3,8 +3,10 @@ import { env } from "@/env"
 import { generateFeatureSuggestionEmailTemplate } from "./template"
 import { featureSuggestionSchema } from "@/lib/forms"
 import { transporter } from "@/lib/mailer"
+import { getHeaders } from "@/lib/get-headers"
 
 export async function POST(req: NextRequest) {
+  const headers = await getHeaders(req)
   try {
     const formData = await req.formData()
     const name: string = formData.get("name")?.toString() || ""
@@ -38,9 +40,12 @@ export async function POST(req: NextRequest) {
     ]
     await Promise.all(emailPromises)
 
-    return NextResponse.json({ title: "Recibimos tu sugerencia! 🫡" })
+    return NextResponse.json(
+      { title: "Recibimos tu sugerencia! 🫡" },
+      { headers }
+    )
   } catch (error) {
     console.error(error)
-    return NextResponse.json(error, { status: 400 })
+    return NextResponse.json(error, { status: 400, headers })
   }
 }

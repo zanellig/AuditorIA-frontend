@@ -1,12 +1,13 @@
 import { _get } from "@/lib/fetcher"
 import { env } from "@/env"
-import { getHeaders } from "@/lib/utils"
 import { ServerStatusBadgeVariant } from "@/lib/types.d"
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
+import { getHeaders } from "@/lib/get-headers"
 
 export const revalidate = 5
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const headers = await getHeaders(request)
   // Fetch data
   const [error, response] = await _get(env.API_CANARY + "/docs", undefined, {
     expectJson: false,
@@ -25,6 +26,7 @@ export async function GET() {
         status: 500,
         statusText:
           "(1015): Error al obtener el estado del servidor de pruebas.",
+        headers,
       }
     )
   }
@@ -39,7 +41,7 @@ export async function GET() {
             server: "canary",
             release: "CANARY",
           }),
-          { status: 200 }
+          { status: 200, headers }
         )
       case 404:
         return new NextResponse(
@@ -51,6 +53,7 @@ export async function GET() {
           {
             status: 404,
             statusText: "(1016): Servidor de pruebas no encontrado.",
+            headers,
           }
         )
       case 500:
@@ -64,6 +67,7 @@ export async function GET() {
             status: 500,
             statusText:
               "(1017): Error al obtener el estado del servidor de pruebas.",
+            headers,
           }
         )
       default:
@@ -76,6 +80,7 @@ export async function GET() {
           {
             status: 521,
             statusText: "(1018): Servidor de pruebas no disponible.",
+            headers,
           }
         )
     }

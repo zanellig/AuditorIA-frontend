@@ -9,11 +9,13 @@ import { bugReportSchema } from "@/lib/forms"
 import { transporter } from "@/lib/mailer"
 import { format } from "date-fns"
 import { es } from "date-fns/locale"
+import { getHeaders } from "@/lib/get-headers"
 
 // Max file size (e.g., 5MB)
 const MAX_FILE_SIZE = 5 * 1024 * 1024
 
 export async function POST(req: NextRequest) {
+  const headers = await getHeaders(req)
   try {
     const formData = await req.formData()
 
@@ -110,13 +112,17 @@ export async function POST(req: NextRequest) {
 
     await Promise.all(emailPromises)
 
-    return NextResponse.json({
-      title: "Se ha enviado el reporte de error correctamente",
-      description: "¡Trabajaremos para solucionarlo lo más pronto posible! 💪",
-      variant: "default",
-    })
+    return NextResponse.json(
+      {
+        title: "Se ha enviado el reporte de error correctamente",
+        description:
+          "¡Trabajaremos para solucionarlo lo más pronto posible! 💪",
+        variant: "default",
+      },
+      { headers }
+    )
   } catch (error: any) {
     console.error(error)
-    return NextResponse.json(error, { status: 400 })
+    return NextResponse.json(error, { status: 400, headers })
   }
 }

@@ -1,11 +1,12 @@
 import { ALL_RECORDS_PATH } from "@/server-constants"
 import { _get } from "@/lib/fetcher"
-import { getHeaders } from "@/lib/utils"
 import { NextRequest, NextResponse } from "next/server"
 import { env } from "@/env"
 import { getHost } from "@/lib/actions"
 import { RecordingsAPIResponse } from "@/lib/types"
+import { getHeaders } from "@/lib/get-headers"
 export async function GET(request: NextRequest) {
+  const headers = await getHeaders(request)
   try {
     const params = request.nextUrl.searchParams
     const externalUrl = new URL([env.API_CANARY, ALL_RECORDS_PATH].join("/"))
@@ -32,36 +33,43 @@ export async function GET(request: NextRequest) {
         ) {
           return NextResponse.json([null, []], {
             status: 200,
+            headers,
           })
         }
         // @ts-expect-error
         // API hasn't changed yet to return a normalized response, we have to access the detail key if it returns an error
         return NextResponse.json([err.detail, []], {
           status: 500,
+          headers,
         })
       }
       return NextResponse.json([err, []], {
         status: 500,
+        headers,
       })
     }
     // API never falls back to this clause because when it returns a good response but with no content, it treats it as an error
     if (res === null) {
       return NextResponse.json([null, []], {
         status: 200,
+        headers,
       })
     }
     if ("records" in res) {
       return NextResponse.json([null, res.records], {
         status: 200,
+        headers,
       })
     }
     return NextResponse.json([null, res], {
       status: 200,
+      headers,
     })
   } catch (error) {
     console.error(error)
     return NextResponse.json([error, []], {
       status: 500,
+      headers,
     })
   }
 }

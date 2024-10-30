@@ -2,12 +2,11 @@
 "use server"
 import "server-only"
 import { Task, Recording, Segment } from "@/lib/types.d"
-import fs from "node:fs/promises"
-import path from "node:path"
-import { ACCEPTED_ORIGINS, INTERNAL_API, TASK_PATH } from "@/server-constants"
+import fs from "fs/promises"
+import path from "path"
+import { INTERNAL_API, TASK_PATH } from "@/server-constants"
 import { revalidatePath } from "next/cache"
 import { calculateAverageForSegments } from "@/lib/utils"
-import { getHeaders, AllowedContentTypes } from "@/lib/utils"
 import { _request, _get, _post, _put, _patch, _delete } from "@/lib/fetcher"
 import { getNetworkAudio } from "./audio"
 import { env } from "@/env"
@@ -56,10 +55,10 @@ export async function analyzeTask(
   language: Task["language"],
   revalidate?: boolean
 ) {
-  const headers = getHeaders(urlArr[0])
+  // const headers = getHeaders(urlArr[0])
   let url = [...urlArr].join("/")
   url = url.concat(`/${id}`).concat(`?lang=${language}`)
-  return _put(url, null, headers, { revalidate })
+  // return _put(url, null, headers, { revalidate })
 }
 
 export async function actionRevalidatePath(path: string) {
@@ -117,9 +116,9 @@ export const getAudioPath = async (
 export async function handleTaskUpload(
   formData: FormData,
   options: { file?: File; nasUrl?: string; fileName?: string } = {}
-): Promise<[Error | null, Response | null]> {
+) {
   /** Necessary headers object to tell the API the content type we're sending it */
-  const headers = getHeaders(env.API_MAIN, AllowedContentTypes.Multipart)
+  // const headers = getHeaders(env.API_MAIN, AllowedContentTypes.Multipart)
   const url = [env.API_MAIN, TASK_PATH].join("/")
 
   if (options.file && options.file instanceof File) {
@@ -144,19 +143,10 @@ export async function handleTaskUpload(
     }
   }
 
-  return await _post(url, formData, headers, {
-    revalidate: false,
-    expectJson: true,
-  })
-}
-
-export async function _validateOrigin(origin: string): Promise<string> {
-  return new Promise(async resolve => {
-    resolve(
-      ACCEPTED_ORIGINS.find(originFromList => origin === originFromList) ||
-        (await getHost())
-    )
-  })
+  // return await _post(url, formData, headers, {
+  //   revalidate: false,
+  //   expectJson: true,
+  // })
 }
 
 export async function getHost(): Promise<string> {

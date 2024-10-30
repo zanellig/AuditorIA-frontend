@@ -1,16 +1,12 @@
 import { OPERATOR_QUALITY_PATH, TASK_PATH } from "@/server-constants"
 import { _get } from "@/lib/fetcher"
-import {
-  AllowedContentTypes,
-  extractJsonFromString,
-  getHeaders,
-} from "@/lib/utils"
+import { extractJsonFromString } from "@/lib/utils"
 import { NextRequest, NextResponse } from "next/server"
 import { env } from "@/env"
-import { getHost } from "@/lib/actions"
+import { getHeaders } from "@/lib/get-headers"
 
 export async function GET(request: NextRequest) {
-  const reponseHeaders = getHeaders(await getHost(), AllowedContentTypes.Json)
+  const headers = await getHeaders(request)
   const id = request.nextUrl.searchParams.get("identifier")
   if (!id) {
     return NextResponse.json(
@@ -20,7 +16,7 @@ export async function GET(request: NextRequest) {
         }),
         null,
       ],
-      { status: 400, headers: reponseHeaders }
+      { status: 400, headers }
     )
   }
   const url = [env.API_CANARY, TASK_PATH, OPERATOR_QUALITY_PATH, id].join("/")
@@ -30,7 +26,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(err, {
       status: 500,
       statusText: "", // TODO: add a documented error message
-      headers: reponseHeaders,
+      headers,
     })
   }
   if (res !== null && res.ok) {
@@ -43,6 +39,6 @@ export async function GET(request: NextRequest) {
   return NextResponse.json(null, {
     status: 404,
     statusText: "", // TODO: add a documented error message
-    headers: reponseHeaders,
+    headers,
   })
 }

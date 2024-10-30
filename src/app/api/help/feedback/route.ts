@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server"
-import { z } from "zod"
 import nodemailer from "nodemailer"
 import { env } from "@/env"
 import { generateFeedbackEmailTemplate } from "./template"
 import { feedbackSchema } from "@/lib/forms"
 import { transporter } from "@/lib/mailer"
+import { getHeaders } from "@/lib/get-headers"
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
+  const headers = await getHeaders(req)
   try {
     const formData = await req.formData()
     const name: string = formData.get("name")?.toString() || ""
@@ -40,18 +41,24 @@ export async function POST(req: Request) {
 
     await Promise.all(emailPromises)
     if (rating >= 4) {
-      return NextResponse.json({
-        title: "Muchas gracias por tu feedback! 💃🏼",
-        variant: "success",
-      })
+      return NextResponse.json(
+        {
+          title: "Muchas gracias por tu feedback! 💃🏼",
+          variant: "success",
+        },
+        { headers }
+      )
     } else {
-      return NextResponse.json({
-        title: "Recibimos tu feedback",
-        description: "¡Trabajaremos para mejorar!",
-      })
+      return NextResponse.json(
+        {
+          title: "Recibimos tu feedback",
+          description: "¡Trabajaremos para mejorar!",
+        },
+        { headers }
+      )
     }
   } catch (error) {
     console.error(error)
-    return NextResponse.json(error, { status: 400 })
+    return NextResponse.json(error, { status: 400, headers })
   }
 }

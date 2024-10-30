@@ -1,12 +1,13 @@
 import { ALL_TASKS_PATH, SPEECH_TO_TEXT_PATH } from "@/server-constants"
-import { AllowedContentTypes, getHeaders } from "@/lib/utils"
 import { _get, _post, _put } from "@/lib/fetcher"
 import { Tasks } from "@/lib/types.d"
 import { NextRequest, NextResponse } from "next/server"
 import { env } from "@/env"
 import { getHost } from "@/lib/actions"
+import { getHeaders } from "@/lib/get-headers"
 // import fs from "fs/promises"
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const headers = await getHeaders(request)
   const url = [
     env.API_MAIN,
     ALL_TASKS_PATH,
@@ -14,7 +15,6 @@ export async function GET() {
   ].join("/")
 
   const [err, res] = await _get(url, undefined, { cacheResponse: false })
-  const responseHeaders = getHeaders(await getHost(), AllowedContentTypes.Json)
   /**
    * If you want to use the mock data, uncomment the following lines and comment the lines below.
    */
@@ -44,31 +44,32 @@ export async function GET() {
 
     return NextResponse.json([null, []], {
       status: 404,
-      headers: responseHeaders,
+      headers,
       statusText: err.message,
     })
   }
   if (res === null) {
     return NextResponse.json([null, []], {
       status: 200,
-      headers: responseHeaders,
+      headers,
     })
   }
   if (res.ok) {
     const tasks: Tasks = (await res.json()).tasks
     return NextResponse.json([null, tasks], {
       status: 200,
-      headers: responseHeaders,
+      headers,
     })
   }
   return NextResponse.json([null, []], {
     status: 500,
     statusText: res.statusText,
-    headers: responseHeaders,
+    headers,
   })
 }
 
 export async function POST(request: NextRequest) {
+  const headers = await getHeaders(request)
   const formData = await request.formData()
   const file = formData.get("file")
 
@@ -77,21 +78,21 @@ export async function POST(request: NextRequest) {
   if (!contentType || !contentType.includes("multipart/form-data")) {
     return NextResponse.json(["Unsupported Media Type", null], {
       status: 415,
-      headers: getHeaders(env.API_MAIN, AllowedContentTypes.Json),
+      headers,
     })
   }
 
   if (file instanceof File && file.size > 10000000) {
     return NextResponse.json(["Payload Too Large", null], {
       status: 413,
-      headers: getHeaders(env.API_MAIN, AllowedContentTypes.Json),
+      headers,
     })
   }
 
   if (file === null) {
     return NextResponse.json(["No file provided", null], {
       status: 400,
-      headers: getHeaders(env.API_MAIN, AllowedContentTypes.Json),
+      headers,
     })
   }
   const url = [env.API_MAIN, SPEECH_TO_TEXT_PATH].join("/")
@@ -99,21 +100,25 @@ export async function POST(request: NextRequest) {
   if (err !== null) {
     return NextResponse.json([err, null], {
       status: 500,
+      headers,
     })
   }
 
   if (res === null) {
     return NextResponse.json([null, null], {
       status: 200,
+      headers,
     })
   }
 
   return NextResponse.json([null, res], {
     status: 200,
+    headers,
   })
 }
 
 export async function PUT(request: NextRequest) {
+  const headers = await getHeaders(request)
   const body = await request.json()
   const { identifier, language } = body
   const url = [env.API_CANARY, "task", identifier]
@@ -122,6 +127,6 @@ export async function PUT(request: NextRequest) {
   const [err, res] = await _put(url, body)
   return NextResponse.json([err, res], {
     status: 200,
-    headers: getHeaders(await getHost(), AllowedContentTypes.Json),
+    headers,
   })
 }

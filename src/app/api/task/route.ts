@@ -4,20 +4,22 @@ import {
   SPEECH_TO_TEXT_PATH,
   TASK_PATH,
 } from "@/server-constants"
-import { AllowedContentTypes, getHeaders } from "@/lib/utils"
+import { AllowedContentTypes } from "@/lib/utils"
 import { TaskPOSTResponse } from "@/lib/types.d"
 import { NextRequest, NextResponse } from "next/server"
-import { fetchAudioData, getHost } from "@/lib/actions"
+import { fetchAudioData } from "@/lib/actions"
 import { env } from "@/env"
 import { validateMimeType } from "@/lib/forms"
 import chalk from "chalk"
 import { TESTING } from "@/lib/consts"
-import * as fs from "node:fs/promises"
-import path from "node:path"
+import * as fs from "fs/promises"
+import path from "path"
+import { getHeaders } from "@/lib/get-headers"
 
 export const revalidate = 5
 
 export async function GET(request: NextRequest) {
+  const headers = await getHeaders(request)
   const identifier = request.nextUrl.searchParams.get("identifier")
 
   if (TESTING) {
@@ -32,12 +34,13 @@ export async function GET(request: NextRequest) {
       const fileContent = await fs.readFile(filePath, "utf-8")
       return NextResponse.json([null, JSON.parse(fileContent)], {
         status: 200,
+        headers,
       })
     } catch (error) {
       console.error("Error reading the mock file:", error)
       return NextResponse.json(
         { error: "Failed to load mock data" },
-        { status: 500 }
+        { status: 500, headers }
       )
     }
   }
@@ -48,6 +51,7 @@ export async function GET(request: NextRequest) {
       {
         status: 400,
         statusText: "1001: No se proporcionó un ID de tarea.",
+        headers,
       }
     )
   }
@@ -74,6 +78,7 @@ export async function GET(request: NextRequest) {
       {
         status: 500,
         statusText: "(1002): Error interno desconocido al obtener la tarea.",
+        headers,
       }
     )
   }
@@ -83,6 +88,7 @@ export async function GET(request: NextRequest) {
       {
         status: 404,
         statusText: "(1003): Tarea no encontrada.",
+        headers,
       }
     )
   }
@@ -90,6 +96,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json([null, res], {
       status: 200,
       statusText: "Tarea obtenida correctamente.",
+      headers,
     })
   }
   return NextResponse.json(
@@ -97,11 +104,13 @@ export async function GET(request: NextRequest) {
     {
       status: 500,
       statusText: "(1004): Error desconocido al obtener la tarea.",
+      headers,
     }
   )
 }
 
 export async function POST(request: NextRequest) {
+  const headers = await getHeaders(request)
   const rejectResponse = ({ missingData }: { missingData?: string }) =>
     NextResponse.json(
       [
@@ -111,6 +120,7 @@ export async function POST(request: NextRequest) {
       {
         status: 400,
         statusText: `(1005): No se pudo ejecutar la consulta. ${missingData ? `${missingData} is missing.` : ""}`,
+        headers,
       }
     )
 
@@ -119,7 +129,6 @@ export async function POST(request: NextRequest) {
     const nasUrl = params.get("nasUrl")
     const fileName = params.get("fileName")
     /** Necessary headers object to tell the API the content type we're sending it */
-    const headers = getHeaders(env.API_MAIN, AllowedContentTypes.Multipart)
     const clientForm = await request.formData().catch(e => {
       if (e) return null
     })
@@ -195,6 +204,7 @@ export async function POST(request: NextRequest) {
         {
           status: 400,
           statusText: "(1023): No se puede enviar ambos tipos de archivos.",
+          headers,
         }
       )
 
@@ -222,6 +232,7 @@ export async function POST(request: NextRequest) {
           return NextResponse.json([new Error(errorMessage), null], {
             status: !isValidMimeType ? 415 : 404,
             statusText: errorMessage,
+            headers,
           })
         }
       } catch (error: any) {
@@ -235,6 +246,7 @@ export async function POST(request: NextRequest) {
             {
               status: 500,
               statusText: "(1007): Error al crear la tarea.",
+              headers,
             }
           )
         }
@@ -243,6 +255,7 @@ export async function POST(request: NextRequest) {
           {
             status: 500,
             statusText: "(1008): Error desconocido al crear la tarea.",
+            headers,
           }
         )
       }
@@ -256,6 +269,7 @@ export async function POST(request: NextRequest) {
           {
             status: 413,
             statusText: "(1021): El archivo proporcionado es demasiado grande.",
+            headers,
           }
         )
       }
@@ -269,6 +283,7 @@ export async function POST(request: NextRequest) {
           {
             status: 415,
             statusText: "(1022): Tipo de archivo no soportado.",
+            headers,
           }
         )
       }
@@ -280,7 +295,7 @@ export async function POST(request: NextRequest) {
     const [err, res] = await _post<TaskPOSTResponse>(
       externalRequestUrl.toString(),
       serverForm,
-      headers,
+      undefined,
       {
         revalidate: true,
         expectJson: true,
@@ -297,28 +312,32 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(["(1009): Error al crear la tarea.", null], {
         status: 500,
         statusText: "(1009): Error al crear la tarea.",
+        headers,
       })
     }
     return NextResponse.json([null, res], {
       status: 200,
       statusText: "Tarea creada",
+      headers,
     })
   } catch (e) {
     return NextResponse.json([e, null], {
       status: 500,
       statusText: "(1020): Ha ocurrido un error inesperado.",
+      headers,
     })
   }
 }
 
 export async function PUT(request: NextRequest) {
+  const headers = await getHeaders(request)
   const identifier = request.nextUrl.searchParams.get("identifier")
   const language = request.nextUrl.searchParams.get("language")
   if (!identifier) {
     return NextResponse.json(["ID was not provided", null], {
       status: 400,
-
       statusText: "ID was not provided",
+      headers,
     })
   }
   /** Why are we using plural when updating a single task?
@@ -335,6 +354,7 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json(err?.message, {
       status: 500,
       statusText: "", // TODO: add a documented error message
+      headers,
     })
   }
 
@@ -342,20 +362,24 @@ export async function PUT(request: NextRequest) {
     const data = await res?.json()
     return NextResponse.json(data, {
       status: 200,
+      headers,
     })
   }
   return NextResponse.json(null, {
     status: 404,
     statusText: "", // TODO: add a documented error message
+    headers,
   })
 }
 
 export async function DELETE({ req }: { req: NextRequest }) {
+  const headers = await getHeaders(req)
   const id = req.nextUrl?.searchParams?.get("identifier")
   if (!id)
     return NextResponse.json(null, {
       status: 400,
       statusText: "Missing identifier", // TODO: add a documented error message
+      headers,
     })
   const [err, res] = await _delete<NextResponse>(
     [env.API_MAIN, TASK_PATH, id].join("/")
@@ -366,6 +390,7 @@ export async function DELETE({ req }: { req: NextRequest }) {
       {
         status: 404,
         statusText: "", // TODO: add a documented error message
+        headers,
       }
     )
   if (res && res.status === 200)
@@ -374,6 +399,7 @@ export async function DELETE({ req }: { req: NextRequest }) {
       {
         status: 200,
         statusText: "Task deleted", // TODO: add a documented error message
+        headers,
       }
     )
 }

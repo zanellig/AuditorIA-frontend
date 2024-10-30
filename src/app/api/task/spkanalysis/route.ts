@@ -1,10 +1,12 @@
 import { SPEAKER_ANALYSIS_PATH, TASK_PATH } from "@/server-constants"
 import { _get } from "@/lib/fetcher"
-import { extractJsonFromString, getHeaders } from "@/lib/utils"
+import { extractJsonFromString } from "@/lib/utils"
 import { NextRequest, NextResponse } from "next/server"
 import { env } from "@/env"
+import { getHeaders } from "@/lib/get-headers"
 
 export async function GET(request: NextRequest) {
+  const headers = await getHeaders(request)
   const id = request.nextUrl.searchParams.get("identifier")
   if (!id) {
     return NextResponse.json(
@@ -14,7 +16,7 @@ export async function GET(request: NextRequest) {
         }),
         null,
       ],
-      { status: 400 }
+      { status: 400, headers }
     )
   }
   const url = [env.API_CANARY, TASK_PATH, SPEAKER_ANALYSIS_PATH, id].join("/")
@@ -24,6 +26,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(err, {
       status: 500,
       statusText: "", // TODO: add a documented error message
+      headers,
     })
   }
   if (res !== null && res.ok) {
@@ -31,10 +34,12 @@ export async function GET(request: NextRequest) {
     const llmResult = extractJsonFromString(data?.processed_result)
     return NextResponse.json(llmResult, {
       status: 200,
+      headers,
     })
   }
   return NextResponse.json(null, {
     status: 404,
     statusText: "", // TODO: add a documented error message
+    headers,
   })
 }
