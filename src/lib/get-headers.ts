@@ -1,7 +1,6 @@
 import "server-only"
 import { z } from "zod"
 import { NextRequest } from "next/server"
-import { ALLOWED_ORIGINS } from "@/server-constants"
 
 // Application Types
 const applicationTypes = z.enum([
@@ -71,7 +70,8 @@ export async function getHeaders(request: NextRequest) {
     "Access-Control-Allow-Headers": "Content-Type, Authorization",
     "Access-Control-Max-Age": "86400",
     "Access-Control-Allow-Credentials": "true",
-    "Access-Control-Allow-Origin": ALLOWED_ORIGINS.join(","),
+    // "Access-Control-Allow-Origin": ALLOWED_ORIGINS.join(","),
+    "Access-Control-Allow-Origin": "*",
   }
 
   const responseHeaders = new Headers()
