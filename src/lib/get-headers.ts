@@ -69,17 +69,16 @@ export async function getHeaders(request: NextRequest) {
   const corsOptions = {
     "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE",
     "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    "Access-Control-Max-Age": "86400",
+    "Access-Control-Allow-Credentials": "true",
+    "Access-Control-Allow-Origin": "*",
   }
-
-  const origin = request.headers.get("origin") ?? ""
-  const isAllowedOrigin = ALLOWED_ORIGINS.includes(origin)
 
   // For preflight requests (OPTIONS)
   if (request.method === "OPTIONS") {
     return NextResponse.json(null, {
       status: 204, // No content needed for OPTIONS
       headers: {
-        "Access-Control-Allow-Origin": isAllowedOrigin ? origin : "",
         ...corsOptions,
       },
     })
@@ -101,10 +100,6 @@ export async function getHeaders(request: NextRequest) {
         responseHeaders.set("Content-Type", baseContentType)
       }
     }
-  }
-
-  if (isAllowedOrigin) {
-    responseHeaders.set("Access-Control-Allow-Origin", origin)
   }
 
   Object.entries(corsOptions).forEach(([key, value]) => {
