@@ -67,10 +67,8 @@ export type ContentType = z.infer<typeof ContentTypeSchema>
 export async function getHeaders(request: NextRequest) {
   const corsOptions = {
     "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization",
     "Access-Control-Max-Age": "86400",
     "Access-Control-Allow-Credentials": "true",
-    // "Access-Control-Allow-Origin": ALLOWED_ORIGINS.join(","),
     "Access-Control-Allow-Origin": "*",
   }
 
