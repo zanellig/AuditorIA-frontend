@@ -20,6 +20,7 @@ export const revalidate = 5
 
 export async function GET(request: NextRequest) {
   const headers = await getHeaders(request)
+  if (headers instanceof NextResponse) return headers
   const identifier = request.nextUrl.searchParams.get("identifier")
 
   if (TESTING) {
@@ -111,6 +112,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   const headers = await getHeaders(request)
+  if (headers instanceof NextResponse) return headers
   const rejectResponse = ({ missingData }: { missingData?: string }) =>
     NextResponse.json(
       [
@@ -331,6 +333,7 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   const headers = await getHeaders(request)
+  if (headers instanceof NextResponse) return headers
   const identifier = request.nextUrl.searchParams.get("identifier")
   const language = request.nextUrl.searchParams.get("language")
   if (!identifier) {
@@ -374,6 +377,7 @@ export async function PUT(request: NextRequest) {
 
 export async function DELETE({ req }: { req: NextRequest }) {
   const headers = await getHeaders(req)
+  if (headers instanceof NextResponse) return headers
   const id = req.nextUrl?.searchParams?.get("identifier")
   if (!id)
     return NextResponse.json(null, {

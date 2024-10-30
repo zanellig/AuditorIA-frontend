@@ -7,6 +7,7 @@ import { getHeaders } from "@/lib/get-headers"
 
 export async function GET(request: NextRequest) {
   const headers = await getHeaders(request)
+  if (headers instanceof NextResponse) return headers
   const id = request.nextUrl.searchParams.get("identifier")
   if (!id) {
     return NextResponse.json(

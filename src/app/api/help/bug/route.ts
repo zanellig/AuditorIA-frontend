@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server"
-import { z } from "zod"
 import nodemailer from "nodemailer"
 import { env } from "@/env"
 import { promises as fs } from "fs"
@@ -16,6 +15,7 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024
 
 export async function POST(req: NextRequest) {
   const headers = await getHeaders(req)
+  if (headers instanceof NextResponse) return headers
   try {
     const formData = await req.formData()
 
@@ -121,7 +121,7 @@ export async function POST(req: NextRequest) {
       },
       { headers }
     )
-  } catch (error: any) {
+  } catch (error) {
     console.error(error)
     return NextResponse.json(error, { status: 400, headers })
   }

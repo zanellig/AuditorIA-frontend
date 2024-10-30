@@ -8,6 +8,7 @@ import { getHeaders } from "@/lib/get-headers"
 // import fs from "fs/promises"
 export async function GET(request: NextRequest) {
   const headers = await getHeaders(request)
+  if (headers instanceof NextResponse) return headers
   const url = [
     env.API_MAIN,
     ALL_TASKS_PATH,
@@ -70,6 +71,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   const headers = await getHeaders(request)
+  if (headers instanceof NextResponse) return headers
   const formData = await request.formData()
   const file = formData.get("file")
 
@@ -119,6 +121,7 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   const headers = await getHeaders(request)
+  if (headers instanceof NextResponse) return headers
   const body = await request.json()
   const { identifier, language } = body
   const url = [env.API_CANARY, "task", identifier]

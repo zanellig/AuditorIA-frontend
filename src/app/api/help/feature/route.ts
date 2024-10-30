@@ -7,6 +7,7 @@ import { getHeaders } from "@/lib/get-headers"
 
 export async function POST(req: NextRequest) {
   const headers = await getHeaders(req)
+  if (headers instanceof NextResponse) return headers
   try {
     const formData = await req.formData()
     const name: string = formData.get("name")?.toString() || ""

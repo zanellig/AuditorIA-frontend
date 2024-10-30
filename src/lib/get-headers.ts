@@ -1,6 +1,6 @@
 import "server-only"
 import { z } from "zod"
-import { NextRequest } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { ALLOWED_ORIGINS } from "@/server-constants"
 
 // Application Types
@@ -65,14 +65,25 @@ export const ContentTypeSchema = z.union([
 // Type extraction
 export type ContentType = z.infer<typeof ContentTypeSchema>
 
-export async function getHeaders(request: NextRequest): Promise<Headers> {
+export async function getHeaders(request: NextRequest) {
   const corsOptions = {
-    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+    "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE",
     "Access-Control-Allow-Headers": "Content-Type, Authorization",
   }
 
   const origin = request.headers.get("origin") ?? ""
   const isAllowedOrigin = ALLOWED_ORIGINS.includes(origin)
+
+  // For preflight requests (OPTIONS)
+  if (request.method === "OPTIONS") {
+    return NextResponse.json(null, {
+      status: 204, // No content needed for OPTIONS
+      headers: {
+        "Access-Control-Allow-Origin": isAllowedOrigin ? origin : "",
+        ...corsOptions,
+      },
+    })
+  }
 
   const responseHeaders = new Headers()
 

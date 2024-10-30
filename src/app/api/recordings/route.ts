@@ -7,6 +7,7 @@ import { RecordingsAPIResponse } from "@/lib/types"
 import { getHeaders } from "@/lib/get-headers"
 export async function GET(request: NextRequest) {
   const headers = await getHeaders(request)
+  if (headers instanceof NextResponse) return headers
   try {
     const params = request.nextUrl.searchParams
     const externalUrl = new URL([env.API_CANARY, ALL_RECORDS_PATH].join("/"))

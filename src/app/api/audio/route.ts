@@ -7,6 +7,7 @@ import { getHeaders } from "@/lib/get-headers"
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const headers = await getHeaders(request)
+  if (headers instanceof NextResponse) return headers
   const path = searchParams.get("path")
   if (!path) {
     return new NextResponse(

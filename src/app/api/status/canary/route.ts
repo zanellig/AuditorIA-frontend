@@ -8,6 +8,7 @@ export const revalidate = 5
 
 export async function GET(request: NextRequest) {
   const headers = await getHeaders(request)
+  if (headers instanceof NextResponse) return headers
   // Fetch data
   const [error, response] = await _get(env.API_CANARY + "/docs", undefined, {
     expectJson: false,
