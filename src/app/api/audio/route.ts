@@ -6,7 +6,7 @@ import { getHeaders } from "@/lib/get-headers"
 
 export async function OPTIONS(request: NextRequest) {
   return NextResponse.json(null, {
-    status: 204,
+    status: 200,
     headers: await getHeaders(request),
   })
 }

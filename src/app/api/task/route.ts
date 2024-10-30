@@ -4,7 +4,6 @@ import {
   SPEECH_TO_TEXT_PATH,
   TASK_PATH,
 } from "@/server-constants"
-import { AllowedContentTypes } from "@/lib/utils"
 import { TaskPOSTResponse } from "@/lib/types.d"
 import { NextRequest, NextResponse } from "next/server"
 import { fetchAudioData } from "@/lib/actions"
@@ -20,7 +19,7 @@ export const revalidate = 5
 
 export async function OPTIONS(request: NextRequest) {
   return NextResponse.json(null, {
-    status: 204,
+    status: 200,
     headers: await getHeaders(request),
   })
 }

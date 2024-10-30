@@ -8,7 +8,7 @@ export const revalidate = 5
 
 export async function OPTIONS(request: NextRequest) {
   return NextResponse.json(null, {
-    status: 204,
+    status: 200,
     headers: await getHeaders(request),
   })
 }
