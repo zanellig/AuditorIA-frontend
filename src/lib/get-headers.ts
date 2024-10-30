@@ -1,6 +1,6 @@
 import "server-only"
 import { z } from "zod"
-import { NextRequest, NextResponse } from "next/server"
+import { NextRequest } from "next/server"
 import { ALLOWED_ORIGINS } from "@/server-constants"
 
 // Application Types
@@ -71,17 +71,7 @@ export async function getHeaders(request: NextRequest) {
     "Access-Control-Allow-Headers": "Content-Type, Authorization",
     "Access-Control-Max-Age": "86400",
     "Access-Control-Allow-Credentials": "true",
-    "Access-Control-Allow-Origin": "*",
-  }
-
-  // For preflight requests (OPTIONS)
-  if (request.method === "OPTIONS") {
-    return NextResponse.json(null, {
-      status: 204, // No content needed for OPTIONS
-      headers: {
-        ...corsOptions,
-      },
-    })
+    "Access-Control-Allow-Origin": ALLOWED_ORIGINS.join(","),
   }
 
   const responseHeaders = new Headers()

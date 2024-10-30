@@ -13,6 +13,13 @@ import { getHeaders } from "@/lib/get-headers"
 // Max file size (e.g., 5MB)
 const MAX_FILE_SIZE = 5 * 1024 * 1024
 
+export async function OPTIONS(request: NextRequest) {
+  return NextResponse.json(null, {
+    status: 204,
+    headers: await getHeaders(request),
+  })
+}
+
 export async function POST(req: NextRequest) {
   const headers = await getHeaders(req)
   if (headers instanceof NextResponse) return headers

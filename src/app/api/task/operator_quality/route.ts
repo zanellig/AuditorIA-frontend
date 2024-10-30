@@ -5,6 +5,13 @@ import { NextRequest, NextResponse } from "next/server"
 import { env } from "@/env"
 import { getHeaders } from "@/lib/get-headers"
 
+export async function OPTIONS(request: NextRequest) {
+  return NextResponse.json(null, {
+    status: 204,
+    headers: await getHeaders(request),
+  })
+}
+
 export async function GET(request: NextRequest) {
   const headers = await getHeaders(request)
   if (headers instanceof NextResponse) return headers

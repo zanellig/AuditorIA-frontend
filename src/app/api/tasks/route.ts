@@ -3,9 +3,15 @@ import { _get, _post, _put } from "@/lib/fetcher"
 import { Tasks } from "@/lib/types.d"
 import { NextRequest, NextResponse } from "next/server"
 import { env } from "@/env"
-import { getHost } from "@/lib/actions"
 import { getHeaders } from "@/lib/get-headers"
 // import fs from "fs/promises"
+export async function OPTIONS(request: NextRequest) {
+  return NextResponse.json(null, {
+    status: 204,
+    headers: await getHeaders(request),
+  })
+}
+
 export async function GET(request: NextRequest) {
   const headers = await getHeaders(request)
   if (headers instanceof NextResponse) return headers

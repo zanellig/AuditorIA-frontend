@@ -4,6 +4,13 @@ import { type NextRequest, NextResponse } from "next/server"
 import { getNetworkAudio } from "@/lib/audio"
 import { getHeaders } from "@/lib/get-headers"
 
+export async function OPTIONS(request: NextRequest) {
+  return NextResponse.json(null, {
+    status: 204,
+    headers: await getHeaders(request),
+  })
+}
+
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const headers = await getHeaders(request)
