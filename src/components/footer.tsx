@@ -18,7 +18,7 @@ export default function Footer({ className }: { className?: string }) {
           <Link
             href='https://www.linksolution.com.ar/'
             target='_blank'
-            className='font-medium text-primary underline underline-offset-4'
+            className='font-medium transition-all hover:text-primary hover:underline underline-offset-4'
           >
             LinkSolution SRL
           </Link>{" "}
