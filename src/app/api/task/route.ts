@@ -381,7 +381,7 @@ export async function PUT(request: NextRequest) {
   })
 }
 
-export async function DELETE({ req }: { req: NextRequest }) {
+export async function DELETE(req: NextRequest) {
   const headers = await getHeaders(req)
   if (headers instanceof NextResponse) return headers
   const id = req.nextUrl?.searchParams?.get("identifier")
