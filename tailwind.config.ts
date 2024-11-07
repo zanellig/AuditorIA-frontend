@@ -74,6 +74,16 @@ const config = {
           DEFAULT: "var(--card)",
           foreground: "var(--card-foreground)",
         },
+        sidebar: {
+          "DEFAULT": "hsl(var(--sidebar-background))",
+          "foreground": "hsl(var(--sidebar-foreground))",
+          "primary": "hsl(var(--sidebar-primary))",
+          "primary-foreground": "hsl(var(--sidebar-primary-foreground))",
+          "accent": "hsl(var(--sidebar-accent))",
+          "accent-foreground": "hsl(var(--sidebar-accent-foreground))",
+          "border": "hsl(var(--sidebar-border))",
+          "ring": "hsl(var(--sidebar-ring))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -82,23 +92,45 @@ const config = {
       },
       keyframes: {
         "accordion-down": {
-          from: { height: "0" },
-          to: { height: "var(--radix-accordion-content-height)" },
+          from: {
+            height: "0",
+          },
+          to: {
+            height: "var(--radix-accordion-content-height)",
+          },
         },
         "accordion-up": {
-          from: { height: "var(--radix-accordion-content-height)" },
-          to: { height: "0" },
+          from: {
+            height: "var(--radix-accordion-content-height)",
+          },
+          to: {
+            height: "0",
+          },
         },
         "sparkle": {
-          "0%": { color: "#8beac1" },
-          "25%": { color: "#9da1b8" },
-          "50%": { color: "#58a8ae" },
-          "75%": { color: "#9da1b8" },
-          "100%": { color: "#8beac1" },
+          "0%": {
+            color: "#8beac1",
+          },
+          "25%": {
+            color: "#9da1b8",
+          },
+          "50%": {
+            color: "#58a8ae",
+          },
+          "75%": {
+            color: "#9da1b8",
+          },
+          "100%": {
+            color: "#8beac1",
+          },
         },
         "shine": {
-          from: { backgroundPosition: "200% 0" },
-          to: { backgroundPosition: "-200% 0" },
+          from: {
+            backgroundPosition: "200% 0",
+          },
+          to: {
+            backgroundPosition: "-200% 0",
+          },
         },
       },
       animation: {
@@ -116,8 +148,8 @@ export default config
 
 // This plugin adds each Tailwind color as a global CSS variable, e.g. var(--gray-200).
 function addVariablesForColors({ addBase, theme }: any) {
-  let allColors = flattenColorPalette(theme("colors"))
-  let newVars = Object.fromEntries(
+  const allColors = flattenColorPalette(theme("colors"))
+  const newVars = Object.fromEntries(
     Object.entries(allColors).map(([key, val]) => [`--${key}`, val])
   )
 
