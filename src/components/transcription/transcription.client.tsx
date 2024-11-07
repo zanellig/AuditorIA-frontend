@@ -1,6 +1,6 @@
 // @/components/transcription/transcription.client.tsx
 "use client"
-import React, { RefObject } from "react"
+import React from "react"
 import { useRouter } from "next/navigation"
 import {
   Segment,
@@ -57,7 +57,7 @@ import { SurpriseIcon } from "../emoji-icons"
 
 const BASIC_STYLE = "flex text-sm rounded-md p-2 gap-2"
 
-type DrawerOptions = {
+interface DrawerOptions {
   show?: boolean
   text?: string
 }
@@ -76,19 +76,17 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
   let lastSpeaker: string | undefined = ""
   let lastEmotion: string | undefined = ""
 
-  if (isLoading) return <TranscriptionSkeleton />
-
   const { toast } = useToast()
 
   const segmentRefs = React.useRef<(HTMLDivElement | null)[]>([])
 
-  let isAnalysisNotReady =
+  const isAnalysisNotReady =
     transcription &&
     [
       Status.Values.pending,
       Status.Values.processing,
       Status.Values.failed,
-      // @ts-ignore
+      // @ts-expect-error TS(2345): Argument of type 'Status' is not assignable to parameter of type 'Status'.
     ].includes(transcription.status)
   React.useEffect(() => {
     if (taskId) {
@@ -99,25 +97,26 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
   const player = useAudioPlayer()
 
   React.useEffect(() => {
+    const scrollToSegment = (timestamp: number) => {
+      if (!transcription?.result?.segments) return
+      const currentSegment = transcription.result.segments.find(
+        segment => timestamp >= segment.start && timestamp <= segment.end
+      )
+      if (currentSegment) {
+        const ref = segmentRefs.current[Number(currentSegment.start.toFixed(2))]
+        ref?.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+          inline: "center",
+        })
+      }
+    }
     if (player.isPlaying && player.currentTime > 0) {
       scrollToSegment(player.currentTime)
     }
-  }, [player.isPlaying, player.currentTime, , transcription?.result?.segments])
+  }, [player.isPlaying, player.currentTime, transcription?.result?.segments])
 
-  const scrollToSegment = (timestamp: number) => {
-    if (!transcription?.result?.segments) return
-    const currentSegment = transcription.result.segments.find(
-      segment => timestamp >= segment.start && timestamp <= segment.end
-    )
-    if (currentSegment) {
-      const ref = segmentRefs.current[Number(currentSegment.start.toFixed(2))]
-      ref?.scrollIntoView({
-        behavior: "smooth",
-        block: "center",
-        inline: "center",
-      })
-    }
-  }
+  if (isLoading) return <TranscriptionSkeleton />
 
   return (
     <>
@@ -259,50 +258,21 @@ const EMOJI_SIZE = GLOBAL_ICON_SIZE * 2
 const Emoji: React.FC<EmojiProps> = ({ emotion }) => (
   <Tooltip>
     <TooltipTrigger asChild>
-      <span className={cn("flex items-center w-full", emotion ? "" : "hidden")}>
+      <span
+        className={cn(
+          "flex items-center w-full",
+          emotion ? "" : "hidden",
+          `text-${getColorForEmotion(emotion)}`
+        )}
+      >
         {{
-          joy: (
-            <Laugh
-              size={EMOJI_SIZE}
-              className={"text-" + getColorForEmotion(emotion)}
-            />
-          ),
-          fear: (
-            <SurpriseIcon
-              size={EMOJI_SIZE}
-              className={"text-" + getColorForEmotion(emotion)}
-            />
-          ),
-          anger: (
-            <Angry
-              size={EMOJI_SIZE}
-              className={"text-" + getColorForEmotion(emotion)}
-            />
-          ),
-          others: (
-            <Meh
-              size={EMOJI_SIZE}
-              className={"text-" + getColorForEmotion(emotion)}
-            />
-          ),
-          sadness: (
-            <Frown
-              size={EMOJI_SIZE}
-              className={"text-" + getColorForEmotion(emotion)}
-            />
-          ),
-          disgust: (
-            <Annoyed
-              size={EMOJI_SIZE}
-              className={"text-" + getColorForEmotion(emotion)}
-            />
-          ),
-          surprise: (
-            <SurpriseIcon
-              size={EMOJI_SIZE}
-              className={"text-" + getColorForEmotion(emotion)}
-            />
-          ),
+          joy: <Laugh size={EMOJI_SIZE} />,
+          fear: <SurpriseIcon size={EMOJI_SIZE} />,
+          anger: <Angry size={EMOJI_SIZE} />,
+          others: <Meh size={EMOJI_SIZE} />,
+          sadness: <Frown size={EMOJI_SIZE} />,
+          disgust: <Annoyed size={EMOJI_SIZE} />,
+          surprise: <SurpriseIcon size={EMOJI_SIZE} />,
         }[emotion] || ""}
       </span>
     </TooltipTrigger>
