@@ -66,7 +66,7 @@ export type ContentType = z.infer<typeof ContentTypeSchema>
 
 export async function getHeaders(request: NextRequest) {
   const corsOptions = {
-    "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE",
+    "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
     "Access-Control-Max-Age": "86400",
     "Access-Control-Allow-Credentials": "true",
     "Access-Control-Allow-Origin": "*",
@@ -75,7 +75,7 @@ export async function getHeaders(request: NextRequest) {
   const responseHeaders = new Headers()
 
   // Validate and set Content-Type from request
-  const requestContentType = request.headers.get("content-type")
+  const requestContentType = request?.headers?.get("Content-Type")
   if (requestContentType) {
     // Extract base content type without parameters
     const baseContentType = requestContentType.split(";")[0].trim()
