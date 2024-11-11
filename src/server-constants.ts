@@ -14,7 +14,17 @@ const BASE_URLS = [
   "api.auditoria.linksolution.com.ar",
 ]
 
-const PORTS = ["", ":3030", ":3000"]
+const PORTS = [
+  "",
+  ":3030",
+  ":3000",
+  ":443",
+  ":8080",
+  ":8000",
+  ":7000",
+  ":22",
+  ":80",
+]
 const PROTOCOLS = ["https://", "http://"]
 
 // Generate all combinations of protocol + base + port
@@ -25,8 +35,6 @@ export const ALLOWED_ORIGINS = [
     )
   ),
   INTERNAL_API,
-  `${INTERNAL_API}:3030`,
-  `${INTERNAL_API}:3000`,
 ].filter(origin => origin !== "no-host-defined")
 
 export const ALL_TASKS_PATH = "tasks"
