@@ -44,6 +44,7 @@ const StatefulButton = React.forwardRef<HTMLButtonElement, StatefulButtonProps>(
           animate={{ y: isLoading ? -20 : 0, opacity: isLoading ? 0 : 1 }}
           transition={{ duration: 0.3 }}
         >
+          {icon && icon}
           {children}
         </motion.span>
         <AnimatePresence>

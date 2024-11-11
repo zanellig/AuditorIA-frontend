@@ -28,10 +28,8 @@ export function DatePickerWithPresets({
   const [date, setDate] = React.useState<Date>()
   // pass the value to the parent component
   React.useEffect(() => {
-    if (date) {
-      onDateChange(date)
-    }
-  }, [date])
+    if (date) onDateChange(date)
+  }, [date, onDateChange])
   return (
     <Popover>
       <PopoverTrigger asChild>

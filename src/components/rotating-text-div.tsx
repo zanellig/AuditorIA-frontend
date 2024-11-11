@@ -18,7 +18,7 @@ const RotatingTextDiv = ({
     }, 5000)
 
     return () => clearInterval(interval)
-  }, [])
+  }, [rotatingTexts.length])
 
   return (
     <div
