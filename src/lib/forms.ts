@@ -24,7 +24,7 @@ export const validateMimeType = (mimeType: string) => {
   try {
     AudioFileTypesSchema.parse(mimeType)
     return true
-  } catch (err) {
+  } catch {
     return false
   }
 }
@@ -161,4 +161,42 @@ export const featureSuggestionSchema = z.object({
   benefit: z
     .string()
     .min(1, "Please describe how this feature would be beneficial"),
+})
+
+const passwordValidator = z
+  .string({ required_error: "Debe ingresar una contraseña" })
+  .regex(/[a-z]/, {
+    message: "La contraseña debe contener al menos una letra minúscula",
+  })
+  .regex(/[A-Z]/, {
+    message: "La contraseña debe contener al menos una letra mayúscula",
+  })
+  .regex(/[^a-zA-Z0-9]/, {
+    message: "La contraseña debe contener al menos un caracter especial",
+  })
+  .min(8, { message: "La contraseña debe tener al menos 8 caracteres" })
+  .max(128, { message: "La contraseña debe tener menos de 128 caracteres" })
+const usernameValidator = z
+  .string({ required_error: "Debe ingresar un nombre de usuario" })
+  .min(1, "El nombre de usuario es requerido")
+  .max(25, "El nombre de usuario no puede superar los 20 caracteres")
+  .trim()
+
+export const signupFormSchema = z.object({
+  username: usernameValidator,
+  password: passwordValidator,
+  email: z
+    .string({ required_error: "Debe ingresar un correo" })
+    .regex(
+      /^(?=[a-zA-Z0-9@._%+-]{6,254}$)[a-zA-Z0-9._%+-]{1,64}@(?:[a-zA-Z0-9-]{1,63}\.){1,125}[a-zA-Z]{2,63}$/,
+      { message: "Ingrese un correo válido" }
+    )
+    .trim(),
+  fullName: z.string({ required_error: "Debe ingresar su nombre" }).trim(),
+  roleId: z.number().default(1),
+})
+
+export const loginFormSchema = z.object({
+  username: usernameValidator,
+  password: z.string({ required_error: "Debe ingresar su contraseña" }),
 })
