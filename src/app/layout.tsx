@@ -1,10 +1,11 @@
 import React from "react"
 import type { Metadata } from "next"
-import { Inter, Open_Sans } from "next/font/google"
+import { Open_Sans } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/context/ThemeProvider"
+import { Providers } from "@/components/context/Providers"
+import { Toaster } from "@/components/ui/toaster"
 
-const inter = Inter({ subsets: ["latin"] })
 const openSans = Open_Sans({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
@@ -33,8 +34,9 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <Providers>{children}</Providers>
         </ThemeProvider>
+        <Toaster />
       </body>
     </html>
   )

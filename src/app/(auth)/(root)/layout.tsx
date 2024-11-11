@@ -1,5 +1,4 @@
 import type { ReactNode } from "react"
-import { Toaster } from "@/components/ui/toaster"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { ScrollProvider } from "@/components/context/ScrollProvider"
 import { TranscriptionProvider } from "@/components/context/TranscriptionProvider"
@@ -51,7 +50,6 @@ export default function Layout({ children }: { children: ReactNode }) {
                 </ScrollArea>
               </section>
             </div>
-            <Toaster />
             <ReactQueryDevtools
               initialIsOpen={true}
               buttonPosition='top-left'
