@@ -2,7 +2,6 @@ import React from "react"
 import type { Metadata } from "next"
 import { Open_Sans } from "next/font/google"
 import "./globals.css"
-import { ThemeProvider } from "@/components/context/ThemeProvider"
 import { Providers } from "@/components/context/Providers"
 import { Toaster } from "@/components/ui/toaster"
 
@@ -28,15 +27,10 @@ export default function RootLayout({
         <link rel='icon' href='/favicon.ico' sizes='any' />
       </head>
       <body className={openSans.className + " w-dvw h-dvh"}>
-        <ThemeProvider
-          attribute='class'
-          defaultTheme='system'
-          enableSystem
-          disableTransitionOnChange
-        >
-          <Providers>{children}</Providers>
-        </ThemeProvider>
-        <Toaster />
+        <Providers>
+          {children}
+          <Toaster />
+        </Providers>
       </body>
     </html>
   )

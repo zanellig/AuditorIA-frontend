@@ -1,40 +1,49 @@
-// lib/auth.ts
+"use server"
+import { env } from "@/env"
 import { cookies } from "next/headers"
 
-const AUTH_COOKIE = "auth_token"
+const AUTH_COOKIE = "access_token"
 
 export interface AuthTokens {
   access_token: string
   token_type: string
 }
 
-export function setAuthCookie(tokens: AuthTokens) {
-  const cookieStore = cookies()
+export async function setAuthCookie(tokens: AuthTokens) {
   const value = `${tokens.token_type} ${tokens.access_token}`
 
-  return cookieStore.set({
-    name: AUTH_COOKIE,
-    value: value,
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+  cookies().set(AUTH_COOKIE, value, {
+    // httpOnly: true,
+    secure: env.NODE_ENV === "production",
     sameSite: "lax",
     path: "/",
     maxAge: 60 * 60 * 24 * 7, // 7 days
   })
 }
 
-export function getAuthCookie(): string | undefined {
-  const cookieStore = cookies()
-  return cookieStore.get(AUTH_COOKIE)?.value
+export async function getAuthCookie(): Promise<string | undefined> {
+  return cookies().get(AUTH_COOKIE)?.value
 }
 
-export function removeAuthCookie(): void {
-  const cookieStore = cookies()
-  cookieStore.delete(AUTH_COOKIE)
+export async function removeAuthCookie(): Promise<void> {
+  cookies().delete(AUTH_COOKIE)
 }
 
-// Helper to check if user is authenticated
-export function isAuthenticated(): boolean {
-  const token = getAuthCookie()
-  return !!token
+export async function isAuthenticated() {
+  try {
+    const authCookie = await getAuthCookie()
+
+    const isExpired = await fetch(`${env.API_CANARY_8000}/users/me`, {
+      headers: {
+        Authorization: `${authCookie}`,
+      },
+    }).then(r => r.status !== 200)
+
+    console.log("Auth check successful:", isExpired)
+
+    return Boolean(isExpired)
+  } catch (error) {
+    console.error("Error checking authentication:", error)
+    return false
+  }
 }

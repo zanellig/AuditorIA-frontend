@@ -2,6 +2,12 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 import { useState } from "react"
+import { AudioProvider } from "./AudioProvider"
+import { ScrollProvider } from "./ScrollProvider"
+import { TooltipProvider } from "../ui/tooltip"
+import { TranscriptionProvider } from "./TranscriptionProvider"
+import { ThemeProvider } from "./ThemeProvider"
+import { RecoilRoot } from "recoil"
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -21,9 +27,24 @@ export function Providers({ children }: { children: React.ReactNode }) {
   )
 
   return (
-    <QueryClientProvider client={queryClient}>
-      {children}
-      <ReactQueryDevtools initialIsOpen={false} />
-    </QueryClientProvider>
+    <RecoilRoot>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider
+          attribute='class'
+          defaultTheme='system'
+          enableSystem
+          disableTransitionOnChange
+        >
+          <AudioProvider>
+            <ScrollProvider>
+              <TooltipProvider>
+                <TranscriptionProvider>{children}</TranscriptionProvider>
+              </TooltipProvider>
+            </ScrollProvider>
+          </AudioProvider>
+          <ReactQueryDevtools initialIsOpen={false} />
+        </ThemeProvider>
+      </QueryClientProvider>
+    </RecoilRoot>
   )
 }

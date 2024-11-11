@@ -4,11 +4,13 @@ import { TypographyH4 } from "@/components/typography/h4"
 import SubtitleH2 from "@/components/typography/subtitleH2"
 import TitleH1 from "@/components/typography/titleH1"
 import { Button } from "@/components/ui/button"
-import { WavyBackground } from "@/components/ui/wavy-background"
 import { GLOBAL_ICON_SIZE } from "@/lib/consts"
 import { ArrowDown } from "lucide-react"
 import { Metadata } from "next"
 import LoginForm from "./_components/login-form"
+import { redirect } from "next/navigation"
+import { isAuthenticated } from "@/lib/auth"
+import LoginBackground from "./_components/login-background"
 
 export const metadata: Metadata = {
   title: "Iniciar Sesión | AuditorIA - Auditoría de Llamadas Inteligente",
@@ -26,9 +28,14 @@ export const metadata: Metadata = {
   },
 }
 
-export default function LoginPage() {
+export default async function LoginPage() {
+  if (await isAuthenticated()) {
+    redirect("/dashboard")
+  }
+
   return (
-    <main className='grid grid-flow-row grid-cols-2 h-screen'>
+    // I don't know why the screen width detection works the other way around. Should be sm:grid-cols-1 logically as the small screen should trigger the mobile layout.
+    <main className='grid grid-flow-row  sm:grid-cols-2 grid-cols-1 h-screen'>
       <section className='w-full h-full py-8 md:px-24 px-32 p flex flex-col justify-between items-center outline outline-1 outline-muted border-muted dark:bg-primary-foreground'>
         <div className='flex gap-4 items-center justify-center'>
           <Logo width={36} height={36} />
@@ -60,11 +67,7 @@ export default function LoginPage() {
           <span>Aprendé más</span>
         </Button>
       </section>
-      <section className='w-full h-full p-8 relative overflow-hidden'>
-        <WavyBackground
-          colors={["#173739", "#21494b", "#f9fafc", "#8beac1", " #58a8ae"]}
-        />
-      </section>
+      <LoginBackground />
     </main>
   )
 }
