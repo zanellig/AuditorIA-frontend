@@ -1,6 +1,7 @@
 "use server"
 import { env } from "@/env"
 import { cookies } from "next/headers"
+import { redirect } from "next/navigation"
 
 const AUTH_COOKIE = "access_token"
 
@@ -27,6 +28,7 @@ export async function getAuthCookie(): Promise<string | undefined> {
 
 export async function removeAuthCookie(): Promise<void> {
   cookies().delete(AUTH_COOKIE)
+  redirect("/login")
 }
 
 export async function isAuthenticated() {
@@ -39,9 +41,7 @@ export async function isAuthenticated() {
       },
     }).then(r => r.status !== 200)
 
-    console.log("Auth check successful:", isExpired)
-
-    return Boolean(isExpired)
+    return Boolean(!isExpired)
   } catch (error) {
     console.error("Error checking authentication:", error)
     return false

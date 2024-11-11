@@ -36,12 +36,9 @@ export default async function LoginPage() {
   return (
     // I don't know why the screen width detection works the other way around. Should be sm:grid-cols-1 logically as the small screen should trigger the mobile layout.
     <main className='grid grid-flow-row  sm:grid-cols-2 grid-cols-1 h-screen'>
+      <LoginBackground />
       <section className='w-full h-full py-8 md:px-24 px-32 p flex flex-col justify-between items-center outline outline-1 outline-muted border-muted dark:bg-primary-foreground'>
-        <div className='flex gap-4 items-center justify-center'>
-          <Logo width={36} height={36} />
-          <SubtitleH2>AuditorIA</SubtitleH2>
-        </div>
-        <article className='flex flex-col gap-8 items-center'>
+        <article className='flex flex-col gap-8 items-center justify-center h-full'>
           <TitleH1 className='text-center'>
             Revolucioná tu forma de
             <br /> auditar llamados
@@ -54,20 +51,11 @@ export default async function LoginPage() {
             seguridad.
           </TypographyH4>
 
-          <div className='w-96'>
+          <div className='w-3/4'>
             <LoginForm />
           </div>
         </article>
-
-        <Button
-          variant='outline'
-          className='flex gap-2 items-center w-fit justify-self-center'
-        >
-          <ArrowDown size={GLOBAL_ICON_SIZE} className='animate-bounce' />
-          <span>Aprendé más</span>
-        </Button>
       </section>
-      <LoginBackground />
     </main>
   )
 }

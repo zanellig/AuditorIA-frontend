@@ -34,6 +34,10 @@ import { Checkbox } from "@/components/ui/checkbox"
 const loginUser = async (
   credentials: z.infer<typeof loginFormSchema>
 ): Promise<LoginResponse | string | undefined> => {
+  const isValidInput = loginFormSchema.safeParse(credentials)
+  if (!isValidInput.success) {
+    throw new Error(isValidInput.error.format())
+  }
   const alreadyLoggedIn = await isAuthenticated()
   if (alreadyLoggedIn) return await getAuthCookie()
   const response = await fetch(`${await getHost()}/api/login`, {
@@ -47,7 +51,7 @@ const loginUser = async (
 
   if (!response.ok) {
     const error = await response.json()
-    throw new Error(error.message || "Error logging in")
+    throw new Error(error.detail || "Error logging in")
   }
 
   return response.json()

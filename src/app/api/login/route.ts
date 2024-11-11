@@ -1,6 +1,6 @@
 // app/api/login/route.ts
 import { env } from "@/env"
-import { isAuthenticated, setAuthCookie } from "@/lib/auth"
+import { AuthTokens, isAuthenticated, setAuthCookie } from "@/lib/auth"
 import { loginFormSchema } from "@/lib/forms"
 import { getHeaders } from "@/lib/get-headers"
 import { NextRequest, NextResponse } from "next/server"
@@ -34,9 +34,11 @@ export async function POST(request: NextRequest) {
         "Content-Type": "application/x-www-form-urlencoded",
       },
       body: formData.toString(),
+    }).catch(e => {
+      throw new Error(e.detail)
     })
 
-    const data = await response.json()
+    const data: AuthTokens = await response.json()
     await setAuthCookie(data)
     return NextResponse.json(data, {
       status: response.status,
@@ -44,8 +46,8 @@ export async function POST(request: NextRequest) {
         ...(await getHeaders(request)),
       },
     })
-  } catch (e) {
+  } catch (e: any) {
     console.error(e)
-    return NextResponse.json({ message: "Error logging in" }, { status: 500 })
+    return NextResponse.json({ message: e.message }, { status: 500 })
   }
 }
