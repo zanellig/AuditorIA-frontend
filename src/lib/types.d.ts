@@ -19,7 +19,7 @@ export enum ServerStatusBadgeVariant {
 export enum AnalysisMessage {
   Queued = "queued for analyze",
 }
-export type Analysis = {
+export interface Analysis {
   message: AnalysisMessage
 }
 
@@ -45,7 +45,7 @@ export const taskSchema = z.object({
 export type Task = z.infer<typeof taskSchema>
 export type Tasks = Task[]
 
-export type TaskPOSTResponse = {
+export interface TaskPOSTResponse {
   identifier: TaskUUID
   message: string
 }
@@ -80,7 +80,7 @@ export enum Method {
 export interface FetchOptions extends RequestInit {
   headers: Headers | Record<string, string>
   method: Methods
-  body?: any
+  body?: Record<string, string> | FormData | null
   next?: NextFetchRequestConfig
   cache?: RequestCache
 }
@@ -174,12 +174,12 @@ export const transcriptionTypeSchema = z.object({
 
 export type TranscriptionType = z.infer<typeof transcriptionTypeSchema>
 
-export type EmotionValues = {
+export interface EmotionValues {
   pos: number[]
   neu: number[]
   neg: number[]
 }
-export type SentimentValues = {
+export interface SentimentValues {
   joy: number[]
   fear: number[]
   anger: number[]
@@ -187,25 +187,25 @@ export type SentimentValues = {
   disgust: number[]
 }
 
-export type HateValues = {
+export interface HateValues {
   hateful: number[]
   targeted: number[]
   aggressive: number[]
 }
 
-export type EmotionAverage = {
+export interface EmotionAverage {
   pos: number
   neu: number
   neg: number
 }
-export type SentimentAverage = {
+export interface SentimentAverage {
   joy: number
   fear: number
   anger: number
   others: number
   disgust: number
 }
-export type HateSpeechAverage = {
+export interface HateSpeechAverage {
   hateful: number
   targeted: number
   aggressive: number
@@ -215,14 +215,6 @@ export interface Averages {
   emotionAverage: EmotionAverage
   sentimentAverage: SentimentAverage
   hateSpeechAverage: HateSpeechAverage
-}
-
-export enum Emotions {
-  Joy = "Joy" | "Disfrute",
-  Fear = "Fear" | "Miedo",
-  Anger = "Anger" | "Enojo",
-  Others = "Others" | "Otros",
-  Disgust = "Disgust" | "Disgusto",
 }
 
 export const EmotionsSchema = z.enum([

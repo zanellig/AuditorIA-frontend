@@ -89,7 +89,9 @@ export async function getNetworkAudio(
       await execAsync(smbCommand)
     } catch (err) {
       console.error("Failed to execute smbclient command:", err)
-      await fs.rmdir(tempDir).catch(() => {}) // Best effort cleanup
+      await fs.rmdir(tempDir).catch(() => {
+        console.warn(`Failed to clean up temp directory: ${tempDir}`)
+      }) // Best effort cleanup
       console.groupEnd()
       console.groupEnd()
       return [
@@ -112,8 +114,12 @@ export async function getNetworkAudio(
     console.log("Successfully read temporary file")
   } catch (err) {
     console.error("Failed to read temporary file:", err)
-    await fs.unlink(tempFile).catch(() => {})
-    await fs.rmdir(tempDir).catch(() => {})
+    await fs
+      .unlink(tempFile)
+      .catch(() => console.warn(`Failed to delete file: ${tempFile}`))
+    await fs
+      .rmdir(tempDir)
+      .catch(() => console.warn(`Failed to delete directory: ${tempDir}`))
     console.groupEnd()
     console.groupEnd()
     return [
@@ -147,8 +153,8 @@ export async function getNetworkAudio(
 
 async function retryReadFile(
   filePath: string,
-  retries: number = 3,
-  delay: number = 5000
+  retries = 3,
+  delay = 5000
 ): Promise<Buffer> {
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {

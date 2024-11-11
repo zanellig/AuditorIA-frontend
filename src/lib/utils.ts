@@ -128,19 +128,19 @@ export const handleCopyToClipboard = (items: string[] | string) => {
 export async function calculateAverageForSegments(
   segments: Segment[]
 ): Promise<Averages | null> {
-  let emotions: EmotionValues = {
+  const emotions: EmotionValues = {
     pos: [],
     neu: [],
     neg: [],
   }
-  let sentiments: SentimentValues = {
+  const sentiments: SentimentValues = {
     joy: [],
     fear: [],
     anger: [],
     others: [],
     disgust: [],
   }
-  let hate_speech: HateValues = {
+  const hate_speech: HateValues = {
     hateful: [],
     targeted: [],
     aggressive: [],
@@ -163,23 +163,19 @@ export async function calculateAverageForSegments(
     hate_speech.aggressive.push(segment.analysis.hate_speech_probas.aggressive)
   }
 
-  let emotionAverage: EmotionAverage
-  let sentimentAverage: SentimentAverage
-  let hateSpeechAverage: HateSpeechAverage
-
-  emotionAverage = {
+  const emotionAverage: EmotionAverage = {
     pos: calculateAverage(emotions.pos),
     neu: calculateAverage(emotions.neu),
     neg: calculateAverage(emotions.neg),
   }
-  sentimentAverage = {
+  const sentimentAverage: SentimentAverage = {
     joy: calculateAverage(sentiments.joy),
     fear: calculateAverage(sentiments.fear),
     anger: calculateAverage(sentiments.anger),
     others: calculateAverage(sentiments.others),
     disgust: calculateAverage(sentiments.disgust),
   }
-  hateSpeechAverage = {
+  const hateSpeechAverage: HateSpeechAverage = {
     hateful: calculateAverage(hate_speech.hateful),
     targeted: calculateAverage(hate_speech.targeted),
     aggressive: calculateAverage(hate_speech.aggressive),
@@ -238,12 +234,11 @@ export function normalizeString(input: string): string {
 }
 
 export function getUniqueWords(segments: Segment[]): Set<string> {
-  const wordsSet: Set<string> = new Set()
+  const wordsSet = new Set<string>()
   for (const segment of segments) {
     let words = segment.text.split(" ")
     words = words.map(word => {
-      word = _replaceSpecialCharacters(word, "")
-      word = replaceNonASCIIChars(word)
+      word = normalizeString(word)
       word = word.toLowerCase()
       word = word.trim()
       return word

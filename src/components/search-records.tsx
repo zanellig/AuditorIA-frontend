@@ -1,5 +1,5 @@
 "use client"
-import React from "react"
+import React, { type JSX } from "react";
 import {
   Card,
   CardContent,
@@ -8,7 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { ArrowRightIcon, CalendarIcon } from "@radix-ui/react-icons"
+import { ArrowRightIcon } from "@radix-ui/react-icons"
 import { DASHBOARD_ICON_CLASSES } from "@/lib/consts"
 import DashboardSkeleton from "@/components/skeletons/dashboard-skeleton"
 import { Button } from "@/components/ui/button"
@@ -33,7 +33,7 @@ import { QueryKey, useQuery, useQueryClient } from "@tanstack/react-query"
 import { getHost } from "@/lib/actions"
 
 type InputType = HTMLInputElement["type"]
-type TSearchRecordsProps = {
+interface TSearchRecordsProps {
   title: string
   icon: JSX.Element
   shouldEnterText: string
@@ -71,7 +71,7 @@ export default function SearchRecords({
       queryKey: queryKey,
     })
     setQueryKey(["recordings", `${date ? date.toISOString() : search}`])
-  }, [search, date, input])
+  }, [search, date, input, queryKey, queryClient])
 
   // Function to fetch recordings based on input or date
   const fetchRecordings = async (signal: AbortSignal) => {
@@ -138,7 +138,7 @@ export default function SearchRecords({
         variant: "destructive",
       })
     }
-  }, [error])
+  }, [error, toast])
 
   return (
     <div className='flex flex-col gap-2 w-full justify-center items-center'>

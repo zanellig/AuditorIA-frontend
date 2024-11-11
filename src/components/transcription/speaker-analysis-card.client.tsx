@@ -1,12 +1,7 @@
 // @/components/transcription/speaker-analysis-card.client.tsx
 "use client"
 import React from "react"
-import {
-  _replaceSpecialCharacters,
-  cn,
-  getUniqueWords,
-  normalizeString,
-} from "@/lib/utils"
+import { cn, getUniqueWords, normalizeString } from "@/lib/utils"
 import { Button } from "../ui/button"
 import {
   ArrowRightIcon,
@@ -32,8 +27,10 @@ import { Trash2 } from "lucide-react"
 import OperatorQualityAccordionWrapper from "./operator-quality/operator-quality-accordion-wrapper"
 import { ScrollArea } from "../ui/scroll-area"
 
+/**
+ * ### Here we get the operator_quality and spkanalysis.
+ */
 export default function SpeakerAnalysisCard({
-  children,
   className,
   segments,
 }: {
@@ -89,7 +86,6 @@ export default function SpeakerAnalysisCard({
 }
 
 function LocalWordSearch({
-  className,
   words,
 }: {
   className?: string
@@ -116,7 +112,7 @@ function LocalWordSearch({
     })
   }
   // Create refs for each input
-  const inputRefs = React.useRef<Array<HTMLInputElement | null>>([])
+  const inputRefs = React.useRef<HTMLInputElement[] | null[]>([])
 
   React.useEffect(() => {
     // timer
@@ -129,7 +125,7 @@ function LocalWordSearch({
       }, timer)
       return () => clearTimeout(loadingTimer)
     }
-  }, [searchingWordsForUser])
+  }, [searchingWordsForUser, timer])
 
   // Focus input when editing starts
   React.useEffect(() => {
@@ -201,7 +197,7 @@ function LocalWordSearch({
           </div>
           {inputs.map((input, i) => {
             return (
-              <div className='flex flex-col gap-2'>
+              <div className='flex flex-col gap-2' key={input + "-" + i}>
                 {edit[0] && edit[2] === i && (
                   <span className='text-sm text-muted-foreground'>
                     Para salir del modo edición presione{" "}

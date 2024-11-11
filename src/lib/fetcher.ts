@@ -4,7 +4,7 @@ import { Method, FetchOptions } from "@/lib/types.d"
 async function _request<T, R extends boolean | undefined = undefined>(
   url: string,
   method: Method,
-  body?: any,
+  body?: Record<string, string> | FormData | null,
   headers?: Headers,
   options?: {
     revalidate?: boolean
@@ -39,6 +39,8 @@ async function _request<T, R extends boolean | undefined = undefined>(
         )
       )
     }
+  } else {
+    fetchOptions.body = body
   }
 
   options?.revalidate ? (fetchOptions.next = { revalidate: 5 }) : null
@@ -85,7 +87,7 @@ function _get<T = Response, R extends boolean | undefined = undefined>(
 
 function _post<T, R extends boolean | undefined = undefined>(
   url: string,
-  body: any,
+  body: Record<string, string> | FormData | null,
   headers?: Headers,
   options?: {
     revalidate?: boolean
@@ -99,7 +101,7 @@ function _post<T, R extends boolean | undefined = undefined>(
 
 function _put<T, R extends boolean | undefined = undefined>(
   url: string,
-  body: any,
+  body: Record<string, string> | FormData | null,
   headers?: Headers,
   options?: {
     revalidate?: boolean
@@ -113,7 +115,7 @@ function _put<T, R extends boolean | undefined = undefined>(
 
 function _patch<T, R extends boolean | undefined = undefined>(
   url: string,
-  body: any,
+  body: Record<string, string> | FormData | null,
   headers?: Headers,
   options?: {
     revalidate?: boolean

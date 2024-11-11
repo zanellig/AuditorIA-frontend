@@ -49,6 +49,7 @@ export function SidebarButton({
           const { customKey, ...props } = child
           return (
             <SidebarButton
+              key={`${customKey}-child-${index}`}
               customKey={`${customKey}-child-${index}`}
               {...props}
             />
