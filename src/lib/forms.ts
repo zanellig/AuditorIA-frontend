@@ -198,6 +198,8 @@ export const signupFormSchema = z.object({
 
 export const loginFormSchema = z.object({
   username: usernameValidator,
-  password: z.string({ required_error: "Debe ingresar su contraseña" }),
+  password: z
+    .string({ required_error: "Debe ingresar su contraseña" })
+    .min(1, "Debe ingresar su contraseña"),
   rememberMe: z.boolean().default(false),
 })
