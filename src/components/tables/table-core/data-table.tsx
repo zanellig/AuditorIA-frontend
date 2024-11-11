@@ -32,7 +32,12 @@ import TableActions from "@/components/tables/table-core/table-actions"
 import Pagination from "@/components/tables/table-core/pagination"
 
 import type { TableSupportedDataTypes, Recordings } from "@/lib/types"
-import { type QueryKey } from "@tanstack/react-query"
+import {
+  FetchStatus,
+  MutationStatus,
+  QueryStatus,
+  type QueryKey,
+} from "@tanstack/react-query"
 
 interface DataTableProps<TData, TValue, classNameType, Recordings> {
   children?: React.ReactNode
@@ -41,6 +46,7 @@ interface DataTableProps<TData, TValue, classNameType, Recordings> {
   type?: TableSupportedDataTypes
   className?: classNameType
   queryKey: QueryKey
+  status: QueryStatus | FetchStatus | MutationStatus
 }
 
 export interface TableWithQueryKey<TData> extends ReactTableInstance<TData> {
@@ -71,7 +77,8 @@ export default function DataTable<TData, TValue>({
   data,
   type,
   className,
-  queryKey = [],
+  queryKey,
+  status,
 }: DataTableProps<TData, TValue, string, Recordings>) {
   // Filtering
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
@@ -127,6 +134,7 @@ export default function DataTable<TData, TValue>({
         <TableActions<TData>
           table={table as ReactTableInstance<TData>}
           data={data}
+          status={status}
         >
           {children}
         </TableActions>

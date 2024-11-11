@@ -3,20 +3,22 @@ import React from "react"
 import { ColumnFiltersState, getFilteredRowModel } from "@tanstack/react-table"
 import SearchInput from "@/components/tables/table-core/search-input"
 import FilterButton from "@/components/tables/table-core/filter-button"
-import { TableSupportedDataTypes } from "@/lib/types"
 import RefreshButton from "./refresh-button"
 import { TableWithQueryKey } from "./data-table"
+import { FetchStatus, MutationStatus, QueryStatus } from "@tanstack/react-query"
 
 interface TableActionsProps<TData> {
   children?: React.ReactNode
   table: TableWithQueryKey<TData>
   data: TData[]
+  status: QueryStatus | FetchStatus | MutationStatus
 }
 
 export default function TableActions<TData>({
   children,
   table,
   data,
+  status,
 }: TableActionsProps<TData>) {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -79,7 +81,7 @@ export default function TableActions<TData>({
         )}
         {children}
       </div>
-      <RefreshButton queryKey={table.queryInfo?.queryKey} />
+      <RefreshButton queryKey={table.queryInfo?.queryKey} status={status} />
     </div>
   )
 }

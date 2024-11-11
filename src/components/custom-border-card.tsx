@@ -15,7 +15,7 @@ import { GLOBAL_ICON_SIZE } from "@/lib/consts"
 
 // Define the card variants using cva
 const cardVariants = cva(
-  "border w-full h-full", // Base classes for the card
+  "border w-full h-fit", // Base classes for the card
   {
     variants: {
       variant: {
@@ -50,7 +50,6 @@ export const CustomBorderCard = React.forwardRef<
   (
     {
       className,
-      children,
       title,
       description,
       variant = "default",

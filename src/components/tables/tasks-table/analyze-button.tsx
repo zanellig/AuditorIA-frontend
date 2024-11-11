@@ -44,7 +44,7 @@ export default function AnalyzeButton({
           description: (
             <div className='flex items-center gap-2'>
               <span>Analizando tarea</span>
-              <Sparkles className='animate-sparkles' size={GLOBAL_ICON_SIZE} />
+              <Sparkles className='animate-sparkle' size={GLOBAL_ICON_SIZE} />
             </div>
           ),
         })
@@ -66,7 +66,6 @@ export default function AnalyzeButton({
             description: mutation.error.message,
           })
         }
-
         if (mutation.data && !mutation.isPending && !mutation.isError)
           toast({
             title: "Tarea analizada",

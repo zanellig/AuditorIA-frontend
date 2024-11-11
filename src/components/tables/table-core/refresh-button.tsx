@@ -6,14 +6,21 @@ import {
   useMutation,
   type QueryKey,
   useQueryClient,
+  MutationStatus,
+  FetchStatus,
+  QueryStatus,
 } from "@tanstack/react-query"
 import { RefreshCw } from "lucide-react"
 
 interface RefreshButtonProps extends React.HTMLAttributes<HTMLDivElement> {
   queryKey?: QueryKey
+  status: QueryStatus | FetchStatus | MutationStatus
 }
 
-export default function RefreshButton({ queryKey }: RefreshButtonProps) {
+export default function RefreshButton({
+  queryKey,
+  status,
+}: RefreshButtonProps) {
   if (!queryKey) return null
   const queryClient = useQueryClient()
   const mutation = useMutation({
@@ -30,6 +37,8 @@ export default function RefreshButton({ queryKey }: RefreshButtonProps) {
       console.timeEnd(queryKey.toString())
     },
   })
+  const isLoading =
+    mutation.isPending || status === "pending" || status === "fetching"
   return (
     <Button
       size='icon'
@@ -38,11 +47,11 @@ export default function RefreshButton({ queryKey }: RefreshButtonProps) {
         mutation.mutate()
       }}
       className='transition-transform duration-300'
-      disabled={mutation.isPending}
+      disabled={isLoading}
     >
       <RefreshCw
         size={GLOBAL_ICON_SIZE}
-        className={cn(mutation.isPending && "animate-spin")}
+        className={cn(isLoading && "animate-spin")}
       />
     </Button>
   )
