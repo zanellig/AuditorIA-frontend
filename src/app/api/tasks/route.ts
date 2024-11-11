@@ -130,7 +130,7 @@ export async function PUT(request: NextRequest) {
   if (headers instanceof NextResponse) return headers
   const body = await request.json()
   const { identifier, language } = body
-  const url = [env.API_CANARY, "task", identifier]
+  const url = [env.API_CANARY_7000, "task", identifier]
     .join("/")
     .concat(`?lang=${language}`)
   const [err, res] = await _put(url, body)

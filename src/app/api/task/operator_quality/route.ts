@@ -27,7 +27,9 @@ export async function GET(request: NextRequest) {
       { status: 400, headers }
     )
   }
-  const url = [env.API_CANARY, TASK_PATH, OPERATOR_QUALITY_PATH, id].join("/")
+  const url = [env.API_CANARY_7000, TASK_PATH, OPERATOR_QUALITY_PATH, id].join(
+    "/"
+  )
   const [err, res] = await _get(url, undefined, { cacheResponse: true })
 
   if (err !== null) {

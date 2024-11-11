@@ -351,7 +351,9 @@ export async function PUT(request: NextRequest) {
   }
   /** Why are we using plural when updating a single task?
    * This took me much longer to debug than it should have... */
-  const url = new URL([env.API_CANARY, ALL_TASKS_PATH, identifier].join("/"))
+  const url = new URL(
+    [env.API_CANARY_7000, ALL_TASKS_PATH, identifier].join("/")
+  )
   language && url.searchParams.append("lang", `${language}`)
   const [err, res] = await _put<Response>(url.href, null)
 

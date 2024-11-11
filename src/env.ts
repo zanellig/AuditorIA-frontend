@@ -4,7 +4,8 @@ import { z } from "zod"
 // Define the schema for the environment variables
 const envSchema = z.object({
   API_MAIN: z.string(),
-  API_CANARY: z.string(),
+  API_CANARY_7000: z.string(),
+  API_CANARY_8000: z.string(),
   NEXT_RUNTIME: z.enum(["nodejs", "edge"]),
   APP_ENV: z.enum(["local", "remote"]),
   NODE_ENV: z.enum(["development", "production"]),

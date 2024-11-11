@@ -17,7 +17,9 @@ export async function GET(request: NextRequest) {
   if (headers instanceof NextResponse) return headers
   try {
     const params = request.nextUrl.searchParams
-    const externalUrl = new URL([env.API_CANARY, ALL_RECORDS_PATH].join("/"))
+    const externalUrl = new URL(
+      [env.API_CANARY_7000, ALL_RECORDS_PATH].join("/")
+    )
     params.forEach((value, key) => {
       externalUrl.searchParams.set(key, value)
     })

@@ -17,11 +17,15 @@ export async function GET(request: NextRequest) {
   const headers = await getHeaders(request)
   if (headers instanceof NextResponse) return headers
   // Fetch data
-  const [error, response] = await _get(env.API_CANARY + "/docs", undefined, {
-    expectJson: false,
-    onlyReturnStatus: true,
-    cacheResponse: false,
-  })
+  const [error, response] = await _get(
+    env.API_CANARY_7000 + "/docs",
+    undefined,
+    {
+      expectJson: false,
+      onlyReturnStatus: true,
+      cacheResponse: false,
+    }
+  )
   // Handle errors
   if (error) {
     return new NextResponse(
