@@ -21,7 +21,6 @@ import {
 import {
   Tooltip,
   TooltipContent,
-  TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { useToast } from "@/components/ui/use-toast"
@@ -177,22 +176,20 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({ taskId, toast }) => (
       Transcripción de llamado con ID
       <span className='font-bold'> {taskId}</span>
     </TypographyH3>
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button
-            variant='outline'
-            onClick={() => {
-              toast({ title: "Se copió el ID", description: taskId })
-              handleCopyToClipboard(taskId)
-            }}
-          >
-            <ClipboardIcon size={GLOBAL_ICON_SIZE} />
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent>Copiar ID</TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          variant='outline'
+          onClick={() => {
+            toast({ title: "Se copió el ID", description: taskId })
+            handleCopyToClipboard(taskId)
+          }}
+        >
+          <ClipboardIcon size={GLOBAL_ICON_SIZE} />
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent>Copiar ID</TooltipContent>
+    </Tooltip>
   </div>
 )
 
@@ -266,13 +263,48 @@ const Emoji: React.FC<EmojiProps> = ({ emotion }) => (
         )}
       >
         {{
-          joy: <Laugh size={EMOJI_SIZE} />,
-          fear: <SurpriseIcon size={EMOJI_SIZE} />,
-          anger: <Angry size={EMOJI_SIZE} />,
-          others: <Meh size={EMOJI_SIZE} />,
-          sadness: <Frown size={EMOJI_SIZE} />,
-          disgust: <Annoyed size={EMOJI_SIZE} />,
-          surprise: <SurpriseIcon size={EMOJI_SIZE} />,
+          joy: (
+            <Laugh
+              size={EMOJI_SIZE}
+              className={`text-${getColorForEmotion(emotion)}`}
+            />
+          ),
+          fear: (
+            <SurpriseIcon
+              size={EMOJI_SIZE}
+              className={`text-${getColorForEmotion(emotion)}`}
+            />
+          ),
+          anger: (
+            <Angry
+              size={EMOJI_SIZE}
+              className={`text-${getColorForEmotion(emotion)}`}
+            />
+          ),
+          others: (
+            <Meh
+              size={EMOJI_SIZE}
+              className={`text-${getColorForEmotion(emotion)}`}
+            />
+          ),
+          sadness: (
+            <Frown
+              size={EMOJI_SIZE}
+              className={`text-${getColorForEmotion(emotion)}`}
+            />
+          ),
+          disgust: (
+            <Annoyed
+              size={EMOJI_SIZE}
+              className={`text-${getColorForEmotion(emotion)}`}
+            />
+          ),
+          surprise: (
+            <SurpriseIcon
+              size={EMOJI_SIZE}
+              className={`text-${getColorForEmotion(emotion)}`}
+            />
+          ),
         }[emotion] || ""}
       </span>
     </TooltipTrigger>
