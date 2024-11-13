@@ -1,6 +1,5 @@
 "use client"
-
-import { useState } from "react"
+import * as React from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
@@ -54,7 +53,9 @@ const signupUser = async (
 }
 
 export default function SignupForm() {
-  const [step, setStep] = useState(0)
+  const signupUserCallback = React.useCallback(signupUser, [])
+
+  const [step, setStep] = React.useState(0)
 
   const { toast } = useToast()
 
@@ -70,7 +71,7 @@ export default function SignupForm() {
 
   const mutation = useMutation({
     mutationKey: ["signup"],
-    mutationFn: signupUser,
+    mutationFn: signupUserCallback,
     onSuccess: () => {
       toast({
         title: `¡Bienvenido!`,

@@ -30,6 +30,7 @@ import { getHost } from "@/lib/actions"
 import { getAuthCookie, isAuthenticated } from "@/lib/auth"
 import Link from "next/link"
 import { Checkbox } from "@/components/ui/checkbox"
+import { useUser } from "@/components/context/UserProvider"
 
 const loginUser = async (
   credentials: z.infer<typeof loginFormSchema>
@@ -55,8 +56,12 @@ const loginUser = async (
 }
 
 export default function LoginForm() {
+  const loginUserCallback = React.useCallback(loginUser, [])
+
   const { toast } = useToast()
   const router = useRouter()
+
+  const { refreshUser } = useUser()
 
   const form = useForm<z.infer<typeof loginFormSchema>>({
     resolver: zodResolver(loginFormSchema),
@@ -68,9 +73,9 @@ export default function LoginForm() {
   })
   const mutation = useMutation({
     mutationKey: ["login"],
-    mutationFn: loginUser,
-    onSuccess: () => {
-      // Handle successful login
+    mutationFn: loginUserCallback,
+    onSuccess: async () => {
+      await refreshUser()
       toast({
         title: "¡Bienvenido!",
         description: "Has iniciado sesión exitosamente.",

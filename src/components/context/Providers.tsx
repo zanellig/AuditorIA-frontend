@@ -7,7 +7,7 @@ import { ScrollProvider } from "./ScrollProvider"
 import { TooltipProvider } from "../ui/tooltip"
 import { TranscriptionProvider } from "./TranscriptionProvider"
 import { ThemeProvider } from "./ThemeProvider"
-import { RecoilRoot } from "recoil"
+import { UserContextProvider } from "./UserProvider"
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -27,14 +27,14 @@ export function Providers({ children }: { children: React.ReactNode }) {
   )
 
   return (
-    <RecoilRoot>
-      <QueryClientProvider client={queryClient}>
-        <ThemeProvider
-          attribute='class'
-          defaultTheme='system'
-          enableSystem
-          disableTransitionOnChange
-        >
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider
+        attribute='class'
+        defaultTheme='system'
+        enableSystem
+        disableTransitionOnChange
+      >
+        <UserContextProvider>
           <AudioProvider>
             <ScrollProvider>
               <TooltipProvider>
@@ -43,8 +43,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
             </ScrollProvider>
           </AudioProvider>
           <ReactQueryDevtools initialIsOpen={false} />
-        </ThemeProvider>
-      </QueryClientProvider>
-    </RecoilRoot>
+        </UserContextProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
   )
 }

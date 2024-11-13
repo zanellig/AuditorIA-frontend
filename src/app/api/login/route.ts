@@ -7,6 +7,8 @@ import { NextRequest, NextResponse } from "next/server"
 import { z } from "zod"
 
 export async function POST(request: NextRequest) {
+  // TODO: Implement HTTPS to encrypt data in transit and at rest
+  // TODO: Implement rate limiting to prevent brute force attacks
   const responseHeaders = await getHeaders(request)
   try {
     if (await isAuthenticated())
@@ -18,17 +20,20 @@ export async function POST(request: NextRequest) {
     const body: z.infer<typeof loginFormSchema> = await request.json()
     const validatedBody = loginFormSchema.safeParse(body)
     if (!validatedBody.success) {
-      return NextResponse.json(validatedBody.error.format(), {
-        status: 400,
-        statusText: "The request body is not valid",
-        headers: responseHeaders,
-      })
+      return NextResponse.json(
+        { message: validatedBody.error.issues[0].message },
+        {
+          status: 400,
+          statusText: "The request body is not valid",
+          headers: responseHeaders,
+        }
+      )
     }
 
     // Create URLSearchParams for form data
     const formData = new URLSearchParams()
-    formData.append("username", body.username)
-    formData.append("password", body.password)
+    formData.append("username", validatedBody.data.username)
+    formData.append("password", validatedBody.data.password)
 
     const response = await fetch(`${env.API_CANARY_8000}/token`, {
       method: "POST",
@@ -42,7 +47,7 @@ export async function POST(request: NextRequest) {
 
     const data: AuthTokens = await response.json()
     await setAuthCookie(data)
-    return NextResponse.json(data, {
+    return NextResponse.json(validatedBody.data, {
       status: response.status,
       headers: {
         ...(await getHeaders(request)),

@@ -25,18 +25,13 @@ import {
   UsersIcon,
 } from "lucide-react"
 import { SendUsFeedbackButton } from "@/components/navigation/feedback-button"
-import { useScroll } from "../context/ScrollProvider"
-import { usePathname } from "next/navigation"
 import { BreadcrumbWithCustomSeparator } from "./breadcrumbs-with-separator"
 import { AvatarButton } from "./avatar"
 import { ModeToggle } from "./mode-toggle"
 import Link from "next/link"
-import { TESTING, TESTING_RECORDINGS } from "@/lib/consts"
-import StatusBadges from "./status.client"
 import { SidebarButton, SidebarButtonProps } from "./sidebar-button"
 import { ScrollArea } from "../ui/scroll-area"
-import Image from "next/image"
-import logo from "@/app/favicon.ico"
+import Logo from "../logo"
 
 const iconSize = "h-[1.2rem] w-[1.2rem]"
 const TOP_HEIGHT = "h-14"
@@ -216,12 +211,7 @@ export function Sidebar({ className }: { className?: string }) {
           TOP_HEIGHT
         )}
       >
-        <Image
-          src={logo}
-          alt='AuditorIA'
-          loading='lazy'
-          className='w-[1.2rem] h-[1.2rem]'
-        />
+        <Logo width={16} height={16} />
         <p
           className='duration-300 transition-colors font-bold hover:animate-sparkle'
           style={{
@@ -235,6 +225,7 @@ export function Sidebar({ className }: { className?: string }) {
       {links.map((link, index) => (
         <SidebarButton
           customKey={"sidebar-button-" + index}
+          key={"sidebar-button-" + index}
           href={link.href}
           icon={link.icon}
           title={link.title}
@@ -244,7 +235,10 @@ export function Sidebar({ className }: { className?: string }) {
         >
           {link.Achildren && link.Achildren.length > 0
             ? link.Achildren.map((child, childIndex) => (
-                <SidebarButton {...(child as SidebarButtonProps)} />
+                <SidebarButton
+                  key={"sidebar-button-" + index + "-" + childIndex}
+                  {...(child as SidebarButtonProps)}
+                />
               ))
             : null}
         </SidebarButton>
@@ -265,16 +259,6 @@ export function TopNavbar({
   className?: string
   style?: React.CSSProperties
 }) {
-  const { scrollY } = useScroll()
-  const [showButtons, setShowButtons] = React.useState(false)
-  React.useEffect(() => {
-    if (scrollY >= 0 && scrollY < 20) {
-      setShowButtons(true)
-    } else {
-      setShowButtons(false)
-    }
-  }, [scrollY])
-
   return (
     <div
       className={cn(
@@ -285,19 +269,9 @@ export function TopNavbar({
       style={style}
     >
       <BreadcrumbWithCustomSeparator />
-      <>
-        {TESTING && (
-          <p className='animate-pulse text-destructive'>TESTING IS ON</p>
-        )}
-        {TESTING_RECORDINGS && (
-          <p className='animate-pulse text-destructive'>
-            TESTING RECORDINGS IS ON
-          </p>
-        )}
-      </>
       <div className='flex flex-row space-x-4 items-center'>
         {children}
-        <AvatarButton showButtons={showButtons} />
+        <AvatarButton />
         <div className={`transition-all duration-500 `}>
           <ModeToggle />
         </div>

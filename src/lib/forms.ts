@@ -121,10 +121,17 @@ export const taskFormOptions = {
 }
 
 const NAME_VALIDATOR = z
-  .string({ message: "Su nombre es requerido" })
+  .string({ message: "Ingrese su nombre completo" })
   .min(1, "El nombre introducido es demasiado corto")
   .max(50, "El nombre introducido es demasiado largo")
   .regex(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/, "Nombre inválido")
+  .regex(/\s/, "Ingrese su nombre completo")
+  .transform(name => {
+    const parts = name.toLowerCase().split(" ")
+    return parts
+      .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+      .join(" ")
+  })
 
 const EMAIL_VALIDATOR = z
   .string({ message: "Introduzca su dirección de correo" })
@@ -181,25 +188,36 @@ const usernameValidator = z
   .min(1, "El nombre de usuario es requerido")
   .max(25, "El nombre de usuario no puede superar los 20 caracteres")
   .trim()
+const emailValidator = z
+  .string({ required_error: "Ingrese un correo" })
+  .regex(
+    /^(?=[a-zA-Z0-9@._%+-]{6,254}$)[a-zA-Z0-9._%+-]{1,64}@(?:[a-zA-Z0-9-]{1,63}\.){1,125}[a-zA-Z]{2,63}$/,
+    { message: "Ingrese un correo válido" }
+  )
+  .trim()
 
 export const signupFormSchema = z.object({
   username: usernameValidator,
   password: passwordValidator,
-  email: z
-    .string({ required_error: "Debe ingresar un correo" })
-    .regex(
-      /^(?=[a-zA-Z0-9@._%+-]{6,254}$)[a-zA-Z0-9._%+-]{1,64}@(?:[a-zA-Z0-9-]{1,63}\.){1,125}[a-zA-Z]{2,63}$/,
-      { message: "Ingrese un correo válido" }
-    )
-    .trim(),
-  fullName: z.string({ required_error: "Debe ingresar su nombre" }).trim(),
+  email: emailValidator,
+  fullName: NAME_VALIDATOR,
   roleId: z.number().default(1),
 })
 
 export const loginFormSchema = z.object({
   username: usernameValidator,
   password: z
-    .string({ required_error: "Debe ingresar su contraseña" })
-    .min(1, "Debe ingresar su contraseña"),
+    .string({ required_error: "Ingrese su contraseña" })
+    .min(1, "Ingrese una contraseña válida"),
   rememberMe: z.boolean().default(false),
+})
+
+export const updateAvatarFormSchema = z.object({
+  image: z.custom<File | Blob>(),
+})
+
+export const updateUserProfileFormSchema = z.object({
+  username: usernameValidator,
+  fullName: NAME_VALIDATOR,
+  email: emailValidator,
 })
