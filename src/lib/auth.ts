@@ -28,7 +28,6 @@ export async function getAuthCookie(): Promise<string | undefined> {
 
 export async function removeAuthCookie(): Promise<void> {
   cookies().delete(AUTH_COOKIE)
-  redirect("/login")
 }
 
 export async function isAuthenticated() {
