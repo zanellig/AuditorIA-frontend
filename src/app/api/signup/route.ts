@@ -1,5 +1,10 @@
 import { env } from "@/env"
-import { AuthTokens, isAuthenticated, setAuthCookie } from "@/lib/auth"
+import {
+  AuthTokens,
+  isAuthenticated,
+  removeAuthCookie,
+  setAuthCookie,
+} from "@/lib/auth"
 import { signupFormSchema } from "@/lib/forms"
 import { getHeaders } from "@/lib/get-headers"
 import { NextRequest, NextResponse } from "next/server"
@@ -8,11 +13,6 @@ import { z } from "zod"
 export async function POST(request: NextRequest) {
   const responseHeaders = await getHeaders(request)
   try {
-    if (await isAuthenticated())
-      return NextResponse.json(
-        { error: "You are already logged in" },
-        { status: 401, headers: responseHeaders }
-      )
     const body: z.infer<typeof signupFormSchema> = await request.json()
     const validatedBody = signupFormSchema.safeParse(body)
     if (!validatedBody.success)
@@ -46,6 +46,7 @@ export async function POST(request: NextRequest) {
 
     const data = await response.json()
     if (data.message) {
+      await removeAuthCookie()
       const loginForm = new URLSearchParams()
       loginForm.append("username", body.username)
       loginForm.append("password", body.password)
