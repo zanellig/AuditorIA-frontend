@@ -7,11 +7,12 @@ import { NextRequest, NextResponse } from "next/server"
 import { z } from "zod"
 
 export async function POST(request: NextRequest) {
+  const responseHeaders = await getHeaders(request)
   try {
     if (await isAuthenticated())
       return NextResponse.json(
         { message: "Logged in" },
-        { status: 200, statusText: "Logged in" }
+        { status: 200, statusText: "Logged in", headers: responseHeaders }
       )
 
     const body: z.infer<typeof loginFormSchema> = await request.json()
@@ -20,6 +21,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(validatedBody.error.format(), {
         status: 400,
         statusText: "The request body is not valid",
+        headers: responseHeaders,
       })
     }
 
@@ -46,8 +48,12 @@ export async function POST(request: NextRequest) {
         ...(await getHeaders(request)),
       },
     })
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
     console.error(e)
-    return NextResponse.json({ message: e.message }, { status: 500 })
+    return NextResponse.json(
+      { message: e.message },
+      { status: 500, headers: responseHeaders }
+    )
   }
 }

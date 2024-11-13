@@ -34,16 +34,13 @@ import { Checkbox } from "@/components/ui/checkbox"
 const loginUser = async (
   credentials: z.infer<typeof loginFormSchema>
 ): Promise<LoginResponse | string | undefined> => {
-  const isValidInput = loginFormSchema.safeParse(credentials)
-  if (!isValidInput.success) {
-    throw new Error(isValidInput.error.format())
-  }
   const alreadyLoggedIn = await isAuthenticated()
   if (alreadyLoggedIn) return await getAuthCookie()
   const response = await fetch(`${await getHost()}/api/login`, {
     method: "POST",
     headers: {
-      Origin: window.location.origin,
+      "Origin": window.location.origin,
+      "Content-Type": "application/json",
     },
     body: JSON.stringify(credentials),
     credentials: "include",
@@ -51,7 +48,7 @@ const loginUser = async (
 
   if (!response.ok) {
     const error = await response.json()
-    throw new Error(error.detail || "Error logging in")
+    throw new Error(error.message || "Ha ocurrido un error iniciando sesión")
   }
 
   return response.json()
@@ -70,6 +67,7 @@ export default function LoginForm() {
     },
   })
   const mutation = useMutation({
+    mutationKey: ["login"],
     mutationFn: loginUser,
     onSuccess: () => {
       // Handle successful login
@@ -169,7 +167,7 @@ export default function LoginForm() {
             </StatefulButton>
             {/* WIP TODO: Add links to register and forgot password pages */}
             <Link
-              href='/register'
+              href='/signup'
               className='text-sm text-muted-foreground hover:text-foreground hover:underline underline-offset-4'
               prefetch
             >
