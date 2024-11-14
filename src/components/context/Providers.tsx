@@ -42,7 +42,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
               </TooltipProvider>
             </ScrollProvider>
           </AudioProvider>
-          <ReactQueryDevtools initialIsOpen={false} />
+          {/* <ReactQueryDevtools initialIsOpen={false} /> */}
         </UserContextProvider>
       </ThemeProvider>
     </QueryClientProvider>
