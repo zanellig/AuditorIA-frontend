@@ -15,20 +15,20 @@ export default function LoadingScreen({
   usingAI?: boolean
 }) {
   const { theme } = useTheme()
-  let constWords = words || []
+  const initialWords = React.useMemo(
+    () => ["transcripción", "sentimiento", "emociones", "análisis"],
+    []
+  )
+
+  const [displayWords, setDisplayWords] = React.useState<string[]>([])
+
   React.useEffect(() => {
-    const initialWords = [
-      "transcripción",
-      "sentimiento",
-      "emociones",
-      "análisis",
-    ]
-    if (words && words?.length > 0) {
-      constWords = [...words].sort(() => Math.random() - 0.5)
+    if (words && words.length > 0) {
+      setDisplayWords([...words].sort(() => Math.random() - 0.5))
     } else {
-      constWords = [...initialWords].sort(() => Math.random() - 0.5)
+      setDisplayWords([...initialWords].sort(() => Math.random() - 0.5))
     }
-  }, [])
+  }, [words, initialWords])
 
   const particleColor = theme === "dark" ? "#FFFFFF" : "#000000"
 
@@ -60,7 +60,7 @@ export default function LoadingScreen({
           style={{ userSelect: "none" }}
         >
           Obteniendo
-          <FlipWords words={constWords} /> <br />
+          <FlipWords words={displayWords} /> <br />
           {usingAI && "con Inteligencia Artificial..."}
         </div>
       </div>

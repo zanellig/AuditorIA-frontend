@@ -71,7 +71,7 @@ export default function SearchRecords({
       queryKey: queryKey,
     })
     setQueryKey(["recordings", `${date ? date.toISOString() : search}`])
-  }, [search, date, input, queryKey, queryClient])
+  }, [search, date, input])
 
   // Function to fetch recordings based on input or date
   const fetchRecordings = async (signal: AbortSignal) => {

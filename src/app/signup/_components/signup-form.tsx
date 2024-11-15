@@ -29,6 +29,7 @@ import ParagraphP from "@/components/typography/paragraphP"
 import { BackgroundLines } from "@/components/ui/background-lines"
 import { cn } from "@/lib/utils"
 import { useRouter } from "next/navigation"
+import { useUser } from "@/components/context/UserProvider"
 
 const signupUser = async (
   credentials: z.infer<typeof signupFormSchema>
@@ -57,8 +58,9 @@ export default function SignupForm() {
 
   const [step, setStep] = React.useState(0)
 
-  const { toast } = useToast()
+  const { refreshUser, refreshAvatar } = useUser()
 
+  const { toast } = useToast()
   const router = useRouter()
 
   const form = useForm<z.infer<typeof signupFormSchema>>({
@@ -72,7 +74,8 @@ export default function SignupForm() {
   const mutation = useMutation({
     mutationKey: ["signup"],
     mutationFn: signupUserCallback,
-    onSuccess: () => {
+    onSuccess: async () => {
+      await Promise.allSettled([refreshUser(), refreshAvatar()])
       toast({
         title: `¡Bienvenido!`,
         description: "Te has registrado existosamente.",
