@@ -1,10 +1,15 @@
 import { env } from "@/env"
-import { getAuthCookie } from "@/lib/auth"
+import { getAuthCookie, isAuthenticated } from "@/lib/auth"
 import { getHeaders } from "@/lib/get-headers"
 import { NextRequest, NextResponse } from "next/server"
 import { UserData } from "./user"
+import { unauthorizedResponse } from "../unauthorized"
 
 export const GET = async function (request: NextRequest) {
+  const authorized = await isAuthenticated()
+  if (!authorized) {
+    return unauthorizedResponse(request)
+  }
   const responseHeaders = await getHeaders(request)
   try {
     const userToken = await getAuthCookie()

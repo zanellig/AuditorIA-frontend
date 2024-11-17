@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { env } from "@/env"
 import { RecordingsAPIResponse } from "@/lib/types"
 import { getHeaders } from "@/lib/get-headers"
+import { isAuthenticated } from "@/lib/auth"
 
 export async function OPTIONS(request: NextRequest) {
   return NextResponse.json(null, {
@@ -14,6 +15,13 @@ export async function OPTIONS(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   const headers = await getHeaders(request)
+  const authorized = await isAuthenticated()
+  if (!authorized) {
+    return NextResponse.json(["Unauthorized", null], {
+      status: 401,
+      headers,
+    })
+  }
   if (headers instanceof NextResponse) return headers
   try {
     const params = request.nextUrl.searchParams

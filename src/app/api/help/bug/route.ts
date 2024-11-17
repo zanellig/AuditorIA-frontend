@@ -9,6 +9,7 @@ import { transporter } from "@/lib/mailer"
 import { format } from "date-fns"
 import { es } from "date-fns/locale"
 import { getHeaders } from "@/lib/get-headers"
+import { isAuthenticated } from "@/lib/auth"
 
 // Max file size (e.g., 5MB)
 const MAX_FILE_SIZE = 5 * 1024 * 1024
@@ -22,6 +23,19 @@ export async function OPTIONS(request: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const headers = await getHeaders(req)
+  const authenticated = await isAuthenticated()
+  if (!authenticated) {
+    return NextResponse.json(
+      {
+        title: "Error",
+        description: "La sesión ha caducado",
+      },
+      {
+        status: 401,
+        headers,
+      }
+    )
+  }
   if (headers instanceof NextResponse) return headers
   try {
     const formData = await req.formData()

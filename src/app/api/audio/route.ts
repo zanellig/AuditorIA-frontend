@@ -3,6 +3,7 @@ import "server-only"
 import { type NextRequest, NextResponse } from "next/server"
 import { getNetworkAudio } from "@/lib/audio"
 import { getHeaders } from "@/lib/get-headers"
+import { isAuthenticated } from "@/lib/auth"
 
 export async function OPTIONS(request: NextRequest) {
   return NextResponse.json(null, {
@@ -14,6 +15,13 @@ export async function OPTIONS(request: NextRequest) {
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const headers = await getHeaders(request)
+  const authenticated = await isAuthenticated()
+  if (!authenticated) {
+    return NextResponse.json(new Error("Unauthorized"), {
+      status: 401,
+      headers,
+    })
+  }
   if (headers instanceof NextResponse) return headers
   const path = searchParams.get("path")
   if (!path) {
