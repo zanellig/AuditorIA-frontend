@@ -2,8 +2,6 @@ import { NextRequest, NextResponse } from "next/server"
 import fs from "fs/promises"
 import { getHeaders } from "@/lib/get-headers"
 import { TaskRecordsResponse } from "@/components/tables/troublesome-tasks/types"
-import { env } from "@/env"
-import { Task } from "@/lib/types"
 import { isAuthenticated } from "@/lib/auth"
 import { unauthorizedResponse } from "../unauthorized"
 
@@ -21,13 +19,6 @@ export async function GET(request: NextRequest) {
     const statusRequested = request.nextUrl.searchParams.get("status")
     const userRequested = request.nextUrl.searchParams.get("user")
     const campaignRequested = request.nextUrl.searchParams.get("campaign")
-    const searchParams = {
-      uuid: uuidRequested,
-      file_name: fileNameRequested,
-      status: statusRequested,
-      user: userRequested,
-      campaign: campaignRequested,
-    }
 
     if (!pageRequested) {
       throw new Error("A page number must be provided to fetch data")
@@ -79,6 +70,7 @@ export async function GET(request: NextRequest) {
           ]
             .filter(Boolean) // Remove null/undefined entries
             .some(field =>
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
               field!.toLowerCase().includes(searchRequested.toLowerCase())
             )
 
