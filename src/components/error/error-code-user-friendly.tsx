@@ -2,12 +2,11 @@ import ParagraphP from "@/components/typography/paragraphP"
 import SubtitleH2 from "@/components/typography/subtitleH2"
 import TitleH1 from "@/components/typography/titleH1"
 import ErrorRetryButton from "@/components/error/error-button.client"
-import { getErrorStringLocale } from "@/lib/get-error-string-locale"
 import { SupportedLocales } from "@/lib/types.d"
 import { z } from "zod"
 
 interface ErrorCodeUserFriendlyProps {
-  error: any
+  error: Error | null
   locale: z.infer<typeof SupportedLocales>
   reset?: () => void
 }
@@ -35,23 +34,12 @@ export function ErrorCodeUserFriendly({
     },
   }
   const localizedContent = content[locale]
-  if (!error.stack) {
-    const errDetail = JSON.parse(error).detail
-    return (
-      <div className='flex flex-col space-y-10'>
-        <TitleH1>{localizedContent.title}</TitleH1>
-        <ParagraphP>{localizedContent.paragraph}</ParagraphP>
-        <code>{errDetail ? errDetail : error.message}</code>
-      </div>
-    )
-  }
 
   return (
     <div className='flex flex-col space-y-10'>
       <TitleH1>{localizedContent.title}</TitleH1>
       <ParagraphP>{localizedContent.paragraph}</ParagraphP>
-      <SubtitleH2>{getErrorStringLocale({ error, locale })}</SubtitleH2>
-      <code>{localizedContent.messagePrefix + error.message}</code>
+      <SubtitleH2>{error.message}</SubtitleH2>
       <div className='flex flex-row space-x-2 justify-start'>
         <ErrorRetryButton locale={locale} reset={reset} />
       </div>
