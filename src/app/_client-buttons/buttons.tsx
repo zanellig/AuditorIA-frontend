@@ -9,7 +9,7 @@ export function LoginButton() {
       variant='expandIcon'
       Icon={ArrowRight}
       iconPlacement='right'
-      className='bg-popover text-popover-foreground border border-border'
+      className='bg-popover text-popover-foreground border border-border overflow-hidden'
     >
       <Link href='/login'>Iniciar Sesión</Link>
     </Button>
