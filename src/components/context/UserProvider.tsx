@@ -36,7 +36,7 @@ export const UserContextProvider = ({
   const fetchFromApi = useCallback(
     async (endpoint: string, options?: RequestInit) => {
       const host = new URL(await getHost())
-      const response = await fetch(`${host.origin}/api/user${endpoint}`, {
+      const response = await fetch(`${host.origin}/api/${endpoint}`, {
         ...options,
       })
       if (!response.ok) throw new Error("Algo salió mal, intenta de nuevo")
@@ -47,7 +47,7 @@ export const UserContextProvider = ({
 
   const { data: userData } = useQuery<LocalUserData>({
     queryKey: ["user"],
-    queryFn: () => fetchFromApi(""),
+    queryFn: () => fetchFromApi("/user"),
     enabled: true,
   })
 
@@ -63,7 +63,7 @@ export const UserContextProvider = ({
     if (cached?.userEmail) return cached.userEmail
     const data = await queryClient.fetchQuery({
       queryKey: ["user"],
-      queryFn: () => fetchFromApi(""),
+      queryFn: () => fetchFromApi("/user"),
     })
     return data.userEmail
   }, [queryClient, fetchFromApi])
@@ -73,7 +73,7 @@ export const UserContextProvider = ({
     if (cached?.username) return cached.username
     const data = await queryClient.fetchQuery({
       queryKey: ["user"],
-      queryFn: () => fetchFromApi(""),
+      queryFn: () => fetchFromApi("/user"),
     })
     return data.username
   }, [queryClient, fetchFromApi])
@@ -83,7 +83,7 @@ export const UserContextProvider = ({
     if (cached?.userFullName) return cached.userFullName
     const data = await queryClient.fetchQuery({
       queryKey: ["user"],
-      queryFn: () => fetchFromApi(""),
+      queryFn: () => fetchFromApi("/user"),
     })
     return data.userFullName
   }, [queryClient, fetchFromApi])
@@ -104,7 +104,7 @@ export const UserContextProvider = ({
   // Update mutations
   const updateUserEmail = useMutation({
     mutationFn: async (email: string) => {
-      await fetchFromApi("/email", {
+      await fetchFromApi("/user", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
@@ -117,7 +117,7 @@ export const UserContextProvider = ({
 
   const updateUserFullName = useMutation({
     mutationFn: async (fullName: string) => {
-      await fetchFromApi("/fullName", {
+      await fetchFromApi("/user", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ fullName }),
