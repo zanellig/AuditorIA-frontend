@@ -61,7 +61,7 @@ export default function LoginForm() {
   const { toast } = useToast()
   const router = useRouter()
 
-  const { refreshUser } = useUser()
+  const { refreshUser, refreshAvatar } = useUser()
 
   const form = useForm<z.infer<typeof loginFormSchema>>({
     resolver: zodResolver(loginFormSchema),
@@ -75,7 +75,7 @@ export default function LoginForm() {
     mutationKey: ["login"],
     mutationFn: loginUserCallback,
     onSuccess: async () => {
-      await refreshUser()
+      await Promise.allSettled([refreshUser(), refreshAvatar()])
       toast({
         title: "¡Bienvenido!",
         description: "Has iniciado sesión exitosamente.",

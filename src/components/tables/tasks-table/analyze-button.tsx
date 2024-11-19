@@ -5,7 +5,7 @@ import { actionRevalidatePath, getHost } from "@/lib/actions"
 import { GLOBAL_ICON_SIZE } from "@/lib/consts"
 import { Task } from "@/lib/types"
 import { _URLBuilder } from "@/lib/utils"
-import { useMutation } from "@tanstack/react-query"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { Row, Table } from "@tanstack/react-table"
 import { Sparkles } from "lucide-react"
 import Link from "next/link"
@@ -13,7 +13,6 @@ import { usePathname } from "next/navigation"
 
 export default function AnalyzeButton({
   row,
-  table,
 }: {
   row: Row<Task>
   table: Table<Task>
@@ -22,6 +21,7 @@ export default function AnalyzeButton({
   const { toast } = useToast()
   const currentUrl = usePathname()
   const taskURL = _URLBuilder(task as Task)
+  const queryClient = useQueryClient()
   const mutation = useMutation({
     mutationKey: ["task-analysis", row.original?.identifier],
     mutationFn: async () => {
@@ -30,6 +30,7 @@ export default function AnalyzeButton({
       url.searchParams.append("identifier", `${row.original?.identifier}`)
       return await fetch(url, { method: "PUT" }).then(async res => {
         if (!res.ok) throw new Error(res.statusText)
+        queryClient.invalidateQueries({ queryKey: ["tasks"] })
         return (await res.json())[1]
       })
     },

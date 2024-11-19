@@ -15,6 +15,7 @@ interface UserContextType {
   updateUserFullName: (fullName: string) => Promise<void>
   updateUserAvatar: (avatar: string) => Promise<void>
   refreshUser: () => Promise<void>
+  refreshAvatar: () => Promise<void>
 }
 
 interface LocalUserData {
@@ -40,20 +41,27 @@ export const UserContextProvider = ({
         ...options,
       })
       if (!response.ok) throw new Error("Algo salió mal, intenta de nuevo")
-      return response.json()
+      if (response.headers.get("content-type")?.includes("application/json")) {
+        return response.json()
+      }
+      if (response.headers.get("content-type")?.includes("image")) {
+        return response.blob()
+      }
+      return response.text()
     },
     []
   )
 
   const { data: userData } = useQuery<LocalUserData>({
     queryKey: ["user"],
-    queryFn: () => fetchFromApi("/user"),
+    queryFn: () => fetchFromApi("user"),
     enabled: true,
   })
 
   const { data: avatarData } = useQuery({
     queryKey: ["user", "avatar"],
     queryFn: () => fetchFromApi("/avatar"),
+    enabled: true,
   })
 
   // Individual getter queries
@@ -63,7 +71,7 @@ export const UserContextProvider = ({
     if (cached?.userEmail) return cached.userEmail
     const data = await queryClient.fetchQuery({
       queryKey: ["user"],
-      queryFn: () => fetchFromApi("/user"),
+      queryFn: () => fetchFromApi("user"),
     })
     return data.userEmail
   }, [queryClient, fetchFromApi])
@@ -73,7 +81,7 @@ export const UserContextProvider = ({
     if (cached?.username) return cached.username
     const data = await queryClient.fetchQuery({
       queryKey: ["user"],
-      queryFn: () => fetchFromApi("/user"),
+      queryFn: () => fetchFromApi("user"),
     })
     return data.username
   }, [queryClient, fetchFromApi])
@@ -83,7 +91,7 @@ export const UserContextProvider = ({
     if (cached?.userFullName) return cached.userFullName
     const data = await queryClient.fetchQuery({
       queryKey: ["user"],
-      queryFn: () => fetchFromApi("/user"),
+      queryFn: () => fetchFromApi("user"),
     })
     return data.userFullName
   }, [queryClient, fetchFromApi])
@@ -104,7 +112,7 @@ export const UserContextProvider = ({
   // Update mutations
   const updateUserEmail = useMutation({
     mutationFn: async (email: string) => {
-      await fetchFromApi("/user", {
+      await fetchFromApi("user", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
@@ -117,7 +125,7 @@ export const UserContextProvider = ({
 
   const updateUserFullName = useMutation({
     mutationFn: async (fullName: string) => {
-      await fetchFromApi("/user", {
+      await fetchFromApi("user", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ fullName }),
@@ -142,8 +150,11 @@ export const UserContextProvider = ({
   }).mutateAsync
 
   const refreshUser = async () => {
-    queryClient.cancelQueries({ queryKey: ["user"] })
-    queryClient.refetchQueries({ queryKey: ["user"] })
+    queryClient.invalidateQueries({ queryKey: ["user"] })
+  }
+
+  const refreshAvatar = async () => {
+    queryClient.invalidateQueries({ queryKey: ["user", "avatar"] })
   }
 
   const value = {
@@ -164,6 +175,7 @@ export const UserContextProvider = ({
     updateUserFullName,
     updateUserAvatar,
     refreshUser,
+    refreshAvatar,
   }
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>
