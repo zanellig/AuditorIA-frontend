@@ -1,7 +1,6 @@
 "use server"
 import { env } from "@/env"
 import { cookies } from "next/headers"
-import { redirect } from "next/navigation"
 
 const AUTH_COOKIE = "access_token"
 
@@ -14,11 +13,11 @@ export async function setAuthCookie(tokens: AuthTokens) {
   const value = `${tokens.token_type} ${tokens.access_token}`
 
   cookies().set(AUTH_COOKIE, value, {
-    // httpOnly: true,
-    secure: env.NODE_ENV === "production",
+    httpOnly: true,
+    secure: true,
     sameSite: "lax",
     path: "/",
-    maxAge: 60 * 60 * 24 * 7, // 7 days
+    maxAge: 60 * 60, // 1 hour
   })
 }
 

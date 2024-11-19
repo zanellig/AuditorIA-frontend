@@ -40,6 +40,8 @@ import { updateUserProfileFormSchema } from "@/lib/forms"
 import { z } from "zod"
 import { useToast } from "../ui/use-toast"
 import { Input } from "../ui/input"
+import { useRouter } from "next/navigation"
+import Image from "next/image"
 
 export function AvatarButton({ className }: { className?: string }) {
   const {
@@ -48,8 +50,11 @@ export function AvatarButton({ className }: { className?: string }) {
     userFullName,
     updateUserEmail,
     updateUserFullName,
+    refreshAvatar,
+    refreshUser,
   } = useUser()
   const { toast } = useToast()
+  const router = useRouter()
   const form = useForm<z.infer<typeof updateUserProfileFormSchema>>({
     resolver: zodResolver(updateUserProfileFormSchema),
     defaultValues: {
@@ -58,15 +63,27 @@ export function AvatarButton({ className }: { className?: string }) {
       email: userEmail,
     },
   })
-  const onSubmit = (data: z.infer<typeof updateUserProfileFormSchema>) => {
-    if (data.fullName !== userFullName) {
-      updateUserFullName(data.fullName)
+  const onSubmit = async (
+    data: z.infer<typeof updateUserProfileFormSchema>
+  ) => {
+    try {
+      if (data.fullName !== userFullName) {
+        await updateUserFullName(data.fullName)
+      }
+      if (data.email !== userEmail) {
+        await updateUserEmail(data.email)
+      }
+      form.reset()
+      toast({ title: "Perfil actualizado", variant: "success" })
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      toast({ title: "Error al actualizar el perfil", variant: "destructive" })
     }
-    if (data.email !== userEmail) {
-      updateUserEmail(data.email)
-    }
-    form.reset()
-    toast({ title: "Perfil actualizado", variant: "success" })
+  }
+  const onLogout = async () => {
+    await removeAuthCookie()
+    Promise.allSettled([refreshUser(), refreshAvatar()])
+    router.push("/login")
   }
 
   return (
@@ -131,7 +148,13 @@ export function AvatarButton({ className }: { className?: string }) {
                     <article className='flex gap-8'>
                       <section className='relative h-full'>
                         <div className='flex flex-col gap-2 items-center justify-center h-full'>
-                          <Logo width={128} height={128} />
+                          {/* <Logo width={128} height={128} /> */}
+                          <Image
+                            src={"/api/avatar"}
+                            alt={userFullName}
+                            width={128}
+                            height={128}
+                          />
                           <Button
                             variant={"outline"}
                             className='flex gap-2 items-center'
@@ -218,12 +241,7 @@ export function AvatarButton({ className }: { className?: string }) {
           </div>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem
-          className='gap-2'
-          onClick={() => {
-            removeAuthCookie()
-          }}
-        >
+        <DropdownMenuItem className='gap-2' onClick={onLogout}>
           <LogOut size={GLOBAL_ICON_SIZE} />
           <>Cerrar sesión</>
         </DropdownMenuItem>
@@ -248,7 +266,7 @@ const UserAvatar = React.forwardRef<HTMLDivElement, UserAvatarProps>(
     return (
       <Avatar ref={ref} className={cn(className)} {...props}>
         {/* Uncomment and use if you have an image source */}
-        {/* <AvatarImage src={props.src} alt={userFullName} /> */}
+        <AvatarImage src={"/api/avatar"} alt={userFullName} />
         <AvatarFallback className='select-none' delayMs={300}>
           {initials}
         </AvatarFallback>

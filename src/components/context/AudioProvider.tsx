@@ -50,32 +50,37 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({
     toggleAudioPlayerHidden(prev => !prev)
   }, [])
 
-  const loadAudio = useCallback(async (nasPath: string) => {
-    setIsLoading(true)
-    try {
-      const response = await fetch(
-        `${await getHost()}/api/audio?path=${encodeURIComponent(nasPath)}`,
-        { cache: "force-cache" }
-      )
-      if (!response.ok) {
-        setError(true)
-      }
-      const blob = await response.blob()
-      const url = URL.createObjectURL(blob)
+  const loadAudio = useCallback(
+    async (nasPath: string) => {
+      setIsLoading(true)
+      try {
+        const response = await fetch(
+          `${await getHost()}/api/audio?path=${encodeURIComponent(nasPath)}`,
+          { cache: "force-cache" }
+        )
+        if (!response.ok) {
+          setError(true)
+        }
+        const blob = await response.blob()
+        const url = URL.createObjectURL(blob)
 
-      if (audioRef.current) {
-        audioRef.current.src = url
-        audioRef.current.load()
+        if (audioRef.current) {
+          audioRef.current.src = url
+          audioRef.current.load()
+        }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } catch (e: any) {
+        console.error(e.message)
+        setError(true)
+      } finally {
+        setIsLoading(false)
+        if (isAudioPlayerHidden) {
+          toggleHide()
+        }
       }
-    } catch (error) {
-      setError(true)
-    } finally {
-      setIsLoading(false)
-      if (isAudioPlayerHidden) {
-        toggleHide()
-      }
-    }
-  }, [])
+    },
+    [isAudioPlayerHidden, toggleHide]
+  )
 
   useEffect(() => {
     const audio = audioRef.current

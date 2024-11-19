@@ -348,6 +348,12 @@ export function extractJsonFromString(
 export function convertSpeakerToHablante(input: string) {
   if (!input) return input
   const speakerPattern = /^SPEAKER_(\d+)$/
+  if (input.includes("SPEAKER_00")) {
+    return "Cliente"
+  }
+  if (input.includes("SPEAKER_01")) {
+    return "Agente"
+  }
   return input.replace(speakerPattern, "Hablante $1")
 }
 
