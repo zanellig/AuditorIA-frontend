@@ -248,8 +248,8 @@ export default function Home() {
         <footer className='py-8 px-4 sm:px-6 lg:px-8 bg-muted text-muted-foreground'>
           <div className='container mx-auto text-center'>
             <p>
-              &copy; {new Date().getFullYear()} AuditorIA - Una iniciativa de
-              LinkSolution. Todos los derechos reservados.
+              &copy; {new Date().getFullYear()} AuditorIA - Todos los derechos
+              reservados.
             </p>
           </div>
         </footer>
