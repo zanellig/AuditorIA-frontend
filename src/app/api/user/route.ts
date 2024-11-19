@@ -39,7 +39,12 @@ export const GET = async function (request: NextRequest) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     return NextResponse.json(
-      { error: error.message },
+      {
+        error: error.message,
+        userEmail: "unknown@error.com",
+        username: "unknown",
+        userFullName: "Unknown Error",
+      },
       { status: 500, headers: responseHeaders }
     )
   }

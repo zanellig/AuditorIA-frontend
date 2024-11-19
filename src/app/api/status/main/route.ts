@@ -15,14 +15,23 @@ export async function OPTIONS(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
+  const headers = await getHeaders(request)
   const authorized = await isAuthenticated()
   if (!authorized) {
-    return NextResponse.json(["Unauthorized", null], {
-      status: 401,
-      headers: await getHeaders(request),
-    })
+    return NextResponse.json(
+      {
+        variant: ServerStatusBadgeVariant.Error,
+        server: "main",
+        release: "STABLE",
+      },
+      {
+        status: 401,
+        statusText:
+          "(1012): Error al obtener el estado del servidor principal.",
+        headers,
+      }
+    )
   }
-  const headers = await getHeaders(request)
   if (headers instanceof NextResponse) return headers
   // Fetch data
   const [error, response] = await _get(env.API_MAIN + "/docs", undefined, {
