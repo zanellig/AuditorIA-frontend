@@ -48,8 +48,10 @@ const signupUser = async (
       error.message || "Ha ocurrido un error registrando tu cuenta"
     )
   }
+  const data = await response.json()
+  console.log(data)
 
-  return response.json()
+  return data
 }
 
 export default function SignupForm() {
