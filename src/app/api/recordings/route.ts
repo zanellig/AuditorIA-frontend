@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
   const headers = await getHeaders(request)
   const authorized = await isAuthenticated()
   if (!authorized) {
-    return NextResponse.json(["Unauthorized", null], {
+    return NextResponse.json([new Error("Unauthorized"), null], {
       status: 401,
       headers,
     })

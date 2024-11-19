@@ -14,7 +14,7 @@ export async function OPTIONS(request: NextRequest) {
 }
 // TODO: refactor this route. It's a mess.
 const unauthorizedResponse = async function (request: NextRequest) {
-  NextResponse.json(["Unauthorized", null], {
+  return NextResponse.json([new Error("Unauthorized"), null], {
     status: 401,
     headers: await getHeaders(request),
   })

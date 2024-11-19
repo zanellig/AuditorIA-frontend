@@ -26,7 +26,7 @@ export async function OPTIONS(request: NextRequest) {
 }
 
 const unauthorizedResponse = async function (request: NextRequest) {
-  NextResponse.json(["Unauthorized", null], {
+  return NextResponse.json([new Error("Unauthorized"), null], {
     status: 401,
     headers: await getHeaders(request),
   })
@@ -207,7 +207,7 @@ export async function POST(request: NextRequest) {
           "model",
           `${clientForm?.get("model")}`
         )
-      clientForm.has("device") &&
+      if (clientForm.has("device"))
         externalRequestUrl.searchParams.append(
           "device",
           `${clientForm?.get("device")}`
@@ -253,6 +253,7 @@ export async function POST(request: NextRequest) {
             headers,
           })
         }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (error: any) {
         if (error instanceof Error) {
           console.error(
@@ -364,7 +365,7 @@ export async function PUT(request: NextRequest) {
   const url = new URL(
     [env.API_CANARY_7000, ALL_TASKS_PATH, identifier].join("/")
   )
-  language && url.searchParams.append("lang", `${language}`)
+  if (language) url.searchParams.append("lang", `${language}`)
   const [err, res] = await _put<Response>(url.href, null)
 
   if (err) {
