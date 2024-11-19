@@ -5,7 +5,6 @@ import { generateFeedbackEmailTemplate } from "./template"
 import { feedbackSchema } from "@/lib/forms"
 import { transporter } from "@/lib/mailer"
 import { getHeaders } from "@/lib/get-headers"
-import { isAuthenticated } from "@/lib/auth"
 
 export async function OPTIONS(request: NextRequest) {
   return NextResponse.json(null, {
@@ -16,19 +15,6 @@ export async function OPTIONS(request: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const headers = await getHeaders(req)
-  const authenticated = await isAuthenticated()
-  if (!authenticated) {
-    return NextResponse.json(
-      {
-        title: "Error",
-        description: "La sesión ha caducado",
-      },
-      {
-        status: 401,
-        headers,
-      }
-    )
-  }
   if (headers instanceof NextResponse) return headers
   try {
     const formData = await req.formData()

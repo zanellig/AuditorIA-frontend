@@ -1,20 +1,14 @@
-import { _delete, _get, _post, _put } from "@/lib/fetcher"
 import {
   ALL_TASKS_PATH,
   SPEECH_TO_TEXT_PATH,
   TASK_PATH,
 } from "@/server-constants"
-import { TaskPOSTResponse } from "@/lib/types.d"
 import { NextRequest, NextResponse } from "next/server"
 import { fetchAudioData } from "@/lib/actions"
 import { env } from "@/env"
 import { validateMimeType } from "@/lib/forms"
 import chalk from "chalk"
-import { TESTING } from "@/lib/consts"
-import * as fs from "fs/promises"
-import path from "path"
 import { getHeaders } from "@/lib/get-headers"
-import { isAuthenticated } from "@/lib/auth"
 
 export const revalidate = 5
 
@@ -25,107 +19,52 @@ export async function OPTIONS(request: NextRequest) {
   })
 }
 
-const unauthorizedResponse = async function (request: NextRequest) {
-  return NextResponse.json([new Error("Unauthorized"), null], {
-    status: 401,
-    headers: await getHeaders(request),
-  })
-}
-
 export async function GET(request: NextRequest) {
-  const authorized = await isAuthenticated()
-  if (!authorized) return unauthorizedResponse(request)
   const headers = await getHeaders(request)
-  if (headers instanceof NextResponse) return headers
-  const identifier = request.nextUrl.searchParams.get("identifier")
-
-  if (TESTING) {
-    const filePath = path.join(
-      process.cwd(),
-      "public",
-      "mock",
-      "respuesta-transcripcion.json"
-    )
-
-    try {
-      const fileContent = await fs.readFile(filePath, "utf-8")
-      return NextResponse.json([null, JSON.parse(fileContent)], {
-        status: 200,
-        headers,
-      })
-    } catch (error) {
-      console.error("Error reading the mock file:", error)
+  try {
+    const identifier = request.nextUrl.searchParams.get("identifier")
+    if (!identifier) {
       return NextResponse.json(
-        { error: "Failed to load mock data" },
-        { status: 500, headers }
+        [new Error("1001: No se proporcionó un ID de tarea."), null],
+        {
+          status: 400,
+          statusText: "1001: No se proporcionó un ID de tarea.",
+          headers,
+        }
       )
     }
-  }
+    const reqUrl = [env.API_MAIN, TASK_PATH, identifier].join("/")
+    const response = await fetch(reqUrl, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
 
-  if (!identifier) {
-    return NextResponse.json(
-      [new Error("1001: No se proporcionó un ID de tarea."), null],
-      {
-        status: 400,
-        statusText: "1001: No se proporcionó un ID de tarea.",
-        headers,
-      }
-    )
-  }
-  const reqUrl = [env.API_MAIN, TASK_PATH, identifier].join("/")
-  const [err, res] = await _get(reqUrl, undefined, {
-    revalidate: true,
-    expectJson: true,
-  })
-
-  if (err !== null) {
-    /**
-     * The ECONNREFUSED (Connection refused) could fall in this case if the server is not running, but we can't access that error message,
-     * as far as I know.
-     *
-     * The message, stack, cause and name don't show anything useful, but if we log the error, we can see that the error message is
-     * "ECONNREFUSED".
-     *
-     * We return a generic 500 error, as we don't want to leak information about the server, but we should improve this.
-     * Maybe returning a 503, 522 or 523; I don't know which one is the best fit.
-     * */
-    console.error(err)
-    return NextResponse.json(
-      ["(1002): Error interno desconocido al obtener la tarea.", null],
-      {
-        status: 500,
-        statusText: "(1002): Error interno desconocido al obtener la tarea.",
-        headers,
-      }
-    )
-  }
-  if (res === null) {
-    return NextResponse.json(
-      [new Error("(1003): Tarea no encontrada."), null],
-      {
-        status: 404,
-        statusText: "(1003): Tarea no encontrada.",
-        headers,
-      }
-    )
-  }
-  if (res !== null) {
-    return NextResponse.json([null, res], {
+    if (!response.ok) {
+      /**
+       * The ECONNREFUSED (Connection refused) could fall in this case if the server is not running, but we can't access that error message,
+       * as far as I know.
+       *
+       * The message, stack, cause and name don't show anything useful, but if we log the error, we can see that the error message is
+       * "ECONNREFUSED".
+       */
+      console.error(`${response.statusText}: ${response.status} on ${reqUrl}`)
+      throw new Error(response.statusText)
+    }
+    const data = await response.json()
+    return NextResponse.json([null, data], {
       status: 200,
-      statusText: "Tarea obtenida correctamente.",
+      headers,
+    })
+  } catch (error) {
+    return NextResponse.json([error, null], {
+      status: 500,
       headers,
     })
   }
-  return NextResponse.json(
-    [new Error("(1004): Error desconocido al obtener la tarea."), null],
-    {
-      status: 500,
-      statusText: "(1004): Error desconocido al obtener la tarea.",
-      headers,
-    }
-  )
 }
-
+// TODO: Refactor with the bubble up pattern like the GET method
 export async function POST(request: NextRequest) {
   const headers = await getHeaders(request)
   if (headers instanceof NextResponse) return headers
@@ -192,17 +131,17 @@ export async function POST(request: NextRequest) {
     const file = clientForm.get("file")
 
     if (isManualFileUpload || isRecordForm) {
-      clientForm.has("language") &&
+      if (clientForm.has("language"))
         externalRequestUrl.searchParams.append(
           "language",
           `${clientForm?.get("language")}`
         )
-      clientForm.has("task_type") &&
+      if (clientForm.has("task_type"))
         externalRequestUrl.searchParams.append(
           "task",
           `${clientForm?.get("task_type")}`
         )
-      clientForm.has("model") &&
+      if (clientForm.has("model"))
         externalRequestUrl.searchParams.append(
           "model",
           `${clientForm?.get("model")}`
@@ -255,34 +194,14 @@ export async function POST(request: NextRequest) {
         }
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (error: any) {
-        if (error instanceof Error) {
-          console.error(
-            chalk.white.bgRed("Error posting audio to API:"),
-            error.message
-          )
-          return NextResponse.json(
-            [new Error("(1007): Error al crear la tarea."), null],
-            {
-              status: 500,
-              statusText: "(1007): Error al crear la tarea.",
-              headers,
-            }
-          )
-        }
-        return NextResponse.json(
-          [new Error("(1008): Error desconocido al crear la tarea."), null],
-          {
-            status: 500,
-            statusText: "(1008): Error desconocido al crear la tarea.",
-            headers,
-          }
-        )
+        throw new Error(error.message)
       }
     }
 
     // router rejects files larger than 50MB
     if (isManualFileUpload && file && file instanceof File) {
-      if (file.size >= 50000000) {
+      const FILE_SIZE_LIMIT = 50 * 1024 * 1024
+      if (file.size >= FILE_SIZE_LIMIT) {
         return NextResponse.json(
           ["(1021): El archivo proporcionado es demasiado grande.", null],
           {
@@ -292,11 +211,11 @@ export async function POST(request: NextRequest) {
           }
         )
       }
-      const mimeType = file.type
-      const isValidMimeType = validateMimeType(mimeType)
+      const isValidMimeType = validateMimeType(file.type)
       if (isValidMimeType) {
         serverForm.set("file", file)
       } else {
+        // I like the granularity of the error handling here, so we don't bubble the error up. I don't know if this is a good practice though.
         return NextResponse.json(
           [new Error("(1022): Tipo de archivo no soportado."), null],
           {
@@ -311,38 +230,34 @@ export async function POST(request: NextRequest) {
       `Sending task to API with URL ${chalk.bgBlack.white(externalRequestUrl.href)} and FormData`,
       serverForm
     )
-    const [err, res] = await _post<TaskPOSTResponse>(
-      externalRequestUrl.toString(),
-      serverForm,
-      undefined,
-      {
-        revalidate: true,
-        expectJson: true,
-      }
-    )
-    if (err !== null) {
-      /**
-       * If the error falls here, check if the API is running.
-       */
-      console.error(
-        chalk.red(`Error encountered while sending data successfully to API:`),
-        chalk.white(err.message)
-      )
-      return NextResponse.json(["(1009): Error al crear la tarea.", null], {
-        status: 500,
-        statusText: "(1009): Error al crear la tarea.",
+    const response = await fetch(externalRequestUrl.toString(), {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: serverForm,
+    })
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.detail)
+    }
+    const data = await response.json()
+    console.log(`Data received from task API:`, data)
+    if ("task" in data) {
+      return NextResponse.json([null, data.task], {
+        status: 200,
         headers,
       })
     }
-    return NextResponse.json([null, res], {
+    return NextResponse.json([null, data], {
       status: 200,
-      statusText: "Tarea creada",
       headers,
     })
-  } catch (e) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (e: any) {
     return NextResponse.json([e, null], {
       status: 500,
-      statusText: "(1020): Ha ocurrido un error inesperado.",
+      statusText: e.message,
       headers,
     })
   }
@@ -350,79 +265,89 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   const headers = await getHeaders(request)
-  if (headers instanceof NextResponse) return headers
-  const identifier = request.nextUrl.searchParams.get("identifier")
-  const language = request.nextUrl.searchParams.get("language")
-  if (!identifier) {
-    return NextResponse.json(["ID was not provided", null], {
-      status: 400,
-      statusText: "ID was not provided",
-      headers,
-    })
-  }
-  /** Why are we using plural when updating a single task?
-   * This took me much longer to debug than it should have... */
-  const url = new URL(
-    [env.API_CANARY_7000, ALL_TASKS_PATH, identifier].join("/")
-  )
-  if (language) url.searchParams.append("lang", `${language}`)
-  const [err, res] = await _put<Response>(url.href, null)
-
-  if (err) {
-    console.error(
-      `Error from API on ${url.href} PUT request:`,
-      err.message.slice(0, 255)
+  try {
+    if (headers instanceof NextResponse) return headers
+    const identifier = request.nextUrl.searchParams.get("identifier")
+    const language = request.nextUrl.searchParams.get("language")
+    if (!identifier) {
+      return NextResponse.json(["ID was not provided", null], {
+        status: 400,
+        statusText: "ID was not provided",
+        headers,
+      })
+    }
+    /** Why are we using plural when updating a single task?
+     * This took me much longer to debug than it should have... */
+    const url = new URL(
+      [env.API_CANARY_7000, ALL_TASKS_PATH, identifier].join("/")
     )
-    return NextResponse.json(err?.message, {
-      status: 500,
-      statusText: "", // TODO: add a documented error message
-      headers,
+    if (language) url.searchParams.append("lang", `${language}`)
+    // Revise API to update tasks correctly. I think this works like a POST to /analyze
+    const response = await fetch(url.href, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: null,
     })
-  }
+    if (!response.ok) {
+      throw new Error(response.statusText)
+    }
 
-  if (res && res.ok) {
-    const data = await res?.json()
+    const data = await response.json()
     return NextResponse.json(data, {
       status: 200,
       headers,
     })
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (e: any) {
+    return NextResponse.json([e, null], {
+      status: 500,
+      statusText: e.message,
+      headers,
+    })
   }
-  return NextResponse.json(null, {
-    status: 404,
-    statusText: "", // TODO: add a documented error message
-    headers,
-  })
 }
 
 export async function DELETE(req: NextRequest) {
   const headers = await getHeaders(req)
-  if (headers instanceof NextResponse) return headers
   const id = req.nextUrl?.searchParams?.get("identifier")
-  if (!id)
-    return NextResponse.json(null, {
-      status: 400,
-      statusText: "Missing identifier", // TODO: add a documented error message
-      headers,
-    })
-  const [err, res] = await _delete<NextResponse>(
-    [env.API_MAIN, TASK_PATH, id].join("/")
-  )
-  if (err)
-    return NextResponse.json(
-      { id },
-      {
-        status: 404,
-        statusText: "", // TODO: add a documented error message
+  try {
+    if (!id)
+      return NextResponse.json(null, {
+        status: 400,
+        statusText: "Missing identifier", // TODO: add a documented error message
         headers,
-      }
-    )
-  if (res && res.status === 200)
+      })
+
+    const response = await fetch([env.API_MAIN, TASK_PATH, id].join("/"), {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+    if (!response.ok) {
+      throw new Error(response.statusText)
+    }
+    const data = await response.json()
+    console.log(data)
     return NextResponse.json(
       { id },
       {
         status: 200,
-        statusText: "Task deleted", // TODO: add a documented error message
+        statusText: "Task deleted",
         headers,
       }
     )
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  } catch (e) {
+    return NextResponse.json(
+      { id },
+      {
+        status: 500,
+        headers,
+      }
+    )
+  }
 }
