@@ -2,6 +2,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { getNetworkAudio } from "@/lib/audio"
 import { getHeaders } from "@/lib/get-headers"
+import { isAuthenticated } from "@/lib/auth"
 
 export async function OPTIONS(request: NextRequest) {
   return NextResponse.json(null, {

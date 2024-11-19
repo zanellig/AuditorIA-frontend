@@ -1,10 +1,5 @@
 import { env } from "@/env"
-import {
-  AuthTokens,
-  isAuthenticated,
-  removeAuthCookie,
-  setAuthCookie,
-} from "@/lib/auth"
+import { AuthTokens, removeAuthCookie, setAuthCookie } from "@/lib/auth"
 import { signupFormSchema } from "@/lib/forms"
 import { getHeaders } from "@/lib/get-headers"
 import { NextRequest, NextResponse } from "next/server"

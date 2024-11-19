@@ -4,6 +4,7 @@ import { Tasks } from "@/lib/types.d"
 import { NextRequest, NextResponse } from "next/server"
 import { env } from "@/env"
 import { getHeaders } from "@/lib/get-headers"
+import { isAuthenticated } from "@/lib/auth"
 // import fs from "fs/promises"
 export async function OPTIONS(request: NextRequest) {
   return NextResponse.json(null, {
@@ -11,8 +12,18 @@ export async function OPTIONS(request: NextRequest) {
     headers: await getHeaders(request),
   })
 }
+// TODO: refactor this route. It's a mess.
+const unauthorizedResponse = async function (request: NextRequest) {
+  NextResponse.json(["Unauthorized", null], {
+    status: 401,
+    headers: await getHeaders(request),
+  })
+}
 
 export async function GET(request: NextRequest) {
+  const authorized = await isAuthenticated()
+  if (!authorized) return unauthorizedResponse(request)
+
   const headers = await getHeaders(request)
   if (headers instanceof NextResponse) return headers
   const url = [
@@ -76,6 +87,10 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const authorized = await isAuthenticated()
+  if (!authorized) {
+    return unauthorizedResponse(request)
+  }
   const headers = await getHeaders(request)
   if (headers instanceof NextResponse) return headers
   const formData = await request.formData()
@@ -126,6 +141,10 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
+  const authorized = await isAuthenticated()
+  if (!authorized) {
+    return unauthorizedResponse(request)
+  }
   const headers = await getHeaders(request)
   if (headers instanceof NextResponse) return headers
   const body = await request.json()

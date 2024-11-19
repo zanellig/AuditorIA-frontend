@@ -14,6 +14,7 @@ import { TESTING } from "@/lib/consts"
 import * as fs from "fs/promises"
 import path from "path"
 import { getHeaders } from "@/lib/get-headers"
+import { isAuthenticated } from "@/lib/auth"
 
 export const revalidate = 5
 
@@ -24,7 +25,16 @@ export async function OPTIONS(request: NextRequest) {
   })
 }
 
+const unauthorizedResponse = async function (request: NextRequest) {
+  NextResponse.json(["Unauthorized", null], {
+    status: 401,
+    headers: await getHeaders(request),
+  })
+}
+
 export async function GET(request: NextRequest) {
+  const authorized = await isAuthenticated()
+  if (!authorized) return unauthorizedResponse(request)
   const headers = await getHeaders(request)
   if (headers instanceof NextResponse) return headers
   const identifier = request.nextUrl.searchParams.get("identifier")

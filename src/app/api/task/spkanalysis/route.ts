@@ -4,6 +4,8 @@ import { extractJsonFromString } from "@/lib/utils"
 import { NextRequest, NextResponse } from "next/server"
 import { env } from "@/env"
 import { getHeaders } from "@/lib/get-headers"
+import { isAuthenticated } from "@/lib/auth"
+import { unauthorizedResponse } from "../../unauthorized"
 
 export async function OPTIONS(request: NextRequest) {
   return NextResponse.json(null, {
@@ -13,6 +15,8 @@ export async function OPTIONS(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
+  const unauthorized = await isAuthenticated()
+  if (!unauthorized) return unauthorizedResponse(request)
   const headers = await getHeaders(request)
   if (headers instanceof NextResponse) return headers
   const id = request.nextUrl.searchParams.get("identifier")
