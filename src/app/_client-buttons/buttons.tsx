@@ -11,7 +11,9 @@ export function LoginButton() {
       iconPlacement='right'
       className='bg-popover text-popover-foreground border border-border overflow-hidden'
     >
-      <Link href='/login'>Iniciar Sesión</Link>
+      <Link href='/login' className='w-full h-full'>
+        Iniciar Sesión
+      </Link>
     </Button>
   )
 }
