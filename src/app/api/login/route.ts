@@ -1,5 +1,6 @@
 // app/api/login/route.ts
 import { env } from "@/env"
+import { getHost } from "@/lib/actions"
 import { AuthTokens, isAuthenticated, setAuthCookie } from "@/lib/auth"
 import { loginFormSchema } from "@/lib/forms"
 import { getHeaders } from "@/lib/get-headers"
@@ -47,7 +48,16 @@ export async function POST(request: NextRequest) {
 
     const data: AuthTokens = await response.json()
     await setAuthCookie(data)
-    return NextResponse.json(validatedBody.data, {
+    // Get user data to display welcome message in the frontend
+    const userResponse = await fetch(`${await getHost()}/api/user`, {
+      headers: {
+        Authorization: `${data.token_type} ${data.access_token}`,
+      },
+    })
+    if (!userResponse.ok) {
+      throw new Error(userResponse.statusText)
+    }
+    return NextResponse.json(await userResponse.json(), {
       status: response.status,
       headers: {
         ...(await getHeaders(request)),

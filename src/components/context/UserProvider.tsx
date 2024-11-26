@@ -16,6 +16,7 @@ interface UserContextType {
   updateUserAvatar: (avatar: string) => Promise<void>
   refreshUser: () => Promise<void>
   refreshAvatar: () => Promise<void>
+  removeUserData: () => Promise<void>
 }
 
 interface LocalUserData {
@@ -32,6 +33,8 @@ export const UserContextProvider = ({
   children: React.ReactNode
 }) => {
   const queryClient = useQueryClient()
+
+  const [areQueriesEnabled, setQueriesEnabled] = React.useState<boolean>(false)
 
   // Base fetch function to handle API calls
   const fetchFromApi = useCallback(
@@ -55,13 +58,13 @@ export const UserContextProvider = ({
   const { data: userData } = useQuery<LocalUserData>({
     queryKey: ["user"],
     queryFn: () => fetchFromApi("user"),
-    enabled: true,
+    enabled: areQueriesEnabled,
   })
 
   const { data: avatarData } = useQuery({
     queryKey: ["user", "avatar"],
     queryFn: () => fetchFromApi("/avatar"),
-    enabled: true,
+    enabled: areQueriesEnabled,
   })
 
   // Individual getter queries
@@ -69,6 +72,7 @@ export const UserContextProvider = ({
   const getUserEmail = useCallback(async () => {
     const cached = queryClient.getQueryData<LocalUserData>(["user"])
     if (cached?.userEmail) return cached.userEmail
+    setQueriesEnabled(true)
     const data = await queryClient.fetchQuery({
       queryKey: ["user"],
       queryFn: () => fetchFromApi("user"),
@@ -79,6 +83,7 @@ export const UserContextProvider = ({
   const getUserName = useCallback(async () => {
     const cached = queryClient.getQueryData<LocalUserData>(["user"])
     if (cached?.username) return cached.username
+    setQueriesEnabled(true)
     const data = await queryClient.fetchQuery({
       queryKey: ["user"],
       queryFn: () => fetchFromApi("user"),
@@ -89,6 +94,7 @@ export const UserContextProvider = ({
   const getUserFullName = useCallback(async () => {
     const cached = queryClient.getQueryData<LocalUserData>(["user"])
     if (cached?.userFullName) return cached.userFullName
+    setQueriesEnabled(true)
     const data = await queryClient.fetchQuery({
       queryKey: ["user"],
       queryFn: () => fetchFromApi("user"),
@@ -102,6 +108,7 @@ export const UserContextProvider = ({
       "avatar",
     ])
     if (cached?.userAvatar) return cached.userAvatar
+    setQueriesEnabled(true)
     const data = await queryClient.fetchQuery({
       queryKey: ["user", "avatar"],
       queryFn: () => fetchFromApi("/avatar"),
@@ -112,49 +119,66 @@ export const UserContextProvider = ({
   // Update mutations
   const updateUserEmail = useMutation({
     mutationFn: async (email: string) => {
+      setQueriesEnabled(true)
       await fetchFromApi("user", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
       })
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["user"] })
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["user"] })
     },
   }).mutateAsync
 
   const updateUserFullName = useMutation({
     mutationFn: async (fullName: string) => {
+      setQueriesEnabled(true)
       await fetchFromApi("user", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ fullName }),
       })
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["user"] })
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["user"] })
     },
   }).mutateAsync
 
   const updateUserAvatar = useMutation({
     mutationFn: async (avatar: string) => {
+      setQueriesEnabled(true)
       await fetchFromApi("/avatar", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ avatar }),
       })
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["user", "avatar"] })
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["user", "avatar"] })
     },
   }).mutateAsync
 
   const refreshUser = async () => {
-    queryClient.invalidateQueries({ queryKey: ["user"] })
+    setQueriesEnabled(true)
+    await queryClient.invalidateQueries({ queryKey: ["user"] })
   }
 
   const refreshAvatar = async () => {
-    queryClient.invalidateQueries({ queryKey: ["user", "avatar"] })
+    setQueriesEnabled(true)
+    await queryClient.invalidateQueries({ queryKey: ["user", "avatar"] })
+  }
+
+  const removeUserData = async () => {
+    setQueriesEnabled(false)
+    await queryClient.resetQueries(
+      { queryKey: ["user"], exact: true },
+      { cancelRefetch: true }
+    )
+    await queryClient.resetQueries(
+      { queryKey: ["user", "avatar"], exact: true },
+      { cancelRefetch: true }
+    )
   }
 
   const value = {
@@ -176,6 +200,7 @@ export const UserContextProvider = ({
     updateUserAvatar,
     refreshUser,
     refreshAvatar,
+    removeUserData,
   }
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>

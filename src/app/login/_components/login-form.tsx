@@ -25,34 +25,36 @@ import { z } from "zod"
 import { useMutation } from "@tanstack/react-query"
 import { useToast } from "@/components/ui/use-toast"
 import { useRouter } from "next/navigation"
-import { LoginResponse } from "../types/login"
 import { getHost } from "@/lib/actions"
-import { getAuthCookie, isAuthenticated } from "@/lib/auth"
+import { isAuthenticated } from "@/lib/auth"
 import Link from "next/link"
 import { Checkbox } from "@/components/ui/checkbox"
 import { useUser } from "@/components/context/UserProvider"
+import { UserData } from "@/app/api/user/user"
 
 const loginUser = async (
   credentials: z.infer<typeof loginFormSchema>
-): Promise<LoginResponse | string | undefined> => {
+): Promise<UserData | null> => {
   const alreadyLoggedIn = await isAuthenticated()
-  if (alreadyLoggedIn) return await getAuthCookie()
+  if (alreadyLoggedIn) {
+    return null
+  }
   const response = await fetch(`${await getHost()}/api/login`, {
     method: "POST",
     headers: {
       "Origin": window.location.origin,
       "Content-Type": "application/json",
+      "Accept": "application/json",
     },
     body: JSON.stringify(credentials),
-    credentials: "include",
   })
 
   if (!response.ok) {
     const error = await response.json()
     throw new Error(error.message || "Ha ocurrido un error iniciando sesión")
   }
-
-  return response.json()
+  const user: UserData = await response.json()
+  return user
 }
 
 export default function LoginForm() {
@@ -74,10 +76,10 @@ export default function LoginForm() {
   const mutation = useMutation({
     mutationKey: ["login"],
     mutationFn: loginUserCallback,
-    onSuccess: async () => {
+    onSuccess: async (data: UserData | null) => {
       await Promise.allSettled([refreshUser(), refreshAvatar()])
       toast({
-        title: "¡Bienvenido!",
+        title: `¡Bienvenido${data ? " de nuevo " : ""}${data ? data?.userFullName.split(" ")[0] : ""}!`,
         description: "Has iniciado sesión exitosamente.",
       })
       // Redirect to dashboard or home page

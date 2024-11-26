@@ -2,7 +2,7 @@
 import { env } from "@/env"
 import { cookies } from "next/headers"
 
-const AUTH_COOKIE = "access_token"
+const AUTH_COOKIE = "session"
 
 export interface AuthTokens {
   access_token: string
@@ -10,38 +10,43 @@ export interface AuthTokens {
 }
 
 export async function setAuthCookie(tokens: AuthTokens) {
+  console.log("Setting auth cookie:", tokens)
   const value = `${tokens.token_type} ${tokens.access_token}`
 
   cookies().set(AUTH_COOKIE, value, {
     httpOnly: true,
-    secure: true,
-    sameSite: "lax",
-    path: "/",
-    maxAge: 60 * 60, // 1 hour
+    secure: env.NODE_ENV === "production",
+    expires: new Date(Date.now() + 60 * 60 * 1000),
   })
 }
 
-export async function getAuthCookie(): Promise<string | undefined> {
-  return cookies().get(AUTH_COOKIE)?.value
+export async function getAuthCookie() {
+  const session = cookies().get(AUTH_COOKIE)?.value
+  if (!session) return null
+  const [tokenType, accessToken] = session.split(" ")
+  return { tokenType, accessToken }
 }
 
-export async function removeAuthCookie(): Promise<void> {
-  cookies().delete(AUTH_COOKIE)
+export async function removeAuthCookie() {
+  cookies().set(AUTH_COOKIE, "", { expires: new Date(0) })
 }
 
 export async function isAuthenticated() {
+  let isAuthenticated = false
   try {
-    const authCookie = await getAuthCookie()
-
+    const session = await getAuthCookie()
+    if (!session) return false
+    const { tokenType, accessToken } = session
     const isExpired = await fetch(`${env.API_CANARY_8000}/users/me`, {
       headers: {
-        Authorization: `${authCookie}`,
+        Authorization: `${tokenType} ${accessToken}`,
       },
     }).then(r => r.status !== 200)
 
-    return Boolean(!isExpired)
+    isAuthenticated = Boolean(!isExpired)
   } catch (error) {
     console.error("Error checking authentication:", error)
-    return false
+    isAuthenticated = false
   }
+  return isAuthenticated
 }

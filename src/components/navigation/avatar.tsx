@@ -23,7 +23,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../ui/dialog"
-import Logo from "../logo"
 import { Button } from "../ui/button"
 import { useUser } from "@/components/context/UserProvider"
 import {
@@ -52,6 +51,7 @@ export function AvatarButton({ className }: { className?: string }) {
     updateUserFullName,
     refreshAvatar,
     refreshUser,
+    removeUserData,
   } = useUser()
   const { toast } = useToast()
   const router = useRouter()
@@ -73,6 +73,7 @@ export function AvatarButton({ className }: { className?: string }) {
       if (data.email !== userEmail) {
         await updateUserEmail(data.email)
       }
+      await Promise.allSettled([refreshUser(), refreshAvatar()])
       form.reset()
       toast({ title: "Perfil actualizado", variant: "success" })
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -82,7 +83,7 @@ export function AvatarButton({ className }: { className?: string }) {
   }
   const onLogout = async () => {
     await removeAuthCookie()
-    Promise.allSettled([refreshUser(), refreshAvatar()])
+    await removeUserData()
     router.push("/login")
   }
 

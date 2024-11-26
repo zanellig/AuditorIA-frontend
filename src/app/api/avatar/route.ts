@@ -6,12 +6,17 @@ import { NextRequest, NextResponse } from "next/server"
 export async function GET(request: NextRequest) {
   const responseHeaders = await getHeaders(request)
   try {
-    const userToken = await getAuthCookie()
+    const { tokenType, accessToken } = (await getAuthCookie()) ?? {
+      tokenType: "",
+      accessToken: "",
+    }
+    const requestAuthHeaders = request.headers.get("Authorization")
+    const authHeader = `${tokenType ? tokenType + " " : ""}${accessToken ? accessToken : ""}${requestAuthHeaders ? " " + requestAuthHeaders : ""}`
     const url = new URL(`${env.API_CANARY_8000}/users/avatar`)
     const response = await fetch(url, {
       method: "GET",
       headers: {
-        Authorization: `${userToken}`,
+        Authorization: `${authHeader}`,
         Accept: "*/*",
       },
       cache: "no-store",
