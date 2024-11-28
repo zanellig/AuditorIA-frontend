@@ -23,6 +23,11 @@ export async function GET(request: NextRequest) {
       headers: {
         "Content-Type": "application/json",
       },
+    }).catch((e: TypeError) => {
+      console.log(`Error getting tasks from ${url}:`, e.cause)
+      throw new TypeError(
+        "Ocurrió un error comunicándose con el servidor. Por favor contacte a su ingeniero de soporte."
+      )
     })
     /**
      * If you want to use the mock data, uncomment the following lines and comment the lines below.
@@ -48,14 +53,13 @@ export async function GET(request: NextRequest) {
         headers,
       })
     }
-    return NextResponse.json([null, data], {
+    return NextResponse.json([null, []], {
       status: 200,
       headers,
     })
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
-    console.error(`Error fetching tasks:`, e)
-    return NextResponse.json([e, null], {
+    return NextResponse.json([e.message, []], {
       status: 500,
       statusText: e.message,
       headers,
