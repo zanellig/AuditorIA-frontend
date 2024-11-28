@@ -9,6 +9,7 @@ import { env } from "@/env"
 import { validateMimeType } from "@/lib/forms"
 import chalk from "chalk"
 import { getHeaders } from "@/lib/get-headers"
+import { enhanceUrlWithSpeechToTextParams } from "./utils"
 
 export const revalidate = 5
 
@@ -67,7 +68,6 @@ export async function GET(request: NextRequest) {
 // TODO: Refactor with the bubble up pattern like the GET method
 export async function POST(request: NextRequest) {
   const headers = await getHeaders(request)
-  if (headers instanceof NextResponse) return headers
   const rejectResponse = ({ missingData }: { missingData?: string }) =>
     NextResponse.json(
       [
@@ -85,73 +85,31 @@ export async function POST(request: NextRequest) {
     const params = request.nextUrl.searchParams
     const nasUrl = params.get("nasUrl")
     const fileName = params.get("fileName")
-    /** Necessary headers object to tell the API the content type we're sending it */
     const clientForm = await request.formData().catch(e => {
       if (e) return null
     })
     if (!clientForm) return rejectResponse({ missingData: "Form" })
+
     /** The serverForm is used to send the file to the API. */
     const serverForm = new FormData()
-    /** ### The API accepts a no-param URL.
-     * **Optional** appendable parameters:
-     *  - `language`: the language of the transcription
-     *  - `task`: the type of task (transcribe or translate)
-     *  - `model`: the Whisper model used to transcribe
-     *  - `device`: the device used for inference
-     *  - `device_index`: the index of the device used for inference
-     *  - `threads`: number of threads used for CPU inference
-     *  - `batch_size`: preferred batch size for inference
-     *  - `compute_type`: type of computation (float16, int8, float32)
-     *  - `align_model`: phoneme-level ASR model for alignment
-     *  - `interpolate_method`: method to assign timestamps to non-aligned words
-     *  - `return_char_alignments`: whether to return character-level alignments
-     *  - `min_speakers`: minimum number of speakers in the audio
-     *  - `max_speakers`: maximum number of speakers in the audio
-     *  - `beam_size`: number of beams in beam search
-     *  - `patience`: patience value for beam decoding
-     *  - `length_penalty`: token length penalty coefficient
-     *  - `temperatures`: temperature to use for sampling
-     *  - `compression_ratio_threshold`: gzip compression ratio threshold for failure
-     *  - `log_prob_threshold`: average log probability threshold for failure
-     *  - `no_speech_threshold`: silence threshold when logprob threshold fails
-     *  - `initial_prompt`: optional text prompt for the first window
-     *  - `suppress_tokens`: list of token ids to suppress during sampling
-     *  - `suppress_numerals`: suppress numeric and currency symbols during sampling
-     *  - `vad_onset`: onset threshold for voice activity detection (VAD)
-     *  - `vad_offset`: offset threshold for voice activity detection (VAD)
-     */
     const externalRequestUrl = new URL(
       [env.API_MAIN, SPEECH_TO_TEXT_PATH].join("/")
     )
+    const enhancedUrl = enhanceUrlWithSpeechToTextParams(
+      externalRequestUrl.href,
+      clientForm
+    )
+
     const isRecordForm = !!(clientForm && nasUrl && fileName)
     const isManualFileUpload = !!(clientForm && !nasUrl && !fileName)
 
-    if (isManualFileUpload && !clientForm?.has("file"))
+    // Seeing this, it would be much better to have two different endpoints, one for record and one for manual upload. Too much clutter and conditionals.
+
+    if (isManualFileUpload && !clientForm?.has("file")) {
       return rejectResponse({ missingData: "File in FormData" })
+    }
     const file = clientForm.get("file")
 
-    if (isManualFileUpload || isRecordForm) {
-      if (clientForm.has("language"))
-        externalRequestUrl.searchParams.append(
-          "language",
-          `${clientForm?.get("language")}`
-        )
-      if (clientForm.has("task_type"))
-        externalRequestUrl.searchParams.append(
-          "task",
-          `${clientForm?.get("task_type")}`
-        )
-      if (clientForm.has("model"))
-        externalRequestUrl.searchParams.append(
-          "model",
-          `${clientForm?.get("model")}`
-        )
-      if (clientForm.has("device"))
-        externalRequestUrl.searchParams.append(
-          "device",
-          `${clientForm?.get("device")}`
-        )
-    }
     if (isRecordForm && isManualFileUpload)
       return NextResponse.json(
         [
@@ -165,14 +123,10 @@ export async function POST(request: NextRequest) {
         }
       )
 
-    console.group(chalk.bold.blue("Form origin validation:"))
-    console.log("isRecordForm:", isRecordForm)
-    console.log("isManualFileUpload:", isManualFileUpload)
-    console.groupEnd()
-
     // Reject if one of the parameters is missing when trying to upload from NAS
-    if (isRecordForm && ((nasUrl && !fileName) || (!nasUrl && fileName)))
+    if (isRecordForm && ((nasUrl && !fileName) || (!nasUrl && fileName))) {
       return rejectResponse({ missingData: "NAS URL or fileName" })
+    }
 
     if (isRecordForm) {
       try {
@@ -230,7 +184,7 @@ export async function POST(request: NextRequest) {
       `Sending task to API with URL ${chalk.bgBlack.white(externalRequestUrl.href)} and FormData`,
       serverForm
     )
-    const response = await fetch(externalRequestUrl.toString(), {
+    const response = await fetch(enhancedUrl.toString(), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
