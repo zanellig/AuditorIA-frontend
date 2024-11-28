@@ -1,6 +1,6 @@
 // app/api/login/route.ts
 import { env } from "@/env"
-import { AuthTokens, isAuthenticated, setAuthCookie } from "@/lib/auth"
+import { AuthTokens, setAuthCookie } from "@/lib/auth"
 import { loginFormSchema } from "@/lib/forms"
 import { getHeaders } from "@/lib/get-headers"
 import { NextRequest, NextResponse } from "next/server"
@@ -12,12 +12,6 @@ export async function POST(request: NextRequest) {
   // TODO: Implement rate limiting to prevent brute force attacks
   const responseHeaders = await getHeaders(request)
   try {
-    if (await isAuthenticated())
-      return NextResponse.json(
-        { message: "Logged in" },
-        { status: 200, statusText: "Logged in", headers: responseHeaders }
-      )
-
     const body: z.infer<typeof loginFormSchema> = await request.json()
     console.log("Request body on (login/route.ts):", body)
     const validatedBody = loginFormSchema.safeParse(body)
