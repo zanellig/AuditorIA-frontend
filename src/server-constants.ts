@@ -1,10 +1,11 @@
 import "server-only"
 import { env } from "@/env"
+import { getDeviceInfo } from "@/host"
 export const INTERNAL_API =
   env.APP_ENV === "local"
     ? `http://localhost:${env.PORT}`
-    : env.APP_ENV === "remote"
-      ? `http://${env.HOST}`
+    : env.APP_ENV === "remote" || env.APP_ENV === "linux"
+      ? `http://${env.HOST || getDeviceInfo().ipAddress}:${env.PORT}`
       : "no-host-defined"
 
 const BASE_URLS = [
@@ -14,24 +15,14 @@ const BASE_URLS = [
   "api.auditoria.linksolution.com.ar",
 ]
 
-const PORTS = [
-  "",
-  ":3030",
-  ":3000",
-  ":443",
-  ":8080",
-  ":8000",
-  ":7000",
-  ":22",
-  ":80",
-]
-const PROTOCOLS = ["https://", "http://"]
+const PORTS = ["", "3030", "3000", "443", "8080", "8000", "7000", "22", "80"]
+const PROTOCOLS = ["https", "http"]
 
 // Generate all combinations of protocol + base + port
 export const ALLOWED_ORIGINS = [
   ...BASE_URLS.flatMap(base =>
     PROTOCOLS.flatMap(protocol =>
-      PORTS.map(port => `${protocol}${base}${port}`)
+      PORTS.map(port => `${protocol}://${base}:${port}`)
     )
   ),
   INTERNAL_API,
