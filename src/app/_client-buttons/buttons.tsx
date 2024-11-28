@@ -9,7 +9,7 @@ export function LoginButton() {
   const isDesktop = useMediaQuery(IPAD_SIZE_QUERY)
   return (
     <Button
-      variant='expandIcon'
+      variant={isDesktop ? "expandIcon" : "default"}
       Icon={ArrowRight}
       iconPlacement='right'
       className='bg-popover text-popover-foreground border border-border overflow-hidden'
