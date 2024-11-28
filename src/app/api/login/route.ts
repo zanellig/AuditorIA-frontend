@@ -6,6 +6,7 @@ import { loginFormSchema } from "@/lib/forms"
 import { getHeaders } from "@/lib/get-headers"
 import { NextRequest, NextResponse } from "next/server"
 import { z } from "zod"
+import { UserData } from "../user/user"
 
 export async function POST(request: NextRequest) {
   // TODO: Implement HTTPS to encrypt data in transit and at rest
@@ -19,6 +20,7 @@ export async function POST(request: NextRequest) {
       )
 
     const body: z.infer<typeof loginFormSchema> = await request.json()
+    console.log("Request body on (login/route.ts:21):", body)
     const validatedBody = loginFormSchema.safeParse(body)
     if (!validatedBody.success) {
       return NextResponse.json(
@@ -45,8 +47,13 @@ export async function POST(request: NextRequest) {
     }).catch(e => {
       throw new Error(e.detail)
     })
-
+    console.log(
+      "Response status from API on (login/route.ts:40):",
+      response.status,
+      response.statusText
+    )
     const data: AuthTokens = await response.json()
+    console.log("Setting cookie with data (login/route.ts:56):", data)
     await setAuthCookie(data)
     // Get user data to display welcome message in the frontend
     const userResponse = await fetch(`${await getHost()}/api/user`, {
@@ -54,10 +61,16 @@ export async function POST(request: NextRequest) {
         Authorization: `${data.token_type} ${data.access_token}`,
       },
     })
+    console.log(
+      "Response from internal user proxy on (login/route.ts:58):",
+      userResponse.status,
+      userResponse.statusText
+    )
     if (!userResponse.ok) {
       throw new Error(userResponse.statusText)
     }
-    return NextResponse.json(await userResponse.json(), {
+    const userData: UserData = await userResponse.json()
+    return NextResponse.json(userData, {
       status: response.status,
       headers: {
         ...(await getHeaders(request)),
@@ -71,4 +84,12 @@ export async function POST(request: NextRequest) {
       { status: 500, headers: responseHeaders }
     )
   }
+}
+
+export async function OPTIONS(request: NextRequest) {
+  const responseHeaders = await getHeaders(request)
+  return new NextResponse("", {
+    headers: responseHeaders,
+    status: 200,
+  })
 }
