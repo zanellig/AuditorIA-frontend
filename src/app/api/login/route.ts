@@ -1,12 +1,11 @@
 // app/api/login/route.ts
 import { env } from "@/env"
-import { getHost } from "@/lib/actions"
 import { AuthTokens, isAuthenticated, setAuthCookie } from "@/lib/auth"
 import { loginFormSchema } from "@/lib/forms"
 import { getHeaders } from "@/lib/get-headers"
 import { NextRequest, NextResponse } from "next/server"
 import { z } from "zod"
-import { UserData } from "../user/user"
+import { ServerUserData, UserData } from "../user/user"
 
 export async function POST(request: NextRequest) {
   // TODO: Implement HTTPS to encrypt data in transit and at rest
@@ -56,7 +55,7 @@ export async function POST(request: NextRequest) {
     console.log("Setting cookie with data (login/route.ts:56):", data)
     await setAuthCookie(data)
     // Get user data to display welcome message in the frontend
-    const userResponse = await fetch(`${await getHost()}/api/user`, {
+    const userResponse = await fetch(`${env.API_CANARY_8000}/users/me`, {
       headers: {
         Authorization: `${data.token_type} ${data.access_token}`,
       },
@@ -69,7 +68,13 @@ export async function POST(request: NextRequest) {
     if (!userResponse.ok) {
       throw new Error(userResponse.statusText)
     }
-    const userData: UserData = await userResponse.json()
+    const serverUserData: ServerUserData = await userResponse.json()
+    const userData: UserData = {
+      userEmail: serverUserData.email,
+      username: serverUserData.username,
+      userFullName: serverUserData.full_name,
+      isActive: serverUserData.is_active,
+    }
     return NextResponse.json(userData, {
       status: response.status,
       headers: {
