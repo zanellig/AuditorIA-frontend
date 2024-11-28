@@ -13,15 +13,15 @@ export default function TasksPage() {
   const TASKS_QUERY_KEY = ["tasks"]
   const {
     status,
-    data: res,
+    data: tasks,
     error: err,
     isLoading,
   } = useTasks({ queryKey: TASKS_QUERY_KEY })
-  let description: string = !res
+  let description: string = !tasks
     ? "No se han encontrado tareas."
-    : `Se han encontrado ${res && res?.length} tareas.`
+    : `Se han encontrado ${tasks && tasks?.length} tareas.`
   description =
-    !!res && res.length > 0 ? description : `No se han encontrado tareas.`
+    !!tasks && tasks.length > 0 ? description : `No se han encontrado tareas.`
   return (
     <TableContainer>
       {isLoading && <DashboardSkeleton />}
@@ -31,23 +31,23 @@ export default function TasksPage() {
           locale={SupportedLocales.Values.es}
         />
       )}
-      {!isLoading && !!res && (
+      {!isLoading && !!tasks && (
         <div className='flex flex-col gap-2'>
           <CustomBorderCard
             description={description}
             variant={
               err !== null
                 ? "error"
-                : !res
+                : !tasks
                   ? "warning"
-                  : res.length === 0
+                  : tasks.length === 0
                     ? "default"
                     : "success"
             }
           />
           <DataTable
             columns={columns}
-            data={res}
+            data={tasks}
             type={TableSupportedDataTypes.Tasks}
             queryKey={TASKS_QUERY_KEY}
             status={status}
