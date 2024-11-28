@@ -24,9 +24,9 @@ export default function ErrorScreen({
   const router = useRouter()
   return (
     <>
-      <TopNavbar />
-      <main id={id} className='flex flex-col max-w-2xl my-auto mx-auto pt-16'>
-        <div className='flex flex-col items-start space-y-5'>
+      <main id={id} className='flex flex-col'>
+        <TopNavbar />
+        <div className='flex flex-col items-start space-y-5 p-16'>
           <TitleH1>{errorTitle}</TitleH1>
           <ParagraphP>
             Contacte a su administrador de IT y otorgue el siguiente código de
