@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form"
 import { useToast } from "@/components/ui/use-toast"
 import { ToastAction } from "@/components/ui/toast"
 import { handleCopyToClipboard } from "@/lib/utils"
-import { GLOBAL_ICON_SIZE } from "@/lib/consts"
+import { GLOBAL_ICON_SIZE, IPAD_SIZE_QUERY } from "@/lib/consts"
 import { CaptionsIcon } from "lucide-react"
 import { Form } from "@/components/ui/form"
 import {
@@ -15,6 +15,7 @@ import {
   SheetTitle,
   SheetTrigger,
   SheetClose,
+  SheetDescription,
 } from "@/components/ui/sheet"
 import {
   Tooltip,
@@ -29,6 +30,8 @@ import { taskFormOptions, taskFormSchema, type FormValues } from "@/lib/forms"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { StatefulButton } from "@/components/stateful-button"
 import { getHost } from "@/lib/actions"
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
+import { useMediaQuery } from "@/lib/hooks/use-media-query"
 
 export default function AudioProcessingTaskStarter({ row }: { row: any }) {
   /**
@@ -41,16 +44,13 @@ export default function AudioProcessingTaskStarter({ row }: { row: any }) {
   const { toast } = useToast()
   const form = useForm<FormValues>({
     resolver: zodResolver(taskFormSchema),
-  })
-
-  React.useEffect(() => {
-    form.reset({
+    defaultValues: {
       language: "es",
-      task_type: "transcribe",
+      task_type: "combine",
       model: "large-v3",
       device: "cuda",
-    })
-  }, [])
+    },
+  })
 
   const [isSubmitting, setIsSubmitting] = React.useState(false)
 
@@ -100,7 +100,7 @@ export default function AudioProcessingTaskStarter({ row }: { row: any }) {
       })
       form.reset({
         language: "es",
-        task_type: "transcribe",
+        task_type: "combine",
         model: "large-v3",
         device: "cuda",
       })
@@ -131,6 +131,8 @@ export default function AudioProcessingTaskStarter({ row }: { row: any }) {
     mutation.mutate(values)
   }
 
+  const isDesktop = useMediaQuery(IPAD_SIZE_QUERY)
+
   return (
     <Sheet>
       <Tooltip>
@@ -149,13 +151,22 @@ export default function AudioProcessingTaskStarter({ row }: { row: any }) {
           <ParagraphP>Transcribir audio</ParagraphP>
         </TooltipContent>
       </Tooltip>
-      <SheetContent side={"left"} className='flex flex-col'>
+      <SheetContent
+        side={isDesktop ? "right" : "bottom"}
+        className='flex flex-col'
+      >
         <SheetHeader>
           <SheetTitle>
             <div className='flex flex-row text-start items-center space-x-2'>
               <CaptionsIcon /> <span>Opciones de transcripción</span>
             </div>
           </SheetTitle>
+          <VisuallyHidden asChild>
+            <SheetDescription>
+              En esta pantalla, podrá enviar una grabación a transcribir o
+              diarizar (identificar hablantes).
+            </SheetDescription>
+          </VisuallyHidden>
         </SheetHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
@@ -186,7 +197,7 @@ export default function AudioProcessingTaskStarter({ row }: { row: any }) {
 
             <StatefulButton
               type={"submit"}
-              variant={"secondary"}
+              variant={"default"}
               size={"lg"}
               className='w-full'
               isLoading={isSubmitting}

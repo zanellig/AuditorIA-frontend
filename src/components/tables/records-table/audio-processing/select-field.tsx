@@ -54,7 +54,7 @@ export function SelectField<TFormValues extends Record<string, any>>({
                   placeholder={`Seleccione ${label.toLowerCase()}`}
                 />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className='max-h-44 h-fit'>
                 <SelectGroup>
                   {options.map(option => (
                     <SelectItem
