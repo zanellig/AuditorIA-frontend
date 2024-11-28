@@ -29,10 +29,10 @@ export const GET = async function (request: NextRequest) {
     }
     const data: ServerUserData = await response.json()
     const userData: UserData = {
-      userEmail: data.email,
-      username: data.username,
-      userFullName: data.full_name,
-      isActive: data.is_active,
+      userEmail: data.email ?? "error@auditoria.com.ar",
+      username: data.username ?? "unknown",
+      userFullName: data.full_name ?? "Natalia Natalia",
+      isActive: data.is_active ?? true,
     }
     return NextResponse.json(userData, {
       headers: responseHeaders,
