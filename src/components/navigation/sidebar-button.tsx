@@ -6,7 +6,6 @@ import { cn } from "@/lib/utils"
 import { ChevronDown, ChevronUp, type LucideProps } from "lucide-react"
 import { GLOBAL_ICON_SIZE } from "@/lib/consts"
 import { motion, AnimatePresence } from "framer-motion"
-import { DrawerClose } from "../ui/drawer"
 
 // We should store the state of the buttons in the server because we are getting a hydration error when loading the page and accessing the local storage.
 

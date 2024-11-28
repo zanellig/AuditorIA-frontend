@@ -1,5 +1,5 @@
 "use client"
-import React, { type JSX } from "react";
+import React, { type JSX } from "react"
 import {
   Card,
   CardContent,
@@ -25,7 +25,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "./ui/select"
+} from "@/components/ui/select"
 import { TableSupportedDataTypes } from "@/lib/types.d"
 import { CustomBorderCard } from "./custom-border-card"
 import { StatefulButton } from "./stateful-button"

@@ -34,9 +34,9 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
-} from "../ui/drawer"
+} from "@/components/ui/drawer"
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
-import { Separator } from "../ui/separator"
+import { Separator } from "@/components/ui/separator"
 
 export function SendUsFeedbackButton({
   children,

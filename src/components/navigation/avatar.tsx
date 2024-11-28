@@ -8,7 +8,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "../ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
 import { LogOut, Settings, Upload } from "lucide-react"
 import { GLOBAL_ICON_SIZE } from "@/lib/consts"
@@ -22,8 +22,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "../ui/dialog"
-import { Button } from "../ui/button"
+} from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
 import { useUser } from "@/components/context/UserProvider"
 import {
   Form,
@@ -32,13 +32,13 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "../ui/form"
+} from "@/components/ui/form"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { updateUserProfileFormSchema } from "@/lib/forms"
 import { z } from "zod"
-import { useToast } from "../ui/use-toast"
-import { Input } from "../ui/input"
+import { useToast } from "@/components/ui/use-toast"
+import { Input } from "@/components/ui/input"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
 

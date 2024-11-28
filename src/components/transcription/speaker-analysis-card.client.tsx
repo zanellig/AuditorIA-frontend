@@ -2,7 +2,7 @@
 "use client"
 import React from "react"
 import { cn, getUniqueWords, normalizeString } from "@/lib/utils"
-import { Button } from "../ui/button"
+import { Button } from "@/components/ui/button"
 import {
   ArrowRightIcon,
   CheckIcon,
@@ -18,14 +18,17 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
-import { Input } from "../ui/input"
+import { Input } from "@/components/ui/input"
 import { DASHBOARD_ICON_CLASSES } from "@/lib/consts"
-import { useToast } from "../ui/use-toast"
-import { LoadingState, MultiStepLoader } from "../ui/multi-step-loader"
+import { useToast } from "@/components/ui/use-toast"
+import {
+  LoadingState,
+  MultiStepLoader,
+} from "@/components/ui/multi-step-loader"
 import EvalSpeakerProfile from "./eval-speaker-profile"
 import { Trash2 } from "lucide-react"
 import OperatorQualityAccordionWrapper from "./operator-quality/operator-quality-accordion-wrapper"
-import { ScrollArea } from "../ui/scroll-area"
+import { ScrollArea } from "@/components/ui/scroll-area"
 
 /**
  * ### Here we get the operator_quality and spkanalysis.

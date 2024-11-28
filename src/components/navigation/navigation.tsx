@@ -32,7 +32,7 @@ import { AvatarButton } from "./avatar"
 import { ModeToggle } from "./mode-toggle"
 import Link from "next/link"
 import { SidebarButton, SidebarButtonProps } from "./sidebar-button"
-import { ScrollArea } from "../ui/scroll-area"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import Logo from "../logo"
 import { useMediaQuery } from "@/lib/hooks/use-media-query"
 import { GLOBAL_ICON_SIZE, IPAD_SIZE_QUERY } from "@/lib/consts"
@@ -44,8 +44,8 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
-} from "../ui/drawer"
-import { Button } from "../ui/button"
+} from "@/components/ui/drawer"
+import { Button } from "@/components/ui/button"
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 
 const TOP_HEIGHT = "h-14"

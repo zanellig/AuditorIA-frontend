@@ -5,14 +5,14 @@ import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-} from "../ui/chart"
+} from "@/components/ui/chart"
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "../ui/card"
+} from "@/components/ui/card"
 import { CartesianGrid, Line, LineChart, XAxis } from "recharts"
 import { getLocaleMonth } from "@/lib/utils"
 
