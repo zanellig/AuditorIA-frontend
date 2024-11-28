@@ -5,6 +5,7 @@ import fs from "fs/promises"
 import path from "path"
 import os from "os"
 import { env } from "@/env"
+import { shellEscape } from "shell-escape"
 
 const execAsync = promisify(exec)
 
@@ -68,42 +69,73 @@ export async function getNetworkAudio(
       ]
     }
   } else if (os.platform() === "linux" || os.platform() === "darwin") {
-    console.group("Linux/macOS handling")
-    // Linux/macOS smbclient handling
-    const username = env.LDAP_USERNAME
-    const password = env.LDAP_PASSWORD
-    const domain = env.LDAP_DOMAIN
-    const [, , server, share, ...filePath] = audioPath.split(/[\/\\]/)
-    const sharePath = `//${server}/${share}`
-    const filePathOnShare = filePath.join("/")
-
-    if (!username || !password || !domain) {
-      return [new Error("LDAP credentials are not properly configured"), null]
-    }
-
-    // Use smbclient to copy the file from network share
-    const smbCommand = `smbclient ${sharePath} -U ${domain}/${username}%${password} -c "get \\"${filePathOnShare}\\" \\"${tempFile}\\""`
-
     try {
-      console.log("Executing smbclient command")
-      await execAsync(smbCommand)
+      console.group("Linux/macOS handling")
+      // Linux/macOS smbclient handling
+      const username = env.LDAP_USERNAME
+      const password = env.LDAP_PASSWORD
+      const domain = env.LDAP_DOMAIN
+
+      if (!username || !password || !domain) {
+        return [new Error("LDAP credentials are not properly configured"), null]
+      }
+
+      // Validate audioPath
+      const pathParts = audioPath.split(/[\/\\]/)
+      if (pathParts.length < 4) {
+        throw new Error("Invalid network path format")
+      }
+
+      const [, , server, share, ...filePath] = pathParts
+      const sharePath = `//${server}/${share}`
+      const filePathOnShare = filePath.join("/")
+
+      // Escape all components to prevent shell injection
+      const escapedSharePath = shellEscape([sharePath])
+      const escapedUsername = shellEscape([`${domain}/${username}`])
+      const escapedPassword = shellEscape([password])
+      const escapedFilePathOnShare = shellEscape([filePathOnShare])
+      const escapedTempFile = shellEscape([tempFile])
+
+      // Use smbclient to copy the file from network share
+      const smbCommand = `smbclient ${escapedSharePath} -U ${escapedUsername}%${escapedPassword} -c "get \\"${escapedFilePathOnShare}\\" \\"${escapedTempFile}\\""`
+
+      await Promise.race([
+        execAsync(smbCommand, { timeout: 30000 }), // 30-second timeout
+        new Promise((_, reject) =>
+          setTimeout(
+            () => reject(new Error("smbclient command timed out")),
+            30000
+          )
+        ),
+      ])
+      // Verify file was actually retrieved
+      const stats = await fs.stat(tempFile)
+      if (stats.size === 0) {
+        throw new Error("Retrieved file is empty")
+      }
     } catch (err) {
       console.error("Failed to execute smbclient command:", err)
-      await fs.rmdir(tempDir).catch(() => {
-        console.warn(`Failed to clean up temp directory: ${tempDir}`)
-      }) // Best effort cleanup
-      console.groupEnd()
-      console.groupEnd()
+      console.error("Network share access failed:", err)
+
+      // Cleanup
+      try {
+        await fs.rm(tempDir, { recursive: true, force: true })
+      } catch (cleanupErr) {
+        console.warn(`Cleanup failed for directory: ${tempDir}`, cleanupErr)
+      }
+
       return [
         new Error(
-          `Failed to execute smbclient command: ${
+          `Network file retrieval failed: ${
             err instanceof Error ? err.message : String(err)
           }`
         ),
         null,
       ]
+    } finally {
+      console.groupEnd()
     }
-    console.groupEnd()
   }
 
   console.group("Reading temporary file")
