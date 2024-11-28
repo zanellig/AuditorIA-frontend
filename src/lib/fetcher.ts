@@ -72,7 +72,7 @@ async function _request<T, R extends boolean | undefined = undefined>(
   }
 }
 
-function _get<T = Response, R extends boolean | undefined = undefined>(
+export function _get<T = Response, R extends boolean | undefined = undefined>(
   url: string,
   headers?: Headers,
   options?: {
@@ -85,7 +85,7 @@ function _get<T = Response, R extends boolean | undefined = undefined>(
   return _request(url, Method.Get, null, headers, options)
 }
 
-function _post<T, R extends boolean | undefined = undefined>(
+export function _post<T, R extends boolean | undefined = undefined>(
   url: string,
   body: Record<string, string> | FormData | null,
   headers?: Headers,
@@ -99,7 +99,7 @@ function _post<T, R extends boolean | undefined = undefined>(
   return _request<T, R>(url, Method.Post, body, headers, options)
 }
 
-function _put<T, R extends boolean | undefined = undefined>(
+export function _put<T, R extends boolean | undefined = undefined>(
   url: string,
   body: Record<string, string> | FormData | null,
   headers?: Headers,
@@ -113,7 +113,7 @@ function _put<T, R extends boolean | undefined = undefined>(
   return _request<T, R>(url, Method.Put, body, headers, options)
 }
 
-function _patch<T, R extends boolean | undefined = undefined>(
+export function _patch<T, R extends boolean | undefined = undefined>(
   url: string,
   body: Record<string, string> | FormData | null,
   headers?: Headers,
@@ -127,7 +127,7 @@ function _patch<T, R extends boolean | undefined = undefined>(
   return _request<T, R>(url, Method.Patch, body, headers, options)
 }
 
-function _delete<T, R extends boolean | undefined = undefined>(
+export function _delete<T, R extends boolean | undefined = undefined>(
   url: string,
   headers?: Headers,
   options?: {
@@ -139,5 +139,3 @@ function _delete<T, R extends boolean | undefined = undefined>(
 ): Promise<[Error | null, R extends true ? number : T | Response | null]> {
   return _request<T, R>(url, Method.Delete, null, headers, options)
 }
-
-export { _request, _get, _post, _put, _patch, _delete }

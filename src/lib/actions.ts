@@ -25,13 +25,17 @@ export async function readFile(filePath: string): Promise<Buffer | null> {
   }
   return data
 }
-
+/**
+ * @deprecated
+ */
 export async function deleteTask(id: Task["identifier"], revalidate?: boolean) {
   const url = `${env.API_MAIN}/${TASK_PATH}/${id}`
   revalidatePath("/", "layout")
   return _delete(url, undefined, { revalidate })
 }
-
+/**
+ * @deprecated
+ */
 export async function deleteTasks(
   ids: Task["identifier"][],
   revalidate?: boolean
