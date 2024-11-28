@@ -6,6 +6,8 @@ import { redirect } from "next/navigation"
 import { isAuthenticated } from "@/lib/auth"
 import LoginBackground from "./_components/login-background"
 
+export const dynamic = "force-dynamic"
+
 export const metadata: Metadata = {
   title: "Iniciar Sesión | AuditorIA - Auditoría de Llamadas Inteligente",
   description:
