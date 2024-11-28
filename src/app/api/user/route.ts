@@ -18,9 +18,8 @@ export const GET = async function (request: NextRequest) {
     const response = await fetch(url, {
       method: "GET",
       headers: {
-        "Authorization": authHeader,
-        "Accept": "application/json",
-        "Content-Type": "application/json",
+        Authorization: authHeader,
+        Accept: "application/json",
       },
     }).catch(error => {
       throw new Error(error.detail)

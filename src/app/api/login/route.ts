@@ -6,6 +6,7 @@ import { getHeaders } from "@/lib/get-headers"
 import { NextRequest, NextResponse } from "next/server"
 import { z } from "zod"
 import { ServerUserData, UserData } from "../user/user"
+import { getHost } from "@/lib/actions"
 
 export async function POST(request: NextRequest) {
   // TODO: Implement HTTPS to encrypt data in transit and at rest
@@ -19,7 +20,7 @@ export async function POST(request: NextRequest) {
       )
 
     const body: z.infer<typeof loginFormSchema> = await request.json()
-    console.log("Request body on (login/route.ts:21):", body)
+    console.log("Request body on (login/route.ts):", body)
     const validatedBody = loginFormSchema.safeParse(body)
     if (!validatedBody.success) {
       return NextResponse.json(
@@ -47,21 +48,20 @@ export async function POST(request: NextRequest) {
       throw new Error(e.detail)
     })
     console.log(
-      "Response status from API on (login/route.ts:40):",
+      "Response status from API on (login/route.ts):",
       response.status,
       response.statusText
     )
-    const data: AuthTokens = await response.json()
-    console.log("Setting cookie with data (login/route.ts:56):", data)
-    await setAuthCookie(data)
+    const tokenData: AuthTokens = await response.json()
+    console.log("Setting cookie with data (login/route.ts):", tokenData)
+    await setAuthCookie(tokenData)
+
     // Get user data to display welcome message in the frontend
-    const userResponse = await fetch(`${env.API_CANARY_8000}/users/me`, {
-      headers: {
-        Authorization: `${data.token_type} ${data.access_token}`,
-      },
-    })
+    const host = await getHost()
+    console.log("Host retrieved from server action on (login/route.ts):", host)
+    const userResponse = await fetch(`${host}/api/user`)
     console.log(
-      "Response from internal user proxy on (login/route.ts:58):",
+      "Response from internal user proxy on (login/route.ts):",
       userResponse.status,
       userResponse.statusText
     )
