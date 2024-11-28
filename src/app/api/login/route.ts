@@ -58,7 +58,11 @@ export async function POST(request: NextRequest) {
     // Get user data to display welcome message in the frontend
     const host = `http://localhost:${env.PORT}`
     console.log("Host retrieved from server action on (login/route.ts):", host)
-    const userResponse = await fetch(`${host}/api/user`)
+    const userResponse = await fetch(`${host}/api/user`, {
+      headers: {
+        Authorization: `${tokenData.token_type} ${tokenData.access_token}`,
+      },
+    })
     console.log(
       "Response from internal user proxy on (login/route.ts):",
       userResponse.status,
