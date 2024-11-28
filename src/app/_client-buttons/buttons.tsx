@@ -15,7 +15,7 @@ export function LoginButton() {
       iconPlacement='right'
       className={cn(
         "bg-popover text-popover-foreground border border-border overflow-hidden",
-        !isDesktop && "text-foreground"
+        !isDesktop && "text-foreground flex justify-center items-center"
       )}
       size={!isDesktop ? "icon" : "default"}
     >
