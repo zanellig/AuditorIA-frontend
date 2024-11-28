@@ -14,7 +14,7 @@ import {
   CommandList,
 } from "@/components/ui/command"
 import { CirclePlus, X } from "lucide-react"
-import { GLOBAL_ICON_SIZE } from "@/lib/consts"
+import { GLOBAL_ICON_SIZE, IPAD_SIZE_QUERY } from "@/lib/consts"
 import { useMediaQuery } from "@/lib/hooks/use-media-query"
 import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer"
 import { DialogTitle } from "@/components/ui/dialog"
@@ -31,7 +31,7 @@ export default function FilterButton<TData>({
   filterValues,
 }: FilterButtonProps<TData>) {
   const [open, setOpen] = React.useState(false)
-  const isDesktop = useMediaQuery("(min-width: 768px)")
+  const isDesktop = useMediaQuery(IPAD_SIZE_QUERY)
 
   const filterValue = column.getFilterValue() as string
 

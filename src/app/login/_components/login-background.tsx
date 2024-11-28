@@ -3,14 +3,22 @@ import Logo from "@/components/logo"
 import SubtitleH2 from "@/components/typography/subtitleH2"
 import { Button } from "@/components/ui/button"
 import { WavyBackground } from "@/components/ui/wavy-background"
-import { GLOBAL_ICON_SIZE } from "@/lib/consts"
+import { GLOBAL_ICON_SIZE, IPAD_SIZE_QUERY } from "@/lib/consts"
 import { useMediaQuery } from "@/lib/hooks/use-media-query"
+import { cn } from "@/lib/utils"
 import { ArrowDown } from "lucide-react"
 
-export default function LoginBackground() {
+export default function LoginBackground({ className }: { className?: string }) {
+  const isDesktop = useMediaQuery(IPAD_SIZE_QUERY)
   return (
     <>
-      <section className='w-full h-full p-8 relative overflow-hidden'>
+      <section
+        className={cn(
+          "w-full h-full p-8 relative overflow-hidden",
+          className,
+          !isDesktop && "hidden"
+        )}
+      >
         <WavyBackground
           colors={["#173739", "#21494b", "#f9fafc", "#8beac1", " #58a8ae"]}
         >

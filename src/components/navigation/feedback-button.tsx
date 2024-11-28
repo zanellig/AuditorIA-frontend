@@ -24,10 +24,20 @@ import { z } from "zod"
 import FeedbackForm from "./forms/feedback-form"
 import BugReportForm from "./forms/bug-report-form"
 import FeatureRequestForm from "./forms/feature-form"
-import { Send } from "lucide-react"
-import { DASHBOARD_ICON_CLASSES } from "@/lib/consts"
+import { Bug, Heart, Lightbulb, Send } from "lucide-react"
+import { DASHBOARD_ICON_CLASSES, IPAD_SIZE_QUERY } from "@/lib/consts"
+import { useMediaQuery } from "@/lib/hooks/use-media-query"
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "../ui/drawer"
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
+import { Separator } from "../ui/separator"
 
-/** Soy una bestia. Implementé las tres rutas con sistema de mailing, template estilado compatible con todos los clientes de correo, tres forms con distintas funcionalidades y validaciones, y no sé qué más, pero todo en una noche. La verdad me felicito. */
 export function SendUsFeedbackButton({
   children,
   className,
@@ -35,50 +45,117 @@ export function SendUsFeedbackButton({
   children: React.ReactNode
   className?: string
 }) {
+  const isDesktop = useMediaQuery(IPAD_SIZE_QUERY)
+
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation() // Prevent bubbling to the parent Drawer
+  }
+
+  if (isDesktop)
+    return (
+      <Dialog>
+        <DialogTrigger asChild>
+          <TriggerButton className={className}>{children}</TriggerButton>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Envianos tus comentarios</DialogTitle>
+          </DialogHeader>
+          <FeedbackTabs />
+        </DialogContent>
+      </Dialog>
+    )
+
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button
-          variant='ghost'
-          className={cn(
-            "flex bg-popover w-fit items-center justify-start space-x-4 pr-12",
-            className
-          )}
+    <Drawer>
+      <DrawerTrigger asChild>
+        <TriggerButton
+          id='feedback-drawer-open-trigger'
+          className={className}
+          onClick={handleClick}
         >
-          <div>
-            <Send className={DASHBOARD_ICON_CLASSES} />
-          </div>
-          <div>{children}</div>
-        </Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Envianos tus comentarios</DialogTitle>
-        </DialogHeader>
-        <Tabs defaultValue='feedback'>
-          <TabsList className='w-full'>
-            <TabsTrigger value='feedback' className='w-full'>
-              Feedback
-            </TabsTrigger>
-            <TabsTrigger value='bug' className='w-full'>
-              Reportar error
-            </TabsTrigger>
-            <TabsTrigger value='feature' className='w-full'>
-              Recomendar una funcionalidad
-            </TabsTrigger>
-          </TabsList>
-          <TabsContent value='feedback'>
-            <FeedbackForm />
-          </TabsContent>
-          <TabsContent value='bug'>
-            <BugReportForm />
-          </TabsContent>
-          <TabsContent value='feature'>
-            <FeatureRequestForm />
-          </TabsContent>
-        </Tabs>
-      </DialogContent>
-    </Dialog>
+          {children}
+        </TriggerButton>
+      </DrawerTrigger>
+      <DrawerContent>
+        <DrawerHeader className='p-0 py-4'>
+          <VisuallyHidden asChild>
+            <DrawerDescription>
+              En esta pantalla, nos podrá enviar comentarios.
+            </DrawerDescription>
+          </VisuallyHidden>
+          <DrawerTitle>Envianos tus comentarios</DrawerTitle>
+          <Separator orientation={"horizontal"} className='w-full mt-2' />
+        </DrawerHeader>
+        <div className='px-4 pb-4'>
+          <FeedbackTabs />
+        </div>
+      </DrawerContent>
+    </Drawer>
+  )
+}
+
+function TriggerButton({
+  className,
+  children,
+  onClick,
+  id,
+}: {
+  className?: string
+  children?: React.ReactNode
+  onClick?: React.MouseEventHandler<HTMLButtonElement>
+  id?: string
+}) {
+  return (
+    <Button
+      id={id}
+      variant='ghost'
+      className={cn(
+        "flex bg-popover w-fit items-center justify-start space-x-4 pr-12",
+        className
+      )}
+      onClick={e => {
+        e.stopPropagation() // Prevent bubbling to parent
+        if (onClick) onClick(e) // Call provided onClick handler
+      }}
+    >
+      <div>
+        <Send className={DASHBOARD_ICON_CLASSES} />
+      </div>
+      <div>{children}</div>
+    </Button>
+  )
+}
+
+function FeedbackTabs() {
+  const isDesktop = useMediaQuery(IPAD_SIZE_QUERY)
+  return (
+    <Tabs defaultValue='feedback'>
+      <TabsList className='w-full'>
+        <TabsTrigger value='feedback' className='w-full'>
+          {isDesktop ? "Feedback" : <Heart className='text-green-500' />}
+        </TabsTrigger>
+        <TabsTrigger value='feature' className='w-full'>
+          {isDesktop ? (
+            "Recomendar una funcionalidad"
+          ) : (
+            <Lightbulb className='text-yellow-500' />
+          )}
+        </TabsTrigger>
+        <TabsTrigger value='bug' className='w-full'>
+          {isDesktop ? "Reportar error" : <Bug className='text-red-500' />}
+        </TabsTrigger>
+      </TabsList>
+      <TabsContent value='feedback'>
+        <FeedbackForm />
+      </TabsContent>
+      <TabsContent value='bug'>
+        <BugReportForm />
+      </TabsContent>
+      <TabsContent value='feature'>
+        <FeatureRequestForm />
+      </TabsContent>
+    </Tabs>
   )
 }
 
@@ -87,7 +164,13 @@ enum FormTypes {
   BUG = "bug",
   FEATURE = "feature",
 }
-/** El único motivo por el cual no borro este componente es porque tiene el copy legal, y hasta que no lo relocalice a un componente de la app, no lo voy a borrar */
+
+/* eslint @typescript-eslint/no-unused-vars: "off"
+  --------
+  El único motivo por el cual no borro este componente es porque tiene el copy legal, y hasta que no lo relocalice a un componente de la app, no lo voy a borrar.
+
+  The only reason I don't delete this component is because it has the legal disclaimer, and it hasn't been relocated yet.
+*/
 function FormFactory({
   children,
   className,

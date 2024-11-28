@@ -24,6 +24,7 @@ import TitleContainer from "@/components/title-container"
 import { Settings } from "lucide-react"
 import { TypographyH4 } from "@/components/typography/h4"
 import { DASHBOARD_ICON_CLASSES } from "@/lib/consts"
+import { StatefulButton } from "@/components/stateful-button"
 
 // Define types for the state
 interface AuditApiState {
@@ -33,6 +34,10 @@ interface AuditApiState {
   maxSpeakers: number
 }
 
+/* TODO: 
+  Implement mutation
+  Retrieve initial data from stored values
+*/
 interface WhisperApiState {
   url: string
   language: string
@@ -52,34 +57,40 @@ interface WhisperApiState {
   vadOffset: number
 }
 
+const initAuditAPIState = {
+  url: "",
+  enableSentimentAnalysis: false,
+  minSpeakers: 1,
+  maxSpeakers: 10,
+} as const
+
+const initWhisperAPIState = {
+  url: "",
+  language: "es",
+  task: "transcribe",
+  model: "large-v3",
+  device: "cuda",
+  computeType: "float16",
+  batchSize: 8,
+  beamSize: 5,
+  patience: 1,
+  lengthPenalty: 1,
+  temperature: 0,
+  compressionRatioThreshold: 2.4,
+  logProbThreshold: -1,
+  noSpeechThreshold: 0.6,
+  vadOnset: 0.5,
+  vadOffset: 0.363,
+} as const
+
 export default function AdminSettings() {
   // Audit API state
-  const [auditApiState, setAuditApiState] = useState<AuditApiState>({
-    url: "",
-    enableSentimentAnalysis: false,
-    minSpeakers: 1,
-    maxSpeakers: 10,
-  })
+  const [auditApiState, setAuditApiState] =
+    useState<AuditApiState>(initAuditAPIState)
 
   // Whisper API state
-  const [whisperApiState, setWhisperApiState] = useState<WhisperApiState>({
-    url: "",
-    language: "es",
-    task: "transcribe",
-    model: "large-v3",
-    device: "cuda",
-    computeType: "float16",
-    batchSize: 8,
-    beamSize: 5,
-    patience: 1,
-    lengthPenalty: 1,
-    temperature: 0,
-    compressionRatioThreshold: 2.4,
-    logProbThreshold: -1,
-    noSpeechThreshold: 0.6,
-    vadOnset: 0.5,
-    vadOffset: 0.363,
-  })
+  const [whisperApiState, setWhisperApiState] =
+    useState<WhisperApiState>(initWhisperAPIState)
 
   const setAuditApiUrl = (url: string) =>
     setAuditApiState(prevState => ({ ...prevState, url }))
@@ -442,6 +453,15 @@ export default function AdminSettings() {
             </Card>
           </TabsContent>
         </Tabs>
+        <StatefulButton
+          className='mt-2'
+          disabled={
+            initAuditAPIState === auditApiState &&
+            initWhisperAPIState === whisperApiState
+          }
+        >
+          Guardar cambios
+        </StatefulButton>
       </TableContainer>
     </main>
   )

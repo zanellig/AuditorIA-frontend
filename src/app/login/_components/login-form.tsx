@@ -103,7 +103,7 @@ export default function LoginForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
-        <Card>
+        <Card className='sm:w-full'>
           <CardHeader>
             <TypographyH3 className='text-center'>Iniciar sesión</TypographyH3>
             <CardDescription className='text-center'>

@@ -13,16 +13,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { UseFormReturn } from "react-hook-form"
+import { Path, UseFormReturn } from "react-hook-form"
 
-type SelectOption = {
+interface SelectOption {
   value: string
   label: string
   disabled?: boolean
 }
-
-type SelectFieldProps<TFormValues extends Record<string, any>> = {
-  name: string
+/* eslint @typescript-eslint/no-explicit-any: "off" */
+interface SelectFieldProps<TFormValues extends Record<string, any>> {
+  name: Path<TFormValues>
   label: string
   options: SelectOption[]
   form: UseFormReturn<TFormValues>
@@ -39,7 +39,6 @@ export function SelectField<TFormValues extends Record<string, any>>({
   return (
     <FormField
       control={form.control}
-      // @ts-ignore
       name={name}
       render={({ field }) => (
         <FormItem className='w-full'>

@@ -3,9 +3,10 @@ import { usePathname } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-import { ChevronDown, ChevronUp } from "lucide-react"
+import { ChevronDown, ChevronUp, type LucideProps } from "lucide-react"
 import { GLOBAL_ICON_SIZE } from "@/lib/consts"
 import { motion, AnimatePresence } from "framer-motion"
+import { DrawerClose } from "../ui/drawer"
 
 // We should store the state of the buttons in the server because we are getting a hydration error when loading the page and accessing the local storage.
 
@@ -13,7 +14,9 @@ export interface SidebarButtonProps {
   className?: string
   customKey: Key
   href?: string
-  icon: React.JSX.Element
+  Icon: React.ForwardRefExoticComponent<
+    Omit<LucideProps, "ref"> & React.RefAttributes<SVGSVGElement>
+  >
   title: string
   clickOptions?: {
     redirect?: boolean
@@ -27,7 +30,7 @@ export function SidebarButton({
   className,
   customKey,
   href,
-  icon,
+  Icon,
   title,
   clickOptions,
   disabled = false,
@@ -86,6 +89,9 @@ export function SidebarButton({
           href={href && !disabled ? href : "#"}
           key={customKey + "-link"}
           className={cn("w-full h-full", disabled && "cursor-not-allowed")}
+          onClick={() => {
+            document.getElementById("menu-drawer-close-button")?.click()
+          }}
         >
           <SidebarButtonWrapper
             className={cn(
@@ -97,7 +103,9 @@ export function SidebarButton({
             disabled={disabled}
           >
             <div className='flex flex-row space-x-4 justify-start items-center'>
-              <div key={customKey + "-icon"}>{icon}</div>
+              <div key={customKey + "-icon"}>
+                {<Icon size={GLOBAL_ICON_SIZE} />}
+              </div>
               <div
                 key={customKey + "-title"}
                 className={cn(

@@ -48,9 +48,7 @@ export default function TaskUploadForm({ className }: { className?: string }) {
       formData.append("task_type", values.task_type)
       formData.append("model", values.model)
       formData.append("device", values.device)
-      /**
-       * Form works, but API is currently down.
-       */
+
       const [error, task] = await fetch(`${await getHost()}/api/task`, {
         method: "POST",
         body: formData,
@@ -122,18 +120,18 @@ export default function TaskUploadForm({ className }: { className?: string }) {
           A través de esta página, puede enviar una tarea manualmente. Se
           aceptan únicamente archivos de audio con las siguientes extensiones:
         </CardDescription>
-        <div className='flex space-x-2 mt-4'>
+        <div className='grid grid-cols-5 lg:flex lg:flex-row gap-2 mt-4 items-center'>
           {ACCEPTED_AUDIO_TYPES.map(type => (
-            <Badge variant={"outline"} key={type}>
-              {type}
+            <Badge variant={"outline"} key={type} className='w-fit min-w-12'>
+              <span className='text-center w-full'>{type}</span>
             </Badge>
           ))}
         </div>
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
-            <div className='flex flex-row space-x-2 w-full'>
+          <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
+            <div className='flex flex-col lg:grid lg:grid-cols-2 gap-2 w-full'>
               <SelectField<FormValues>
                 name='language'
                 label='Idioma'
@@ -146,8 +144,6 @@ export default function TaskUploadForm({ className }: { className?: string }) {
                 options={taskFormOptions.task_type}
                 form={form}
               />
-            </div>
-            <div className='flex flex-row space-x-2 w-full'>
               <SelectField<FormValues>
                 name='model'
                 label='Modelo'
