@@ -10,18 +10,20 @@ export function LoginButton() {
   const isDesktop = useMediaQuery(IPAD_SIZE_QUERY)
   return (
     <Button
-      variant={isDesktop ? "expandIcon" : "default"}
+      variant={"expandIcon"}
       Icon={ArrowRight}
       iconPlacement='right'
-      className={cn(
-        "bg-popover text-popover-foreground border border-border",
-        !isDesktop && "text-foreground flex justify-center items-center",
-        isDesktop && "overflow-hidden"
-      )}
-      size={!isDesktop ? "icon" : "default"}
+      asChild
+      // className={cn(
+      //   "bg-popover text-popover-foreground border border-border",
+      //   !isDesktop && "text-foreground flex justify-center items-center",
+      //   isDesktop && "overflow-hidden"
+      // )}
+      className={cn("bg-popover text-inherit border")}
+      size={!isDesktop ? "icon" : undefined}
     >
-      <Link href='/login' className='w-full h-full'>
-        {isDesktop ? "Iniciar Sesión" : <LogIn size={GLOBAL_ICON_SIZE} />}
+      <Link href='/login'>
+        {isDesktop ? "Iniciar Sesión" : <LogIn size={19} />}
       </Link>
     </Button>
   )
