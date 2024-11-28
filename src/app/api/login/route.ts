@@ -6,7 +6,6 @@ import { getHeaders } from "@/lib/get-headers"
 import { NextRequest, NextResponse } from "next/server"
 import { z } from "zod"
 import { ServerUserData, UserData } from "../user/user"
-import { getHost } from "@/lib/actions"
 
 export async function POST(request: NextRequest) {
   // TODO: Implement HTTPS to encrypt data in transit and at rest
@@ -57,7 +56,7 @@ export async function POST(request: NextRequest) {
     await setAuthCookie(tokenData)
 
     // Get user data to display welcome message in the frontend
-    const host = await getHost()
+    const host = `http://localhost:${env.PORT}`
     console.log("Host retrieved from server action on (login/route.ts):", host)
     const userResponse = await fetch(`${host}/api/user`)
     console.log(
