@@ -43,7 +43,8 @@ export async function GET(request: NextRequest) {
     // )
 
     if (!response.ok) {
-      throw new Error(response.statusText)
+      const error = await response.json()
+      throw new Error(error.detail ?? response.statusText)
     }
 
     const data = await response.json()
