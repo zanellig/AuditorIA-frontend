@@ -1,4 +1,3 @@
-"use client"
 import { Skeleton } from "@/components/ui/skeleton"
 import { cn } from "@/lib/utils"
 
@@ -8,41 +7,34 @@ export default function DashboardSkeleton({
   className?: string
 }) {
   return (
-    <section className={cn("w-full", className)}>
-      <div className='flex flex-col space-y-4'>
-        <Skeleton className='w-full h-10 bg-pulse dark:bg-secondary' />
-        <div className='flex space-x-2 items-center w-full justify-between'>
-          <div className='flex space-x-4 items-center'>
-            <Skeleton className='h-8 w-[300px] bg-pulse dark:bg-secondary' />
-            <Skeleton className='h-8 w-[150px] bg-pulse dark:bg-secondary' />
-            <FilterButtonSkeleton />
-            <FilterButtonSkeleton />
-            <FilterButtonSkeleton />
-          </div>
-
-          <div className='flex space-x-2 ml-auto'>
-            <Skeleton className='h-8 w-[200px] bg-pulse dark:bg-secondary' />
-            <Skeleton className='h-8 w-[100px] bg-pulse dark:bg-secondary' />
-          </div>
+    <div className={cn("flex flex-col space-y-2", className)}>
+      <Skeleton className='h-10 bg-pulse dark:bg-secondary w-full' />
+      <div className='flex space-x-2 items-center justify-between w-full'>
+        <div className='flex space-x-2 items-center'>
+          <Skeleton className='h-8 w-[300px] bg-pulse dark:bg-secondary' />
+          <Skeleton className='h-8 w-[150px] bg-pulse dark:bg-secondary' />
+          <FilterButtonSkeleton />
+          <FilterButtonSkeleton />
+          <FilterButtonSkeleton />
         </div>
-
-        <div className='flex flex-col space-y-2'>
-          <SingleColumnSkeleton />
-          <SingleColumnSkeleton />
-          <SingleColumnSkeleton />
-          <SingleColumnSkeleton />
-          <SingleColumnSkeleton />
-          <SingleColumnSkeleton />
-          <SingleColumnSkeleton />
-          <SingleColumnSkeleton />
-          <SingleColumnSkeleton />
-          <SingleColumnSkeleton />
-          <SingleColumnSkeleton />
-        </div>
-
-        <PaginationSkeleton />
       </div>
-    </section>
+
+      <div className='flex flex-col space-y-2'>
+        <SingleColumnSkeleton />
+        <SingleColumnSkeleton />
+        <SingleColumnSkeleton />
+        <SingleColumnSkeleton />
+        <SingleColumnSkeleton />
+        <SingleColumnSkeleton />
+        <SingleColumnSkeleton />
+        <SingleColumnSkeleton />
+        <SingleColumnSkeleton />
+        <SingleColumnSkeleton />
+        <SingleColumnSkeleton />
+      </div>
+
+      <PaginationSkeleton />
+    </div>
   )
 }
 
