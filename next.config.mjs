@@ -4,7 +4,7 @@ import dotenv from "dotenv"
 dotenv.config({ path: ".env.local" })
 // Other configuration settings
 const nextConfig = {
-  typescript: { ignoreBuildErrors: true },
+  typescript: { ignoreBuildErrors: false },
   eslint: { ignoreDuringBuilds: true },
   images: {
     domains: ["aceternity.com", "github.com", "linksolution.com.ar"], // Agrega "github.com" aquí
