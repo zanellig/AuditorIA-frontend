@@ -11,12 +11,7 @@ export default function TableContainer({
   separate?: boolean
 }) {
   return (
-    <div
-      className={cn(
-        "container m-0 flex flex-col w-full h-full min-w-full p-0",
-        className
-      )}
-    >
+    <div className={cn("m-0 flex flex-col p-0", className)}>
       {children}
       {separate && <Separator className='my-4' />}
     </div>

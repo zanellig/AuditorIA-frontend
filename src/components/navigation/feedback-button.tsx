@@ -1,3 +1,4 @@
+"use client"
 import React from "react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -5,6 +6,7 @@ import {
   Dialog,
   DialogClose,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -38,6 +40,8 @@ import {
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 import { Separator } from "@/components/ui/separator"
 
+const TRIGGER_ID = "feedback-drawer-open-trigger"
+
 export function SendUsFeedbackButton({
   children,
   className,
@@ -55,11 +59,18 @@ export function SendUsFeedbackButton({
     return (
       <Dialog>
         <DialogTrigger asChild>
-          <TriggerButton className={className}>{children}</TriggerButton>
+          <TriggerButton className={className} id={TRIGGER_ID}>
+            {children}
+          </TriggerButton>
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Envianos tus comentarios</DialogTitle>
+            <VisuallyHidden asChild>
+              <DialogDescription>
+                En esta pantalla, nos podrá enviar comentarios.
+              </DialogDescription>
+            </VisuallyHidden>
           </DialogHeader>
           <FeedbackTabs />
         </DialogContent>
@@ -70,7 +81,7 @@ export function SendUsFeedbackButton({
     <Drawer>
       <DrawerTrigger asChild>
         <TriggerButton
-          id='feedback-drawer-open-trigger'
+          id={TRIGGER_ID}
           className={className}
           onClick={handleClick}
         >
@@ -95,20 +106,17 @@ export function SendUsFeedbackButton({
   )
 }
 
-function TriggerButton({
-  className,
-  children,
-  onClick,
-  id,
-}: {
+interface TriggerButtonProps {
   className?: string
   children?: React.ReactNode
   onClick?: React.MouseEventHandler<HTMLButtonElement>
   id?: string
-}) {
-  return (
+}
+
+const TriggerButton = React.forwardRef<HTMLButtonElement, TriggerButtonProps>(
+  ({ className, children, onClick, id }, ref) => (
     <Button
-      id={id}
+      id={id || undefined}
       variant='ghost'
       className={cn(
         "flex bg-popover w-fit items-center justify-start space-x-4 pr-12",
@@ -118,6 +126,7 @@ function TriggerButton({
         e.stopPropagation() // Prevent bubbling to parent
         if (onClick) onClick(e) // Call provided onClick handler
       }}
+      ref={ref}
     >
       <div>
         <Send className={DASHBOARD_ICON_CLASSES} />
@@ -125,7 +134,9 @@ function TriggerButton({
       <div>{children}</div>
     </Button>
   )
-}
+)
+
+TriggerButton.displayName = "TriggerButton"
 
 function FeedbackTabs() {
   const isDesktop = useMediaQuery(IPAD_SIZE_QUERY)
