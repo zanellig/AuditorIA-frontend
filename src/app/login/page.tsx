@@ -26,9 +26,9 @@ export const metadata: Metadata = {
 }
 
 export default async function LoginPage() {
-  if (await isAuthenticated()) {
-    redirect("/dashboard")
-  }
+  //if (await isAuthenticated()) {
+  //  redirect("/dashboard")
+ // }
 
   return (
     // I don't know why the screen width detection works the other way around. Should be sm:grid-cols-1 logically as the small screen should trigger the mobile layout.
