@@ -71,7 +71,7 @@ export const getAudioPath = async (
 ): Promise<Recording["URL"] | null> => {
   // Seeing this, we're calling a fetch on a server action. What? Why?
   const [err, res] = await fetch(
-    `${await getHost()}/api/recordings?GRABACION=${file_name}`
+    `http://localhost:${env.PORT}/api/recordings?GRABACION=${file_name}`
   )
     .then(async res => {
       if (!res.ok) {
@@ -81,6 +81,7 @@ export const getAudioPath = async (
     })
     .catch(e => [e, null])
   if (err !== null) {
+    console.error("Error getting recording", err)
     return null
   }
   if (res) {
