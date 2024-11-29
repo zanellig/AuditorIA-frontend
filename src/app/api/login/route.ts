@@ -5,7 +5,7 @@ import { loginFormSchema } from "@/lib/forms"
 import { getHeaders } from "@/lib/get-headers"
 import { NextRequest, NextResponse } from "next/server"
 import { z } from "zod"
-import { ServerUserData, UserData } from "../user/user"
+import { UserData } from "../user/user"
 
 export async function POST(request: NextRequest) {
   // TODO: Implement HTTPS to encrypt data in transit and at rest
@@ -13,7 +13,6 @@ export async function POST(request: NextRequest) {
   const responseHeaders = await getHeaders(request)
   try {
     const body: z.infer<typeof loginFormSchema> = await request.json()
-    console.log("Request body on (login/route.ts):", body)
     const validatedBody = loginFormSchema.safeParse(body)
     if (!validatedBody.success) {
       return NextResponse.json(
@@ -51,7 +50,6 @@ export async function POST(request: NextRequest) {
 
     // Get user data to display welcome message in the frontend
     const host = `http://localhost:${env.PORT}`
-    console.log("Host retrieved from server action on (login/route.ts):", host)
     const userResponse = await fetch(`${host}/api/user`, {
       headers: {
         Authorization: `${tokenData.token_type} ${tokenData.access_token}`,
@@ -65,13 +63,9 @@ export async function POST(request: NextRequest) {
     if (!userResponse.ok) {
       throw new Error(userResponse.statusText)
     }
-    const serverUserData: ServerUserData = await userResponse.json()
-    const userData: UserData = {
-      userEmail: serverUserData.email,
-      username: serverUserData.username,
-      userFullName: serverUserData.full_name,
-      isActive: serverUserData.is_active,
-    }
+    const userData: UserData = await userResponse.json()
+    console.log("Data retrieved from internal user proxy:", userData)
+
     return NextResponse.json(userData, {
       status: response.status,
       headers: {
