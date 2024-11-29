@@ -1,9 +1,9 @@
-import { Loader2 } from "lucide-react"
+import { Loader } from "lucide-react"
 
-export default function Loader() {
+export default function LoaderScreen() {
   return (
     <main className='flex flex-col gap-2 w-full h-full justify-center items-center'>
-      <Loader2 className='h-20 w-20 animate-spin text-primary dark:text-secondary' />
+      <Loader className='h-20 w-20 animate-spin text-primary dark:text-secondary' />
     </main>
   )
 }

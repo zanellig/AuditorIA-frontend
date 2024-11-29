@@ -1,4 +1,4 @@
-import Loader from "@/app/_loader/loader"
+import LoaderScreen from "@/app/_loader/loader"
 export default function RecordRedirectLoading() {
-  return <Loader />
+  return <LoaderScreen />
 }
