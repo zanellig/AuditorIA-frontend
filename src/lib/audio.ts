@@ -5,7 +5,7 @@ import fs from "fs/promises"
 import path from "path"
 import os from "os"
 import { env } from "@/env"
-import { shellEscape } from "shell-escape"
+import shellEscape from "shell-escape"
 
 const execAsync = promisify(exec)
 
@@ -81,7 +81,7 @@ export async function getNetworkAudio(
       }
 
       // Validate audioPath
-      const pathParts = audioPath.split(/[\/\\]/)
+      const pathParts = audioPath.split(/[/\\]/)
       if (pathParts.length < 4) {
         throw new Error("Invalid network path format")
       }
