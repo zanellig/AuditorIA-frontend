@@ -34,8 +34,7 @@ import Link from "next/link"
 import { SidebarButton, SidebarButtonProps } from "./sidebar-button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import Logo from "../logo"
-import { useMediaQuery } from "@/lib/hooks/use-media-query"
-import { GLOBAL_ICON_SIZE, IPAD_SIZE_QUERY } from "@/lib/consts"
+import { GLOBAL_ICON_SIZE } from "@/lib/consts"
 import {
   Drawer,
   DrawerClose,
@@ -232,7 +231,7 @@ export function Sidebar({ className }: { className?: string }) {
   return (
     <ScrollArea
       className={cn(
-        "hidden lg:flex flex-col space-y-0 w-fit p-0 h-dvh min-w-72 items-center justify-between text-muted-foreground",
+        "hidden lg:flex flex-col space-y-0 p-0 h-dvh min-w-72 w-72 items-center justify-between text-muted-foreground",
         className
       )}
     >
@@ -273,8 +272,6 @@ export function TopNavbar({
   className?: string
   style?: React.CSSProperties
 }) {
-  const isDesktop = useMediaQuery(IPAD_SIZE_QUERY)
-
   const memoizedDrawerContent = React.useMemo(
     () => (
       <DrawerContent className='max-h-[550px] h-dvh'>
@@ -341,7 +338,7 @@ export function TopNavbar({
           </VisuallyHidden>
         </Drawer>
       </article>
-      {isDesktop && <BreadcrumbWithCustomSeparator />}
+      <BreadcrumbWithCustomSeparator className='hidden lg:block' />
       <div className='flex flex-row space-x-4 items-center'>
         {children}
         <AvatarButton />
