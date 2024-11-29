@@ -95,7 +95,7 @@ const Button = React.forwardRef<
         className={cn(
           buttonVariants({ variant, size, className }),
           buttonState.isMouseDown && "scale-95",
-          "transition-transform duration-100"
+          "transition-transform duration-75"
         )}
         ref={ref}
         {...props}
