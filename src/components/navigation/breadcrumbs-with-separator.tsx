@@ -19,10 +19,13 @@ export function BreadcrumbWithCustomSeparator({
 }) {
   const router = useRouter()
   const pathname = usePathname()
-  const pathnames = pathname.split("/").slice(1)
+  const pathnames = pathname.split("/").filter(Boolean)
   React.useEffect(() => {
-    router.prefetch(pathnames[0])
-  }, [])
+    pathnames.forEach((path, index) => {
+      const pathToPrefetch = `/${pathnames.slice(0, index + 1).join("/")}`
+      router.prefetch(pathToPrefetch)
+    })
+  }, [pathnames, router])
 
   return (
     <Breadcrumb className={cn(className)}>
@@ -33,16 +36,17 @@ export function BreadcrumbWithCustomSeparator({
           // last index is the current page
           if (index === pathnames.length - 1) {
             return (
-              <div key={`${index}-${pathname}-item`}>
-                <BreadcrumbItem className='bg-transparent'>
-                  <BreadcrumbPage>{displayName}</BreadcrumbPage>
-                </BreadcrumbItem>
-              </div>
+              <BreadcrumbItem
+                className='bg-transparent'
+                key={`breadcrumb-${index}`}
+              >
+                <BreadcrumbPage>{displayName}</BreadcrumbPage>
+              </BreadcrumbItem>
             )
           } else {
             return (
               <div
-                key={`${index}-${pathname}-item`}
+                key={`breadcrumb-${index}`}
                 className='flex flex-row items-center space-x-2'
               >
                 <BreadcrumbItem>
@@ -53,7 +57,9 @@ export function BreadcrumbWithCustomSeparator({
                     {displayName}
                   </Link>
                 </BreadcrumbItem>
-                {pathnames.length - 1 !== index && <BreadcrumbSeparator />}
+                {pathnames.length - 1 !== index && (
+                  <BreadcrumbSeparator aria-hidden='true' />
+                )}
               </div>
             )
           }
