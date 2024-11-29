@@ -26,7 +26,6 @@ import { useMutation } from "@tanstack/react-query"
 import { useToast } from "@/components/ui/use-toast"
 import { useRouter } from "next/navigation"
 import { getHost } from "@/lib/actions"
-import { isAuthenticated } from "@/lib/auth"
 import Link from "next/link"
 import { Checkbox } from "@/components/ui/checkbox"
 import { useUser } from "@/components/context/UserProvider"
@@ -34,11 +33,7 @@ import { UserData } from "@/app/api/user/user"
 
 const loginUser = async (
   credentials: z.infer<typeof loginFormSchema>
-): Promise<UserData | null> => {
-  const alreadyLoggedIn = await isAuthenticated()
-  if (alreadyLoggedIn) {
-    return null
-  }
+): Promise<UserData> => {
   const response = await fetch(`${await getHost()}/api/login`, {
     method: "POST",
     headers: {
@@ -76,8 +71,9 @@ export default function LoginForm() {
   const mutation = useMutation({
     mutationKey: ["login"],
     mutationFn: loginUserCallback,
-    onSuccess: async (data: UserData | null) => {
+    onSuccess: async (data: UserData) => {
       await Promise.allSettled([refreshUser(), refreshAvatar()])
+      console.log("User signed in:", data)
       toast({
         title: `¡Bienvenido${data ? " de nuevo " : ""}${data ? data?.userFullName.split(" ")[0] : ""}!`,
         description: "Has iniciado sesión exitosamente.",
