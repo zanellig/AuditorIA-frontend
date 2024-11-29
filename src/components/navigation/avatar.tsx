@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
 import { LogOut, Settings, Upload } from "lucide-react"
-import { GLOBAL_ICON_SIZE } from "@/lib/consts"
+import { GLOBAL_ICON_SIZE, IPAD_SIZE_QUERY } from "@/lib/consts"
 import { removeAuthCookie } from "@/lib/auth"
 import {
   Dialog,
@@ -41,12 +41,15 @@ import { useToast } from "@/components/ui/use-toast"
 import { Input } from "@/components/ui/input"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
+import { useMediaQuery } from "@/lib/hooks/use-media-query"
+import { StatefulButton } from "../stateful-button"
 
 export function AvatarButton({ className }: { className?: string }) {
   const {
     username,
     userEmail,
     userFullName,
+    userAvatar,
     updateUserEmail,
     updateUserFullName,
     refreshAvatar,
@@ -87,6 +90,8 @@ export function AvatarButton({ className }: { className?: string }) {
     router.push("/login")
   }
 
+  const isDesktop = useMediaQuery(IPAD_SIZE_QUERY)
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -105,6 +110,17 @@ export function AvatarButton({ className }: { className?: string }) {
           </section>
         </article>
         <DropdownMenuSeparator />
+        {/* 
+          I don't know why this works this way, but I did it here and on the delete-button component. 
+          I think that when we use the DropdownMenuItem as a trigger of the Dialog itself, the event gets propagated to the dropdown
+          and closes it.
+          This means that it also closes the dialog.
+          I don't know if there's a better way to do this, but this is the only way I found to make it work.
+
+          Takeaways:
+          - Pass synthetic event to child trigger
+          - Stop propagation on trigger click
+        */}
         <DropdownMenuItem
           onClick={e => {
             e.preventDefault()
@@ -118,13 +134,6 @@ export function AvatarButton({ className }: { className?: string }) {
               ?.dispatchEvent(event)
           }}
         >
-          {/* 
-            I don't know why this works this way, but I did it here and on the delete-button component. 
-            I think that when we use the DropdownMenuItem as a trigger of the Dialog itself, the event gets propagated to the dropdown
-            and closes it.
-            This means that it also closes the dialog.
-            I don't know if there's a better way to do this, but this is the only way I found to make it work.
-          */}
           <div className='h-full w-full' onClick={e => e.stopPropagation()}>
             <Dialog>
               <DialogTrigger asChild>
@@ -142,20 +151,20 @@ export function AvatarButton({ className }: { className?: string }) {
                     <DialogHeader>
                       <DialogTitle>Editar perfil</DialogTitle>
                       <DialogDescription>
-                        Realizá cambios en tu perfil acá. Tocá guardar cuando
-                        hayas terminado.
+                        Realizá cambios en tu perfil acá.{" "}
+                        {isDesktop && "Tocá guardar cuando hayas terminado."}
                       </DialogDescription>
                     </DialogHeader>
                     <article className='flex gap-8'>
                       <section className='relative h-full'>
                         <div className='flex flex-col gap-2 items-center justify-center h-full'>
-                          {/* <Logo width={128} height={128} /> */}
                           <Image
-                            src={"/api/avatar"}
                             alt={userFullName}
                             width={128}
                             height={128}
+                            src={userAvatar}
                           />
+
                           <Button
                             variant={"outline"}
                             className='flex gap-2 items-center'
@@ -228,12 +237,22 @@ export function AvatarButton({ className }: { className?: string }) {
                         <FormMessage />
                       </section>
                     </article>
-                    <DialogFooter>
+                    <DialogFooter className='flex flex-col gap-2'>
                       <DialogClose asChild>
-                        <Button className='w-full' type='submit'>
+                        <StatefulButton
+                          className='w-full'
+                          type='submit'
+                          disabled={!form.formState.isDirty}
+                          isLoading={form.formState.isSubmitting}
+                        >
                           Guardar
-                        </Button>
+                        </StatefulButton>
                       </DialogClose>
+                      {!isDesktop && (
+                        <DialogDescription>
+                          Tocá guardar cuando hayas terminado.
+                        </DialogDescription>
+                      )}
                     </DialogFooter>
                   </DialogContent>
                 </form>
@@ -259,15 +278,18 @@ const UserAvatar = React.forwardRef<HTMLDivElement, UserAvatarProps>(
   ({ userFullName, className, children, ...props }, ref) => {
     // Extract initials from the userFullName
     const initials = userFullName
-      .split(" ")
-      .map(name => name.charAt(0))
-      .join("")
-      .substring(0, 2) // Limit to 2 initials, e.g., for "John Doe" => "JD"
+      ? userFullName
+          .split(" ")
+          .map(name => name.charAt(0))
+          .join("")
+          .substring(0, 2) // Limit to 2 initials, e.g., for "John Doe" => "JD"
+      : "NN"
+
+    const { userAvatar } = useUser()
 
     return (
       <Avatar ref={ref} className={cn(className)} {...props}>
-        {/* Uncomment and use if you have an image source */}
-        <AvatarImage src={"/api/avatar"} alt={userFullName} />
+        <AvatarImage alt={userFullName} src={userAvatar} />
         <AvatarFallback className='select-none' delayMs={300}>
           {initials}
         </AvatarFallback>

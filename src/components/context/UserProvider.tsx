@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useCallback } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { getHost } from "@/lib/actions"
+import { blankImageUrl } from "@/lib/blank-image-blob"
 
 interface UserContextType {
   userEmail: string
@@ -44,11 +45,13 @@ export const UserContextProvider = ({
         ...options,
       })
       if (!response.ok) throw new Error("Algo salió mal, intenta de nuevo")
-      if (response.headers.get("content-type")?.includes("application/json")) {
+      const contentType = response.headers.get("content-type")
+      if (contentType?.includes("application/json")) {
         return response.json()
       }
-      if (response.headers.get("content-type")?.includes("image")) {
-        return response.blob()
+      if (contentType?.includes("image")) {
+        const blob = await response.blob()
+        return URL.createObjectURL(blob)
       }
       return response.text()
     },
@@ -113,7 +116,8 @@ export const UserContextProvider = ({
       queryKey: ["user", "avatar"],
       queryFn: () => fetchFromApi("/avatar"),
     })
-    return data.userAvatar
+    console.log("Result of last resolver avatar query:", data)
+    return data
   }, [queryClient, fetchFromApi])
 
   // Update mutations
@@ -186,7 +190,7 @@ export const UserContextProvider = ({
     userEmail: userData?.userEmail ?? "",
     username: userData?.username ?? "",
     userFullName: userData?.userFullName ?? "",
-    userAvatar: avatarData?.userAvatar ?? "",
+    userAvatar: avatarData ?? blankImageUrl,
     // Getter methods
     getUserEmail,
     getUserName,
