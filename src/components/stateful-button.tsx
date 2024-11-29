@@ -2,7 +2,7 @@
 // 100% prompt engineered with v0.dev
 import React from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Loader2 } from "lucide-react"
+import { Loader } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
@@ -56,7 +56,7 @@ const StatefulButton = React.forwardRef<HTMLButtonElement, StatefulButtonProps>(
               exit={{ y: 20, opacity: 0 }}
               transition={{ duration: 0.3 }}
             >
-              <Loader2 className='h-5 w-5 animate-spin' />
+              <Loader className='h-5 w-5 animate-spin' />
               <span>Cargando...</span>
             </motion.div>
           )}

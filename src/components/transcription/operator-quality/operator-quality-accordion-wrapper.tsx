@@ -5,7 +5,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion"
 import { DASHBOARD_ICON_CLASSES, GLOBAL_ICON_SIZE } from "@/lib/consts"
-import { Loader2, Sparkles } from "lucide-react"
+import { Loader, Sparkles } from "lucide-react"
 import { Task } from "@/lib/types"
 import { getHost } from "@/lib/actions"
 import { useQuery } from "@tanstack/react-query"
@@ -46,7 +46,7 @@ export default function OperatorQualityAccordionWrapper({
       <AccordionContent className={cn(className, "min-w-[800px]")}>
         {query.isLoading && (
           <div className='flex justify-center w-full'>
-            <Loader2 className={cn(DASHBOARD_ICON_CLASSES, "animate-spin")} />
+            <Loader className={cn(DASHBOARD_ICON_CLASSES, "animate-spin")} />
           </div>
         )}
         {query.error && (

@@ -23,7 +23,7 @@ import Link from "next/link"
 import { useMutation } from "@tanstack/react-query"
 import { useToast } from "@/components/ui/use-toast"
 import { getHost } from "@/lib/actions"
-import { Loader2 } from "lucide-react"
+import { Loader } from "lucide-react"
 import { GLOBAL_ICON_SIZE } from "@/lib/consts"
 import ParagraphP from "@/components/typography/paragraphP"
 import { BackgroundLines } from "@/components/ui/background-lines"
@@ -256,7 +256,7 @@ export default function SignupForm() {
                   <div className='flex justify-center items-center gap-2'>
                     {mutation.isPending && (
                       <>
-                        <Loader2
+                        <Loader
                           size={GLOBAL_ICON_SIZE}
                           className='animate-spin text-center'
                         />

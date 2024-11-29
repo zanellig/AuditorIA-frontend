@@ -10,7 +10,7 @@ import {
 import { Task } from "@/lib/types.d"
 import { cn } from "@/lib/utils"
 import { getHost } from "@/lib/actions"
-import { Loader2, Sparkles } from "lucide-react"
+import { Loader, Sparkles } from "lucide-react"
 import SpkAnalysis from "./spkanalysis"
 
 function EvalSpeakerProfile({
@@ -58,7 +58,7 @@ function EvalSpeakerProfile({
       <AccordionContent className={cn(className)}>
         {isLoading && (
           <div className='flex justify-center w-full'>
-            <Loader2 className={cn(DASHBOARD_ICON_CLASSES, "animate-spin")} />
+            <Loader className={cn(DASHBOARD_ICON_CLASSES, "animate-spin")} />
           </div>
         )}
         {error && (
