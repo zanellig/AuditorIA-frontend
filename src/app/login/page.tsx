@@ -5,6 +5,7 @@ import LoginForm from "./_components/login-form"
 import { redirect } from "next/navigation"
 import { isAuthenticated } from "@/lib/auth"
 import LoginBackground from "./_components/login-background"
+import { ScrollArea } from "@/components/ui/scroll-area"
 
 export const dynamic = "force-dynamic"
 
@@ -31,29 +32,33 @@ export default async function LoginPage() {
 
   return (
     // I don't know why the screen width detection works the other way around. Should be sm:grid-cols-1 logically as the small screen should trigger the mobile layout.
-    <main className='grid grid-flow-row  lg:grid-cols-2 grid-cols-1 h-screen'>
-      <LoginBackground />
-      <section className='w-full h-full py-8 px-8 sm:px-0 flex flex-col justify-between items-center outline outline-1 outline-muted border-muted dark:bg-primary-foreground'>
-        <article className='flex flex-col gap-8 items-center justify-center h-full'>
-          <TitleH1 className='text-center'>
-            Revolucioná tu forma
-            <br /> de auditar llamados
-          </TitleH1>
+    <main className='w-dvw min-w-dvw h-dvh min-h-dvh'>
+      <ScrollArea>
+        <div className='flex lg:flex-row flex-col'>
+          <section className='w-full h-dvh py-8 px-8 sm:px-0 flex flex-col justify-between items-center outline outline-1 outline-muted border-muted dark:bg-primary-foreground'>
+            <article className='flex flex-col gap-8 items-center justify-center h-full'>
+              <TitleH1 className='text-center'>
+                Revolucioná tu forma
+                <br /> de auditar llamados
+              </TitleH1>
 
-          <TypographyH4 className='text-center text-muted-foreground flex flex-col'>
-            <p>Servicio de auditoría de llamadas de alta calidad,</p>
-            <p>
-              con un enfoque en la{" "}
-              <span className='animate-sparkle'>transparencia</span> y la
-              seguridad.
-            </p>
-          </TypographyH4>
+              <TypographyH4 className='text-center text-muted-foreground flex flex-col'>
+                <p>Servicio de auditoría de llamadas de alta calidad,</p>
+                <p>
+                  con un enfoque en la{" "}
+                  <span className='animate-sparkle'>transparencia</span> y la
+                  seguridad.
+                </p>
+              </TypographyH4>
 
-          <div className='w-full'>
-            <LoginForm />
-          </div>
-        </article>
-      </section>
+              <div className='w-full'>
+                <LoginForm />
+              </div>
+            </article>
+          </section>
+          <LoginBackground />
+        </div>
+      </ScrollArea>
     </main>
   )
 }
