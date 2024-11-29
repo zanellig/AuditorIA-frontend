@@ -190,6 +190,11 @@ export async function POST(request: NextRequest) {
         "Content-Type": "application/json",
       },
       body: serverForm,
+    }).catch((e: TypeError) => {
+      console.log(`Error sending task from ${enhancedUrl.toString()}:`, e.cause)
+      throw new TypeError(
+        "Ocurrió un error comunicándose con el servidor. Por favor contacte a su ingeniero de soporte."
+      )
     })
     if (!response.ok) {
       const error = await response.json()
@@ -209,9 +214,8 @@ export async function POST(request: NextRequest) {
     })
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
-    return NextResponse.json([e, null], {
+    return NextResponse.json([e.message, null], {
       status: 500,
-      statusText: e.message,
       headers,
     })
   }
