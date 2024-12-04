@@ -1,5 +1,5 @@
 "use client"
-import React from "react"
+import * as React from "react"
 import { cn } from "@/lib/utils"
 import {
   Card,
@@ -12,7 +12,11 @@ import { useForm } from "react-hook-form"
 import { useToast } from "@/components/ui/use-toast"
 import { ToastAction } from "@/components/ui/toast"
 import { handleCopyToClipboard } from "@/lib/utils"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
+import {
+  type MutationKey,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query"
 import { FileUpload } from "@/components/ui/file-upload"
 import {
   Form,
@@ -27,10 +31,11 @@ import { SelectField } from "@/components/tables/records-table/audio-processing/
 
 import { taskFormOptions, taskFormSchema, type FormValues } from "@/lib/forms"
 import { Badge } from "@/components/ui/badge"
-import { StatefulButton } from "./stateful-button"
+import { StatefulButton } from "../stateful-button"
 import { ACCEPTED_AUDIO_TYPES, GLOBAL_ICON_SIZE } from "@/lib/consts"
 import { getHost } from "@/lib/actions"
 import { Sparkles } from "lucide-react"
+import { useUser } from "../context/UserProvider"
 
 export default function TaskUploadForm({ className }: { className?: string }) {
   const { toast } = useToast()
@@ -38,8 +43,16 @@ export default function TaskUploadForm({ className }: { className?: string }) {
   const form = useForm<FormValues>({
     resolver: zodResolver(taskFormSchema),
   })
+  // Get query key from user and time of upload
+  const user = useUser()
+  const [mutationKey, setMutationKey] = React.useState<MutationKey>([
+    "file-upload",
+    user.username,
+    Date.now().toLocaleString(),
+  ])
 
   const mutation = useMutation({
+    mutationKey,
     mutationFn: async (values: FormValues) => {
       if (!values.file) {
         throw new Error("Debe adjuntar un archivo")
@@ -50,7 +63,6 @@ export default function TaskUploadForm({ className }: { className?: string }) {
       formData.append("task_type", values.task_type)
       formData.append("model", values.model)
       formData.append("device", values.device)
-
       const [error, task] = await fetch(`${await getHost()}/api/task`, {
         method: "POST",
         body: formData,
@@ -112,6 +124,11 @@ export default function TaskUploadForm({ className }: { className?: string }) {
   })
 
   const onSubmit = (values: FormValues) => {
+    setMutationKey([
+      "file-upload",
+      user.getUserName,
+      Date.now().toLocaleString(),
+    ])
     mutation.mutate(values)
   }
 

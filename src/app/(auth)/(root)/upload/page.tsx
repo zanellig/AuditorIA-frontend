@@ -1,4 +1,4 @@
-import TaskUploadForm from "@/components/task-upload-form"
+import TaskUploadForm from "@/components/forms/task-upload-form"
 import TableContainer from "@/components/tables/table-core/table-container"
 import TitleContainer from "@/components/title-container"
 import { TypographyH4 } from "@/components/typography/h4"

@@ -10,7 +10,6 @@ import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { feedbackSchema } from "@/lib/forms"
 import { Slider } from "@/components/ui/slider"
-import { getHost } from "@/lib/actions"
 import { submitForm } from "@/lib/utils"
 import { useMutation } from "@tanstack/react-query"
 import { z } from "zod"
@@ -23,7 +22,6 @@ export default function FeedbackForm() {
     control,
     handleSubmit,
     formState: { errors },
-    reset,
   } = useForm({
     resolver: zodResolver(feedbackSchema),
   })

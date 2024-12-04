@@ -18,7 +18,6 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form"
 import { z } from "zod"
 import { useMutation } from "@tanstack/react-query"
-import { getHost } from "@/lib/actions"
 import { submitForm } from "@/lib/utils"
 
 const extendedBugReportSchema = bugReportSchema.extend({
