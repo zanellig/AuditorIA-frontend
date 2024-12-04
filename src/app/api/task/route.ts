@@ -186,9 +186,6 @@ export async function POST(request: NextRequest) {
     )
     const response = await fetch(enhancedUrl.toString(), {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
       body: serverForm,
     }).catch((e: TypeError) => {
       console.log(`Error sending task from ${enhancedUrl.toString()}:`, e.cause)
@@ -197,6 +194,7 @@ export async function POST(request: NextRequest) {
       )
     })
     if (!response.ok) {
+      console.log(response)
       const error = await response.json()
       throw new Error(error.detail)
     }
