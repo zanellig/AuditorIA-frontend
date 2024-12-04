@@ -1,5 +1,9 @@
 "use client"
 import * as React from "react"
+import { z } from "zod"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
+import { Sparkles } from "lucide-react"
 import { cn } from "@/lib/utils"
 import {
   Card,
@@ -7,16 +11,10 @@ import {
   CardDescription,
   CardHeader,
 } from "@/components/ui/card"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
 import { useToast } from "@/components/ui/use-toast"
 import { ToastAction } from "@/components/ui/toast"
 import { handleCopyToClipboard } from "@/lib/utils"
-import {
-  type MutationKey,
-  useMutation,
-  useQueryClient,
-} from "@tanstack/react-query"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { FileUpload } from "@/components/ui/file-upload"
 import {
   Form,
@@ -29,13 +27,14 @@ import {
 
 import { SelectField } from "@/components/tables/records-table/audio-processing/select-field"
 
-import { taskFormOptions, taskFormSchema, type FormValues } from "@/lib/forms"
+import { taskFormOptions, taskFormSchema } from "@/lib/forms"
 import { Badge } from "@/components/ui/badge"
-import { StatefulButton } from "../stateful-button"
+import { StatefulButton } from "@/components/stateful-button"
 import { ACCEPTED_AUDIO_TYPES, GLOBAL_ICON_SIZE } from "@/lib/consts"
 import { getHost } from "@/lib/actions"
-import { Sparkles } from "lucide-react"
-import { useUser } from "../context/UserProvider"
+import { useUser } from "@/components/context/UserProvider"
+
+type FormValues = z.infer<typeof taskFormSchema>
 
 export default function TaskUploadForm({ className }: { className?: string }) {
   const { toast } = useToast()
@@ -45,14 +44,8 @@ export default function TaskUploadForm({ className }: { className?: string }) {
   })
   // Get query key from user and time of upload
   const user = useUser()
-  const [mutationKey, setMutationKey] = React.useState<MutationKey>([
-    "file-upload",
-    user.username,
-    Date.now().toLocaleString(),
-  ])
 
   const mutation = useMutation({
-    mutationKey,
     mutationFn: async (values: FormValues) => {
       if (!values.file) {
         throw new Error("Debe adjuntar un archivo")
@@ -124,11 +117,6 @@ export default function TaskUploadForm({ className }: { className?: string }) {
   })
 
   const onSubmit = (values: FormValues) => {
-    setMutationKey([
-      "file-upload",
-      user.getUserName,
-      Date.now().toLocaleString(),
-    ])
     mutation.mutate(values)
   }
 
@@ -195,7 +183,15 @@ export default function TaskUploadForm({ className }: { className?: string }) {
                 </FormItem>
               )}
             />
-            <StatefulButton type='submit' isLoading={mutation.isPending}>
+            <StatefulButton
+              type='submit'
+              isLoading={
+                mutation.isPending ||
+                form.formState.isLoading ||
+                form.formState.isSubmitting ||
+                form.formState.isValidating
+              }
+            >
               <span>Iniciar tarea</span>
               <Sparkles size={GLOBAL_ICON_SIZE} className='animate-sparkle' />
             </StatefulButton>
