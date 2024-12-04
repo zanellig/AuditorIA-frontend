@@ -52,3 +52,6 @@ src/lib/laboratorio_testing/
 # Temporal files
 temp*
 certificates
+
+# Auth for development
+/clerk
