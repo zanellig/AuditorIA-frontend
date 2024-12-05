@@ -10,6 +10,7 @@ import {
   SupportedLocales,
 } from "@/lib/types.d"
 import { Button } from "@/components/ui/button"
+import { AnalyzeTaskButton } from "@/components/analyze-task-button"
 import {
   Drawer,
   DrawerContent,
@@ -33,6 +34,7 @@ import {
   Laugh,
   Meh,
   MessageCircleQuestion,
+  TriangleAlert,
 } from "lucide-react"
 import { GLOBAL_ICON_SIZE } from "@/lib/consts"
 import {
@@ -45,14 +47,16 @@ import {
   getColorForEmotion,
 } from "@/lib/utils"
 import TitleH1 from "@/components/typography/titleH1"
-import TranscriptionSkeleton from "../skeletons/transcription-skeleton"
-import { ErrorCodeUserFriendly } from "../error/error-code-user-friendly"
-import SpeakerAnalysisCard from "./speaker-analysis-card.client"
-import { useTranscription } from "../context/TranscriptionProvider"
-import TypographyH3 from "../typography/h3"
-import { useAudioPlayer } from "../context/AudioProvider"
-import ParagraphP from "../typography/paragraphP"
-import { SurpriseIcon } from "../emoji-icons"
+import TranscriptionSkeleton from "@/components/skeletons/transcription-skeleton"
+import { ErrorCodeUserFriendly } from "@/components/error/error-code-user-friendly"
+import SpeakerAnalysisCard from "@/components/transcription/speaker-analysis-card.client"
+import { useTranscription } from "@/components/context/TranscriptionProvider"
+import TypographyH3 from "@/components/typography/h3"
+import { useAudioPlayer } from "@/components/context/AudioProvider"
+import ParagraphP from "@/components/typography/paragraphP"
+import { SurpriseIcon } from "@/components/emoji-icons"
+import TableContainer from "@/components/tables/table-core/table-container"
+import TitleContainer from "@/components/title-container"
 
 const BASIC_STYLE = "flex text-sm rounded-md p-2 gap-2"
 
@@ -71,6 +75,176 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
 }) => {
   const { transcription, isLoading, error, fetchTranscription } =
     useTranscription()
+
+  const transcriptionMock = {
+    status: "completed",
+    result: {
+      segments: [
+        {
+          start: 0.0,
+          end: 7.5,
+          text: "Why don’t you just leave the tech stuff to the men? Clearly, it’s not your forte.",
+          speaker: "Tom Wilson (Business Person)",
+          analysis: {
+            emotion: "anger",
+            sentiment: "NEG",
+            hate_speech: "targeted",
+            emotion_probas: {
+              joy: 0.01,
+              fear: 0.1,
+              anger: 0.8,
+              others: 0.03,
+              disgust: 0.05,
+              sadness: 0.01,
+              surprise: 0.0,
+            },
+            sentiment_probas: {
+              NEG: 0.95,
+              NEU: 0.03,
+              POS: 0.02,
+            },
+            hate_speech_probas: {
+              hateful: 0.6,
+              targeted: 0.9,
+              aggressive: 0.7,
+            },
+            is_hate_speech: true,
+          },
+        },
+        {
+          start: 7.5,
+          end: 15.0,
+          text: "That’s completely uncalled for. I am doing my job, and comments like that are unacceptable.",
+          speaker: "Emily Clark (IT Support Analyst)",
+          analysis: {
+            emotion: "anger",
+            sentiment: "NEG",
+            hate_speech: "neutral",
+            emotion_probas: {
+              joy: 0.01,
+              fear: 0.2,
+              anger: 0.6,
+              others: 0.1,
+              disgust: 0.07,
+              sadness: 0.02,
+              surprise: 0.0,
+            },
+            sentiment_probas: {
+              NEG: 0.8,
+              NEU: 0.15,
+              POS: 0.05,
+            },
+            hate_speech_probas: {
+              hateful: 0.1,
+              targeted: 0.2,
+              aggressive: 0.3,
+            },
+            is_hate_speech: false,
+          },
+        },
+        {
+          start: 15.0,
+          end: 20.0,
+          text: "It’s not personal, it’s just that women aren’t known for excelling in tech fields.",
+          speaker: "Tom Wilson (Business Person)",
+          analysis: {
+            emotion: "disgust",
+            sentiment: "NEG",
+            hate_speech: "targeted",
+            emotion_probas: {
+              joy: 0.0,
+              fear: 0.05,
+              anger: 0.4,
+              others: 0.1,
+              disgust: 0.4,
+              sadness: 0.05,
+              surprise: 0.0,
+            },
+            sentiment_probas: {
+              NEG: 0.9,
+              NEU: 0.05,
+              POS: 0.05,
+            },
+            hate_speech_probas: {
+              hateful: 0.8,
+              targeted: 0.95,
+              aggressive: 0.5,
+            },
+            is_hate_speech: true,
+          },
+        },
+        {
+          start: 20.0,
+          end: 25.0,
+          text: "Your sexism is noted. I’ll escalate this to HR immediately.",
+          speaker: "Emily Clark (IT Support Analyst)",
+          analysis: {
+            emotion: "anger",
+            sentiment: "NEG",
+            hate_speech: "neutral",
+            emotion_probas: {
+              joy: 0.0,
+              fear: 0.1,
+              anger: 0.7,
+              others: 0.1,
+              disgust: 0.05,
+              sadness: 0.05,
+              surprise: 0.0,
+            },
+            sentiment_probas: {
+              NEG: 0.85,
+              NEU: 0.1,
+              POS: 0.05,
+            },
+            hate_speech_probas: {
+              hateful: 0.1,
+              targeted: 0.2,
+              aggressive: 0.3,
+            },
+            is_hate_speech: false,
+          },
+        },
+      ],
+    },
+    error: null,
+    metadata: {
+      audio_duration: 25.0,
+      duration: 25.0,
+      file_name: "sexist_conversation.wav",
+      language: "en",
+      task_params: {
+        task: "transcription",
+        model: "default_model",
+        device: "cpu",
+        threads: 4,
+        language: "en",
+        batch_size: 1,
+        compute_type: "float32",
+        device_index: 0,
+        max_speakers: 2,
+        min_speakers: 1,
+        align_model: null,
+        asr_options: {
+          patience: 1.0,
+          beam_size: 5,
+          temperatures: 0.7,
+          initial_prompt: null,
+          length_penalty: 1.0,
+          suppress_tokens: [1, 2],
+          suppress_numerals: false,
+          log_prob_threshold: -1.0,
+          no_speech_threshold: 0.5,
+          compression_ratio_threshold: 1.5,
+        },
+        vad_options: {
+          vad_onset: 0.5,
+          vad_offset: 0.5,
+        },
+      },
+      task_type: "transcription",
+      url: "http://example.com/sexist_conversation",
+    },
+  }
 
   let lastSpeaker: string | undefined = ""
   let lastEmotion: string | undefined = ""
@@ -130,29 +304,58 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
             <TranscriptionNotReady status={transcription?.status} />
           )}
           <SpeakerAnalysisCard segments={transcription?.result?.segments} />
-          <div className='flex flex-col p-0 w-full justify-start mt-10'>
-            {taskId && <TaskHeader taskId={taskId} toast={toast} />}
-            {transcription?.result?.segments.map((segment, index) => {
-              const isNewSpeaker = segment?.speaker !== lastSpeaker
-              lastSpeaker = segment.speaker
-              const isNewEmotion =
-                segment?.analysis?.emotion !== lastEmotion || isNewSpeaker
-              lastEmotion = segment?.analysis?.emotion
-              return (
-                <>
-                  <SegmentRenderer
-                    ref={el => {
-                      segmentRefs.current[Number(segment.start.toFixed(2))] = el
-                    }}
-                    key={`${segment.speaker}-segment-${index}`}
-                    segment={segment}
-                    renderSpeakerText={isNewSpeaker}
-                    renderEmotion={isNewEmotion}
-                  />
-                </>
-              )
-            })}
-          </div>
+          <TableContainer>
+            {taskId && (
+              <TitleContainer separate>
+                <TaskHeader taskId={taskId} toast={toast} />
+              </TitleContainer>
+            )}
+            <section className='flex gap-2 items-center mt-4'>
+              <AnalyzeTaskButton taskId={taskId} />
+              <Button
+                variant={"destructive"}
+                onClick={() => {
+                  toast({
+                    title: "Se ha reportado la tarea",
+                  })
+                }}
+                Icon={TriangleAlert}
+                iconPlacement={"left"}
+                className='w-full lg:w-32'
+              >
+                Reportar tarea
+              </Button>
+            </section>
+            {/* <section className='flex border mt-2'>
+              <code className='text-wrap max-w-xl'>
+                {JSON.stringify(transcription)}
+              </code> */}
+            {/* Segments */}
+            <article className='flex flex-col w-full'>
+              {transcription?.result?.segments.map((segment, index) => {
+                const isNewSpeaker = segment?.speaker !== lastSpeaker
+                lastSpeaker = segment.speaker
+                const isNewEmotion =
+                  segment?.analysis?.emotion !== lastEmotion || isNewSpeaker
+                lastEmotion = segment?.analysis?.emotion
+                return (
+                  <>
+                    <SegmentRenderer
+                      ref={el => {
+                        segmentRefs.current[Number(segment.start.toFixed(2))] =
+                          el
+                      }}
+                      key={`${segment.speaker}-segment-${index}`}
+                      segment={segment}
+                      renderSpeakerText={isNewSpeaker}
+                      renderEmotion={isNewEmotion}
+                    />
+                  </>
+                )
+              })}
+            </article>
+            {/* </section> */}
+          </TableContainer>
         </>
       )}
       {error && (
@@ -171,7 +374,7 @@ interface TaskHeaderProps {
 }
 
 const TaskHeader: React.FC<TaskHeaderProps> = ({ taskId, toast }) => (
-  <div className='flex flex-row items-center space-x-4 w-full justify-center'>
+  <div className='flex flex-row items-center space-x-4 w-full justify-start'>
     <TypographyH3 className='font-normal'>
       Transcripción de llamado con ID
       <span className='font-bold'> {taskId}</span>
