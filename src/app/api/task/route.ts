@@ -222,7 +222,6 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   const headers = await getHeaders(request)
   try {
-    if (headers instanceof NextResponse) return headers
     const identifier = request.nextUrl.searchParams.get("identifier")
     const language = request.nextUrl.searchParams.get("language")
     if (!identifier) {
