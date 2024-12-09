@@ -4,9 +4,6 @@ import { Task } from "@/lib/types"
 import {
   ArrowUpDown,
   MoreHorizontal,
-  CircleCheck,
-  CircleDashed,
-  CircleAlert,
   ArrowDown,
   ArrowUp,
 } from "lucide-react"
@@ -28,30 +25,7 @@ import { actionRevalidatePath } from "@/lib/actions"
 import A from "@/components/typography/a"
 import AnalyzeButton from "./analyze-button"
 import { CopyValueDropdownItem } from "./copy-value-dropdown-item"
-
-function renderMarker(status: Status) {
-  switch (status) {
-    case "completed":
-    case "analyzed":
-      return <CircleCheck size={GLOBAL_ICON_SIZE} className='text-green-500' />
-    case "processing":
-    case "analyzing":
-    case "pending":
-      return (
-        <CircleDashed
-          size={GLOBAL_ICON_SIZE}
-          className='text-muted-foreground animate-spin'
-        />
-      )
-    case "failed":
-      return (
-        <CircleAlert
-          size={GLOBAL_ICON_SIZE}
-          className='text-red-500 animate-pulse'
-        />
-      )
-  }
-}
+import { renderMarker } from '@/components/tables/marker-renderer'
 
 function renderArrow(sorted: false | "asc" | "desc") {
   if (sorted === false) {

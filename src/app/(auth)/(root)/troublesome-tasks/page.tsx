@@ -1,22 +1,19 @@
 /* eslint-disable @typescript-eslint/no-unused-vars -- Disabled while testing */
 "use client"
 import * as React from "react"
+import { motion, AnimatePresence } from "framer-motion"
+import {
+  BookAudio,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  Loader,
+} from "lucide-react"
 import ServerDataTable from "@/components/tables/table-core/server-data-table"
 import TableContainer from "@/components/tables/table-core/table-container"
 import { columns } from "@/components/tables/troublesome-tasks/columns-troublesome-tasks"
-import { TaskRecordsResponseSchema } from "@/components/tables/troublesome-tasks/types"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { getHost } from "@/lib/actions"
-import { GLOBAL_ICON_SIZE } from "@/lib/consts"
-import {
-  keepPreviousData,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query"
-import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react"
-import { z } from "zod"
-import { useDebounce } from "use-debounce"
+import { DASHBOARD_ICON_CLASSES, GLOBAL_ICON_SIZE } from "@/lib/consts"
 import {
   Select,
   SelectContent,
@@ -24,111 +21,55 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { useToast } from "@/components/ui/use-toast"
-
-const originalTaskRecordsParamsSchema = TaskRecordsResponseSchema.pick({
-  uuid: true,
-  file_name: true,
-  status: true,
-  user: true,
-  campaign: true,
-})
-
-const taskRecordsParamsSchema = originalTaskRecordsParamsSchema.extend({
-  uuid: z.string().nullable(),
-  file_name: z.string().nullable(),
-  page: z.number(),
-  globalSearch: z.string().nullable(),
-})
-type TaskRecordsSearchParams = z.infer<typeof taskRecordsParamsSchema>
-
-const fetchTroublesomeTasks = async (params: TaskRecordsSearchParams) => {
-  const url = new URL(`${await getHost()}/api/tasks-records`)
-  const { page, globalSearch, ...filterParams } = params
-
-  // Check if all filter params are nullish
-  const areAllFiltersEmpty = Object.values(filterParams).every(
-    value => value === null || value === undefined
-  )
-
-  Object.entries(filterParams).forEach(([key, value]) => {
-    if (value !== null && value !== undefined) {
-      url.searchParams.set(key, String(value))
-    }
-  })
-
-  if (areAllFiltersEmpty && globalSearch !== null) {
-    url.searchParams.set("search", globalSearch)
-  }
-
-  // Always set page
-  url.searchParams.set("page", page.toString())
-
-  return fetch(url.toString()).then(async res => await res.json())
-}
+import TitleContainer from "@/components/title-container"
+import { TypographyH4 } from "@/components/typography/h4"
+import { TaskRecordsSearchParams } from "@/lib/types.d"
+import { useTasksRecords } from "@/lib/hooks/use-task-records"
+import { Badge } from "@/components/ui/badge"
 
 export default function TroublesomeTasksPage() {
-  const [page, setPage] = React.useState(0)
-  const [search, setSearch] = React.useState<string | null>(null)
-  const [selectedFilter, setSelectedFilter] = React.useState<
-    keyof TaskRecordsSearchParams | null
-  >(null)
-  const [debouncedSearch] = useDebounce(search, 500)
-  const [filters, setFilters] = React.useState<TaskRecordsSearchParams>({
-    uuid: null,
-    file_name: null,
-    status: null,
-    user: null,
-    campaign: null,
-    page: 0,
-    globalSearch: null,
-  })
-  const queryClient = useQueryClient()
-  const { toast } = useToast()
+  const {
+    data,
+    page,
+    isPending,
+    error,
+    isFetching,
+    isPlaceholderData,
+    selectedFilter,
+    search,
+    fetchWithNewFilters,
+    setSearch,
+    setSelectedFilter,
+    resetFilters,
+    setNextPage,
+    setPreviousPage,
+  } = useTasksRecords({})
 
-  const { isPending, isError, error, data, isFetching, isPlaceholderData } =
-    useQuery({
-      queryKey: ["tasks", "records", page, filters],
-      queryFn: () => fetchTroublesomeTasks(filters),
-      placeholderData: keepPreviousData,
-    })
-
-  // Update filters when search changes
-  React.useEffect(() => {
-    queryClient.cancelQueries({ queryKey: ["tasks", "records", page, filters] })
-    setFilters(prev => ({
-      ...prev,
-      // Reset all values to null/empty
-      uuid: null,
-      file_name: null,
-      status: null,
-      user: null,
-      campaign: null,
-      // Only set the selected filter to have a value
-      [selectedFilter || "globalSearch"]: debouncedSearch,
-      page: 0,
-    }))
-    setPage(0) // Reset page when search changes
-
-    if (isError) {
-      toast({ title: "Error al cargar los datos", variant: "destructive" })
-    }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- This is intentional. We want to run the effect only when the search or selectedFilter changes.
-  }, [debouncedSearch, selectedFilter])
   return (
-    <TableContainer>
+    <TableContainer className='gap-2'>
+      <TitleContainer separate className='gap-2'>
+        <BookAudio className={DASHBOARD_ICON_CLASSES} />
+        <TypographyH4>Todas las tareas</TypographyH4>
+      </TitleContainer>
+      {data === null && (
+        <Badge variant={"secondary"}>
+          Para comenzar a buscar, ingrese un término de búsqueda
+        </Badge>
+      )}
       <section className='flex justify-start items-center gap-2'>
         <Input
           placeholder='Buscar tarea...'
           onChange={e => setSearch(e.target.value)}
+          value={search || ""}
+          className='bg-popover'
         />
         <Select
           onValueChange={(value: keyof TaskRecordsSearchParams) => {
             setSelectedFilter(value)
           }}
+          value={selectedFilter || "globalSearch"}
         >
-          <SelectTrigger>
+          <SelectTrigger className='bg-popover'>
             <SelectValue placeholder='Seleccionar filtro...' />
           </SelectTrigger>
           <SelectContent position='popper'>
@@ -143,14 +84,11 @@ export default function TroublesomeTasksPage() {
           </SelectContent>
         </Select>
         <div className='flex flex-row justify-start items-center gap-2'>
+          <Button onClick={resetFilters} variant={"outline"}>
+            Borrar filtros
+          </Button>
           <Button
-            onClick={() => {
-              setPage(old => old - 1)
-              setFilters(prev => ({
-                ...prev,
-                page: prev.page - 1,
-              }))
-            }}
+            onClick={setPreviousPage}
             variant={"outline"}
             size='icon'
             disabled={page === 0}
@@ -158,15 +96,7 @@ export default function TroublesomeTasksPage() {
             <ChevronLeftIcon size={GLOBAL_ICON_SIZE} />
           </Button>
           <Button
-            onClick={() => {
-              if (!isPlaceholderData && data.hasMore) {
-                setPage(old => old + 1)
-                setFilters(prev => ({
-                  ...prev,
-                  page: prev.page + 1,
-                }))
-              }
-            }}
+            onClick={setNextPage}
             variant={"outline"}
             size='icon'
             disabled={!data?.hasMore}
@@ -175,14 +105,57 @@ export default function TroublesomeTasksPage() {
           </Button>
         </div>
       </section>
-      {!isPending && !isError && (
-        <ServerDataTable
-          columns={columns}
-          data={data?.tasks ? data.tasks : []}
-        />
-      )}
-      {isError && <div className='text-error'>{error?.message}</div>}
-      {(isPending || isFetching) && <>Cargando...</>}
+      <motion.div
+        layout
+        className='relative w-full min-h-32 flex flex-col gap-2'
+      >
+        <AnimatePresence mode='popLayout'>
+          {(isPending || isFetching) && (
+            <motion.div
+              key='loader'
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className='absolute inset-0 flex justify-center items-center rounded-md bg-background/80 backdrop-blur-sm z-10'
+            >
+              <Loader className='animate-spin' />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <motion.div
+          layout
+          transition={{
+            layout: { duration: 0.3, ease: "easeInOut" },
+          }}
+        >
+          {data && (
+            <ServerDataTable
+              columns={columns}
+              data={data?.tasks ? data.tasks : []}
+            />
+          )}
+          {error && (
+            <motion.div
+              key='error'
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className='text-destructive'
+            >
+              {error?.message}
+            </motion.div>
+          )}
+        </motion.div>
+      </motion.div>
+      <section className='flex justify-between items-center gap-2'>
+        <span className='text-muted-foreground'>
+          Página {data?.total ? page + 1 : 0} de{" "}
+          {data?.total ? Math.ceil(data.total / 10) : 0}
+        </span>
+      </section>
     </TableContainer>
   )
 }

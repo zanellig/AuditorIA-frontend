@@ -1,15 +1,12 @@
 import { ColumnDef } from "@tanstack/react-table"
-import { TaskRecordsResponse } from "@/components/tables/troublesome-tasks/types"
+import { TaskRecordsResponse } from "@/lib/types.d"
 import Link from "next/link"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import { formatTimestamp, secondsToHMS } from "@/lib/utils"
-import { useQueryClient } from "@tanstack/react-query"
 import A from "@/components/typography/a"
+import { renderMarker } from "@/components/tables/marker-renderer"
+
+import { type Status } from "@/lib/types.d"
+import { Badge } from "@/components/ui/badge"
 
 export const columns: ColumnDef<TaskRecordsResponse>[] = [
   {
@@ -42,7 +39,12 @@ export const columns: ColumnDef<TaskRecordsResponse>[] = [
       return <div>Estado</div>
     },
     cell: ({ row }) => {
-      return <span>{row.original?.status}</span>
+      return (
+        <div className='flex items-center gap-2'>
+          {renderMarker(row.original?.status as Status)}
+          <span className='font-bold capitalize'>{row.original?.status}</span>
+        </div>
+      )
     },
   },
   {
@@ -63,7 +65,6 @@ export const columns: ColumnDef<TaskRecordsResponse>[] = [
       return <div>Campaña</div>
     },
     cell: ({ row }) => {
-      const queryClient = useQueryClient()
       if (!row.original?.campaign) {
         return <div>-</div>
       }
@@ -101,6 +102,17 @@ export const columns: ColumnDef<TaskRecordsResponse>[] = [
       })
       return <div>{formattedDate}</div>
     },
+  },
+  {
+    accessorKey: "URL",
+    header: () => {
+      return <></>
+    },
+    cell: ({ row }) => (
+      <Badge variant={row.original?.URL ? "success" : "error"}>
+        {row.original?.URL ? "Audio disponible" : "Audio no disponible"}
+      </Badge>
+    ),
   },
 ]
 
