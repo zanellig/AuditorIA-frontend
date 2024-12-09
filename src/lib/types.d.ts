@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { TaskRecordsResponseSchema } from "@/components/tables/troublesome-tasks/types"
 
 export const SupportedLocales = z.enum(["en", "es"])
 export enum TableSupportedDataTypes {
@@ -229,3 +230,43 @@ export const EmotionsSchema = z.enum([
 
 export const FoundWordsState = z.tuple([z.boolean(), z.string(), z.number()])
 export type FoundWordsState = z.infer<typeof FoundWordsState>
+
+export const TaskRecordsStatus = z
+  .enum([
+    "completed",
+    "processing",
+    "failed",
+    "analyzed",
+    "pending",
+    "analyzing",
+  ])
+  .nullable()
+
+export const TaskRecordsResponseSchema = z.object({
+  uuid: z.string(),
+  file_name: z.string(),
+  status: TaskRecordsStatus,
+  audio_duration: z.number().nullable(),
+  user: z.number().nullable(),
+  inicio: z.date().nullable(),
+  campaign: z.number().nullable(),
+  URL: z.string().nullable(),
+})
+
+export type TaskRecordsResponse = z.infer<typeof TaskRecordsResponseSchema>
+
+const originalTaskRecordsParamsSchema = TaskRecordsResponseSchema.pick({
+  uuid: true,
+  file_name: true,
+  status: true,
+  user: true,
+  campaign: true,
+})
+
+export const taskRecordsParamsSchema = originalTaskRecordsParamsSchema.extend({
+  uuid: z.string().nullable(),
+  file_name: z.string().nullable(),
+  page: z.number(),
+  globalSearch: z.string().nullable(),
+})
+export type TaskRecordsSearchParams = z.infer<typeof taskRecordsParamsSchema>

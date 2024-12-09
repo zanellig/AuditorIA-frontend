@@ -83,10 +83,9 @@ const links = [
     Icon: History,
   },
   {
-    href: "/troublesome-audios",
+    href: "/troublesome-tasks",
     title: "Audios problemáticos",
     Icon: AlertTriangle,
-    disabled: true,
   },
   {
     href: "/upload",

@@ -1,0 +1,150 @@
+import * as React from "react"
+import {
+  keepPreviousData,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query"
+import { useDebounce } from "use-debounce"
+import { useToast } from "@/components/ui/use-toast"
+import { TaskRecordsSearchParams } from "@/lib/types.d"
+import { fetchTasksRecords } from "@/lib/fetch-tasks"
+
+interface UseTasksRecordsParams {
+  initialFilters?: Partial<TaskRecordsSearchParams>
+}
+
+export function useTasksRecords({
+  initialFilters = {},
+}: UseTasksRecordsParams) {
+  const [page, setPage] = React.useState(0)
+  const [search, setSearch] = React.useState<string | null>(null)
+  const [selectedFilter, setSelectedFilter] = React.useState<
+    keyof TaskRecordsSearchParams | null
+  >(null)
+  const [debouncedSearch] = useDebounce(search, 500)
+  const [filters, setFilters] = React.useState<TaskRecordsSearchParams>({
+    uuid: null,
+    file_name: null,
+    status: null,
+    user: null,
+    campaign: null,
+    page: 0,
+    globalSearch: null,
+    ...initialFilters,
+  })
+
+  const queryClient = useQueryClient()
+  const { toast } = useToast()
+
+  const { isPending, isError, error, data, isFetching, isPlaceholderData } =
+    useQuery({
+      queryKey: ["tasks", "records", page, filters],
+      queryFn: () => fetchTasksRecords(filters),
+      enabled: true,
+      staleTime: Infinity,
+      placeholderData: keepPreviousData,
+    })
+
+  React.useEffect(() => {
+    // Cancel any in-flight queries
+    queryClient.cancelQueries({ queryKey: ["tasks", "records", page, filters] })
+
+    // Remove previous queries to free up resources
+    queryClient.removeQueries({ queryKey: ["tasks", "records", page, filters] })
+
+    setFilters(prev => ({
+      ...prev,
+      uuid: null,
+      file_name: null,
+      status: null,
+      user: null,
+      campaign: null,
+      [selectedFilter || "globalSearch"]: debouncedSearch,
+      page: 0,
+    }))
+    setPage(0)
+
+    if (isError) {
+      toast({ title: "Error al cargar los datos", variant: "destructive" })
+    }
+  }, [debouncedSearch])
+
+  const updateFilters = (newFilters: Partial<TaskRecordsSearchParams>) => {
+    setFilters(prev => ({ ...prev, ...newFilters }))
+  }
+
+  const fetchWithNewFilters = (
+    newFilters: Partial<TaskRecordsSearchParams>
+  ) => {
+    // Remove existing queries before setting new filters
+    queryClient.removeQueries({
+      predicate: query =>
+        query.queryKey[0] === "tasks" && query.queryKey[1] === "records",
+    })
+
+    const updatedFilters = { ...filters, ...newFilters }
+    setFilters(updatedFilters)
+    queryClient.invalidateQueries({
+      queryKey: ["tasks", "records", updatedFilters],
+    })
+  }
+
+  const resetFilters = () => {
+    // Remove all existing queries
+    queryClient.removeQueries({
+      predicate: query =>
+        query.queryKey[0] === "tasks" && query.queryKey[1] === "records",
+    })
+    setFilters({
+      uuid: null,
+      file_name: null,
+      status: null,
+      user: null,
+      campaign: null,
+      page: 0,
+      globalSearch: null,
+    })
+    setSearch(null)
+    setSelectedFilter("globalSearch")
+    setPage(0)
+  }
+
+  const setNextPage = () => {
+    setPage(old => (data.hasMore ? old + 1 : old))
+    setFilters(prev => ({
+      ...prev,
+      page: data.hasMore ? prev.page + 1 : prev.page,
+    }))
+  }
+
+  const setPreviousPage = () => {
+    if (page > 0) {
+      setPage(old => old - 1)
+      setFilters(prev => ({
+        ...prev,
+        page: prev.page > 0 ? prev.page - 1 : 0,
+      }))
+    }
+  }
+
+  return {
+    data,
+    page,
+    isPending,
+    isError,
+    error,
+    isFetching,
+    isPlaceholderData,
+    filters,
+    selectedFilter,
+    search,
+    setSearch,
+    setSelectedFilter,
+    setPage,
+    updateFilters,
+    fetchWithNewFilters,
+    resetFilters,
+    setNextPage,
+    setPreviousPage,
+  }
+}
