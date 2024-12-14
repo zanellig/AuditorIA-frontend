@@ -7,7 +7,8 @@ import type { Metadata } from "next"
 import { LoginButton } from "./_client-buttons/buttons"
 import { ModeToggle } from "@/components/navigation/mode-toggle"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Novatrix } from "uvcanvas"
+import { TypewriterEffect } from "@/components/ui/typewriter-effect"
+import { Opulento } from "uvcanvas"
 
 export const metadata: Metadata = {
   title:
@@ -41,10 +42,9 @@ export const metadata: Metadata = {
 export default function Home() {
   return (
     <>
-      <ScrollArea className='flex  p-0 w-full h-dvh'>
+      <ScrollArea className='flex p-0 w-full h-dvh'>
         <div className='min-h-dvh max-w-full bg-background text-foreground'>
-          <header className='py-4 px-4 sm:px-6 lg:px-8'>
-            <Novatrix />
+          <header className='sticky z-30 top-0 py-4 px-4 sm:px-6 lg:px-8 h-16 backdrop-blur-sm bg-gradient-to-b from-background to-transparent'>
             <div className='container mx-auto flex justify-between items-center'>
               <Link
                 href='/'
@@ -63,13 +63,35 @@ export default function Home() {
           </header>
 
           <main>
-            <section className='py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8'>
-              <div className='container mx-auto text-center'>
+            <section className='relative p-0 content-center h-[calc(100vh-4rem)]'>
+              <Opulento className='absolute z-10 top-0 left-0' />
+              <div className='absolute z-20 top-0 left-0 w-full h-full flex flex-col items-center justify-center text-center backdrop-blur-md bg-gradient-to-b from-background to-transparent'>
                 <h1 className='text-4xl sm:text-5xl lg:text-6xl font-bold mb-6'>
                   Auditar llamados <br />
-                  <span className='animate-sparkle'>nunca fue tan fácil</span>
+                  <TypewriterEffect
+                    words={[
+                      {
+                        text: "nunca",
+                        className: "dark:animate-sparkle text-blue-800",
+                      },
+                      {
+                        text: "fue",
+                        className: "dark:animate-sparkle text-blue-800",
+                      },
+                      {
+                        text: "tan",
+                        className: "dark:animate-sparkle text-blue-800",
+                      },
+                      {
+                        text: "fácil",
+                        className: "dark:animate-sparkle text-blue-800",
+                      },
+                    ]}
+                    cursorClassName='bg-foreground'
+                    className='justify-center'
+                  />
                 </h1>
-                <p className='text-xl sm:text-2xl mb-8 max-w-4xl mx-auto text-muted-foreground'>
+                <p className='text-xl sm:text-2xl mb-8 max-w-4xl mx-auto dark:text-muted-foreground text-foreground text-center'>
                   Optimice su servicio al cliente con análisis avanzado de
                   llamadas con inteligencia artificial, con total control de sus
                   datos.
