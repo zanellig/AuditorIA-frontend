@@ -124,7 +124,7 @@ export default function Home() {
               </div>
             </section>
 
-            <section className='py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 h-[calc(100vh-4rem)] bg-primary-foreground'>
+            <section className='py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 min-h-[calc(100vh-4rem)] bg-primary-foreground'>
               <h2 className='text-3xl sm:text-4xl font-bold mb-8 text-center bg-clip-text text-transparent bg-gradient-to-b dark:from-foreground dark:to-secondary from-black to-neutral-500'>
                 Características Principales
               </h2>
@@ -193,7 +193,7 @@ export default function Home() {
               </div>
             </section>
 
-            <section className='py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 h-[calc(100vh-4rem)] w-full bg-background dark:bg-grid-small-white/[0.2] bg-grid-small-black/[0.2] relative flex items-center justify-center'>
+            <section className='py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 min-h-[calc(100vh-4rem)] w-full bg-background dark:bg-grid-small-white/[0.2] bg-grid-small-black/[0.2] relative flex items-center justify-center'>
               <div className='absolute pointer-events-none inset-0 flex items-center justify-center bg-background [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]'></div>
               <div className='container mx-auto'>
                 <h2 className='text-3xl sm:text-4xl font-bold mb-8 text-center bg-clip-text text-transparent bg-gradient-to-b dark:from-neutral-50 dark:to-neutral-500 from-black to-neutral-500'>
@@ -320,7 +320,7 @@ export default function Home() {
               </div>
             </section>
 
-            <section className='py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 dark:bg-grid-small-white/[0.2] bg-grid-small-black/[0.2] relative flex items-center justify-center h-[calc(100vh-4rem)]'>
+            <section className='py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 dark:bg-grid-small-white/[0.2] bg-grid-small-black/[0.2] relative flex items-center justify-center min-h-[calc(100vh-4rem)]'>
               <div className='container mx-auto text-center'>
                 <h2 className='text-3xl sm:text-4xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-b dark:from-neutral-50 dark:to-neutral-300 from-black to-neutral-500'>
                   ¿Por Qué Elegirnos?
