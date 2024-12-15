@@ -10,10 +10,10 @@ export interface AuthTokens {
 }
 
 export async function setAuthCookie(tokens: AuthTokens) {
+  const cstore = await cookies()
   console.log("Setting auth cookie:", tokens)
   const value = `${tokens.token_type} ${tokens.access_token}`
-
-  cookies().set(AUTH_COOKIE, value, {
+  cstore.set(AUTH_COOKIE, value, {
     httpOnly: true,
     secure: env.NODE_ENV === "production",
     expires: new Date(Date.now() + 60 * 60 * 1000),
@@ -21,14 +21,16 @@ export async function setAuthCookie(tokens: AuthTokens) {
 }
 
 export async function getAuthCookie() {
-  const session = cookies().get(AUTH_COOKIE)?.value
+  const cstore = await cookies()
+  const session = cstore.get(AUTH_COOKIE)?.value
   if (!session) return null
   const [tokenType, accessToken] = session.split(" ")
   return { tokenType, accessToken }
 }
 
 export async function removeAuthCookie() {
-  cookies().set(AUTH_COOKIE, "", { expires: new Date(0) })
+  const cstore = await cookies()
+  cstore.set(AUTH_COOKIE, "", { expires: new Date(0) })
 }
 
 export async function isAuthenticated() {
