@@ -1,5 +1,4 @@
 import {
-  CheckCircle,
   FileText,
   BarChart,
   Shield,
@@ -24,6 +23,8 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { TypewriterEffect } from "@/components/ui/typewriter-effect"
 import { Opulento } from "uvcanvas"
 import { cn } from "@/lib/utils"
+import ParagraphP from "@/components/typography/paragraphP"
+import { CardBody, CardContainer, CardItem } from "@/components/ui/3d-card"
 
 export const metadata: Metadata = {
   title:
@@ -87,30 +88,30 @@ export default function Home() {
                     words={[
                       {
                         text: "nunca",
-                        className: "dark:animate-sparkle text-blue-600",
+                        className: "dark:animate-sparkle text-blue-500",
                       },
                       {
                         text: "fue",
-                        className: "dark:animate-sparkle text-blue-600",
+                        className: "dark:animate-sparkle text-blue-500",
                       },
                       {
                         text: "tan",
-                        className: "dark:animate-sparkle text-blue-600",
+                        className: "dark:animate-sparkle text-blue-500",
                       },
                       {
                         text: "fácil",
-                        className: "dark:animate-sparkle text-blue-600",
+                        className: "dark:animate-sparkle text-blue-500",
                       },
                     ]}
                     cursorClassName='bg-foreground'
                     className='justify-center'
                   />
                 </h1>
-                <p className='text-xl sm:text-2xl mb-8 max-w-4xl mx-auto dark:text-muted-foreground text-foreground text-center'>
+                <ParagraphP className='text-xl sm:text-2xl mb-8 max-w-4xl mx-auto dark:text-muted-foreground text-foreground text-center'>
                   Optimice su servicio al cliente con análisis avanzado de
                   llamadas con inteligencia artificial, con total control de sus
                   datos.
-                </p>
+                </ParagraphP>
                 <Button size='lg' asChild>
                   <Link
                     href='https://www.linksolution.com.ar/auditoria-de-llamadas-con-ia'
@@ -122,7 +123,7 @@ export default function Home() {
               </div>
             </section>
 
-            <section className='py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 bg-primary-foreground'>
+            <section className='py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 h-[calc(100vh-4rem)] bg-primary-foreground'>
               <h2 className='text-3xl sm:text-4xl font-bold mb-8 text-center bg-clip-text text-transparent bg-gradient-to-b dark:from-foreground dark:to-secondary from-black to-neutral-500'>
                 Características Principales
               </h2>
@@ -178,7 +179,7 @@ export default function Home() {
                 ].map((feature, index) => (
                   // <div key={index} className='flex items-start space-x-3'>
                   //   <CheckCircle className='h-6 w-6 text-green-500 flex-shrink-0' />
-                  //   <p className='text-lg'>{feature.title}</p>
+                  //   <ParagraphP className='text-lg'>{feature.title}</ParagraphP>
                   // </div>
                   <Feature
                     title={feature.title}
@@ -191,62 +192,79 @@ export default function Home() {
               </div>
             </section>
 
-            <section className='py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 h-[50rem] w-full bg-background dark:bg-grid-small-white/[0.2] bg-grid-small-black/[0.2] relative flex items-center justify-center'>
+            <section className='py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 h-[calc(100vh-4rem)] w-full bg-background dark:bg-grid-small-white/[0.2] bg-grid-small-black/[0.2] relative flex items-center justify-center'>
               <div className='absolute pointer-events-none inset-0 flex items-center justify-center bg-background [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]'></div>
               <div className='container mx-auto'>
                 <h2 className='text-3xl sm:text-4xl font-bold mb-8 text-center bg-clip-text text-transparent bg-gradient-to-b dark:from-neutral-50 dark:to-neutral-500 from-black to-neutral-500'>
                   Cómo AuditorIA Optimiza Diferentes Industrias
                 </h2>
                 <div className='grid grid-cols-1 md:grid-cols-2 gap-8 w-full'>
-                  <Card>
-                    <CardContent className='p-6'>
-                      <h3 className='text-2xl font-semibold mb-4'>
-                        Contact Centers
-                      </h3>
-                      <p>
-                        Identifica áreas de mejora y permite a los supervisores
-                        actuar rápidamente ante emociones negativas como
-                        frustración.
-                      </p>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardContent className='p-6'>
-                      <h3 className='text-2xl font-semibold mb-4'>
-                        Banca y Fintech
-                      </h3>
-                      <p>
-                        Garantiza el cumplimiento normativo, detecta fraudes y
-                        optimiza la capacitación de los agentes en productos
-                        financieros.
-                      </p>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardContent className='p-6'>
-                      <h3 className='text-2xl font-semibold mb-4'>
-                        Industria Automotriz
-                      </h3>
-                      <p>
-                        Mejora tanto el proceso de ventas como el servicio
-                        postventa, identificando las mejores prácticas y
-                        resolviendo problemas en tiempo real.
-                      </p>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardContent className='p-6'>
-                      <h3 className='text-2xl font-semibold mb-4'>
-                        Sector Seguros
-                      </h3>
-                      <p>
-                        Asegura que las ventas cumplan con las normativas
-                        legales y mejora la experiencia del cliente al priorizar
-                        reclamaciones urgentes y detectar insatisfacción
-                        rápidamente.
-                      </p>
-                    </CardContent>
-                  </Card>
+                  <CardContainer>
+                    <CardBody className='bg-background relative group/card dark:hover:shadow-2xl dark:hover:shadow-emerald-500/[0.1] dark:bg-black dark:border-white/[0.2] border-black/[0.1] w-full h-auto lg:min-h-[200px] lg:min-w-full rounded-xl p-4 border flex flex-col gap-2 justify-between min-h-48'>
+                      <CardItem>
+                        <h3 className='text-2xl font-semibold mb-4'>
+                          Contact Centers
+                        </h3>
+                      </CardItem>
+                      <CardItem>
+                        <ParagraphP>
+                          Identifica áreas de mejora y permite a los
+                          supervisores actuar rápidamente ante emociones
+                          negativas como frustración.
+                        </ParagraphP>
+                      </CardItem>
+                    </CardBody>
+                  </CardContainer>
+                  <CardContainer>
+                    <CardBody className='bg-background relative group/card dark:hover:shadow-2xl dark:hover:shadow-emerald-500/[0.1] dark:bg-black dark:border-white/[0.2] border-black/[0.1] w-full h-auto lg:min-h-[200px] lg:min-w-full rounded-xl p-4 border flex flex-col gap-2 justify-between min-h-48'>
+                      <CardItem>
+                        <h3 className='text-2xl font-semibold mb-4'>
+                          Banca y Fintech
+                        </h3>
+                      </CardItem>
+                      <CardItem>
+                        <ParagraphP>
+                          Garantiza el cumplimiento normativo, detecta fraudes y
+                          optimiza la capacitación de los agentes en productos
+                          financieros.
+                        </ParagraphP>
+                      </CardItem>
+                    </CardBody>
+                  </CardContainer>
+                  <CardContainer>
+                    <CardBody className='bg-background relative group/card dark:hover:shadow-2xl dark:hover:shadow-emerald-500/[0.1] dark:bg-black dark:border-white/[0.2] border-black/[0.1] w-full h-auto lg:min-h-[200px] lg:min-w-full rounded-xl p-4 border flex flex-col gap-2 justify-between min-h-48'>
+                      <CardItem>
+                        <h3 className='text-2xl font-semibold mb-4'>
+                          Industria Automotriz
+                        </h3>
+                      </CardItem>
+                      <CardItem>
+                        <ParagraphP>
+                          Mejora tanto el proceso de ventas como el servicio
+                          postventa, identificando las mejores prácticas y
+                          resolviendo problemas en tiempo real.
+                        </ParagraphP>
+                      </CardItem>
+                    </CardBody>
+                  </CardContainer>
+
+                  <CardContainer>
+                    <CardBody className='bg-background relative group/card dark:hover:shadow-2xl dark:hover:shadow-emerald-500/[0.1] dark:bg-black dark:border-white/[0.2] border-black/[0.1] w-full h-auto lg:min-h-[200px] lg:min-w-full rounded-xl p-4 border flex flex-col gap-2 justify-between min-h-48'>
+                      <CardItem>
+                        <h3 className='text-2xl font-semibold mb-4'>
+                          Sector Seguros
+                        </h3>
+                      </CardItem>
+                      <CardItem>
+                        <ParagraphP>
+                          Asegura que las ventas cumplan con las normativas
+                          legales y mejora la experiencia del cliente al
+                          priorizar reclamaciones urgentes y detectar
+                          insatisfacción rápidamente.
+                        </ParagraphP>
+                      </CardItem>
+                    </CardBody>
+                  </CardContainer>
                 </div>
               </div>
             </section>
@@ -262,63 +280,63 @@ export default function Home() {
                     <h3 className='text-2xl font-semibold mb-2'>
                       1. Captura de la Llamada
                     </h3>
-                    <p>
+                    <ParagraphP>
                       Integración segura con su sistema de grabación existente
                       para capturar cada interacción en tiempo real.
-                    </p>
+                    </ParagraphP>
                   </div>
                   <div className='flex flex-col items-start text-start'>
                     <Users className='h-16 w-16 mb-4 text-muted-foreground hover:text-primary transition-colors duration-150' />
                     <h3 className='text-2xl font-semibold mb-2'>
                       2. Transcripción y Diariación
                     </h3>
-                    <p>
+                    <ParagraphP>
                       Transcripción precisa y segmentación de diálogos
                       utilizando algoritmos avanzados de machine learning.
-                    </p>
+                    </ParagraphP>
                   </div>
                   <div className='flex flex-col items-start text-start'>
                     <BarChart className='h-16 w-16 mb-4 text-muted-foreground hover:text-primary transition-colors duration-150' />
                     <h3 className='text-2xl font-semibold mb-2'>
                       3. Análisis de Sentimiento
                     </h3>
-                    <p>
+                    <ParagraphP>
                       Detección de emociones y sentimientos en tiempo real
                       utilizando procesamiento de lenguaje natural (NLP).
-                    </p>
+                    </ParagraphP>
                   </div>
                   <div className='flex flex-col items-start text-start'>
                     <Shield className='h-16 w-16 mb-4 text-muted-foreground hover:text-primary transition-colors duration-150' />
                     <h3 className='text-2xl font-semibold mb-2'>
                       4. Generación de Informes
                     </h3>
-                    <p>
+                    <ParagraphP>
                       Creación de informes detallados con métricas clave y
                       recomendaciones específicas para mejorar la eficiencia.
-                    </p>
+                    </ParagraphP>
                   </div>
                 </div>
               </div>
             </section>
 
-            <section className='py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 dark:bg-grid-small-white/[0.2] bg-grid-small-black/[0.2] relative flex items-center justify-center'>
+            <section className='py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 dark:bg-grid-small-white/[0.2] bg-grid-small-black/[0.2] relative flex items-center justify-center h-[calc(100vh-4rem)]'>
               <div className='container mx-auto text-center'>
                 <h2 className='text-3xl sm:text-4xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-b dark:from-neutral-50 dark:to-neutral-300 from-black to-neutral-500'>
                   ¿Por Qué Elegirnos?
                 </h2>
-                <p className='text-xl mb-8 max-w-3xl mx-auto'>
+                <ParagraphP className='text-xl mb-8 max-w-3xl mx-auto'>
                   LinkSolution, empresa certificada bajo la norma ISO 9001:2015
                   y reconocida como una de las mejores empresas para trabajar
                   por Great Place to Work, ofrece soluciones de vanguardia en
                   inteligencia artificial para optimizar procesos empresariales.
-                </p>
-                <p className='text-xl mb-8 max-w-3xl mx-auto'>
+                </ParagraphP>
+                <ParagraphP className='text-xl mb-8 max-w-3xl mx-auto'>
                   Nuestro equipo de consultores altamente capacitados se
                   mantiene actualizado en las últimas tendencias del sector de
                   IT, contact centers y telemarketing, asegurando soluciones
                   personalizadas que abordan sus desafíos específicos y mejoran
                   la rentabilidad de su negocio.
-                </p>
+                </ParagraphP>
                 <Button size='lg' asChild>
                   <Link
                     href='https://www.linksolution.com.ar/contacto'
@@ -331,13 +349,11 @@ export default function Home() {
             </section>
           </main>
 
-          <footer className='py-8 px-4 sm:px-6 lg:px-8 bg-muted text-muted-foreground'>
-            <div className='container mx-auto text-center'>
-              <p>
-                &copy; {new Date().getFullYear()} AuditorIA - Todos los derechos
-                reservados.
-              </p>
-            </div>
+          <footer className='py-4 px-4 sm:px-6 lg:px-8 bg-muted text-muted-foreground h-16 mx-auto my-auto text-center items-center justify-center'>
+            <ParagraphP>
+              &copy; {new Date().getFullYear()} AuditorIA - Todos los derechos
+              reservados.
+            </ParagraphP>
           </footer>
         </div>
       </ScrollArea>
