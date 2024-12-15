@@ -7,7 +7,12 @@ const nextConfig = {
   typescript: { ignoreBuildErrors: true },
   eslint: { ignoreDuringBuilds: true },
   images: {
-    domains: ["aceternity.com", "github.com", "linksolution.com.ar"], // Agrega "github.com" aquí
+    domains: [
+      "aceternity.com",
+      "github.com",
+      "linksolution.com.ar",
+      "api.microlink.io",
+    ],
   },
 }
 
