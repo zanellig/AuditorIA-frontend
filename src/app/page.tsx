@@ -25,6 +25,7 @@ import { Opulento } from "uvcanvas"
 import { cn } from "@/lib/utils"
 import ParagraphP from "@/components/typography/paragraphP"
 import { CardBody, CardContainer, CardItem } from "@/components/ui/3d-card"
+import { LinkPreview } from "@/components/ui/link-preview"
 
 export const metadata: Metadata = {
   title:
@@ -113,12 +114,12 @@ export default function Home() {
                   datos.
                 </ParagraphP>
                 <Button size='lg' asChild>
-                  <Link
-                    href='https://www.linksolution.com.ar/auditoria-de-llamadas-con-ia'
-                    prefetch
+                  <LinkPreview
+                    url='https://www.linksolution.com.ar/auditoria-de-llamadas-con-ia'
+                    className='font-bold'
                   >
                     Solicitar una Demostración
-                  </Link>
+                  </LinkPreview>
                 </Button>
               </div>
             </section>
@@ -325,10 +326,29 @@ export default function Home() {
                   ¿Por Qué Elegirnos?
                 </h2>
                 <ParagraphP className='text-xl mb-8 max-w-3xl mx-auto'>
-                  LinkSolution, empresa certificada bajo la norma ISO 9001:2015
+                  <LinkPreview
+                    url='https://www.linksolution.com.ar/'
+                    className='font-bold'
+                  >
+                    LinkSolution
+                  </LinkPreview>
+                  , empresa certificada bajo la norma{" "}
+                  <LinkPreview
+                    url='https://www.linksolution.com.ar/certificacion-iso-90012015-linksolution'
+                    className='font-bold'
+                  >
+                    ISO 9001:2015
+                  </LinkPreview>{" "}
                   y reconocida como una de las mejores empresas para trabajar
-                  por Great Place to Work, ofrece soluciones de vanguardia en
-                  inteligencia artificial para optimizar procesos empresariales.
+                  por{" "}
+                  <LinkPreview
+                    url='https://certificaciones.greatplacetowork.com.ar/linksolution'
+                    className='font-bold'
+                  >
+                    Great Place to Work
+                  </LinkPreview>
+                  , ofrece soluciones de vanguardia en inteligencia artificial
+                  para optimizar procesos empresariales.
                 </ParagraphP>
                 <ParagraphP className='text-xl mb-8 max-w-3xl mx-auto'>
                   Nuestro equipo de consultores altamente capacitados se
@@ -338,12 +358,12 @@ export default function Home() {
                   la rentabilidad de su negocio.
                 </ParagraphP>
                 <Button size='lg' asChild>
-                  <Link
-                    href='https://www.linksolution.com.ar/contacto'
-                    prefetch
+                  <LinkPreview
+                    url='https://www.linksolution.com.ar/contacto'
+                    className='font-bold'
                   >
                     Contáctenos
-                  </Link>
+                  </LinkPreview>
                 </Button>
               </div>
             </section>
