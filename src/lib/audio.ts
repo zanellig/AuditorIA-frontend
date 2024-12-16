@@ -12,21 +12,17 @@ const execAsync = promisify(exec)
 export async function getNetworkAudio(
   audioPath: string
 ): Promise<[Error | null, Buffer | null]> {
-  console.group("getNetworkAudio")
   console.log("Starting getNetworkAudio with path:", audioPath)
 
   const isWindows = os.platform() === "win32"
   if (!isWindows) {
-    console.group("Non-Windows environment check")
     const smbClientInstalled =
       (await execAsync("which smbclient").catch(() => null)) !== null
     if (!smbClientInstalled) {
       console.log("smbclient not installed")
-      console.groupEnd()
-      console.groupEnd()
+
       return [new Error("smbclient is not installed on this system"), null]
     }
-    console.groupEnd()
   }
 
   // Create a temporary file to store the downloaded audio
@@ -48,17 +44,14 @@ export async function getNetworkAudio(
 
   // Platform-specific handling
   if (isWindows) {
-    console.group("Windows handling")
     try {
       console.log("Reading file directly from UNC path")
       const audioBuffer = await retryReadFile(audioPath, 3, 5000) // 3 retries with a 5-second delay
-      console.groupEnd()
-      console.groupEnd()
+
       return [null, audioBuffer]
     } catch (err) {
       console.error("Failed to read audio file:", err)
-      console.groupEnd()
-      console.groupEnd()
+
       return [
         new Error(
           `Failed to read audio file from network path: ${
@@ -70,13 +63,15 @@ export async function getNetworkAudio(
     }
   } else if (os.platform() === "linux" || os.platform() === "darwin") {
     try {
-      console.group("Linux/macOS handling")
-      // Linux/macOS smbclient handling
       const username = env.LDAP_USERNAME
       const password = env.LDAP_PASSWORD
       const domain = env.LDAP_DOMAIN
 
-      if (!username || !password || !domain) {
+      if (!domain) {
+        return [new Error("LDAP domain is not properly configured"), null]
+      }
+
+      if (!username || !password) {
         return [new Error("LDAP credentials are not properly configured"), null]
       }
 
@@ -90,15 +85,18 @@ export async function getNetworkAudio(
       const sharePath = `//${server}/${share}`
       const filePathOnShare = filePath.join("/")
 
-      // Escape all components to prevent shell injection
-      const escapedSharePath = shellEscape([sharePath])
-      const escapedUsername = shellEscape([`${domain}/${username}`])
-      const escapedPassword = shellEscape([password])
-      const escapedFilePathOnShare = shellEscape([filePathOnShare])
-      const escapedTempFile = shellEscape([tempFile])
+      // Construct smbclient args and use shellEscape
+      const smbArgs = [
+        "smbclient",
+        sharePath,
+        "-U",
+        `${domain}/${username}%${password}`,
+        "-c",
+        `get ${filePathOnShare} ${tempFile}`,
+      ]
 
-      // Use smbclient to copy the file from network share
-      const smbCommand = `smbclient ${escapedSharePath} -U ${escapedUsername}%${escapedPassword} -c "get \\"${escapedFilePathOnShare}\\" \\"${escapedTempFile}\\""`
+      const smbCommand = shellEscape(smbArgs)
+      console.log("Running smbclient command:", smbCommand)
 
       await Promise.race([
         execAsync(smbCommand, { timeout: 30000 }), // 30-second timeout
@@ -109,6 +107,7 @@ export async function getNetworkAudio(
           )
         ),
       ])
+
       // Verify file was actually retrieved
       const stats = await fs.stat(tempFile)
       if (stats.size === 0) {
@@ -133,12 +132,9 @@ export async function getNetworkAudio(
         ),
         null,
       ]
-    } finally {
-      console.groupEnd()
     }
   }
 
-  console.group("Reading temporary file")
   // Read the temporary file
   let audioBuffer: Buffer
   try {
@@ -152,8 +148,7 @@ export async function getNetworkAudio(
     await fs
       .rmdir(tempDir)
       .catch(() => console.warn(`Failed to delete directory: ${tempDir}`))
-    console.groupEnd()
-    console.groupEnd()
+
     return [
       new Error(
         `Failed to read temporary audio file: ${
@@ -163,9 +158,7 @@ export async function getNetworkAudio(
       null,
     ]
   }
-  console.groupEnd()
 
-  console.group("Cleanup")
   // Clean up: delete the temporary file and directory
   try {
     await fs.unlink(tempFile)
@@ -177,9 +170,8 @@ export async function getNetworkAudio(
       }`
     )
   }
-  console.groupEnd()
 
-  console.groupEnd() // End of getNetworkAudio
+  // End of getNetworkAudio
   return [null, audioBuffer]
 }
 
