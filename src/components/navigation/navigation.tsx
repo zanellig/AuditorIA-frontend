@@ -2,7 +2,6 @@
 import React from "react"
 import { cn } from "@/lib/utils"
 import {
-  AlertTriangle,
   ArrowRightLeft,
   BarChart,
   Bell,
@@ -13,6 +12,7 @@ import {
   History,
   Home,
   KeyIcon,
+  LayoutList,
   MailIcon,
   MenuIcon,
   MessageSquare,
@@ -84,8 +84,8 @@ const links = [
   },
   {
     href: "/troublesome-tasks",
-    title: "Audios problemáticos",
-    Icon: AlertTriangle,
+    title: "Todas las tareas",
+    Icon: LayoutList,
   },
   {
     href: "/upload",

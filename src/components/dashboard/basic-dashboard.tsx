@@ -12,8 +12,8 @@ import {
   FileChartColumn,
   Headset,
   History,
+  LayoutList,
   MessageSquare,
-  TriangleAlert,
   Upload,
   User,
 } from "lucide-react"
@@ -61,12 +61,12 @@ export default function BasicDashboard() {
       href: "/dashboard/records/operator",
     },
     {
-      title: "Ver audios problemáticos",
-      icon: <TriangleAlert className={DASHBOARD_ICON_CLASSES} />,
+      title: "Ver todas las tareas",
+      icon: <LayoutList className={DASHBOARD_ICON_CLASSES} />,
       description:
         "En este módulo, podrá ver y revisar los audios marcados como problemáticos.",
-      href: "/dashboard/tasks/ponderation",
-      disabled: true,
+      href: "/dashboard/troublesome-tasks",
+      disabled: false,
     },
     {
       title: "Buscar por fecha",
@@ -85,6 +85,7 @@ export default function BasicDashboard() {
       icon: <FileChartColumn className={DASHBOARD_ICON_CLASSES} />,
       description: "En este módulo, podrá ver los reportes.",
       href: "/reportes",
+      disabled: true,
     },
     {
       title: "Ver chats",
