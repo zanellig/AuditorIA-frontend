@@ -67,6 +67,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({
         if (audioRef.current) {
           audioRef.current.src = url
           audioRef.current.load()
+          setError(false)
         }
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (e: any) {
