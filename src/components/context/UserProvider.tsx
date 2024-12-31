@@ -64,7 +64,7 @@ export const UserContextProvider = ({
 
   const { data: avatarData } = useQuery({
     queryKey: ["user", "avatar"],
-    queryFn: () => fetchFromApi("/avatar"),
+    queryFn: () => fetchFromApi("avatar"),
     enabled: true,
   })
 
@@ -108,7 +108,7 @@ export const UserContextProvider = ({
     if (cached?.userAvatar) return cached.userAvatar
     const data = await queryClient.fetchQuery({
       queryKey: ["user", "avatar"],
-      queryFn: () => fetchFromApi("/avatar"),
+      queryFn: () => fetchFromApi("avatar"),
     })
     console.log("Result of last resolver avatar query:", data)
     return data
@@ -143,7 +143,7 @@ export const UserContextProvider = ({
 
   const updateUserAvatar = useMutation({
     mutationFn: async (avatar: string) => {
-      await fetchFromApi("/avatar", {
+      await fetchFromApi("avatar", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ avatar }),

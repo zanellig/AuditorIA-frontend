@@ -81,11 +81,3 @@ export async function POST(request: NextRequest) {
     )
   }
 }
-
-export async function OPTIONS(request: NextRequest) {
-  const responseHeaders = await getHeaders(request)
-  return new NextResponse("", {
-    headers: responseHeaders,
-    status: 200,
-  })
-}

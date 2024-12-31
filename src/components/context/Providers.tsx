@@ -38,11 +38,17 @@ export function Providers({ children }: { children: React.ReactNode }) {
           <AudioProvider>
             <ScrollProvider>
               <TooltipProvider>
-                <TranscriptionProvider>{children}</TranscriptionProvider>
+                <TranscriptionProvider>
+                  {children}
+                  <ReactQueryDevtools
+                    initialIsOpen={false}
+                    position={"left"}
+                    buttonPosition={"bottom-left"}
+                  />
+                </TranscriptionProvider>
               </TooltipProvider>
             </ScrollProvider>
           </AudioProvider>
-          {/* <ReactQueryDevtools initialIsOpen={false} /> */}
         </UserContextProvider>
       </ThemeProvider>
     </QueryClientProvider>
