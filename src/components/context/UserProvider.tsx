@@ -60,12 +60,14 @@ export const UserContextProvider = ({
     queryKey: ["user"],
     queryFn: () => fetchFromApi("user"),
     enabled: true,
+    refetchOnMount: true,
   })
 
   const { data: avatarData } = useQuery({
     queryKey: ["user", "avatar"],
     queryFn: () => fetchFromApi("avatar"),
     enabled: true,
+    refetchOnMount: true,
   })
 
   // Individual getter queries
