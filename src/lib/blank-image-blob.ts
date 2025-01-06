@@ -9,8 +9,8 @@ const hexString: string = `
   00000049454E44AE
   426082
 `.replace(/\s+/g, "")
-const byteArray = new Uint8Array(
-  hexString.match(/.{2}/g).map(byte => parseInt(byte, 16))
-)
+const matches = hexString.match(/.{2}/g)
+if (!matches) throw new Error("Invalid hex string")
+const byteArray = new Uint8Array(matches.map(byte => parseInt(byte, 16)))
 const blob = new Blob([byteArray], { type: "image/png" })
 export const blankImageUrl = URL.createObjectURL(blob)
