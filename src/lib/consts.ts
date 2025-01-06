@@ -1,6 +1,6 @@
 import { cn } from "./utils"
 
-export const GLOBAL_ICON_SIZE = 19
+export const GLOBAL_ICON_SIZE = 16
 export const NAVIGATION_ICON_SIZE: number = GLOBAL_ICON_SIZE + 2
 export const POSITIVE_SENTIMENT_COLOR = "green-500"
 export const NEUTRAL_SENTIMENT_COLOR = "yellow-500"
