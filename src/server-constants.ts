@@ -8,26 +8,6 @@ export const INTERNAL_API =
       ? `http://${env.HOST || getDeviceInfo().ipAddress}:${env.PORT}`
       : "no-host-defined"
 
-const BASE_URLS = [
-  "auditoria.linksolution.com.ar",
-  "dev.auditoria.linksolution.com.ar",
-  "qa.auditoria.linksolution.com.ar",
-  "api.auditoria.linksolution.com.ar",
-]
-
-const PORTS = ["", "3030", "3000", "443", "8080", "8000", "7000", "22", "80"]
-const PROTOCOLS = ["https", "http"]
-
-// Generate all combinations of protocol + base + port
-export const ALLOWED_ORIGINS = [
-  ...BASE_URLS.flatMap(base =>
-    PROTOCOLS.flatMap(protocol =>
-      PORTS.map(port => `${protocol}://${base}:${port}`)
-    )
-  ),
-  INTERNAL_API,
-].filter(origin => origin !== "no-host-defined")
-
 export const ALL_TASKS_PATH = "tasks"
 export const TASK_PATH = "task"
 export const ALL_RECORDS_PATH = "records"
