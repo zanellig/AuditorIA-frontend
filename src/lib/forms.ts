@@ -91,7 +91,7 @@ export const taskFormOptions = {
     {
       value: "combine",
       label: "Separar canales y transcribir",
-      disabled: false,
+      disabled: true,
     },
   ],
   model: [
