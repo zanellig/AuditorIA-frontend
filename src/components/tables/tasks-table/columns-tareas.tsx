@@ -1,12 +1,7 @@
 import * as React from "react"
 import { ColumnDef, Row, Table } from "@tanstack/react-table"
 import { Task } from "@/lib/types"
-import {
-  ArrowUpDown,
-  MoreHorizontal,
-  ArrowDown,
-  ArrowUp,
-} from "lucide-react"
+import { ArrowUpDown, MoreHorizontal, ArrowDown, ArrowUp } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -22,10 +17,9 @@ import { getLocaleMonth, _URLBuilder } from "@/lib/utils"
 import { secondsToHMS, formatTimestamp } from "@/lib/utils"
 import Link from "next/link"
 import { actionRevalidatePath } from "@/lib/actions"
-import A from "@/components/typography/a"
 import AnalyzeButton from "./analyze-button"
 import { CopyValueDropdownItem } from "./copy-value-dropdown-item"
-import { renderMarker } from '@/components/tables/marker-renderer'
+import { renderMarker } from "@/components/tables/marker-renderer"
 
 function renderArrow(sorted: false | "asc" | "desc") {
   if (sorted === false) {
@@ -54,8 +48,11 @@ export const columns: ColumnDef<Task | null>[] = [
 
       return (
         <div key={`check-${row.original?.identifier}`}>
-          <Link href={_URLBuilder(row?.original as Task)}>
-            <A>{slicedID}</A>
+          <Link
+            href={_URLBuilder(row?.original as Task)}
+            className='font-medium text-primary underline underline-offset-4'
+          >
+            {slicedID}
           </Link>
         </div>
       )
@@ -118,7 +115,7 @@ export const columns: ColumnDef<Task | null>[] = [
   },
   {
     accessorKey: "audio_duration",
-    header: ({ column }) => {
+    header: () => {
       return <div>Duración</div>
     },
     cell: ({ row }) => {
