@@ -156,6 +156,7 @@ const links = [
         href: "/activity-log",
         Icon: Clock,
         title: "Log de actividad",
+        disabled: true,
       },
     ],
   },

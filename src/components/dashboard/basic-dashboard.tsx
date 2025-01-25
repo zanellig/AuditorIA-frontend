@@ -65,7 +65,7 @@ export default function BasicDashboard() {
       icon: <LayoutList className={DASHBOARD_ICON_CLASSES} />,
       description:
         "En este módulo, podrá ver y revisar los audios marcados como problemáticos.",
-      href: "/dashboard/troublesome-tasks",
+      href: "/troublesome-tasks",
       disabled: false,
     },
     {
