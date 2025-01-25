@@ -46,7 +46,7 @@ export default function AudioProcessingTaskStarter({ row }: { row: any }) {
     resolver: zodResolver(taskFormSchema),
     defaultValues: {
       language: "es",
-      task_type: "combine",
+      task_type: "transcribe",
       model: "large-v3",
       device: "cuda",
     },
@@ -100,7 +100,7 @@ export default function AudioProcessingTaskStarter({ row }: { row: any }) {
       })
       form.reset({
         language: "es",
-        task_type: "combine",
+        task_type: "transcribe",
         model: "large-v3",
         device: "cuda",
       })
