@@ -212,12 +212,14 @@ export const loginFormSchema = z.object({
   rememberMe: z.boolean().default(false),
 })
 
-export const updateAvatarFormSchema = z.object({
-  image: z.custom<File | Blob>(),
-})
-
 export const updateUserProfileFormSchema = z.object({
   username: usernameValidator,
   fullName: NAME_VALIDATOR,
   email: emailValidator,
+  image: z.union([
+    z.string(),
+    z.number(),
+    z.array(z.string()).readonly(),
+    z.undefined(),
+  ]),
 })
