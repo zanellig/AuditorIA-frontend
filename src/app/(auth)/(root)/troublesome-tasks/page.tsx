@@ -62,12 +62,14 @@ export default function TroublesomeTasksPage() {
           onChange={e => setSearch(e.target.value)}
           value={search || ""}
           className='bg-popover'
+          disabled={isFetching || isPending}
         />
         <Select
           onValueChange={(value: keyof TaskRecordsSearchParams) => {
             setSelectedFilter(value)
           }}
           value={selectedFilter || "globalSearch"}
+          disabled={isFetching || isPending}
         >
           <SelectTrigger className='bg-popover'>
             <SelectValue placeholder='Seleccionar filtro...' />
@@ -84,14 +86,18 @@ export default function TroublesomeTasksPage() {
           </SelectContent>
         </Select>
         <div className='flex flex-row justify-start items-center gap-2'>
-          <Button onClick={resetFilters} variant={"outline"}>
+          <Button
+            onClick={resetFilters}
+            variant={"outline"}
+            disabled={isFetching || isPending}
+          >
             Borrar filtros
           </Button>
           <Button
             onClick={setPreviousPage}
             variant={"outline"}
             size='icon'
-            disabled={page === 0}
+            disabled={page === 0 || isFetching || isPending}
           >
             <ChevronLeftIcon size={GLOBAL_ICON_SIZE} />
           </Button>
@@ -99,7 +105,7 @@ export default function TroublesomeTasksPage() {
             onClick={setNextPage}
             variant={"outline"}
             size='icon'
-            disabled={!data?.hasMore}
+            disabled={!data?.hasMore || isFetching || isPending}
           >
             <ChevronRightIcon size={GLOBAL_ICON_SIZE} />
           </Button>

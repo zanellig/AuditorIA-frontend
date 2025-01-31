@@ -39,7 +39,8 @@ function EvalSpeakerProfile({
     return await fetch(
       `${await getHost()}/api/task/spkanalysis?identifier=${id}`
     ).then(async res => {
-      if (!res.ok) throw new Error("Failed to fetch LLM analysis")
+      if (!res.ok)
+        throw new Error("Error al obtener el análisis de los hablantes")
       return await res.json()
     })
   }

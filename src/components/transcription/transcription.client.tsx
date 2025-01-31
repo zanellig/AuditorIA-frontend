@@ -33,7 +33,6 @@ import {
   Frown,
   Laugh,
   Meh,
-  MessageCircleQuestion,
   TriangleAlert,
 } from "lucide-react"
 import { GLOBAL_ICON_SIZE } from "@/lib/consts"
@@ -41,7 +40,7 @@ import {
   cn,
   secondsToHMS,
   formatTimestamp,
-  convertSpeakerToHablante,
+  localizeSpeaker,
   handleCopyToClipboard,
   getSpanishEmotion,
   getColorForEmotion,
@@ -57,6 +56,8 @@ import ParagraphP from "@/components/typography/paragraphP"
 import { SurpriseIcon } from "@/components/emoji-icons"
 import TableContainer from "@/components/tables/table-core/table-container"
 import TitleContainer from "@/components/title-container"
+import { FloatingFeedbackPopover } from "./transcription-feedback-popover"
+import MetadataDisplay from "./metadata-display"
 
 const BASIC_STYLE = "flex text-sm rounded-md p-2 gap-2"
 
@@ -73,178 +74,7 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
   taskId,
   drawerOptions,
 }) => {
-  const { transcription, isLoading, error, fetchTranscription } =
-    useTranscription()
-
-  const transcriptionMock = {
-    status: "completed",
-    result: {
-      segments: [
-        {
-          start: 0.0,
-          end: 7.5,
-          text: "Why don’t you just leave the tech stuff to the men? Clearly, it’s not your forte.",
-          speaker: "Tom Wilson (Business Person)",
-          analysis: {
-            emotion: "anger",
-            sentiment: "NEG",
-            hate_speech: "targeted",
-            emotion_probas: {
-              joy: 0.01,
-              fear: 0.1,
-              anger: 0.8,
-              others: 0.03,
-              disgust: 0.05,
-              sadness: 0.01,
-              surprise: 0.0,
-            },
-            sentiment_probas: {
-              NEG: 0.95,
-              NEU: 0.03,
-              POS: 0.02,
-            },
-            hate_speech_probas: {
-              hateful: 0.6,
-              targeted: 0.9,
-              aggressive: 0.7,
-            },
-            is_hate_speech: true,
-          },
-        },
-        {
-          start: 7.5,
-          end: 15.0,
-          text: "That’s completely uncalled for. I am doing my job, and comments like that are unacceptable.",
-          speaker: "Emily Clark (IT Support Analyst)",
-          analysis: {
-            emotion: "anger",
-            sentiment: "NEG",
-            hate_speech: "neutral",
-            emotion_probas: {
-              joy: 0.01,
-              fear: 0.2,
-              anger: 0.6,
-              others: 0.1,
-              disgust: 0.07,
-              sadness: 0.02,
-              surprise: 0.0,
-            },
-            sentiment_probas: {
-              NEG: 0.8,
-              NEU: 0.15,
-              POS: 0.05,
-            },
-            hate_speech_probas: {
-              hateful: 0.1,
-              targeted: 0.2,
-              aggressive: 0.3,
-            },
-            is_hate_speech: false,
-          },
-        },
-        {
-          start: 15.0,
-          end: 20.0,
-          text: "It’s not personal, it’s just that women aren’t known for excelling in tech fields.",
-          speaker: "Tom Wilson (Business Person)",
-          analysis: {
-            emotion: "disgust",
-            sentiment: "NEG",
-            hate_speech: "targeted",
-            emotion_probas: {
-              joy: 0.0,
-              fear: 0.05,
-              anger: 0.4,
-              others: 0.1,
-              disgust: 0.4,
-              sadness: 0.05,
-              surprise: 0.0,
-            },
-            sentiment_probas: {
-              NEG: 0.9,
-              NEU: 0.05,
-              POS: 0.05,
-            },
-            hate_speech_probas: {
-              hateful: 0.8,
-              targeted: 0.95,
-              aggressive: 0.5,
-            },
-            is_hate_speech: true,
-          },
-        },
-        {
-          start: 20.0,
-          end: 25.0,
-          text: "Your sexism is noted. I’ll escalate this to HR immediately.",
-          speaker: "Emily Clark (IT Support Analyst)",
-          analysis: {
-            emotion: "anger",
-            sentiment: "NEG",
-            hate_speech: "neutral",
-            emotion_probas: {
-              joy: 0.0,
-              fear: 0.1,
-              anger: 0.7,
-              others: 0.1,
-              disgust: 0.05,
-              sadness: 0.05,
-              surprise: 0.0,
-            },
-            sentiment_probas: {
-              NEG: 0.85,
-              NEU: 0.1,
-              POS: 0.05,
-            },
-            hate_speech_probas: {
-              hateful: 0.1,
-              targeted: 0.2,
-              aggressive: 0.3,
-            },
-            is_hate_speech: false,
-          },
-        },
-      ],
-    },
-    error: null,
-    metadata: {
-      audio_duration: 25.0,
-      duration: 25.0,
-      file_name: "sexist_conversation.wav",
-      language: "en",
-      task_params: {
-        task: "transcription",
-        model: "default_model",
-        device: "cpu",
-        threads: 4,
-        language: "en",
-        batch_size: 1,
-        compute_type: "float32",
-        device_index: 0,
-        max_speakers: 2,
-        min_speakers: 1,
-        align_model: null,
-        asr_options: {
-          patience: 1.0,
-          beam_size: 5,
-          temperatures: 0.7,
-          initial_prompt: null,
-          length_penalty: 1.0,
-          suppress_tokens: [1, 2],
-          suppress_numerals: false,
-          log_prob_threshold: -1.0,
-          no_speech_threshold: 0.5,
-          compression_ratio_threshold: 1.5,
-        },
-        vad_options: {
-          vad_onset: 0.5,
-          vad_offset: 0.5,
-        },
-      },
-      task_type: "transcription",
-      url: "http://example.com/sexist_conversation",
-    },
-  }
+  const { transcription, fetchTranscription, queryStatus } = useTranscription()
 
   let lastSpeaker: string | undefined = ""
   let lastEmotion: string | undefined = ""
@@ -256,22 +86,23 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
   const isAnalysisNotReady =
     transcription &&
     [
-      Status.Values.pending,
-      Status.Values.processing,
-      Status.Values.failed,
-      // @ts-expect-error TS(2345): Argument of type 'Status' is not assignable to parameter of type 'Status'.
+      Status.Values.pending as Status,
+      Status.Values.processing as Status,
+      Status.Values.failed as Status,
     ].includes(transcription.status)
   React.useEffect(() => {
     if (taskId) {
       fetchTranscription(taskId)
     }
-  }, [taskId, fetchTranscription])
+    // Don't put the fetchTranscription function inside the dependency array because it will cause an infinite loop
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [taskId])
 
   const player = useAudioPlayer()
 
   React.useEffect(() => {
     const scrollToSegment = (timestamp: number) => {
-      if (!transcription?.result?.segments) return
+      if (!transcription?.result.segments) return
       const currentSegment = transcription.result.segments.find(
         segment => timestamp >= segment.start && timestamp <= segment.end
       )
@@ -289,15 +120,20 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
     }
   }, [player.isPlaying, player.currentTime, transcription?.result?.segments])
 
-  if (isLoading) return <TranscriptionSkeleton />
+  if (queryStatus.isPending) return <TranscriptionSkeleton />
+  if (queryStatus.error)
+    return (
+      <ErrorCodeUserFriendly
+        error={queryStatus.error}
+        locale={SupportedLocales.Values.es}
+      />
+    )
 
   return (
     <>
       {drawerOptions?.show && (
         <TranscriptionNotReady text={`${drawerOptions?.text || ""}`} />
       )}
-      {!drawerOptions?.show && isLoading && <TranscriptionSkeleton />}
-
       {!drawerOptions?.show && transcription && (
         <>
           {isAnalysisNotReady && (
@@ -311,58 +147,57 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
               </TitleContainer>
             )}
             <section className='flex gap-2 items-center mt-4'>
-              <AnalyzeTaskButton taskId={taskId} />
-              <Button
-                variant={"destructive"}
-                onClick={() => {
-                  toast({
-                    title: "Se ha reportado la tarea",
-                  })
-                }}
-                Icon={TriangleAlert}
-                iconPlacement={"left"}
-                className='w-full lg:w-32'
-              >
-                Reportar tarea
-              </Button>
+              {transcription?.status !== "analyzed" && (
+                <AnalyzeTaskButton taskId={taskId!} />
+              )}
             </section>
-            {/* <section className='flex border mt-2'>
-              <code className='text-wrap max-w-xl'>
+            <section className='flex gap-2 flex-col md:flex-row'>
+              {/* Call data and other components */}
+              <article className='flex flex-col gap-2 w-full h-fit p-4 rounded-md'>
+                <h1 className='text-xl md:text-2xl font-bold'>
+                  Datos de la transcripción
+                </h1>
+                <MetadataDisplay metadata={transcription?.metadata} />
+              </article>
+              {/*  <code className='text-wrap max-w-xl'>
                 {JSON.stringify(transcription)}
               </code> */}
-            {/* Segments */}
-            <article className='flex flex-col w-full'>
-              {transcription?.result?.segments.map((segment, index) => {
-                const isNewSpeaker = segment?.speaker !== lastSpeaker
-                lastSpeaker = segment.speaker
-                const isNewEmotion =
-                  segment?.analysis?.emotion !== lastEmotion || isNewSpeaker
-                lastEmotion = segment?.analysis?.emotion
-                return (
-                  <>
-                    <SegmentRenderer
-                      ref={el => {
-                        segmentRefs.current[Number(segment.start.toFixed(2))] =
-                          el
-                      }}
-                      key={`${segment.speaker}-segment-${index}`}
-                      segment={segment}
-                      renderSpeakerText={isNewSpeaker}
-                      renderEmotion={isNewEmotion}
-                    />
-                  </>
-                )
-              })}
-            </article>
-            {/* </section> */}
+              {/* Segments */}
+              <article className='flex flex-col gap-2 w-full p-4 rounded-md'>
+                <h1 className='text-xl md:text-2xl font-bold '>Conversación</h1>
+                {transcription?.result?.segments.map((segment, index) => {
+                  const isNewSpeaker = segment?.speaker !== lastSpeaker
+                  lastSpeaker = segment.speaker
+                  const isNewEmotion =
+                    segment?.analysis?.emotion !== lastEmotion || isNewSpeaker
+                  lastEmotion = segment?.analysis?.emotion
+                  return (
+                    <>
+                      <SegmentRenderer
+                        ref={el => {
+                          segmentRefs.current[
+                            Number(segment.start.toFixed(2))
+                          ] = el
+                        }}
+                        key={`${segment.speaker}-segment-${index}`}
+                        segment={segment}
+                        renderSpeakerText={isNewSpeaker}
+                        renderEmotion={isNewEmotion}
+                      />
+                    </>
+                  )
+                })}
+              </article>
+            </section>
+            {transcription && (
+              <FloatingFeedbackPopover
+                feedbackHandler={feedback => {
+                  console.log(`User feedback: ${feedback}`)
+                }}
+              />
+            )}
           </TableContainer>
         </>
-      )}
-      {error && (
-        <ErrorCodeUserFriendly
-          error={error}
-          locale={SupportedLocales.Values.es}
-        />
       )}
     </>
   )
@@ -517,14 +352,6 @@ const Emoji: React.FC<EmojiProps> = ({ emotion }) => (
   </Tooltip>
 )
 
-const EmotionBox: React.FC = () => (
-  <div className={`${BASIC_STYLE} flex-row justify-between items-center`}>
-    <Button variant='outline' className='w-fit p-2'>
-      <MessageCircleQuestion size={GLOBAL_ICON_SIZE} />
-    </Button>
-  </div>
-)
-
 interface SegmentRendererProps {
   segment: Segment
   renderSpeakerText?: boolean
@@ -543,7 +370,7 @@ const SegmentRenderer = React.forwardRef<HTMLDivElement, SegmentRendererProps>(
       <div
         ref={ref}
         className={cn(
-          "flex flex-col gap-2 w-full transition-colors duration-200 rounded-md px-4 py-1",
+          "flex flex-col gap-2 w-full transition-colors duration-200 rounded-md",
           isEvenSpeaker ? "self-start items-start" : "self-end items-end",
           isPlaying && isCurrentSegmentFocused
             ? "bg-pulse"
@@ -552,7 +379,7 @@ const SegmentRenderer = React.forwardRef<HTMLDivElement, SegmentRendererProps>(
       >
         {renderSpeakerText && (
           <span className='text-sm text-muted-foreground'>
-            {convertSpeakerToHablante(segment.speaker)}
+            {localizeSpeaker(segment.speaker)}
           </span>
         )}
         <div className='flex flex-row gap-2'>

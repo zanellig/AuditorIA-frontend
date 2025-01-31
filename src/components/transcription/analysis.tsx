@@ -1,6 +1,6 @@
 "use client"
 import React from "react"
-import type { Averages, TranscriptionType } from "@/lib/types.d"
+import type { Averages, ITranscription } from "@/lib/types.d"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/components/ui/use-toast"
 import { calculateAverages } from "@/lib/actions"
@@ -18,7 +18,7 @@ import { getUniqueWords } from "@/lib/utils"
 export default function Analysis({
   transcription,
 }: {
-  transcription: TranscriptionType
+  transcription: ITranscription
 }) {
   const { toast } = useToast()
   const [averages, setAverages] = React.useState<Averages | null>(null)

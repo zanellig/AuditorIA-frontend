@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import * as React from "react"
 import {
   Card,
   CardContent,
@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   BarChart,
@@ -25,122 +24,119 @@ import {
   PieChart,
   Pie,
   Cell,
-  RadialBarChart,
-  RadialBar,
 } from "recharts"
 import { cn, normalizeString } from "@/lib/utils"
-import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Sparkles } from "lucide-react"
 import { GLOBAL_ICON_SIZE } from "@/lib/consts"
 import { useToast } from "@/components/ui/use-toast"
 import PulsingDot from "@/components/pulsing-dot"
 
-type DashboardProps = {
+const COLORS = [
+  "#0088FE",
+  "#00C49F",
+  "#FFBB28",
+  "#FF8042",
+  "#8884D8",
+  "#82CA9D",
+  "#A4DE6C",
+  "#D0ED57",
+] as const
+
+interface DashboardProps {
   initialData: Record<string, string>
 }
 
 export function PerformanceDashboard({ initialData }: DashboardProps) {
-  const [data, setData] = useState(initialData)
-  const [showErrorCard, setShowErrorCard] = useState(false)
+  const [data, setData] = React.useState(initialData)
+  const [showErrorCard, setShowErrorCard] = React.useState(false)
   const { toast } = useToast()
 
-  const COLORS = [
-    "#0088FE",
-    "#00C49F",
-    "#FFBB28",
-    "#FF8042",
-    "#8884D8",
-    "#82CA9D",
-    "#A4DE6C",
-    "#D0ED57",
-  ]
-
-  const categories = useMemo(() => {
-    return Object.keys(data).reduce((acc, key) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- Kept for future use
+  const categories = React.useMemo(() => {
+    const categorySet = new Set<string>()
+    Object.keys(data).forEach(key => {
       if (key !== "PUNTAJE TOTAL") {
-        const category = key.split(" - ")[0].trim()
-        if (!acc.includes(category)) {
-          acc.push(category)
-        }
+        categorySet.add(key.split(" - ")[0].trim())
       }
-      return acc
-    }, [] as string[])
+    })
+    return Array.from(categorySet)
   }, [data])
 
-  const criticalErrors = useMemo(() => {
+  const criticalErrors = React.useMemo(() => {
     return Object.entries(data).filter(([key, value]) => {
       const normalizedKey = normalizeString(key).toLocaleLowerCase()
       return normalizedKey.includes("error") && Number(value) > 0
     })
   }, [data])
 
-  const isAuditFailure = useMemo(() => {
-    const criticalErrorsCount = criticalErrors.length
-    return Number(data["PUNTAJE TOTAL"]) < 75 || criticalErrorsCount !== 0
+  const score = React.useMemo(() => {
+    return Number(data["PUNTAJE TOTAL"])
   }, [data])
 
-  const chartData = useMemo(() => {
-    return categories.map(category => ({
-      name: category,
-      value: Object.entries(data)
-        .filter(([key]) => key.startsWith(category) && key !== "PUNTAJE TOTAL")
-        .reduce((sum, [, value]) => sum + Number(value), 0),
-      fill: COLORS[categories.indexOf(category) % COLORS.length],
-    }))
-  }, [categories, data])
+  const isAuditFailure = React.useMemo(() => {
+    const criticalErrorsCount = criticalErrors.length
+    return score < 95 || criticalErrorsCount !== 0
+  }, [criticalErrors.length, score])
 
-  const handleInputChange = (key: string, value: string) => {
-    if (key === "PUNTAJE TOTAL") {
-      return toast({
-        title: "Valor no permitido",
-        description: "El valor del puntaje total no puede ser modificado",
-        variant: "destructive",
-      })
-    }
-    if (value === "") {
-      setData(prevData => ({ ...prevData, [key]: "0" }))
-    }
-    if (Number(value) > 10) {
-      return toast({
-        title: "Valor máximo excedido",
-        description: "El valor máximo permitido es 10",
-        variant: "destructive",
-      })
-    }
-    if (Number(value) < 0) {
-      return toast({
-        title: "Valor mínimo excedido",
-        description: "El valor mínimo permitido es 0",
-        variant: "destructive",
-      })
-    }
-    setData(prevData => ({ ...prevData, [key]: value }))
-  }
+  // Map operations are O(1)
+  // It doesn't reach O(n**2) because we're iterating over data once.
+  const chartData = React.useMemo(() => {
+    const categoryMap = new Map<string, number>()
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
-      return (
-        <Card className='p-0'>
-          <CardContent className='p-2'>
-            <div className='text-sm'>
-              <span>{payload[0].name}: </span>
-              <span className='font-bold'>{payload[0].value}</span>
-            </div>
-          </CardContent>
-        </Card>
+    Object.entries(data).forEach(([key, value]) => {
+      if (key === "PUNTAJE TOTAL") return
+      const category = key.split(" - ")[0].trim()
+      categoryMap.set(
+        category,
+        (categoryMap.get(category) || 0) + Number(value)
       )
-    }
-    return null
-  }
+    })
+    // This is just to comply with rechart's expected format
+    return Array.from(categoryMap.entries()).map(([name], index) => ({
+      name,
+      value: categoryMap.get(name), // Should never be undefined, so no not null assertions
+      fill: COLORS[index % COLORS.length],
+    }))
+  }, [data])
+
+  const handleInputChange = React.useCallback(
+    (key: string, value: string) => {
+      console.log(key, value)
+      if (key === "PUNTAJE TOTAL") {
+        return toast({
+          title: "Valor no permitido",
+          description: "El valor del puntaje total no puede ser modificado",
+          variant: "destructive",
+        })
+      }
+      if (value === "") {
+        setData(prevData => ({ ...prevData, [key]: "0" }))
+      }
+      if (Number(value) > 10) {
+        return toast({
+          title: "Valor máximo excedido",
+          description: "El valor máximo permitido es 10",
+          variant: "destructive",
+        })
+      }
+      if (Number(value) < 0) {
+        return toast({
+          title: "Valor mínimo excedido",
+          description: "El valor mínimo permitido es 0",
+          variant: "destructive",
+        })
+      }
+      setData(prevData => ({ ...prevData, [key]: value }))
+    },
+    [toast]
+  )
 
   return (
     <Card className='w-full max-w-7xl mx-auto'>
       <CardHeader>
         <CardTitle>Performance del llamado</CardTitle>
-        <CardDescription>
-          Vea y edite las métricas del llamado generadas por IA
-        </CardDescription>
+        <CardDescription>Vea y edite las métricas del llamado</CardDescription>
       </CardHeader>
       <CardContent>
         <Tabs defaultValue='overview' className='space-y-4'>
@@ -207,8 +203,12 @@ export function PerformanceDashboard({ initialData }: DashboardProps) {
             <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
               <Card
                 className={cn(
-                  isAuditFailure ? "bg-destructive" : "bg-success",
-                  "text-white h-fit"
+                  isAuditFailure
+                    ? "bg-destructive text-destructive-foreground"
+                    : score < 100
+                      ? "bg-warning text-warning-foreground"
+                      : "bg-success text-success-foreground",
+                  "h-fit"
                 )}
               >
                 <CardHeader>
@@ -227,7 +227,16 @@ export function PerformanceDashboard({ initialData }: DashboardProps) {
                       onClick={() => setShowErrorCard(true)}
                     >
                       <ArrowRight size={GLOBAL_ICON_SIZE} />
-                      <span>Revisar puntos de mejora</span>
+                      <span>Revisar errores</span>
+                    </Button>
+                  ) : score < 100 ? (
+                    <Button
+                      className='flex gap-2 bg-foreground'
+                      size='sm'
+                      onClick={() => setShowErrorCard(true)}
+                    >
+                      <ArrowRight size={GLOBAL_ICON_SIZE} />
+                      <span>Revisar errores</span>
                     </Button>
                   ) : (
                     <div>
@@ -259,6 +268,22 @@ export function PerformanceDashboard({ initialData }: DashboardProps) {
   )
 }
 
+const CustomTooltip = ({ active, payload, label }: any) => {
+  if (active && payload && payload.length) {
+    return (
+      <Card className='p-0'>
+        <CardContent className='p-2'>
+          <div className='text-sm'>
+            <span>{payload[0].name}: </span>
+            <span className='font-bold'>{payload[0].value}</span>
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
+  return null
+}
+
 const ProgressBar = ({ value }: { value: number }) => (
   <div className='w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-900'>
     <div
@@ -268,7 +293,13 @@ const ProgressBar = ({ value }: { value: number }) => (
   </div>
 )
 
-function ErrorCard({ errors }: { errors: [string, string][] }) {
+const ErrorCard = React.memo(function ErrorCard({
+  errors,
+}: {
+  errors: [string, string][]
+}) {
+  const sparkleAnimation = React.useMemo(() => "animate-sparkle", [])
+
   return (
     <Card className='w-full max-w-2xl'>
       <CardHeader>
@@ -298,9 +329,12 @@ function ErrorCard({ errors }: { errors: [string, string][] }) {
         </ul>
       </CardContent>
       <CardFooter className='flex flex-col items-start gap-2'>
-        <Button className='animate-sparkle' variant='secondary'>
-          Proponer solución con IA
-          <Sparkles size={GLOBAL_ICON_SIZE} className='ml-2' />
+        <Button variant='secondary'>
+          Proponer solución
+          <Sparkles
+            size={GLOBAL_ICON_SIZE}
+            className={"ml-2 " + sparkleAnimation}
+          />
         </Button>
         <Button>
           Mostrar segmentos problemáticos
@@ -309,4 +343,4 @@ function ErrorCard({ errors }: { errors: [string, string][] }) {
       </CardFooter>
     </Card>
   )
-}
+})

@@ -233,24 +233,6 @@ export function normalizeString(input: string): string {
   return _replaceSpecialCharacters(replaceNonASCIIChars(input), "")
 }
 
-export function getUniqueWords(segments: Segment[]): Set<string> {
-  const wordsSet = new Set<string>()
-  for (const segment of segments) {
-    let words = segment.text.split(" ")
-    words = words.map(word => {
-      word = normalizeString(word)
-      word = word.toLowerCase()
-      word = word.trim()
-      return word
-    })
-    words = words.filter(word => word !== "")
-    words.forEach(word => {
-      wordsSet.add(word)
-    })
-  }
-  return wordsSet
-}
-
 export function _replaceSpecialCharacters(
   input: string,
   replacement: string
@@ -268,6 +250,24 @@ export function replaceNonASCIIChars(input: string): string {
   return input
     .normalize("NFD") // Decompose accented characters into base + diacritic
     .replace(/[\u0300-\u036f]/g, "") // Remove diacritic marks
+}
+
+export function getUniqueWords(segments: Segment[]): Set<string> {
+  const wordsSet = new Set<string>()
+  for (const segment of segments) {
+    let words = segment.text.split(" ")
+    words = words.map(word => {
+      word = normalizeString(word)
+      word = word.toLowerCase()
+      word = word.trim()
+      return word
+    })
+    words = words.filter(word => word !== "")
+    words.forEach(word => {
+      wordsSet.add(word)
+    })
+  }
+  return wordsSet
 }
 
 export function extractQueryParamsFromUrl(search: string) {
@@ -345,16 +345,19 @@ export function extractJsonFromString(
   return input
 }
 
-export function convertSpeakerToHablante(input: string) {
+export function localizeSpeaker(input: string) {
   if (!input) return input
   const speakerPattern = /^SPEAKER_(\d+)$/
-  if (input.includes("SPEAKER_00")) {
-    return "Cliente"
-  }
-  if (input.includes("SPEAKER_01")) {
-    return "Agente"
-  }
   return input.replace(speakerPattern, "Hablante $1")
+}
+
+export function extractSpeakerID(input: string): number | null {
+  const speakerPattern = /^SPEAKER_(\d+)$/
+  const match = input.match(speakerPattern)
+  if (match && match[1]) {
+    return parseInt(match[1])
+  }
+  return null
 }
 
 export async function submitForm({

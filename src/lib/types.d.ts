@@ -173,7 +173,7 @@ export const transcriptionTypeSchema = z.object({
   }),
 })
 
-export type TranscriptionType = z.infer<typeof transcriptionTypeSchema>
+export type ITranscription = z.infer<typeof transcriptionTypeSchema>
 
 export interface EmotionValues {
   pos: number[]

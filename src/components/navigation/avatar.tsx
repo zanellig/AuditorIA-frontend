@@ -64,12 +64,16 @@ export function AvatarButton({ className }: { className?: string }) {
       username,
       fullName: userFullName,
       email: userEmail,
+      image: "",
     },
   })
+  const [file, setFile] = React.useState<File | null>(null)
+  const [isDialogOpen, setIsDialogOpen] = React.useState<boolean>(false)
   const onSubmit = async (
     data: z.infer<typeof updateUserProfileFormSchema>
   ) => {
     try {
+      console.log(data)
       if (data.fullName !== userFullName) {
         await updateUserFullName(data.fullName)
       }
@@ -85,188 +89,181 @@ export function AvatarButton({ className }: { className?: string }) {
     }
   }
   const onLogout = async () => {
-    await removeAuthCookie()
-    await removeUserData()
+    await Promise.allSettled([removeAuthCookie(), removeUserData()])
     router.push("/login")
   }
 
   const isDesktop = useMediaQuery(IPAD_SIZE_QUERY)
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <UserAvatar userFullName={userFullName} className='cursor-pointer' />
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className={cn("w-fit", className)}>
-        <article className='flex items-center gap-2 px-1 py-1.5 text-left text-sm'>
-          <UserAvatar userFullName={userFullName} />
-          <section className='w-full flex-1 text-left text-sm leading-tight'>
-            <DropdownMenuLabel className='select-none p-0 m-0'>
-              {userFullName}
-            </DropdownMenuLabel>
-            <DropdownMenuLabel className='text-xs text-muted-foreground p-0 m-0'>
-              {userEmail}
-            </DropdownMenuLabel>
-          </section>
-        </article>
-        <DropdownMenuSeparator />
-        {/* 
-          I don't know why this works this way, but I did it here and on the delete-button component. 
-          I think that when we use the DropdownMenuItem as a trigger of the Dialog itself, the event gets propagated to the dropdown
-          and closes it.
-          This means that it also closes the dialog.
-          I don't know if there's a better way to do this, but this is the only way I found to make it work.
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <UserAvatar userFullName={userFullName} className='cursor-pointer' />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className={cn("w-fit", className)}>
+          <article className='flex items-center gap-2 px-1 py-1.5 text-left text-sm'>
+            <UserAvatar userFullName={userFullName} />
+            <section className='w-full flex-1 text-left text-sm leading-tight'>
+              <DropdownMenuLabel className='select-none p-0 m-0'>
+                {userFullName}
+              </DropdownMenuLabel>
+              <DropdownMenuLabel className='text-xs text-muted-foreground p-0 m-0'>
+                {userEmail}
+              </DropdownMenuLabel>
+            </section>
+          </article>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            className='gap-2'
+            onSelect={() => setIsDialogOpen(true)}
+          >
+            <Settings size={GLOBAL_ICON_SIZE} />
+            <>Configuración</>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem className='gap-2' onClick={onLogout}>
+            <LogOut size={GLOBAL_ICON_SIZE} />
+            <>Cerrar sesión</>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <div className='h-full w-full'>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)}>
+              <DialogContent>
+                <button type='submit'>?</button>
+                <DialogHeader>
+                  <DialogTitle>Editar perfil</DialogTitle>
+                  <DialogDescription>
+                    Realizá cambios en tu perfil acá.{" "}
+                    {isDesktop && "Tocá guardar cuando hayas terminado."}
+                  </DialogDescription>
+                </DialogHeader>
+                <article className='flex gap-8'>
+                  <section className='relative h-full'>
+                    <div className='flex flex-col gap-2 items-center justify-center h-full'>
+                      <Image
+                        alt={userFullName}
+                        width={128}
+                        height={128}
+                        src={userAvatar}
+                      />
 
-          Takeaways:
-          - Pass synthetic event to child trigger
-          - Stop propagation on trigger click
-        */}
-        <DropdownMenuItem
-          onClick={e => {
-            e.preventDefault()
-            const event = new MouseEvent("click", {
-              bubbles: true,
-              cancelable: true,
-              view: window,
-            })
-            document
-              .getElementById("user-settings-button")
-              ?.dispatchEvent(event)
-          }}
-        >
-          <div className='h-full w-full' onClick={e => e.stopPropagation()}>
-            <Dialog>
-              <DialogTrigger asChild>
-                <span
-                  className='h-full w-full flex gap-2 items-center'
-                  id='user-settings-button'
-                >
-                  <Settings size={GLOBAL_ICON_SIZE} />
-                  Configuración
-                </span>
-              </DialogTrigger>
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)}>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Editar perfil</DialogTitle>
-                      <DialogDescription>
-                        Realizá cambios en tu perfil acá.{" "}
-                        {isDesktop && "Tocá guardar cuando hayas terminado."}
-                      </DialogDescription>
-                    </DialogHeader>
-                    <article className='flex gap-8'>
-                      <section className='relative h-full'>
-                        <div className='flex flex-col gap-2 items-center justify-center h-full'>
-                          <Image
-                            alt={userFullName}
-                            width={128}
-                            height={128}
-                            src={userAvatar}
-                          />
+                      <Button
+                        variant={"outline"}
+                        className='flex gap-2 items-center'
+                        onClick={e => {
+                          e.preventDefault()
+                          document.getElementById("profile-pic-input")?.click()
+                        }}
+                      >
+                        <Upload size={GLOBAL_ICON_SIZE} />
+                        <span>Editar foto</span>
+                      </Button>
 
-                          <Button
-                            variant={"outline"}
-                            className='flex gap-2 items-center'
-                          >
-                            <Upload size={GLOBAL_ICON_SIZE} />
-                            <span>Editar foto</span>
-                          </Button>
-                        </div>
-                      </section>
-                      <section className='grid grid-cols-2 gap-2 items-center'>
-                        <FormField
-                          control={form.control}
-                          name='username'
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel htmlFor='username'>
-                                Nombre de usuario
-                              </FormLabel>
-                              <FormControl>
-                                <Input
-                                  {...field}
-                                  name='username'
-                                  placeholder={username}
-                                  disabled
-                                />
-                              </FormControl>
-                            </FormItem>
-                          )}
-                        />
-                        <FormMessage />
-
-                        <FormField
-                          control={form.control}
-                          name='fullName'
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel htmlFor='fullName'>
-                                Nombre completo
-                              </FormLabel>
-                              <FormControl>
-                                <Input
-                                  {...field}
-                                  name='fullName'
-                                  placeholder={userFullName}
-                                />
-                              </FormControl>
-                            </FormItem>
-                          )}
-                        />
-                        <FormMessage />
-
-                        <FormField
-                          control={form.control}
-                          name='email'
-                          render={({ field }) => (
-                            <FormItem className='col-span-2'>
-                              <FormLabel htmlFor='email'>
-                                Correo electrónico
-                              </FormLabel>
-                              <FormControl>
-                                <Input
-                                  {...field}
-                                  name='email'
-                                  placeholder={userEmail}
-                                />
-                              </FormControl>
-                            </FormItem>
-                          )}
-                        />
-                        <FormMessage />
-                      </section>
-                    </article>
-                    <DialogFooter className='flex flex-col gap-2'>
-                      <DialogClose asChild>
-                        <StatefulButton
-                          className='w-full'
-                          type='submit'
-                          disabled={!form.formState.isDirty}
-                          isLoading={form.formState.isSubmitting}
-                        >
-                          Guardar
-                        </StatefulButton>
-                      </DialogClose>
-                      {!isDesktop && (
-                        <DialogDescription>
-                          Tocá guardar cuando hayas terminado.
-                        </DialogDescription>
+                      <input
+                        id='profile-pic-input'
+                        className='hidden'
+                        type='file'
+                        onChange={e => {
+                          if (!e.target.files) return
+                          setFile(e.target.files[0])
+                        }}
+                      />
+                    </div>
+                  </section>
+                  <section className='grid grid-cols-2 gap-2 items-center'>
+                    <FormField
+                      control={form.control}
+                      name='username'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel htmlFor='username'>
+                            Nombre de usuario
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              name='username'
+                              placeholder={username}
+                              disabled
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
                       )}
-                    </DialogFooter>
-                  </DialogContent>
-                </form>
-              </Form>
-            </Dialog>
-          </div>
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem className='gap-2' onClick={onLogout}>
-          <LogOut size={GLOBAL_ICON_SIZE} />
-          <>Cerrar sesión</>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name='fullName'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel htmlFor='fullName'>
+                            Nombre completo
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              name='fullName'
+                              placeholder={userFullName}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name='email'
+                      render={({ field }) => (
+                        <FormItem className='col-span-2'>
+                          <FormLabel htmlFor='email'>
+                            Correo electrónico
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              name='email'
+                              placeholder={userEmail}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </section>
+                </article>
+                <DialogFooter className='flex flex-col gap-2'>
+                  {/* <DialogClose asChild> */}
+                  <Button
+                    className='w-full'
+                    type='submit'
+                    disabled={!form.formState.isDirty && file === null}
+                    // isLoading={
+                    //   form.formState.isSubmitting ||
+                    //   form.formState.isLoading ||
+                    //   form.formState.isValidating
+                    // }
+                  >
+                    Guardar
+                  </Button>
+                  {/* </DialogClose> */}
+                  {!isDesktop && (
+                    <DialogDescription>
+                      Tocá guardar cuando hayas terminado.
+                    </DialogDescription>
+                  )}
+                </DialogFooter>
+              </DialogContent>
+            </form>
+          </Form>
+        </Dialog>
+      </div>
+    </>
   )
 }
 interface UserAvatarProps

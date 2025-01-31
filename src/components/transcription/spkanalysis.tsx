@@ -2,7 +2,7 @@
 import React from "react"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/components/ui/use-toast"
-import { convertSpeakerToHablante } from "@/lib/utils"
+import { localizeSpeaker } from "@/lib/utils"
 import { Check, Copy } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
@@ -20,12 +20,12 @@ export default function SpkAnalysis({
   const [copiedSpeaker, setCopiedSpeaker] = React.useState<string | null>(null)
   const copyToClipboard = (speaker: string, feedback: string) => {
     navigator.clipboard
-      .writeText(`${convertSpeakerToHablante(speaker)}: ${feedback}`)
+      .writeText(`${localizeSpeaker(speaker)}: ${feedback}`)
       .then(() => {
         setCopiedSpeaker(speaker)
         toast({
           title: "Se copió al portapapeles",
-          description: `Feedback del ${convertSpeakerToHablante(speaker).toLocaleLowerCase()} ha sido copiado al portapapeles`,
+          description: `Feedback del ${localizeSpeaker(speaker).toLocaleLowerCase()} ha sido copiado al portapapeles`,
         })
         setTimeout(() => setCopiedSpeaker(null), 3000)
       })
@@ -38,7 +38,7 @@ export default function SpkAnalysis({
             {speakers &&
               speakers.map(speaker => (
                 <TabsTrigger key={speaker} value={speaker}>
-                  {convertSpeakerToHablante(speaker)}
+                  {localizeSpeaker(speaker)}
                 </TabsTrigger>
               ))}
           </TabsList>
@@ -49,7 +49,7 @@ export default function SpkAnalysis({
                 <div className='p-4 rounded-lg bg-muted'>
                   <div className='flex justify-between items-start mb-2'>
                     <h3 className='font-semibold text-lg'>
-                      {convertSpeakerToHablante(speaker)}
+                      {localizeSpeaker(speaker)}
                     </h3>
                     <Button
                       variant='outline'

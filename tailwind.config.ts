@@ -4,9 +4,9 @@ const {
   default: flattenColorPalette,
 } = require("tailwindcss/lib/util/flattenColorPalette")
 
-const svgToDataUri = require("mini-svg-data-uri")
+import svgToDataUri from "mini-svg-data-uri"
 
-const colors = require("tailwindcss/colors")
+import * as colors from "tailwindcss/colors"
 
 const config = {
   darkMode: ["class"],
@@ -140,7 +140,7 @@ const config = {
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-        "sparkle": "sparkle 3s ease-in-out infinite",
+        "sparkle": "sparkle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
         "shine": "shine 8s ease-in-out infinite",
       },
     },

@@ -1,21 +1,22 @@
-// @/components/context/TranscriptionContext.tsx
 "use client"
 
 import { createContext, useContext, useState, ReactNode } from "react"
-import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { Task, TranscriptionType } from "@/lib/types.d"
+import { useQuery, useQueryClient, UseQueryResult } from "@tanstack/react-query"
 import { getHost } from "@/lib/actions"
+import { ITranscription } from "@/lib/types"
 
-interface TranscriptionContextType {
-  taskId: Task["identifier"] | null
-  transcription: TranscriptionType | null
-  isLoading: boolean
-  error: Error | undefined | null
-  fetchTranscription: (taskId: string) => any
+interface ITranscriptionContextValue {
+  taskId: string | null
+  transcription: ITranscription | null
+  fetchTranscription: (newTaskId: string) => void
+  queryStatus: UseQueryResult<
+    { taskId: string; transcription: ITranscription },
+    Error
+  >
 }
 
 const TranscriptionContext = createContext<
-  TranscriptionContextType | undefined
+  ITranscriptionContextValue | undefined
 >(undefined)
 
 export const useTranscription = () => {
@@ -54,30 +55,34 @@ export const TranscriptionProvider = ({
 }) => {
   const queryClient = useQueryClient()
   const [taskIdState, setTaskId] = useState<string | null>(null)
-  const { data, error, isLoading } = useQuery({
+  const taskQuery = useQuery({
     queryKey: ["transcription", taskIdState],
     queryFn: () => fetchTranscription(taskIdState!),
     enabled: !!taskIdState,
-    refetchOnMount: true,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    retry: false,
   })
 
   const handleFetchTranscription = (newTaskId: string) => {
+    queryClient.removeQueries({
+      queryKey: ["transcription", taskIdState],
+    })
     queryClient.invalidateQueries({
       queryKey: ["transcription", newTaskId],
     })
     setTaskId(newTaskId)
   }
 
+  const contextValue: ITranscriptionContextValue = {
+    taskId: taskQuery.data?.taskId || null,
+    transcription: taskQuery.data?.transcription || null,
+    fetchTranscription: handleFetchTranscription,
+    queryStatus: taskQuery,
+  }
+
   return (
-    <TranscriptionContext.Provider
-      value={{
-        taskId: data?.taskId || "",
-        transcription: data?.transcription,
-        isLoading,
-        error,
-        fetchTranscription: handleFetchTranscription,
-      }}
-    >
+    <TranscriptionContext.Provider value={contextValue}>
       {children}
     </TranscriptionContext.Provider>
   )
