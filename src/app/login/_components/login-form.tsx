@@ -34,7 +34,8 @@ import { UserData } from "@/app/api/user/user"
 const loginUser = async (
   credentials: z.infer<typeof loginFormSchema>
 ): Promise<UserData> => {
-  const response = await fetch(`${await getHost()}/api/login`, {
+  const host = await getHost()
+  const loginResponse = await fetch(`${host}/api/login`, {
     method: "POST",
     headers: {
       "Origin": window.location.origin,
@@ -44,22 +45,27 @@ const loginUser = async (
     body: JSON.stringify(credentials),
   })
 
-  if (!response.ok) {
-    const error = await response.json()
+  if (!loginResponse.ok) {
+    const error = await loginResponse.json()
     throw new Error(error.message || "Ha ocurrido un error iniciando sesión")
   }
-  const user: UserData = await response.json()
+
+  const userResponse = await fetch(`${host}/api/user`)
+
+  if (!userResponse.ok) {
+    const error = await userResponse.json()
+    throw new Error(error.message || "Ha ocurrido un error iniciando sesión")
+  }
+
+  const user: UserData = await userResponse.json()
+
   return user
 }
 
 export default function LoginForm() {
-  const loginUserCallback = React.useCallback(loginUser, [])
-
   const { toast } = useToast()
   const router = useRouter()
-
   const { refreshUser, refreshAvatar } = useUser()
-
   const form = useForm<z.infer<typeof loginFormSchema>>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: {
@@ -68,12 +74,14 @@ export default function LoginForm() {
       rememberMe: false,
     },
   })
+
+  const loginUserCallback = React.useCallback(loginUser, [])
+
   const mutation = useMutation({
     mutationKey: ["login"],
     mutationFn: loginUserCallback,
     onSuccess: async (data: UserData) => {
       await Promise.allSettled([refreshUser(), refreshAvatar()])
-      console.log("User signed in:", data)
       toast({
         title: `¡Bienvenido${data ? " de nuevo " : ""}${data ? data?.userFullName.split(" ")[0] : ""}!`,
         description: "Has iniciado sesión exitosamente.",

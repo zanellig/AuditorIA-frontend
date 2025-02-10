@@ -2,8 +2,6 @@ import { TypographyH4 } from "@/components/typography/h4"
 import TitleH1 from "@/components/typography/titleH1"
 import { Metadata } from "next"
 import LoginForm from "./_components/login-form"
-import { redirect } from "next/navigation"
-import { isAuthenticated } from "@/lib/auth"
 import LoginBackground from "./_components/login-background"
 import { ScrollArea } from "@/components/ui/scroll-area"
 
@@ -26,12 +24,7 @@ export const metadata: Metadata = {
 }
 
 export default async function LoginPage() {
-  //if (await isAuthenticated()) {
-  //  redirect("/dashboard")
- // }
-
   return (
-    // I don't know why the screen width detection works the other way around. Should be sm:grid-cols-1 logically as the small screen should trigger the mobile layout.
     <main className='w-dvw min-w-dvw h-dvh min-h-dvh'>
       <ScrollArea>
         <div className='flex lg:flex-row flex-col'>
