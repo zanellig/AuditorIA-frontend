@@ -49,11 +49,6 @@ export function Providers({ children }: { children: React.ReactNode }) {
               </TooltipProvider>
             </ScrollProvider>
           </AudioProvider>
-          <ReactQueryDevtools
-            initialIsOpen={false}
-            position={"left"}
-            buttonPosition={"bottom-left"}
-          />
         </UserContextProvider>
       </ThemeProvider>
     </QueryClientProvider>
