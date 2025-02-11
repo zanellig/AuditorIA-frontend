@@ -11,18 +11,12 @@ interface AudioPlayerContentProps {
 
 function AudioPlayerContent({ children }: AudioPlayerContentProps) {
   const { pause, loadAudio } = useAudioPlayer()
-  const [fileName, setFileName] = React.useState("")
   const params = useSearchParams()
   const path = usePathname()
 
-  React.useEffect(() => {
-    if (path.includes("/transcription")) {
-      const newFileName = params.get("file_name")
-      if (newFileName && newFileName.length > 0 && newFileName !== null) {
-        setFileName(newFileName)
-      }
-    }
-  }, [path, params])
+  const fileName = path.includes("/transcription")
+    ? (params.get("file_name") ?? "")
+    : ""
 
   React.useEffect(() => {
     if (fileName) {
