@@ -13,6 +13,7 @@ interface ITranscriptionContextValue {
     { taskId: string; transcription: ITranscription },
     Error
   >
+  agentIdentificationQuery: UseQueryResult<Record<string, string>, Error>
 }
 
 const TranscriptionContext = createContext<
@@ -48,6 +49,17 @@ const fetchTranscription = async (taskId: string) => {
   return { taskId, transcription: response }
 }
 
+const fetchAgentIdentifier = async (taskId: string) => {
+  const response = await fetch(
+    `http://10.20.30.108:8000/task/agentidentification/${taskId}`
+  )
+  if (!response.ok) {
+    throw new Error(response.statusText)
+  }
+  const data = await response.json()
+  return data.agent_identification
+}
+
 export const TranscriptionProvider = ({
   children,
 }: {
@@ -60,6 +72,15 @@ export const TranscriptionProvider = ({
     queryFn: () => fetchTranscription(taskIdState!),
     enabled: !!taskIdState,
     refetchOnMount: false,
+    refetchOnWindowFocus: true,
+    retry: false,
+  })
+
+  const agentIdentityQuery = useQuery({
+    queryKey: ["agent_identification", taskIdState],
+    queryFn: () => fetchAgentIdentifier(taskIdState!),
+    enabled: !!taskIdState,
+    refetchOnMount: false,
     refetchOnWindowFocus: false,
     retry: false,
   })
@@ -68,8 +89,8 @@ export const TranscriptionProvider = ({
     queryClient.removeQueries({
       queryKey: ["transcription", taskIdState],
     })
-    queryClient.invalidateQueries({
-      queryKey: ["transcription", newTaskId],
+    queryClient.removeQueries({
+      queryKey: ["agent_identification", taskIdState],
     })
     setTaskId(newTaskId)
   }
@@ -79,6 +100,7 @@ export const TranscriptionProvider = ({
     transcription: taskQuery.data?.transcription || null,
     fetchTranscription: handleFetchTranscription,
     queryStatus: taskQuery,
+    agentIdentificationQuery: agentIdentityQuery,
   }
 
   return (
