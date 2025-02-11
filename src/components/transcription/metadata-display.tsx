@@ -14,6 +14,7 @@ import {
   Settings,
 } from "lucide-react"
 import { ITranscription } from "@/lib/types"
+import { formatTimestamp, secondsToHMS } from '@/lib/utils'
 
 interface IMetadataDisplayProps {
   metadata: ITranscription["metadata"]
@@ -88,7 +89,7 @@ const MetadataDisplay: React.FC<IMetadataDisplayProps> = ({
             <div className='flex-1 min-w-0'>
               <p className='text-sm font-medium'>Duración</p>
               <p className='text-xs text-muted-foreground'>
-                {metadata.duration.toFixed(2)} segundos
+                {formatTimestamp(secondsToHMS(metadata.duration))}
               </p>
             </div>
           </div>

@@ -122,7 +122,7 @@ export const columns: ColumnDef<Task | null>[] = [
       const timestamp = secondsToHMS(
         row.original?.audio_duration as Task["audio_duration"]
       )
-      const formattedTS = formatTimestamp(timestamp, true)
+      const formattedTS = formatTimestamp({ ...timestamp, concat: true })
       return <div>{formattedTS}</div>
     },
   },

@@ -85,18 +85,19 @@ export function secondsToHMS(seconds: number) {
   return { hours, minutes, seconds: remainingSeconds }
 }
 
-export function formatTimestamp(
-  {
-    hours,
-    minutes,
-    seconds,
-  }: {
-    hours: number
-    minutes: number
-    seconds: number
-  },
-  concat: boolean
-) {
+export interface TimestampFormatterOptions {
+  hours: number
+  minutes: number
+  seconds: number
+  concat?: boolean
+}
+
+export function formatTimestamp({
+  hours,
+  minutes,
+  seconds,
+  concat = false,
+}: TimestampFormatterOptions) {
   let formattedTime = ""
   if (hours > 0) {
     formattedTime += `${hours}h `

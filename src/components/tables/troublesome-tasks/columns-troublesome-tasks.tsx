@@ -81,7 +81,7 @@ export const columns: ColumnDef<TaskRecordsResponse>[] = [
         return <div>-</div>
       }
       const timestamp = secondsToHMS(row.original?.audio_duration as number)
-      const formattedTS = formatTimestamp(timestamp, true)
+      const formattedTS = formatTimestamp({ ...timestamp, concat: true })
       return <div>{formattedTS}</div>
     },
   },

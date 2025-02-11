@@ -55,7 +55,6 @@ import { useAudioPlayer } from "@/components/context/AudioProvider"
 import ParagraphP from "@/components/typography/paragraphP"
 import { SurpriseIcon } from "@/components/emoji-icons"
 import TableContainer from "@/components/tables/table-core/table-container"
-import TitleContainer from "@/components/title-container"
 import { FloatingFeedbackPopover } from "./transcription-feedback-popover"
 import MetadataDisplay from "./metadata-display"
 
@@ -103,9 +102,13 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
   React.useEffect(() => {
     const scrollToSegment = (timestamp: number) => {
       if (!transcription?.result.segments) return
+      if (!player.isPlaying) return
+      if (player.currentTime > 0) return
+
       const currentSegment = transcription.result.segments.find(
         segment => timestamp >= segment.start && timestamp <= segment.end
       )
+
       if (currentSegment) {
         const ref = segmentRefs.current[Number(currentSegment.start.toFixed(2))]
         ref?.scrollIntoView({
@@ -115,9 +118,7 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
         })
       }
     }
-    if (player.isPlaying && player.currentTime > 0) {
-      scrollToSegment(player.currentTime)
-    }
+    scrollToSegment(player.currentTime)
   }, [player.isPlaying, player.currentTime, transcription?.result?.segments])
 
   if (queryStatus.isPending) return <TranscriptionSkeleton />
@@ -141,17 +142,17 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
           )}
           <SpeakerAnalysisCard segments={transcription?.result?.segments} />
           <TableContainer>
-            {taskId && (
+            {/* {taskId && (
               <TitleContainer separate>
                 <TaskHeader taskId={taskId} toast={toast} />
               </TitleContainer>
-            )}
-            <section className='flex gap-2 items-center mt-4'>
+            )} */}
+            <section className='flex gap-2 items-center mt-6'>
               {transcription?.status !== "analyzed" && (
                 <AnalyzeTaskButton taskId={taskId!} />
               )}
             </section>
-            <section className='flex gap-2 flex-col md:flex-row'>
+            <section className='flex gap-2 flex-col lg:flex-row'>
               {/* Call data and other components */}
               <article className='flex flex-col gap-2 w-full h-fit p-4 rounded-md'>
                 <h1 className='text-xl md:text-2xl font-bold'>
@@ -159,11 +160,8 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
                 </h1>
                 <MetadataDisplay metadata={transcription?.metadata} />
               </article>
-              {/*  <code className='text-wrap max-w-xl'>
-                {JSON.stringify(transcription)}
-              </code> */}
               {/* Segments */}
-              <article className='flex flex-col gap-2 w-full p-4 rounded-md'>
+              <article className='flex flex-col gap-2 h-fit w-full p-4'>
                 <h1 className='text-xl md:text-2xl font-bold '>Conversación</h1>
                 {transcription?.result?.segments.map((segment, index) => {
                   const isNewSpeaker = segment?.speaker !== lastSpeaker
@@ -438,11 +436,11 @@ const TextContainer: React.FC<TextContainerProps> = ({
     {segment.analysis?.sentiment && (
       <SentimentMarker sentiment={segment.analysis.sentiment} />
     )}
-    <div className='flex flex-col justify-between gap-2 text-xl text-card-foreground'>
-      <ParagraphP>{segment.text}</ParagraphP>
+    <div className='flex flex-col justify-between gap-2 text-card-foreground'>
+      <ParagraphP className='text-lg'>{segment.text}</ParagraphP>
       <div className='text-xs dark:text-muted-foreground'>
-        ({formatTimestamp(secondsToHMS(segment.start), false)} -{" "}
-        {formatTimestamp(secondsToHMS(segment.end), false)})
+        ({formatTimestamp(secondsToHMS(segment.start))} -{" "}
+        {formatTimestamp(secondsToHMS(segment.end))})
       </div>
     </div>
   </div>
