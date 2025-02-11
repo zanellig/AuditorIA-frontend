@@ -51,7 +51,7 @@ export default function SpeakerAnalysisCard({
       <Button
         variant={"outline"}
         className={cn(
-          "p-2 rounded-full space-x-2 flex transition-all duration-300 fixed right-2"
+          "p-2 rounded-full space-x-2 flex transition-all duration-300 fixed right-2 z-50"
         )}
         onClick={() => setIsOpen(!isOpen)}
         id='close-speaker-analysis-card-button'

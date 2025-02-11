@@ -256,7 +256,7 @@ export function Sidebar({ className }: { className?: string }) {
       </Link>
 
       {memoizedLinks}
-      <SendUsFeedbackButton className='mx-2 mb-2'>
+      <SendUsFeedbackButton className='mx-2 mb-2 pr-12'>
         <div>Envianos tus comentarios</div>
       </SendUsFeedbackButton>
     </ScrollArea>
@@ -304,7 +304,7 @@ export function TopNavbar({
               ))}
             </SidebarButton>
           ))}
-          <SendUsFeedbackButton className='mx-2 mb-2'>
+          <SendUsFeedbackButton className='mx-2 mr-4 mb-2 w-full'>
             <div>Envianos tus comentarios</div>
           </SendUsFeedbackButton>
           <VisuallyHidden asChild>

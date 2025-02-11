@@ -95,7 +95,9 @@ export function SendUsFeedbackButton({
               En esta pantalla, nos podrá enviar comentarios.
             </DrawerDescription>
           </VisuallyHidden>
-          <DrawerTitle>Envianos tus comentarios</DrawerTitle>
+          <DrawerTitle className='text-center'>
+            Envianos tus comentarios
+          </DrawerTitle>
           <Separator orientation={"horizontal"} className='w-full mt-2' />
         </DrawerHeader>
         <div className='px-4 pb-4'>
@@ -119,7 +121,7 @@ const TriggerButton = React.forwardRef<HTMLButtonElement, TriggerButtonProps>(
       id={id || undefined}
       variant='ghost'
       className={cn(
-        "flex bg-popover w-fit items-center justify-start space-x-4 pr-12",
+        "flex bg-popover w-fit items-center justify-start space-x-4",
         className
       )}
       onClick={e => {
