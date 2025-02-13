@@ -133,7 +133,6 @@ export function AvatarButton({ className }: { className?: string }) {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
               <DialogContent>
-                <button type='submit'>?</button>
                 <DialogHeader>
                   <DialogTitle>Editar perfil</DialogTitle>
                   <DialogDescription>
