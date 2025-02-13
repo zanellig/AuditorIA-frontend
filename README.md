@@ -50,21 +50,3 @@ Transcribí, analizá y generá reportes de manera masiva
 Cumplimos estrictamente con la **Ley 25.326 de Protección de los Datos Personales** y nos encargamos de que todos los datos de su organización sean procesados y almacenados de manera segura y dentro del país.
 
 ![Statement](.github/assets/law-statement.png?raw=true)
-
-### Licencia
-
-#### ES
-
-© 2024 Gonzalo Zanelli. Todos los derechos reservados.
-
-Este software y su código fuente están sujetos a la propiedad intelectual. Ni el software, ni su código fuente, puede ser reproducido, almacenado o transmitido sin el permiso previo y expreso de los titulares de los derechos de autor.
-
-El permiso para usar, copiar, modificar y distribuir este software está estrictamente prohibido a menos que se haya obtenido el permiso previo y expreso de los titulares de los derechos de autor.
-
-#### EN
-
-© 2024 Gonzalo Zanelli. All rights reserved.
-
-This software and its source code are proprietary. No part of this software, in whole or in part, may be reproduced, stored, or transmitted without the prior written permission of the copyright holder.
-
-Permission to use, copy, modify, and distribute this software is strictly prohibited unless expressly granted by the copyright holder.
