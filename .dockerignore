@@ -23,3 +23,6 @@ yarn-error.log*
 # Exclude editor/project configuration directories.
 .vscode
 .idea
+coverage
+tests
+docs
