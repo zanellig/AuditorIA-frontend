@@ -1,0 +1,25 @@
+# Node modules should be installed inside the container, not copied from the host.
+node_modules
+
+# Exclude build output directories to force fresh builds inside the container.
+.next
+out
+dist
+
+# Exclude log files.
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Exclude local git files.
+.git
+.gitignore
+
+.env
+
+# Exclude OS-specific files.
+.DS_Store
+
+# Exclude editor/project configuration directories.
+.vscode
+.idea
