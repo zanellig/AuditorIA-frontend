@@ -16,7 +16,6 @@ const envSchema = z.object({
   STACK_SECRET_SERVER_KEY: z.string().optional(),
   PORT: z.string().regex(/^\d+$/).transform(Number).default("80"), // Defaults to HTTP port
   HOST: z.string(),
-  JWT_SECRET: z.string().min(32).optional(), // Example for a secret key. Optional until we implement auth
   LDAP_USERNAME: z.string(),
   LDAP_PASSWORD: z.string(),
   LDAP_DOMAIN: z.string(),

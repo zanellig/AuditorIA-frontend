@@ -26,7 +26,7 @@ COPY . .
 
 ENV NEXT_TELEMETRY_DISABLED=1
 
-RUN --mount-type=cache,target=/root/.npm \
+RUN --mount=type=cache,target=/root/.npm \
   npm run build
 
 # Production image, copy all the files and run next
