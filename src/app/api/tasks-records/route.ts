@@ -8,10 +8,10 @@ import { env } from "@/env"
 // Only for caching purposes
 import * as fs from "fs/promises"
 import path from "path"
+import redisClient from "@/services/redisClient"
 
-const CACHE_DIR = path.join(process.cwd(), "cache")
-const CACHE_FILE = path.join(CACHE_DIR, "tasks-records.json")
-const CACHE_TTL = 10 * 1000 // 10 seconds
+const CACHE_KEY = "tasks-records"
+const CACHE_TTL_SECONDS = 5 * 60 // 5 minutes
 
 export async function GET(request: NextRequest) {
   const headers = await getHeaders(request)
@@ -45,8 +45,11 @@ export async function GET(request: NextRequest) {
 
     // If cache is empty or invalid, fetch fresh data
     if (!tasksRecords.length) {
+      console.log("route /api/tasks-records: cache miss. Fetching fresh data")
       tasksRecords = await fetchFreshData()
       await updateCache(tasksRecords)
+    } else {
+      console.log("route /api/tasks-records: cache hit")
     }
 
     const filteredData = filterData(tasksRecords, params)
@@ -76,16 +79,14 @@ export async function GET(request: NextRequest) {
 
 async function getCachedData(): Promise<TaskRecordsResponse[]> {
   try {
-    await fs.access(CACHE_FILE)
-    const cacheContent = await fs.readFile(CACHE_FILE, "utf-8")
-    const cache = JSON.parse(cacheContent)
-
-    if (Date.now() - cache.timestamp <= CACHE_TTL) {
-      return cache.data
+    const cached = await redisClient.get(CACHE_KEY)
+    if (cached) {
+      // We store our data as a JSON string
+      const parsed = JSON.parse(cached)
+      return parsed.data
     }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
-    // Cache doesn't exist or is invalid
+    console.error("Error reading from Redis", error)
   }
   return []
 }
@@ -98,14 +99,12 @@ async function fetchFreshData(): Promise<TaskRecordsResponse[]> {
 }
 
 async function updateCache(data: TaskRecordsResponse[]): Promise<void> {
-  await fs.mkdir(CACHE_DIR, { recursive: true })
-  await fs.writeFile(
-    CACHE_FILE,
-    JSON.stringify({
-      timestamp: Date.now(),
-      data: data,
-    })
-  )
+  try {
+    const payload = JSON.stringify({ data })
+    await redisClient.set(CACHE_KEY, payload, "EX", CACHE_TTL_SECONDS)
+  } catch (error) {
+    console.error("Error updating Redis cache", error)
+  }
 }
 
 const filterData = (
