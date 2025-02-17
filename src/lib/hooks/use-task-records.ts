@@ -69,6 +69,32 @@ export function useTasksRecords({
     }
   }, [debouncedSearch])
 
+  React.useEffect(() => {
+    // Only prefetch if there's more data available.
+    if (data?.hasMore) {
+      // Prefetch the next page (page + 1)
+      queryClient.prefetchQuery({
+        queryKey: [
+          "tasks",
+          "records",
+          page + 1,
+          { ...filters, page: page + 1 },
+        ],
+        queryFn: () => fetchTasksRecords({ ...filters, page: page + 1 }),
+      })
+      // Prefetch the page after that (page + 2)
+      queryClient.prefetchQuery({
+        queryKey: [
+          "tasks",
+          "records",
+          page + 2,
+          { ...filters, page: page + 2 },
+        ],
+        queryFn: () => fetchTasksRecords({ ...filters, page: page + 2 }),
+      })
+    }
+  }, [data, page, filters, queryClient])
+
   const updateFilters = (newFilters: Partial<TaskRecordsSearchParams>) => {
     setFilters(prev => ({ ...prev, ...newFilters }))
   }
@@ -76,12 +102,6 @@ export function useTasksRecords({
   const fetchWithNewFilters = (
     newFilters: Partial<TaskRecordsSearchParams>
   ) => {
-    // Remove existing queries before setting new filters
-    queryClient.removeQueries({
-      predicate: query =>
-        query.queryKey[0] === "tasks" && query.queryKey[1] === "records",
-    })
-
     const updatedFilters = { ...filters, ...newFilters }
     setFilters(updatedFilters)
     queryClient.invalidateQueries({
@@ -90,11 +110,6 @@ export function useTasksRecords({
   }
 
   const resetFilters = () => {
-    // Remove all existing queries
-    queryClient.removeQueries({
-      predicate: query =>
-        query.queryKey[0] === "tasks" && query.queryKey[1] === "records",
-    })
     setFilters({
       uuid: null,
       file_name: null,
