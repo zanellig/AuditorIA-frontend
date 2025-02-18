@@ -55,9 +55,7 @@ export default function TroublesomeTasksPage() {
         <BookAudio className={DASHBOARD_ICON_CLASSES} />
         <TypographyH4>Todas las tareas</TypographyH4>
       </TitleContainer>
-      {(data?.message !== null ||
-        data?.message !== undefined ||
-        error !== null) && (
+      {(typeof data?.message === "string" || error !== null) && (
         <Accordion type='single' collapsible>
           <AccordionItem value='1'>
             <AccordionTrigger className='text-error'>
