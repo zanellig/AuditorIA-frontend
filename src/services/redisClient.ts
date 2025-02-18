@@ -13,6 +13,10 @@ const redisClient =
   global.redisClient ||
   new Redis("redis://10.20.62.96:6379", {
     keyPrefix: "auditoria:",
+    retryStrategy: times => {
+      // Retry 5 times before giving up.
+      return times < 5 ? 1000 : undefined
+    },
   })
 
 if (process.env.NODE_ENV !== "production") {
