@@ -30,9 +30,15 @@ import {
   Annoyed,
   ChevronLeft,
   ClipboardIcon,
+  Clock,
+  FileAudio,
   Frown,
   Laugh,
   Meh,
+  User,
+  Phone,
+  CalendarClock,
+  ArrowLeftRight,
 } from "lucide-react"
 import { GLOBAL_ICON_SIZE } from "@/lib/consts"
 import {
@@ -55,6 +61,8 @@ import ParagraphP from "@/components/typography/paragraphP"
 import { SurpriseIcon } from "@/components/emoji-icons"
 import TableContainer from "@/components/tables/table-core/table-container"
 import { FloatingFeedbackPopover } from "./transcription-feedback-popover"
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card"
+import { useRecordingContext } from "../context/RecordingProvider"
 
 const BASIC_STYLE = "flex text-sm rounded-md p-2 gap-2"
 
@@ -72,6 +80,7 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
   drawerOptions,
 }) => {
   const { transcription, fetchTranscription, queryStatus } = useTranscription()
+  const { recordingQuery } = useRecordingContext()
 
   let lastSpeaker: string | undefined = ""
   let lastEmotion: string | undefined = ""
@@ -143,7 +152,120 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
                 <TaskHeader taskId={taskId} toast={toast} />
               </TitleContainer>
             )} */}
-            <section className='flex gap-2 items-center mt-6'>
+            <section className='flex flex-col lg:flex-row gap-2 items-start mt-6 justify-start'>
+              <Card className='mb-4 md:mb-6 w-full'>
+                <CardHeader>
+                  <CardTitle className='text-lg md:text-xl'>
+                    Información del archivo
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className='flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 mb-4'>
+                    <FileAudio className='h-6 w-6 text-primary' />
+                    <div className='flex-1 min-w-0'>
+                      <p className='text-sm font-medium truncate'>
+                        Nombre del archivo
+                      </p>
+                      <p className='text-xs text-muted-foreground truncate'>
+                        {transcription?.metadata.file_name}
+                      </p>
+                    </div>
+                  </div>
+                  <div className='flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4'>
+                    <Clock className='h-6 w-6 text-primary' />
+                    <div className='flex-1 min-w-0'>
+                      <p className='text-sm font-medium'>Duración</p>
+                      <p className='text-xs text-muted-foreground'>
+                        {formatTimestamp(
+                          secondsToHMS(transcription?.metadata.duration)
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className='mb-4 md:mb-6 w-full'>
+                <CardHeader>
+                  <CardTitle className='text-lg md:text-xl'>
+                    Información del llamado
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
+                    <div className='flex flex-col items-start space-y-2'>
+                      <div className='flex items-center gap-2'>
+                        <User className='h-6 w-6 text-primary' />
+                        <div className='flex-1 min-w-0'>
+                          <p className='text-sm font-medium truncate'>
+                            Operador
+                          </p>
+                          <p className='text-xs text-muted-foreground'>
+                            {recordingQuery.data?.USUARIO}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className='flex flex-col items-start space-y-2'>
+                      <div className='flex items-center gap-2'>
+                        <FileAudio className='h-6 w-6 text-primary' />
+                        <div className='flex-1 min-w-0'>
+                          <p className='text-sm font-medium truncate'>
+                            ID de llamada
+                          </p>
+                          <p className='text-xs text-muted-foreground'>
+                            {recordingQuery.data?.IDLLAMADA}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className='flex flex-col items-start space-y-2'>
+                      <div className='flex items-center gap-2'>
+                        <Phone className='h-6 w-6 text-primary' />
+                        <div className='flex-1 min-w-0'>
+                          <p className='text-sm font-medium truncate'>
+                            Teléfono
+                          </p>
+                          <p className='text-xs text-muted-foreground'>
+                            {recordingQuery.data?.ANI_TELEFONO}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className='flex flex-col items-start space-y-2'>
+                      <div className='flex items-center gap-2'>
+                        <ArrowLeftRight className='h-6 w-6 text-primary' />
+                        <div className='flex-1 min-w-0'>
+                          <p className='text-sm font-medium truncate'>
+                            Dirección
+                          </p>
+                          <p className='text-xs text-muted-foreground'>
+                            {recordingQuery.data?.DIRECCION}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className='flex flex-col items-start space-y-2'>
+                      <div className='flex items-center gap-2'>
+                        <CalendarClock className='h-6 w-6 text-primary' />
+                        <div className='flex-1 min-w-0'>
+                          <p className='text-sm font-medium truncate'>
+                            Fecha y hora
+                          </p>
+                          <p className='text-xs text-muted-foreground'>
+                            {recordingQuery.data?.INICIO?.toLocaleString()}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
               {transcription?.status !== "analyzed" && (
                 <AnalyzeTaskButton taskId={taskId!} />
               )}
@@ -151,7 +273,9 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
             <section className='flex gap-2 flex-col lg:flex-row'>
               {/* Segments */}
               <article className='flex flex-col gap-2 h-fit w-full p-4'>
-                <h1 className='text-xl md:text-2xl font-bold '>Conversación</h1>
+                <CardTitle className='text-lg md:text-xl'>
+                  Conversación
+                </CardTitle>
                 {transcription?.result?.segments.map((segment, index) => {
                   const isNewSpeaker = segment?.speaker !== lastSpeaker
                   lastSpeaker = segment.speaker
