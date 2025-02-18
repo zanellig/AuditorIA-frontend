@@ -41,10 +41,10 @@ export async function GET(request: NextRequest) {
     }
 
     // Try to read from cache first
-    let tasksRecords: TaskRecordsResponse[] = await getCachedData()
+    let tasksRecords: TaskRecordsResponse[] | [] = await getCachedData()
 
     // If cache is empty or invalid, fetch fresh data
-    if (!tasksRecords.length) {
+    if (!tasksRecords?.length) {
       console.log("route /api/tasks-records: cache miss. Fetching fresh data")
       tasksRecords = await fetchFreshData()
       await updateCache(tasksRecords)
@@ -73,11 +73,14 @@ export async function GET(request: NextRequest) {
     })
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
-    return NextResponse.json({ message: e.message }, { status: 500, headers })
+    return NextResponse.json(
+      { message: e.message },
+      { status: 500, statusText: e.message, headers }
+    )
   }
 }
 
-async function getCachedData(): Promise<TaskRecordsResponse[]> {
+async function getCachedData(): Promise<TaskRecordsResponse[] | []> {
   try {
     const cached = await redisClient.get(CACHE_KEY)
     if (cached) {
@@ -95,6 +98,7 @@ async function fetchFreshData(): Promise<TaskRecordsResponse[]> {
   const requestUrl = new URL(`${env.API_CANARY_8000}/tasks-records`)
   const response = await fetch(requestUrl.toString())
   const data = await response.json()
+  console.log("route /api/tasks-records data retrieved:", data)
   return data.tasks
 }
 
