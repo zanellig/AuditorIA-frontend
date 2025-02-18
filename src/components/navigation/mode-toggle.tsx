@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { AnimatePresence, motion } from "framer-motion"
 
 export function ModeToggle() {
-  const { setTheme, theme } = useTheme()
+  const { setTheme, theme = "dark" } = useTheme()
   function switchTheme() {
     if (theme === "dark") setTheme("light")
     if (theme === "light") setTheme("dark")
