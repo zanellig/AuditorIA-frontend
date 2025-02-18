@@ -9,6 +9,8 @@ import React, {
   useEffect,
 } from "react"
 import { getHost } from "@/lib/actions"
+import { useQuery, UseQueryResult } from "@tanstack/react-query"
+
 interface AudioContextProps {
   isAudioPlayerHidden: boolean
   isPlaying: boolean
@@ -28,6 +30,7 @@ interface AudioContextProps {
   seekAudio: (percentage: number) => void
   setPlaybackSpeed: (speed: number) => void
   loadAudio: (nasPath: string) => void
+  audioQuery: UseQueryResult<string, Error>
 }
 
 const AudioContext = createContext<AudioContextProps | undefined>(undefined)
@@ -37,51 +40,50 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const [isPlaying, setIsPlaying] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
-  const [hasError, setError] = useState(false)
   const [volume, setVolume] = useState(75)
   const [muted, setMuted] = useState(false)
   const [audioDuration, setAudioDuration] = useState(0)
   const [currentTime, setCurrentTime] = useState(0)
   const [playbackSpeed, setPlaybackSpeed] = useState(1)
   const [isAudioPlayerHidden, toggleAudioPlayerHidden] = useState(true)
+  // state to hold the current NAS path for the audio file
+  const [audioPath, setAudioPath] = useState<string | null>(null)
 
   const toggleHide = useCallback(() => {
     toggleAudioPlayerHidden(prev => !prev)
   }, [])
 
-  const loadAudio = useCallback(
-    async (nasPath: string) => {
-      setIsLoading(true)
-      try {
-        const response = await fetch(
-          `${await getHost()}/api/audio?path=${encodeURIComponent(nasPath)}`,
-          { cache: "force-cache" }
-        )
-        if (!response.ok) {
-          setError(true)
-        }
-        const blob = await response.blob()
-        const url = URL.createObjectURL(blob)
+  // loadAudio now sets the path which triggers the query.
+  const loadAudio = useCallback((nasPath: string) => {
+    setAudioPath(nasPath)
+  }, [])
 
-        if (audioRef.current) {
-          audioRef.current.src = url
-          audioRef.current.load()
-          setError(false)
-        }
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } catch (e: any) {
-        console.error(e.message)
-        setError(true)
-      } finally {
-        setIsLoading(false)
-        if (isAudioPlayerHidden) {
-          toggleHide()
-        }
+  const audioQuery = useQuery({
+    queryKey: ["audio", audioPath],
+    queryFn: async () => {
+      const host = await getHost()
+      const response = await fetch(
+        `${host}/api/audio?path=${encodeURIComponent(audioPath as string)}`,
+        { cache: "force-cache" }
+      )
+      if (!response.ok) {
+        throw new Error("Error fetching audio")
       }
+      const blob = await response.blob()
+      return URL.createObjectURL(blob)
     },
-    [isAudioPlayerHidden, toggleHide]
-  )
+
+    enabled: !!audioPath,
+  })
+
+  // When the audioUrl is available, update the audio element.
+  useEffect(() => {
+    if (audioQuery.data && audioRef.current) {
+      audioRef.current.src = audioQuery.data
+      audioRef.current.load()
+      isAudioPlayerHidden && toggleHide()
+    }
+  }, [audioQuery.data])
 
   useEffect(() => {
     const audio = audioRef.current
@@ -138,10 +140,10 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, [])
 
-  const seekAudio = useCallback((percentage: number) => {
+  const seekAudio = useCallback((seekTime: number) => {
     if (audioRef.current) {
-      const newTime = (percentage / 100) * audioRef.current.duration
-      audioRef.current.currentTime = newTime
+      console.log("seekAudio", seekTime)
+      audioRef.current.currentTime = seekTime
     }
   }, [])
 
@@ -152,11 +154,11 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, [])
 
-  const contextValue = {
+  const contextValue: AudioContextProps = {
     isAudioPlayerHidden,
     isPlaying,
-    isLoading,
-    hasError,
+    isLoading: audioQuery.isLoading,
+    hasError: !!audioQuery.error,
     volume,
     muted,
     audioDuration,
@@ -171,6 +173,8 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({
     seekAudio,
     setPlaybackSpeed: setPlaybackSpeedHandler,
     loadAudio,
+    // expose the full query object
+    audioQuery,
   }
 
   return (

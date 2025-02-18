@@ -22,13 +22,13 @@ function AudioPlayerContent({ children }: AudioPlayerContentProps) {
 
   React.useEffect(() => {
     if (fileName) {
+      pause()
       setRecording({ fileName })
     }
   }, [fileName, setRecording])
 
   React.useEffect(() => {
     if (!recordingQuery.isFetching && recordingQuery.data) {
-      pause()
       loadAudio(recordingQuery.data.URL)
     }
   }, [recordingQuery, pause, loadAudio])

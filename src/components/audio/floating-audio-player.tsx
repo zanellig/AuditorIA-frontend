@@ -109,16 +109,12 @@ export default function FloatingAudioPlayer({
     }
   }, [isDragging])
 
-  const speeds = [
+  const SPEEDS = [
     { label: "0.5x", value: 0.5 },
     { label: "1x", value: 1 },
     { label: "1.5x", value: 1.5 },
     { label: "2x", value: 2 },
   ]
-
-  const isLoadingAudio = isLoading && !!fileName
-  const hasLoadingError = hasError && !!fileName
-  const isReproducing = !!fileName && !isLoadingAudio && !hasLoadingError
 
   const AUDIO_PLAYER_CLASSES = "fixed w-80 select-none p-4 z-10"
 
@@ -157,15 +153,15 @@ export default function FloatingAudioPlayer({
                   style={{ top: "50%", transform: "translateY(-50%)" }}
                 >
                   <div className='marquee-content whitespace-nowrap font-mono text-sm'>
-                    {isReproducing ? (
-                      "Reproduciendo audio:"
-                    ) : isLoadingAudio ? (
+                    {isLoading && (
                       <span className='text-warning'>Cargando audio:</span>
-                    ) : hasLoadingError ? (
+                    )}
+                    {isPlaying && "Reproduciendo audio:"}
+                    {hasError && (
                       <span className='text-destructive'>
                         Error al cargar audio:
                       </span>
-                    ) : null}{" "}
+                    )}
                     {!!fileName && String(fileName)}
                   </div>
                 </div>
@@ -181,7 +177,7 @@ export default function FloatingAudioPlayer({
             </CardHeader>
             <CardContent className='space-y-2 p-0 mb-2'>
               <div className='flex items-center justify-between'>
-                {hasLoadingError ? (
+                {hasError ? (
                   <Button
                     className='rounded-md text-destructive-foreground p-2'
                     disabled
@@ -200,7 +196,7 @@ export default function FloatingAudioPlayer({
                     className='rounded-full hover:text-secondary-foreground bg-popover p-2'
                     aria-label={isPlaying ? "Pause" : "Play"}
                   >
-                    {isLoadingAudio ? (
+                    {isLoading ? (
                       <HashLoader
                         color='currentColor'
                         loading={true}
@@ -222,9 +218,7 @@ export default function FloatingAudioPlayer({
                 value={[currentTime]}
                 max={audioDuration}
                 step={0.1}
-                onValueChange={([value]) =>
-                  seekAudio((value / audioDuration) * 100)
-                }
+                onValueChange={([value]) => seekAudio(value)}
                 className='w-full'
                 aria-label='Seek audio'
               />
@@ -268,7 +262,7 @@ export default function FloatingAudioPlayer({
                   <SelectValue placeholder='Speed' />
                 </SelectTrigger>
                 <SelectContent>
-                  {speeds.map((speed, index) => (
+                  {SPEEDS.map((speed, index) => (
                     <SelectItem
                       key={`speed-selector-${index}`}
                       value={speed.value.toString()}
