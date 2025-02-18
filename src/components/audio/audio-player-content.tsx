@@ -3,7 +3,7 @@
 import React, { ReactElement } from "react"
 import { usePathname, useSearchParams } from "next/navigation"
 import { useAudioPlayer } from "@/components/context/AudioProvider"
-import { getAudioPath } from "@/lib/actions"
+import { useRecordingContext } from "@/components/context/RecordingProvider"
 
 interface AudioPlayerContentProps {
   children: ReactElement<{ fileName?: string }>
@@ -18,14 +18,20 @@ function AudioPlayerContent({ children }: AudioPlayerContentProps) {
     ? (params.get("file_name") ?? "")
     : ""
 
+  const { recordingQuery, setRecording } = useRecordingContext()
+
   React.useEffect(() => {
     if (fileName) {
-      pause()
-      getAudioPath(fileName).then(fileUrl => {
-        if (fileUrl) loadAudio(fileUrl)
-      })
+      setRecording({ fileName })
     }
-  }, [fileName, loadAudio, pause])
+  }, [fileName, setRecording])
+
+  React.useEffect(() => {
+    if (!recordingQuery.isFetching && recordingQuery.data) {
+      pause()
+      loadAudio(recordingQuery.data.URL)
+    }
+  }, [recordingQuery, pause, loadAudio])
 
   return React.cloneElement(children, { fileName })
 }
