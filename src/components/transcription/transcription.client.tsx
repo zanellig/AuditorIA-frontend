@@ -33,7 +33,6 @@ import {
   Frown,
   Laugh,
   Meh,
-  TriangleAlert,
 } from "lucide-react"
 import { GLOBAL_ICON_SIZE } from "@/lib/consts"
 import {
@@ -56,7 +55,6 @@ import ParagraphP from "@/components/typography/paragraphP"
 import { SurpriseIcon } from "@/components/emoji-icons"
 import TableContainer from "@/components/tables/table-core/table-container"
 import { FloatingFeedbackPopover } from "./transcription-feedback-popover"
-import MetadataDisplay from "./metadata-display"
 
 const BASIC_STYLE = "flex text-sm rounded-md p-2 gap-2"
 
@@ -77,8 +75,6 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
 
   let lastSpeaker: string | undefined = ""
   let lastEmotion: string | undefined = ""
-
-  const { toast } = useToast()
 
   const segmentRefs = React.useRef<(HTMLDivElement | null)[]>([])
 
@@ -153,13 +149,6 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
               )}
             </section>
             <section className='flex gap-2 flex-col lg:flex-row'>
-              {/* Call data and other components */}
-              <article className='flex flex-col gap-2 w-full h-fit p-4 rounded-md'>
-                <h1 className='text-xl md:text-2xl font-bold'>
-                  Datos de la transcripción
-                </h1>
-                <MetadataDisplay metadata={transcription?.metadata} />
-              </article>
               {/* Segments */}
               <article className='flex flex-col gap-2 h-fit w-full p-4'>
                 <h1 className='text-xl md:text-2xl font-bold '>Conversación</h1>
