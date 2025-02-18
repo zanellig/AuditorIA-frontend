@@ -51,7 +51,12 @@ export async function GET(request: NextRequest) {
        * "ECONNREFUSED".
        */
       console.error(`${response.statusText}: ${response.status} on ${reqUrl}`)
-      throw new Error(response.statusText)
+      throw new Error(
+        JSON.stringify({
+          status: response.status,
+          statusText: response.statusText,
+        })
+      )
     }
     const data = await response.json()
     return NextResponse.json([null, data], {
@@ -59,8 +64,10 @@ export async function GET(request: NextRequest) {
       headers,
     })
   } catch (error) {
+    const { status, statusText } = JSON.parse(error.message)
     return NextResponse.json([error, null], {
-      status: 500,
+      status: status || 500,
+      statusText: statusText || "Error al cargar la tarea",
       headers,
     })
   }
