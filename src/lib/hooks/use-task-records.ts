@@ -36,14 +36,21 @@ export function useTasksRecords({
   const queryClient = useQueryClient()
   const { toast } = useToast()
 
-  const { isPending, isError, error, data, isFetching, isPlaceholderData } =
-    useQuery({
-      queryKey: ["tasks", "records", page, filters],
-      queryFn: () => fetchTasksRecords(filters),
-      enabled: true,
-      staleTime: Infinity,
-      placeholderData: keepPreviousData,
-    })
+  const {
+    isPending,
+    isError,
+    error,
+    data,
+    isFetching,
+    isPlaceholderData,
+    refetch,
+  } = useQuery({
+    queryKey: ["tasks", "records", page, filters],
+    queryFn: () => fetchTasksRecords(filters),
+    enabled: true,
+    staleTime: Infinity,
+    placeholderData: keepPreviousData,
+  })
 
   React.useEffect(() => {
     // Cancel any in-flight queries
@@ -72,28 +79,29 @@ export function useTasksRecords({
   React.useEffect(() => {
     // Only prefetch if there's more data available.
     if (data?.hasMore) {
-      // Prefetch the next page (page + 1)
-      queryClient.prefetchQuery({
-        queryKey: [
-          "tasks",
-          "records",
-          page + 1,
-          { ...filters, page: page + 1 },
-        ],
-        queryFn: () => fetchTasksRecords({ ...filters, page: page + 1 }),
-      })
-      // Prefetch the page after that (page + 2)
-      queryClient.prefetchQuery({
-        queryKey: [
-          "tasks",
-          "records",
-          page + 2,
-          { ...filters, page: page + 2 },
-        ],
-        queryFn: () => fetchTasksRecords({ ...filters, page: page + 2 }),
-      })
+      Promise.allSettled([
+        queryClient.prefetchQuery({
+          queryKey: [
+            "tasks",
+            "records",
+            page + 1,
+            { ...filters, page: page + 1 },
+          ],
+          queryFn: () => fetchTasksRecords({ ...filters, page: page + 1 }),
+        }),
+        queryClient.prefetchQuery({
+          queryKey: [
+            "tasks",
+            "records",
+            page + 2,
+            { ...filters, page: page + 2 },
+          ],
+          queryFn: () => fetchTasksRecords({ ...filters, page: page + 2 }),
+        }),
+      ])
     }
-  }, [data, page, filters, queryClient])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, page, filters])
 
   const updateFilters = (newFilters: Partial<TaskRecordsSearchParams>) => {
     setFilters(prev => ({ ...prev, ...newFilters }))
@@ -158,6 +166,7 @@ export function useTasksRecords({
     setPage,
     updateFilters,
     fetchWithNewFilters,
+    refetch,
     resetFilters,
     setNextPage,
     setPreviousPage,

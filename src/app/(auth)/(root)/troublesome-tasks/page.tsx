@@ -25,7 +25,12 @@ import TitleContainer from "@/components/title-container"
 import { TypographyH4 } from "@/components/typography/h4"
 import { TaskRecordsSearchParams } from "@/lib/types.d"
 import { useTasksRecords } from "@/lib/hooks/use-task-records"
-import { Badge } from "@/components/ui/badge"
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
 
 export default function TroublesomeTasksPage() {
   const {
@@ -34,10 +39,9 @@ export default function TroublesomeTasksPage() {
     isPending,
     error,
     isFetching,
-    isPlaceholderData,
     selectedFilter,
     search,
-    fetchWithNewFilters,
+    refetch,
     setSearch,
     setSelectedFilter,
     resetFilters,
@@ -51,10 +55,27 @@ export default function TroublesomeTasksPage() {
         <BookAudio className={DASHBOARD_ICON_CLASSES} />
         <TypographyH4>Todas las tareas</TypographyH4>
       </TitleContainer>
-      {data === null && (
-        <Badge variant={"secondary"}>
-          Para comenzar a buscar, ingrese un término de búsqueda
-        </Badge>
+      {(data?.message !== null ||
+        data?.message !== undefined ||
+        error !== null) && (
+        <Accordion type='single' collapsible>
+          <AccordionItem value='1'>
+            <AccordionTrigger className='text-error'>
+              Ocurrió un error
+            </AccordionTrigger>
+            <AccordionContent className='flex flex-col gap-2'>
+              <p>{data?.message || error?.message}</p>
+              <Button
+                variant='secondary'
+                onClick={() => {
+                  refetch()
+                }}
+              >
+                Reintentar
+              </Button>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
       )}
       <section className='flex justify-start items-center gap-2'>
         <Input
