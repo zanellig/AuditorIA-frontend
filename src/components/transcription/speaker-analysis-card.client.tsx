@@ -2,15 +2,10 @@
 "use client"
 import React from "react"
 import { cn, getUniqueWords, normalizeString } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import {
-  ArrowRightIcon,
-  CheckIcon,
-  ChevronLeftIcon,
-  Pencil2Icon,
-} from "@radix-ui/react-icons"
-import { FoundWordsState, Segment, Task } from "@/lib/types.d"
 import { useSearchParams } from "next/navigation"
+import { Button } from "@/components/ui/button"
+import { ArrowRight, Check, ChevronLeft, Pencil } from "lucide-react"
+import { FoundWordsState, Segment, Task } from "@/lib/types.d"
 
 import {
   Accordion,
@@ -25,10 +20,12 @@ import {
   LoadingState,
   MultiStepLoader,
 } from "@/components/ui/multi-step-loader"
-import EvalSpeakerProfile from "./eval-speaker-profile"
+import EvalSpeakerProfile from "@/components/transcription/eval-speaker-profile"
 import { Trash2 } from "lucide-react"
-import OperatorQualityAccordionWrapper from "./operator-quality/operator-quality-accordion-wrapper"
+import OperatorQualityAccordionWrapper from "@/components/transcription/operator-quality/operator-quality-accordion-wrapper"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import MetadataDisplay from "@/components/transcription/metadata-display"
+import { useTranscription } from "@/components/context/TranscriptionProvider"
 
 /**
  * ### Here we get the operator_quality and spkanalysis.
@@ -45,6 +42,7 @@ export default function SpeakerAnalysisCard({
   const searchParams = useSearchParams()
   const id = searchParams.get("identifier")
   const uniqueWords = getUniqueWords(segments || [])
+  const { transcription } = useTranscription()
 
   return (
     <>
@@ -56,7 +54,7 @@ export default function SpeakerAnalysisCard({
         onClick={() => setIsOpen(!isOpen)}
         id='close-speaker-analysis-card-button'
       >
-        <ChevronLeftIcon
+        <ChevronLeft
           className={cn(
             "w-[1.2rem] h-[1.2rem] transition-transform duration-300",
             isOpen ? "rotate-180" : "rotate-0"
@@ -80,6 +78,12 @@ export default function SpeakerAnalysisCard({
                 className='lg:max-w-[650px]'
               />
               <OperatorQualityAccordionWrapper id={id as Task["identifier"]} />
+              <AccordionItem value='4'>
+                <AccordionTrigger>Datos de la transcripción</AccordionTrigger>
+                <AccordionContent className='flex flex-col gap-2'>
+                  <MetadataDisplay metadata={transcription?.metadata} />
+                </AccordionContent>
+              </AccordionItem>
             </Accordion>
           </ScrollArea>
         </div>
@@ -190,7 +194,7 @@ function LocalWordSearch({
                 setCurrentInput("")
               }}
             >
-              <CheckIcon
+              <Check
                 className={cn(
                   DASHBOARD_ICON_CLASSES,
                   currentInput && "text-foreground"
@@ -253,14 +257,14 @@ function LocalWordSearch({
                     }}
                   >
                     {edit[0] && edit[2] === i ? (
-                      <CheckIcon
+                      <Check
                         className={cn(
                           DASHBOARD_ICON_CLASSES,
                           "text-foreground"
                         )}
                       />
                     ) : (
-                      <Pencil2Icon
+                      <Pencil
                         className={cn(
                           DASHBOARD_ICON_CLASSES,
                           "text-foreground"
@@ -330,7 +334,7 @@ function LocalWordSearch({
                 _reset()
               }}
             >
-              <ArrowRightIcon className={DASHBOARD_ICON_CLASSES} />
+              <ArrowRight className={DASHBOARD_ICON_CLASSES} />
               <span>Buscar</span>
             </Button>
           )}
