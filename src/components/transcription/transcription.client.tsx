@@ -137,9 +137,6 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
 
   return (
     <>
-      {drawerOptions?.show && (
-        <TranscriptionNotReady text={`${drawerOptions?.text || ""}`} />
-      )}
       {!drawerOptions?.show && transcription && (
         <>
           {isAnalysisNotReady && (
@@ -347,7 +344,7 @@ interface TranscriptionNotReadyProps {
   text?: string
 }
 
-const TranscriptionNotReady: React.FC<TranscriptionNotReadyProps> = ({
+export const TranscriptionNotReady: React.FC<TranscriptionNotReadyProps> = ({
   status,
   text,
 }) => {
