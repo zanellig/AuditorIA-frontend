@@ -24,6 +24,5 @@ export const fetchTasksRecords = async (params: TaskRecordsSearchParams) => {
   url.searchParams.set("page", page.toString())
 
   const data = await fetch(url.toString()).then(res => res.json())
-  console.log(data) // returns the data correctly ✅
   return data
 }
