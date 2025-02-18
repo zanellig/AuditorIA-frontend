@@ -8,6 +8,7 @@ import { ScrollProvider } from "./ScrollProvider"
 import { TranscriptionProvider } from "./TranscriptionProvider"
 import { ThemeProvider } from "./ThemeProvider"
 import { UserContextProvider } from "./UserProvider"
+import { RecordingProvider } from "./RecordingProvider"
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -38,12 +39,14 @@ export function Providers({ children }: { children: React.ReactNode }) {
             <ScrollProvider>
               <TooltipProvider>
                 <TranscriptionProvider>
-                  {children}
-                  <ReactQueryDevtools
-                    initialIsOpen={false}
-                    position={"left"}
-                    buttonPosition={"bottom-left"}
-                  />
+                  <RecordingProvider>
+                    {children}
+                    <ReactQueryDevtools
+                      initialIsOpen={false}
+                      position={"left"}
+                      buttonPosition={"bottom-left"}
+                    />
+                  </RecordingProvider>
                 </TranscriptionProvider>
               </TooltipProvider>
             </ScrollProvider>
