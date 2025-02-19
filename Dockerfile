@@ -35,6 +35,9 @@ WORKDIR /app
 
 ENV NEXT_TELEMETRY_DISABLED=1
 
+# --- Install smbclient ---
+RUN apk add --no-cache smbclient
+
 # --- IMPORTANT: Build-time Environment Variables ---
 ARG API_MAIN
 ARG API_CANARY_7000
