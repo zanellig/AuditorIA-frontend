@@ -117,8 +117,8 @@ const filterData = (
   params: TaskRecordsSearchParams
 ) => {
   const matches = (
-    value: string | null | undefined,
-    filter: string | null | undefined
+    value: string | number | null | undefined,
+    filter: string | number | null | undefined
   ): boolean =>
     filter
       ? String(value).toLowerCase().includes(String(filter).toLowerCase())
@@ -128,9 +128,9 @@ const filterData = (
     const matchesSpecificFilters =
       matches(task.uuid, params.uuid) &&
       matches(task.file_name, params.file_name) &&
-      matches(task.status?.toString(), params.status) &&
-      matches(task.user?.toString(), params.user) &&
-      matches(task.campaign?.toString(), params.campaign)
+      matches(task.status, params.status) &&
+      matches(task.user, params.user) &&
+      matches(task.campaign, params.campaign)
 
     const matchesGlobalSearch =
       params.globalSearch &&
