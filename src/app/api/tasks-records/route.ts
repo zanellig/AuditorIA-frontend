@@ -54,6 +54,8 @@ export async function GET(request: NextRequest) {
 
     const filteredData = filterData(tasksRecords, params)
 
+    console.log("route /api/tasks-records: filtered data:", filteredData)
+
     const AMOUNT_OF_RECORDS_PER_PAGE = 10
     const startIndex = page * AMOUNT_OF_RECORDS_PER_PAGE
     const endIndex = startIndex + AMOUNT_OF_RECORDS_PER_PAGE
@@ -98,7 +100,6 @@ async function fetchFreshData(): Promise<TaskRecordsResponse[]> {
   const requestUrl = new URL(`${env.API_CANARY_8000}/tasks-records`)
   const response = await fetch(requestUrl.toString())
   const data = await response.json()
-  console.log("route /api/tasks-records data retrieved:", data)
   return data.tasks
 }
 
@@ -128,8 +129,8 @@ const filterData = (
       matches(task.uuid, params.uuid) &&
       matches(task.file_name, params.file_name) &&
       matches(task.status?.toString(), params.status) &&
-      matches(task.user?.toString(), String(params.user)) &&
-      matches(task.campaign?.toString(), String(params.campaign))
+      matches(task.user?.toString(), params.user) &&
+      matches(task.campaign?.toString(), params.campaign)
 
     const matchesGlobalSearch =
       params.globalSearch &&
