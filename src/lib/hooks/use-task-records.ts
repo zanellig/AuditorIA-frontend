@@ -150,6 +150,23 @@ export function useTasksRecords({
     }
   }
 
+  const setLastPage = () => {
+    const lastPage = Math.floor(data?.total / 10)
+    setPage(lastPage)
+    setFilters(prev => ({
+      ...prev,
+      page: lastPage,
+    }))
+  }
+
+  const setFirstPage = () => {
+    setPage(0)
+    setFilters(prev => ({
+      ...prev,
+      page: 0,
+    }))
+  }
+
   return {
     data,
     page,
@@ -170,5 +187,7 @@ export function useTasksRecords({
     resetFilters,
     setNextPage,
     setPreviousPage,
+    setLastPage,
+    setFirstPage,
   }
 }
