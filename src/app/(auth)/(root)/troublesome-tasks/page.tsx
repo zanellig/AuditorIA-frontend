@@ -6,6 +6,8 @@ import {
   BookAudio,
   ChevronLeftIcon,
   ChevronRightIcon,
+  ChevronsLeftIcon,
+  ChevronsRightIcon,
   Loader,
 } from "lucide-react"
 import ServerDataTable from "@/components/tables/table-core/server-data-table"
@@ -47,6 +49,8 @@ export default function TroublesomeTasksPage() {
     resetFilters,
     setNextPage,
     setPreviousPage,
+    setLastPage,
+    setFirstPage,
   } = useTasksRecords({})
 
   return (
@@ -113,6 +117,14 @@ export default function TroublesomeTasksPage() {
             Borrar filtros
           </Button>
           <Button
+            onClick={setFirstPage}
+            variant={"outline"}
+            size='icon'
+            disabled={page === 0 || isFetching || isPending}
+          >
+            <ChevronsLeftIcon size={GLOBAL_ICON_SIZE} />
+          </Button>
+          <Button
             onClick={setPreviousPage}
             variant={"outline"}
             size='icon'
@@ -127,6 +139,14 @@ export default function TroublesomeTasksPage() {
             disabled={!data?.hasMore || isFetching || isPending}
           >
             <ChevronRightIcon size={GLOBAL_ICON_SIZE} />
+          </Button>
+          <Button
+            onClick={setLastPage}
+            variant={"outline"}
+            size='icon'
+            disabled={!data?.hasMore || isFetching || isPending}
+          >
+            <ChevronsRightIcon size={GLOBAL_ICON_SIZE} />
           </Button>
         </div>
       </section>
@@ -177,8 +197,8 @@ export default function TroublesomeTasksPage() {
       </motion.div>
       <section className='flex justify-between items-center gap-2'>
         <span className='text-muted-foreground'>
-          Página {data?.total ? page + 1 : 0} de{" "}
-          {data?.total ? Math.ceil(data.total / 10) : 0}
+          Página {data?.total ? page : 0} de{" "}
+          {data?.total ? Math.floor(data.total / 10) : 0}
         </span>
       </section>
     </TableContainer>
