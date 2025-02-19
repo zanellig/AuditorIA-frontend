@@ -79,7 +79,7 @@ export default function SpeakerAnalysisCard({
               />
               <OperatorQualityAccordionWrapper id={id as Task["identifier"]} />
               <AccordionItem value='4'>
-                <AccordionTrigger>Datos de la transcripción</AccordionTrigger>
+                <AccordionTrigger>Información avanzada</AccordionTrigger>
                 <AccordionContent className='flex flex-col gap-2'>
                   <MetadataDisplay metadata={transcription?.metadata} />
                 </AccordionContent>
