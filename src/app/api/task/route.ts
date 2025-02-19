@@ -7,18 +7,10 @@ import { NextRequest, NextResponse } from "next/server"
 import { fetchAudioData } from "@/lib/actions"
 import { env } from "@/env"
 import { validateMimeType } from "@/lib/forms"
-import chalk from "chalk"
 import { getHeaders } from "@/lib/get-headers"
 import { enhanceUrlWithSpeechToTextParams } from "./utils"
 
 export const revalidate = 5
-
-export async function OPTIONS(request: NextRequest) {
-  return NextResponse.json(null, {
-    status: 200,
-    headers: await getHeaders(request),
-  })
-}
 
 export async function GET(request: NextRequest) {
   const headers = await getHeaders(request)
@@ -188,7 +180,7 @@ export async function POST(request: NextRequest) {
       }
     }
     console.log(
-      `Sending task to API with URL ${chalk.bgBlack.white(externalRequestUrl.href)} and FormData`,
+      `Sending task to API with URL ${externalRequestUrl.href} and FormData`,
       serverForm
     )
     const response = await fetch(enhancedUrl.toString(), {
