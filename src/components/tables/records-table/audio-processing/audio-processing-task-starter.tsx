@@ -52,12 +52,9 @@ export default function AudioProcessingTaskStarter({ row }: { row: any }) {
     },
   })
 
-  const [isSubmitting, setIsSubmitting] = React.useState(false)
-
   const queryClient = useQueryClient()
   const mutation = useMutation({
     mutationFn: async (values: FormValues) => {
-      setIsSubmitting(true)
       const formData = new FormData()
       formData.append("language", values.language)
       formData.append("task_type", values.task_type)
@@ -105,7 +102,6 @@ export default function AudioProcessingTaskStarter({ row }: { row: any }) {
         device: "cuda",
       })
       queryClient.invalidateQueries({ queryKey: ["tasks"] })
-      setIsSubmitting(false)
       document.getElementById("close-sheet")?.click()
     },
     onError: (error: Error) => {
@@ -123,7 +119,6 @@ export default function AudioProcessingTaskStarter({ row }: { row: any }) {
           </ToastAction>
         ),
       })
-      setIsSubmitting(false)
     },
   })
 
@@ -200,7 +195,7 @@ export default function AudioProcessingTaskStarter({ row }: { row: any }) {
               variant={"default"}
               size={"lg"}
               className='w-full'
-              isLoading={isSubmitting}
+              isLoading={mutation.isPending}
             >
               Iniciar tarea
             </StatefulButton>
