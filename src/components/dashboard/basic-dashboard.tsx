@@ -39,7 +39,7 @@ export default function BasicDashboard() {
       icon: <Upload className={DASHBOARD_ICON_CLASSES} />,
       description:
         "En este módulo, podrá subir audios de manera manual y enviarlos al sistema de procesamiento.",
-      href: "/upload",
+      href: "/dashboard/upload",
     },
 
     {
@@ -65,7 +65,7 @@ export default function BasicDashboard() {
       icon: <LayoutList className={DASHBOARD_ICON_CLASSES} />,
       description:
         "En este módulo, podrá ver y revisar los audios marcados como problemáticos.",
-      href: "/troublesome-tasks",
+      href: "/dashboard/all-tasks",
       disabled: false,
     },
     {
@@ -84,14 +84,14 @@ export default function BasicDashboard() {
       title: "Ver reportes",
       icon: <FileChartColumn className={DASHBOARD_ICON_CLASSES} />,
       description: "En este módulo, podrá ver los reportes.",
-      href: "/reportes",
+      href: "/dashboard/reports",
       disabled: true,
     },
     {
       title: "Ver chats",
       icon: <MessageSquare className={DASHBOARD_ICON_CLASSES} />,
       description: "En este módulo, podrá ver y analizar los chats.",
-      href: "/chats",
+      href: "/dashboard/chats",
       disabled: true,
     },
   ]

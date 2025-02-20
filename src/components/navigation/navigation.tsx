@@ -83,12 +83,12 @@ const links = [
     Icon: History,
   },
   {
-    href: "/troublesome-tasks",
+    href: "/dashboard/all-tasks",
     title: "Todas las tareas",
     Icon: LayoutList,
   },
   {
-    href: "/upload",
+    href: "/dashboard/upload",
     Icon: Upload,
     title: "Subir un archivo",
   },
@@ -120,40 +120,40 @@ const links = [
     ],
   },
   {
-    href: "/reportes",
+    href: "/dashboard/reports",
     Icon: FileChartColumn,
     title: "Reportes",
   },
   {
-    href: "/chats",
+    href: "/dashboard/chats",
     Icon: MessageSquare,
     title: "Chats",
     disabled: true,
   },
   {
-    href: "/settings",
+    href: "/dashboard/settings",
     Icon: Settings,
     title: "Configuración",
     Achildren: [
       {
-        href: "/settings/account",
+        href: "/dashboard/settings/account",
         title: "Cuenta",
         Icon: User,
         disabled: true,
       },
       {
-        href: "/status",
+        href: "/dashboard/status",
         title: "Estado de los servicios",
         Icon: Server,
       },
       {
-        href: "/notifications",
+        href: "/dashboard/notifications",
         Icon: Bell,
         title: "Notificaciones",
         disabled: true,
       },
       {
-        href: "/activity-log",
+        href: "/dashboard/activity-log",
         Icon: Clock,
         title: "Log de actividad",
         disabled: true,
@@ -161,19 +161,19 @@ const links = [
     ],
   },
   {
-    href: "/team-management",
+    href: "/dashboard/team-management",
     Icon: UsersIcon,
     title: "Administración de equipo",
     disabled: true,
     Achildren: [
       {
-        href: "/team-management/roles",
+        href: "/dashboard/team-management/roles",
         title: "Roles & Permisos",
         Icon: KeyIcon,
         disabled: true,
       },
       {
-        href: "/team-management/invitations",
+        href: "/dashboard/team-management/invitations",
         title: "Invitaciones",
         Icon: MailIcon,
         disabled: true,
@@ -181,7 +181,7 @@ const links = [
     ],
   },
   {
-    href: "/integrations",
+    href: "/dashboard/integrations",
     Icon: Plug,
     title: "Integraciones",
     disabled: true,
@@ -192,13 +192,13 @@ const links = [
     disabled: true,
     Achildren: [
       {
-        href: "/analytics/overview",
+        href: "/dashboard/analytics/overview",
         title: "Vista general",
         Icon: PieChart,
         disabled: true,
       },
       {
-        href: "/analytics/performance",
+        href: "/dashboard/analytics/performance",
         title: "Rendimiento",
         Icon: TrendingUp,
         disabled: true,
