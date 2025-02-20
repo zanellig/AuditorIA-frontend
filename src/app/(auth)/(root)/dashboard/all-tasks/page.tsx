@@ -9,6 +9,7 @@ import {
   ChevronsLeftIcon,
   ChevronsRightIcon,
   Loader,
+  RefreshCw,
 } from "lucide-react"
 import ServerDataTable from "@/components/tables/table-core/server-data-table"
 import TableContainer from "@/components/tables/table-core/table-container"
@@ -33,6 +34,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
+import { cn } from "@/lib/utils"
 
 export default function TroublesomeTasksPage() {
   const {
@@ -80,6 +82,19 @@ export default function TroublesomeTasksPage() {
         </Accordion>
       )}
       <section className='flex justify-start items-center gap-2'>
+        <div className='flex flex-row justify-start items-center gap-2'>
+          <Button
+            size={"icon"}
+            variant={"outline"}
+            onClick={() => refetch()}
+            disabled={isFetching}
+          >
+            <RefreshCw
+              size={GLOBAL_ICON_SIZE}
+              className={cn(isFetching && "animate-spin")}
+            />
+          </Button>
+        </div>
         <Input
           placeholder='Buscar tarea...'
           onChange={e => setSearch(e.target.value)}
