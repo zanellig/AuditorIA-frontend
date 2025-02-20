@@ -11,7 +11,7 @@ import path from "path"
 import redisClient from "@/services/redisClient"
 
 const CACHE_KEY = "tasks-records"
-const CACHE_TTL_SECONDS = 5 * 60 // 5 minutes
+const CACHE_TTL_SECONDS = 2 * 60 // 2 minutes
 
 export async function GET(request: NextRequest) {
   const headers = await getHeaders(request)
