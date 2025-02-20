@@ -117,34 +117,6 @@ const MetadataDisplay: React.FC<IMetadataDisplayProps> = ({
         </Card>
       </div>
 
-      <Card className='mb-4 md:mb-6'>
-        <CardHeader>
-          <CardTitle className='text-lg md:text-xl'>
-            Información del archivo
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className='flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 mb-4'>
-            <FileAudio className='h-6 w-6 text-primary' />
-            <div className='flex-1 min-w-0'>
-              <p className='text-sm font-medium truncate'>Nombre del archivo</p>
-              <p className='text-xs text-muted-foreground truncate'>
-                {metadata.file_name}
-              </p>
-            </div>
-          </div>
-          <div className='flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4'>
-            <Clock className='h-6 w-6 text-primary' />
-            <div className='flex-1 min-w-0'>
-              <p className='text-sm font-medium'>Duración</p>
-              <p className='text-xs text-muted-foreground'>
-                {formatTimestamp(secondsToHMS(metadata.duration))}
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
       <Tabs defaultValue='asr' className='w-full'>
         <TabsList className='w-full h-fit flex flex-col lg:flex-row'>
           <TabsTrigger value='asr' className='py-3 w-full lg:flex-auto'>
