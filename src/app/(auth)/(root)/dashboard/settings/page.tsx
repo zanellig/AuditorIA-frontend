@@ -25,6 +25,14 @@ import { Settings } from "lucide-react"
 import { TypographyH4 } from "@/components/typography/h4"
 import { DASHBOARD_ICON_CLASSES } from "@/lib/consts"
 import { StatefulButton } from "@/components/stateful-button"
+import {
+  useSuspenseQuery,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query"
+import { getHost } from "@/lib/actions"
+import { Button } from "@/components/ui/button"
+import { useToast } from "@/hooks/use-toast"
 
 // Define types for the state
 interface AuditApiState {
@@ -158,6 +166,58 @@ export default function AdminSettings() {
   const setVadOffset = (vadOffset: number) =>
     setWhisperApiState(prevState => ({ ...prevState, vadOffset }))
 
+  const { toast } = useToast()
+
+  const queryClient = useQueryClient()
+
+  const whisperUrlMutation = useMutation({
+    mutationFn: async (url: string) => {
+      const form = new FormData()
+      form.append("whisperUrl", url)
+      const response = await fetch(`/api/routes`, {
+        method: "PUT",
+        body: form,
+      })
+      return response.json()
+    },
+    onSuccess: () => {
+      toast({ variant: "success", title: "Guardado" })
+    },
+    onError: () => {
+      toast({ variant: "destructive", title: "Error al guardar" })
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["apiUrls"] })
+    },
+  })
+
+  const auditUrlMutation = useMutation({
+    mutationFn: async (url: string) => {
+      const form = new FormData()
+      form.append("auditUrl", url)
+      const response = await fetch(`/api/routes`, {
+        method: "PUT",
+        body: form,
+      })
+      return response.json()
+    },
+    onSuccess: () => {
+      toast({ variant: "success", title: "Guardado" })
+    },
+    onError: () => {
+      toast({ variant: "destructive", title: "Error al guardar" })
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["apiUrls"] })
+    },
+  })
+
+  const urlQuery = useSuspenseQuery({
+    queryKey: ["apiUrls"],
+    queryFn: async () =>
+      fetch(`${await getHost()}/api/routes`).then(res => res.json()),
+  })
+
   return (
     <main className='w-full h-full'>
       <TableContainer>
@@ -181,12 +241,25 @@ export default function AdminSettings() {
               <CardContent className='space-y-4'>
                 <div className='space-y-2'>
                   <Label htmlFor='auditApiUrl'>URL de la API</Label>
-                  <Input
-                    id='auditApiUrl'
-                    placeholder='https://api.auditoria.linksolution.com.ar/audit'
-                    value={auditApiState.url}
-                    onChange={e => setAuditApiUrl(e.target.value)}
-                  />
+                  <div className='flex flex-col lg:flex-row items-start justify-start gap-2'>
+                    <Input
+                      id='auditApiUrl'
+                      placeholder={urlQuery.data?.auditUrl}
+                      value={auditApiState.url}
+                      onChange={e => setAuditApiUrl(e.target.value)}
+                    />
+                    <StatefulButton
+                      variant={"outline"}
+                      onClick={() => {
+                        auditUrlMutation.mutate(auditApiState.url)
+                        setAuditApiUrl("")
+                      }}
+                      isLoading={auditUrlMutation.isPending}
+                      className={"w-fit min-w-32 overflow-hidden"}
+                    >
+                      Guardar
+                    </StatefulButton>
+                  </div>
                 </div>
                 <div className='flex items-center space-x-2'>
                   <Switch
@@ -237,12 +310,25 @@ export default function AdminSettings() {
               <CardContent className='space-y-4'>
                 <div className='space-y-2'>
                   <Label htmlFor='whisperApiUrl'>URL de la API</Label>
-                  <Input
-                    id='whisperApiUrl'
-                    placeholder='https://api.auditoria.linksolution.com.ar/whisper'
-                    value={whisperApiState.url}
-                    onChange={e => setWhisperApiUrl(e.target.value)}
-                  />
+                  <div className='flex flex-col lg:flex-row items-start justify-start gap-2'>
+                    <Input
+                      id='whisperApiUrl'
+                      placeholder={urlQuery.data?.whisperUrl}
+                      value={whisperApiState.url}
+                      onChange={e => setWhisperApiUrl(e.target.value)}
+                    />
+                    <StatefulButton
+                      variant={"outline"}
+                      onClick={() => {
+                        whisperUrlMutation.mutate(whisperApiState.url)
+                        setWhisperApiUrl("")
+                      }}
+                      isLoading={whisperUrlMutation.isPending}
+                      className={"w-fit min-w-32 overflow-hidden"}
+                    >
+                      Guardar
+                    </StatefulButton>
+                  </div>
                 </div>
                 <div className='space-y-2'>
                   <Label htmlFor='language'>Idioma Predeterminado</Label>
