@@ -1,5 +1,11 @@
 import { env } from "@/env"
+import { getHeaders } from "@/lib/get-headers"
 import { NextRequest, NextResponse } from "next/server"
+
+export async function OPTIONS(request: NextRequest) {
+  const headers = await getHeaders(request)
+  return NextResponse.json({}, { headers })
+}
 
 const urlMap = {
   whisperUrl: "API_MAIN",
