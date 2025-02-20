@@ -54,8 +54,6 @@ export async function GET(request: NextRequest) {
 
     const filteredData = filterData(tasksRecords, params)
 
-    console.log("route /api/tasks-records: filtered data:", filteredData)
-
     const AMOUNT_OF_RECORDS_PER_PAGE = 10
     const startIndex = page * AMOUNT_OF_RECORDS_PER_PAGE
     const endIndex = startIndex + AMOUNT_OF_RECORDS_PER_PAGE
