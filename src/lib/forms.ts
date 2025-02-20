@@ -32,42 +32,58 @@ export const validateMimeType = (mimeType: string) => {
 export type AudioFileTypes = z.infer<typeof AudioFileTypesSchema>
 
 export const taskFormSchema = z.object({
-  language: z.enum(["es", "en", "fr", "de"], {
-    required_error: "Por favor seleccione un idioma.",
-    invalid_type_error: "Por favor seleccione un idioma.",
-    message: "Por favor seleccione un idioma.",
-  }),
-  task_type: z.enum(["transcribe", "align", "diarize", "combine"], {
-    required_error: "Por favor seleccione tipo de tarea.",
-    invalid_type_error: "Por favor seleccione tipo de tarea.",
-    message: "Por favor seleccione tipo de tarea.",
-  }),
-  model: z.enum(
-    [
-      "large-v3",
-      "tiny",
-      "tiny.en",
-      "base",
-      "base.en",
-      "small",
-      "small.en",
-      "medium",
-      "medium.en",
-      "large",
-      "large-v1",
-      "large-v2",
-    ],
-    {
-      required_error: "Por favor seleccione un modelo.",
-      invalid_type_error: "Por favor seleccione un modelo.",
-      message: "Por favor seleccione un modelo.",
-    }
-  ),
-  device: z.enum(["cuda", "cpu"], {
-    required_error: "Por favor seleccione un dispositivo.",
-    invalid_type_error: "Por favor seleccione un dispositivo.",
-    message: "Por favor seleccione un dispositivo.",
-  }),
+  language: z
+    .enum(["es", "en", "fr", "de"], {
+      required_error: "Por favor seleccione un idioma.",
+      invalid_type_error: "Por favor seleccione un idioma.",
+      message: "Por favor seleccione un idioma.",
+    })
+    .default("es"),
+  task_type: z
+    .enum(["transcribe", "align", "diarize", "combine"], {
+      required_error: "Por favor seleccione tipo de tarea.",
+      invalid_type_error: "Por favor seleccione tipo de tarea.",
+      message: "Por favor seleccione tipo de tarea.",
+    })
+    .default("transcribe"),
+  model: z
+    .enum(
+      [
+        "large-v3",
+        "tiny",
+        "tiny.en",
+        "base",
+        "base.en",
+        "small",
+        "small.en",
+        "medium",
+        "medium.en",
+        "large",
+        "large-v1",
+        "large-v2",
+      ],
+      {
+        required_error: "Por favor seleccione un modelo.",
+        invalid_type_error: "Por favor seleccione un modelo.",
+        message: "Por favor seleccione un modelo.",
+      }
+    )
+    .default("large-v3"),
+  device: z
+    .enum(["cuda", "cpu"], {
+      required_error: "Por favor seleccione un dispositivo.",
+      invalid_type_error: "Por favor seleccione un dispositivo.",
+      message: "Por favor seleccione un dispositivo.",
+    })
+    .default("cuda"),
+  temperature: z
+    .number({
+      description:
+        "Libertad del modelo para la generación de texto. Una menor temperatura otorgará mayor precisión, pero algunas palabras pueden no ser comprendidas correctamente.",
+    })
+    .min(0.0, { message: "La temperatura debe ser mayor a 0" })
+    .max(1.0, { message: "La temperatura debe ser menor a 1" })
+    .default(0.0),
   file: z.custom<File | Blob>().optional(),
 })
 

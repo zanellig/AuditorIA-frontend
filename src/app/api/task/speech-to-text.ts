@@ -104,9 +104,9 @@ const LANGUAGES = [
 ] as const
 
 export const SpeechToTextParamsSchema = z.object({
-  language: z.enum(LANGUAGES).optional().default("es"),
+  language: z.enum(LANGUAGES).nullish().default("es"),
 
-  task: z.enum(["transcribe", "translate"]).optional().default("transcribe"),
+  task: z.enum(["transcribe", "translate"]).nullish().default("transcribe"),
 
   model: z
     .enum([
@@ -124,58 +124,58 @@ export const SpeechToTextParamsSchema = z.object({
       "large-v3",
       "distil-large-v2",
     ])
-    .optional()
+    .nullish()
     .default("large-v3"),
 
-  device: z.enum(["cuda", "cpu"]).optional().default("cuda"),
+  device: z.enum(["cuda", "cpu"]).nullish().default("cuda"),
 
-  device_index: z.number().int().optional().default(0),
+  device_index: z.number().int().nullish().default(0),
 
-  threads: z.number().int().optional().default(0),
+  threads: z.number().int().nullish().default(0),
 
-  batch_size: z.number().int().optional().default(8),
+  batch_size: z.number().int().nullish().default(8),
 
   compute_type: z
     .enum(["float16", "int8", "float32"])
-    .optional()
+    .nullish()
     .default("float16"),
 
-  align_model: z.string().optional(),
+  align_model: z.string().nullish(),
 
   interpolate_method: z
     .enum(["nearest", "linear", "ignore"])
-    .optional()
+    .nullish()
     .default("nearest"),
 
-  return_char_alignments: z.boolean().optional().default(false),
+  return_char_alignments: z.boolean().nullish().default(false),
 
-  min_speakers: z.number().int().optional(),
+  min_speakers: z.number().int().nullish(),
 
-  max_speakers: z.number().int().optional(),
+  max_speakers: z.number().int().nullish(),
 
-  beam_size: z.number().int().optional().default(5),
+  beam_size: z.number().int().nullish().default(5),
 
-  patience: z.number().optional().default(1),
+  patience: z.number().nullish().default(1),
 
-  length_penalty: z.number().optional().default(1),
+  length_penalty: z.number().nullish().default(1),
 
-  temperatures: z.number().optional().default(0),
+  temperatures: z.number().nullish().default(0),
 
-  compression_ratio_threshold: z.number().optional().default(2.4),
+  compression_ratio_threshold: z.number().nullish().default(2.4),
 
-  log_prob_threshold: z.number().optional().default(-1),
+  log_prob_threshold: z.number().nullish().default(-1),
 
-  no_speech_threshold: z.number().optional().default(0.6),
+  no_speech_threshold: z.number().nullish().default(0.6),
 
-  initial_prompt: z.string().optional(),
+  initial_prompt: z.string().nullish(),
 
-  suppress_tokens: z.number().array().optional().default([-1]),
+  suppress_tokens: z.number().array().nullish().default([-1]),
 
-  suppress_numerals: z.boolean().optional().default(false),
+  suppress_numerals: z.boolean().nullish().default(false),
 
-  vad_onset: z.number().optional().default(0.5),
+  vad_onset: z.number().nullish().default(0.5),
 
-  vad_offset: z.number().optional().default(0.363),
+  vad_offset: z.number().nullish().default(0.363),
 })
 
 export type SpeechToTextParams = z.infer<typeof SpeechToTextParamsSchema>

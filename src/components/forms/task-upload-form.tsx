@@ -1,10 +1,14 @@
 "use client"
 import * as React from "react"
 import { z } from "zod"
-import { zodResolver } from "@hookform/resolvers/zod"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { taskFormOptions, taskFormSchema } from "@/lib/forms"
 import { Sparkles } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { ACCEPTED_AUDIO_TYPES, GLOBAL_ICON_SIZE } from "@/lib/consts"
+import { cn, handleCopyToClipboard } from "@/lib/utils"
+
 import {
   Card,
   CardContent,
@@ -13,8 +17,6 @@ import {
 } from "@/components/ui/card"
 import { useToast } from "@/components/ui/use-toast"
 import { ToastAction } from "@/components/ui/toast"
-import { handleCopyToClipboard } from "@/lib/utils"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { FileUpload } from "@/components/ui/file-upload"
 import {
   Form,
@@ -24,13 +26,12 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
+import { Badge } from "@/components/ui/badge"
+import { Slider } from "@/components/ui/slider"
 
 import { SelectField } from "@/components/tables/records-table/audio-processing/select-field"
 
-import { taskFormOptions, taskFormSchema } from "@/lib/forms"
-import { Badge } from "@/components/ui/badge"
 import { StatefulButton } from "@/components/stateful-button"
-import { ACCEPTED_AUDIO_TYPES, GLOBAL_ICON_SIZE } from "@/lib/consts"
 import { getHost } from "@/lib/actions"
 import { useUser } from "@/components/context/UserProvider"
 
@@ -41,6 +42,14 @@ export default function TaskUploadForm({ className }: { className?: string }) {
   const queryClient = useQueryClient()
   const form = useForm<FormValues>({
     resolver: zodResolver(taskFormSchema),
+    defaultValues: {
+      language: "es",
+      task_type: "transcribe",
+      model: "large-v3",
+      device: "cuda",
+      temperature: 0.0,
+      file: [],
+    },
   })
   // Get query key from user and time of upload
   const user = useUser()
@@ -56,6 +65,7 @@ export default function TaskUploadForm({ className }: { className?: string }) {
       formData.append("task_type", values.task_type)
       formData.append("model", values.model)
       formData.append("device", values.device)
+      formData.append("temperature", values.temperature.toString())
       const [error, task] = await fetch(`${await getHost()}/api/task`, {
         method: "POST",
         body: formData,
@@ -93,9 +103,13 @@ export default function TaskUploadForm({ className }: { className?: string }) {
         task_type: "transcribe",
         model: "large-v3",
         device: "cuda",
+        temperature: 0.0,
         file: [],
       })
-      queryClient.invalidateQueries({ queryKey: ["tasks"] })
+      queryClient.invalidateQueries({
+        queryKey: ["tasks"],
+        exact: false,
+      })
     },
     onError: (error: Error) => {
       console.error(error)
@@ -164,6 +178,38 @@ export default function TaskUploadForm({ className }: { className?: string }) {
                 form={form}
               />
             </div>
+            <FormField
+              control={form.control}
+              name='temperature'
+              render={({ field }) => (
+                <FormItem>
+                  <div className='flex items-center justify-between'>
+                    <FormLabel>Temperatura</FormLabel>
+                    <span className='text-sm text-muted-foreground'>
+                      {field.value}
+                    </span>
+                  </div>
+                  <FormControl>
+                    <div className='flex flex-col gap-2'>
+                      <Slider
+                        value={[field.value]}
+                        defaultValue={[field.value]}
+                        max={1}
+                        min={0}
+                        step={0.01}
+                        onValueChange={([value]) => field.onChange(value)}
+                      />
+                      <span className='text-sm text-muted-foreground'>
+                        Libertad del modelo para la generación de texto. Una
+                        menor temperatura otorgará mayor precisión, pero algunas
+                        palabras pueden no ser comprendidas correctamente.
+                      </span>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name='file'
