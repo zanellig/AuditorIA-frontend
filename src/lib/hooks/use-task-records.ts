@@ -100,6 +100,28 @@ export function useTasksRecords({
         }),
       ])
     }
+    if (page >= 4) {
+      Promise.allSettled([
+        queryClient.prefetchQuery({
+          queryKey: [
+            "tasks",
+            "records",
+            page - 1,
+            { ...filters, page: page - 1 },
+          ],
+          queryFn: () => fetchTasksRecords({ ...filters, page: page + 1 }),
+        }),
+        queryClient.prefetchQuery({
+          queryKey: [
+            "tasks",
+            "records",
+            page - 2,
+            { ...filters, page: page - 2 },
+          ],
+          queryFn: () => fetchTasksRecords({ ...filters, page: page + 2 }),
+        }),
+      ])
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, page, filters])
 
