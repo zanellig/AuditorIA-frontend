@@ -52,7 +52,7 @@ import {
   getSpanishEmotion,
   getColorForEmotion,
 } from "@/lib/utils"
-import {  formatDate } from "date-fns"
+import { formatDate } from "date-fns"
 import TitleH1 from "@/components/typography/titleH1"
 import TranscriptionSkeleton from "@/components/skeletons/transcription-skeleton"
 import { ErrorCodeUserFriendly } from "@/components/error/error-code-user-friendly"
@@ -139,7 +139,10 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
     )
 
   const recordingDate = new Date(recordingQuery.data?.INICIO!)
-  console.log(recordingDate)
+  let formattedDate = ""
+  if (recordingDate && !isNaN(recordingDate.getTime())) {
+    formattedDate = formatDate(recordingDate, "dd-MM-yyyy HH:mm:ss")
+  }
 
   return (
     <>
@@ -274,7 +277,7 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
                             Fecha y hora
                           </p>
                           <p className='text-xs text-muted-foreground'>
-                            {formatDate(recordingDate, "dd-MM-yyyy HH:mm:ss")}
+                            {formattedDate}
                           </p>
                         </div>
                       </div>
