@@ -214,8 +214,7 @@ export default function AdminSettings() {
 
   const urlQuery = useSuspenseQuery({
     queryKey: ["apiUrls"],
-    queryFn: async () =>
-      fetch(`${await getHost()}/api/routes`).then(res => res.json()),
+    queryFn: async () => fetch(`/api/routes`).then(res => res.json()),
   })
 
   return (
