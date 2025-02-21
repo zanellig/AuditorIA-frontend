@@ -60,8 +60,11 @@ export const recordingSchema = z.object({
   ANI_TELEFONO: z.number(),
   GRABACION: z.string(),
   DIRECCION: z.string(),
-  INICIO: z.date(),
-  FIN: z.date(),
+  INICIO: z.string({
+    description:
+      "API returns a string type formatted as an ISO string. Can be converted to a Date.",
+  }),
+  FIN: z.string(),
   SECTOT: z.number(),
   URL: z.string(),
 })
