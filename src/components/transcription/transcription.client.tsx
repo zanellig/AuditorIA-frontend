@@ -39,6 +39,8 @@ import {
   Phone,
   CalendarClock,
   ArrowLeftRight,
+  TriangleAlert,
+  Headset,
 } from "lucide-react"
 import { GLOBAL_ICON_SIZE } from "@/lib/consts"
 import {
@@ -50,6 +52,7 @@ import {
   getSpanishEmotion,
   getColorForEmotion,
 } from "@/lib/utils"
+import {  formatDate } from "date-fns"
 import TitleH1 from "@/components/typography/titleH1"
 import TranscriptionSkeleton from "@/components/skeletons/transcription-skeleton"
 import { ErrorCodeUserFriendly } from "@/components/error/error-code-user-friendly"
@@ -135,6 +138,9 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
       />
     )
 
+  const recordingDate = new Date(recordingQuery.data?.INICIO!)
+  console.log(recordingDate)
+
   return (
     <>
       {!drawerOptions?.show && transcription && (
@@ -190,6 +196,20 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
                 </CardHeader>
                 <CardContent>
                   <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
+                    <div className='flex flex-col items-start space-y-2'>
+                      <div className='flex items-center gap-2'>
+                        <Headset className='h-6 w-6 text-primary' />
+                        <div className='flex-1 min-w-0'>
+                          <p className='text-sm font-medium truncate'>
+                            Campaña
+                          </p>
+                          <p className='text-xs text-muted-foreground'>
+                            {recordingQuery.data?.IDAPLICACION}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
                     <div className='flex flex-col items-start space-y-2'>
                       <div className='flex items-center gap-2'>
                         <User className='h-6 w-6 text-primary' />
@@ -254,7 +274,27 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
                             Fecha y hora
                           </p>
                           <p className='text-xs text-muted-foreground'>
-                            {recordingQuery.data?.INICIO?.toLocaleString()}
+                            {formatDate(recordingDate, "dd-MM-yyyy HH:mm:ss")}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className='flex flex-col items-start space-y-2'>
+                      <div className='flex items-center gap-2'>
+                        <User className='h-6 w-6 text-primary' />
+                        <div className='flex-1 min-w-0'>
+                          <p className='text-sm font-medium truncate'>
+                            Duración del llamado
+                          </p>
+                          <p className='text-xs text-muted-foreground'>
+                            {formatTimestamp({
+                              ...secondsToHMS(
+                                Number(recordingQuery.data?.SECTOT)
+                              ),
+                              concat: true,
+                            })}
+                            {}
                           </p>
                         </div>
                       </div>
@@ -273,28 +313,65 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
                 <CardTitle className='text-lg md:text-xl'>
                   Conversación
                 </CardTitle>
-                {transcription?.result?.segments.map((segment, index) => {
-                  const isNewSpeaker = segment?.speaker !== lastSpeaker
-                  lastSpeaker = segment.speaker
-                  const isNewEmotion =
-                    segment?.analysis?.emotion !== lastEmotion || isNewSpeaker
-                  lastEmotion = segment?.analysis?.emotion
-                  return (
-                    <>
-                      <SegmentRenderer
-                        ref={el => {
-                          segmentRefs.current[
-                            Number(segment.start.toFixed(2))
-                          ] = el
-                        }}
-                        key={`${segment.speaker}-segment-${index}`}
-                        segment={segment}
-                        renderSpeakerText={isNewSpeaker}
-                        renderEmotion={isNewEmotion}
-                      />
-                    </>
-                  )
-                })}
+                {transcription?.result?.segments.map(
+                  (segment, index, segments) => {
+                    const isNewSpeaker = segment?.speaker !== lastSpeaker
+                    lastSpeaker = segment.speaker
+                    const isNewEmotion =
+                      segment?.analysis?.emotion !== lastEmotion || isNewSpeaker
+                    lastEmotion = segment?.analysis?.emotion
+
+                    // Si se detecta que entre el segmento anterior y el actual ha habido 5 segundos o más de diferencia, se considera silencio
+                    const lastSegment = segments[index - 1]
+                    let isSilenceDetected = false
+                    let silenceTimeSeconds = 0
+                    if (lastSegment) {
+                      silenceTimeSeconds = segment?.start - lastSegment?.end
+                      isSilenceDetected =
+                        silenceTimeSeconds >= 5 && silenceTimeSeconds <= 10
+                    }
+                    if (isSilenceDetected) {
+                      console.log(
+                        "Silence detected between segments",
+                        segment,
+                        "and",
+                        lastSegment
+                      )
+                    }
+
+                    return (
+                      <>
+                        {isSilenceDetected && (
+                          <Card className='w-full'>
+                            <CardHeader>
+                              <CardTitle className='flex justify-between'>
+                                <>Silencio detectado</>
+                                <TriangleAlert className='text-warning' />
+                              </CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                              <span className='text-muted-foreground'>
+                                Se han detectado {silenceTimeSeconds.toFixed(2)}{" "}
+                                segundos de silencio.
+                              </span>
+                            </CardContent>
+                          </Card>
+                        )}
+                        <SegmentRenderer
+                          ref={el => {
+                            segmentRefs.current[
+                              Number(segment.start.toFixed(2))
+                            ] = el
+                          }}
+                          key={`${segment.speaker}-segment-${index}`}
+                          segment={segment}
+                          renderSpeakerText={isNewSpeaker}
+                          renderEmotion={isNewEmotion}
+                        />
+                      </>
+                    )
+                  }
+                )}
               </article>
             </section>
             {transcription && (
