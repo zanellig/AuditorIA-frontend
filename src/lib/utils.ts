@@ -79,6 +79,7 @@ export function getLocaleMonth(mes: number): string {
 }
 
 export function secondsToHMS(seconds: number) {
+  if (isNaN(seconds)) return { hours: 0, minutes: 0, seconds: 0 }
   const hours = Math.floor(seconds / 3600)
   const minutes = Math.floor((seconds % 3600) / 60)
   const remainingSeconds = seconds % 60
