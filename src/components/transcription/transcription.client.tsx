@@ -180,7 +180,7 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
                   <div className='flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4'>
                     <Clock className='h-6 w-6 text-primary' />
                     <div className='flex-1 min-w-0'>
-                      <p className='text-sm font-medium'>Duración</p>
+                      <p className='text-sm font-medium'>Tiempo de procesado</p>
                       <p className='text-xs text-muted-foreground'>
                         {formatTimestamp(
                           secondsToHMS(transcription?.metadata.duration)
