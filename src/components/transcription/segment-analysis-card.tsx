@@ -119,6 +119,8 @@ export default function SegmentAnalysisCard({
   segmentAnalysis = mockSegmentAnalysis,
   triggerClassName,
 }: SegmentAnalysisCardProps) {
+  if (!segmentAnalysis) return null
+
   const { emotionData, sentimentData, hateData } = mapSegmentAnalysis(
     segmentAnalysis!
   )
