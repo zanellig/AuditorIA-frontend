@@ -4,7 +4,6 @@ import dotenv from "dotenv"
 dotenv.config({ path: ".env.local" })
 // Other configuration settings
 const nextConfig = {
-  output: "standalone",
   typescript: { ignoreBuildErrors: true },
   eslint: { ignoreDuringBuilds: true },
   images: {
