@@ -9,6 +9,7 @@ import { TranscriptionProvider } from "./TranscriptionProvider"
 import { ThemeProvider } from "./ThemeProvider"
 import { UserContextProvider } from "./UserProvider"
 import { RecordingProvider } from "./RecordingProvider"
+import { SegmentsAnalysisProvider } from "./SegmentsAnalysisProvider"
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -40,12 +41,14 @@ export function Providers({ children }: { children: React.ReactNode }) {
               <TooltipProvider>
                 <TranscriptionProvider>
                   <RecordingProvider>
-                    {children}
-                    <ReactQueryDevtools
-                      initialIsOpen={false}
-                      position={"left"}
-                      buttonPosition={"bottom-left"}
-                    />
+                    <SegmentsAnalysisProvider>
+                      {children}
+                      <ReactQueryDevtools
+                        initialIsOpen={false}
+                        position={"left"}
+                        buttonPosition={"bottom-left"}
+                      />
+                    </SegmentsAnalysisProvider>
                   </RecordingProvider>
                 </TranscriptionProvider>
               </TooltipProvider>

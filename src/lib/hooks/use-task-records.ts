@@ -159,10 +159,10 @@ export function useTasksRecords({
   }
 
   const setNextPage = () => {
-    setPage(old => (data.hasMore ? old + 1 : old))
+    setPage(old => (data?.success && data?.hasMore ? old + 1 : old))
     setFilters(prev => ({
       ...prev,
-      page: data.hasMore ? prev.page + 1 : prev.page,
+      page: data?.success && data?.hasMore ? prev.page + 1 : prev.page,
     }))
   }
 
@@ -177,7 +177,8 @@ export function useTasksRecords({
   }
 
   const setLastPage = () => {
-    const lastPage = Math.floor(data?.total / 10)
+    if (!data?.success) return
+    const lastPage = Math.floor(data.total / 10)
     setPage(lastPage)
     setFilters(prev => ({
       ...prev,

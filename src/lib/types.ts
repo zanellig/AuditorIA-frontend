@@ -293,3 +293,23 @@ export const tasksRecordsInternalResponseSchema = z.discriminatedUnion(
 export type TasksRecordsInternalResponse = z.infer<
   typeof tasksRecordsInternalResponseSchema
 >
+
+export const segmentAnalyisSchema = z.object({
+  segment: z.string(),
+  start: z.number(),
+  joy: z.number(),
+  fear: z.number(),
+  anger: z.number(),
+  others: z.number(),
+  disgust: z.number(),
+  sadness: z.number(),
+  surprise: z.number(),
+  NEG: z.number(),
+  NEU: z.number(),
+  POS: z.number(),
+  hateful: z.number(),
+  targeted: z.number(),
+  aggressive: z.number(),
+})
+
+export type SegmentAnalysis = z.infer<typeof segmentAnalyisSchema>

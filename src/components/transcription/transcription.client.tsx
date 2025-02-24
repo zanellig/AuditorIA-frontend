@@ -1,6 +1,6 @@
 // @/components/transcription/transcription.client.tsx
 "use client"
-import React from "react"
+import * as React from "react"
 import { useRouter } from "next/navigation"
 import {
   Segment,
@@ -8,6 +8,7 @@ import {
   Status,
   SegmentAnalysisProperties,
   SupportedLocales,
+  SegmentAnalysis,
 } from "@/lib/types"
 import { Button } from "@/components/ui/button"
 import { AnalyzeTaskButton } from "@/components/analyze-task-button"
@@ -66,6 +67,8 @@ import TableContainer from "@/components/tables/table-core/table-container"
 import { FloatingFeedbackPopover } from "./transcription-feedback-popover"
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card"
 import { useRecordingContext } from "../context/RecordingProvider"
+import SegmentAnalysisCard from "./segment-analysis-card"
+import { useSegmentsAnalysis } from "../context/SegmentsAnalysisProvider"
 
 const BASIC_STYLE = "flex text-sm rounded-md p-2 gap-2"
 
@@ -84,6 +87,10 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
 }) => {
   const { transcription, fetchTranscription, queryStatus } = useTranscription()
   const { recordingQuery } = useRecordingContext()
+  const { segmentsAnalysis, setTaskId } = useSegmentsAnalysis()
+  const player = useAudioPlayer()
+
+  setTaskId({ taskId: taskId! })
 
   let lastSpeaker: string | undefined = ""
   let lastEmotion: string | undefined = ""
@@ -104,8 +111,6 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
     // Don't put the fetchTranscription function inside the dependency array because it will cause an infinite loop
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [taskId])
-
-  const player = useAudioPlayer()
 
   React.useEffect(() => {
     const scrollToSegment = (timestamp: number) => {
@@ -333,14 +338,6 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
                       isSilenceDetected =
                         silenceTimeSeconds >= 5 && silenceTimeSeconds <= 10
                     }
-                    if (isSilenceDetected) {
-                      console.log(
-                        "Silence detected between segments",
-                        segment,
-                        "and",
-                        lastSegment
-                      )
-                    }
 
                     return (
                       <>
@@ -370,6 +367,7 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
                           segment={segment}
                           renderSpeakerText={isNewSpeaker}
                           renderEmotion={isNewEmotion}
+                          segmentAnalysis={segmentsAnalysis[index]}
                         />
                       </>
                     )
@@ -544,9 +542,18 @@ interface SegmentRendererProps {
   segment: Segment
   renderSpeakerText?: boolean
   renderEmotion?: boolean
+  segmentAnalysis?: SegmentAnalysis
 }
 const SegmentRenderer = React.forwardRef<HTMLDivElement, SegmentRendererProps>(
-  ({ segment, renderSpeakerText = true, renderEmotion = true }, ref) => {
+  (
+    {
+      segment,
+      renderSpeakerText = true,
+      renderEmotion = true,
+      segmentAnalysis,
+    },
+    ref
+  ) => {
     const speakerNumber = parseInt(segment?.speaker?.split("_")[1], 10)
     const isEvenSpeaker = speakerNumber % 2 === 0
     const EMOJI_CONTAINER_CLASSES = "min-w-10 relative w-10"
@@ -584,9 +591,11 @@ const SegmentRenderer = React.forwardRef<HTMLDivElement, SegmentRendererProps>(
                 segment={segment}
                 isCurrentSegmentFocused={isCurrentSegmentFocused}
               />
+              <SegmentAnalysisCard segmentAnalysis={segmentAnalysis ?? null} triggerClassName="self-center" />
             </>
           ) : (
             <>
+              <SegmentAnalysisCard segmentAnalysis={segmentAnalysis ?? null} triggerClassName="self-center" />
               <TextContainer
                 segment={segment}
                 isCurrentSegmentFocused={isCurrentSegmentFocused}
