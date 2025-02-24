@@ -64,6 +64,7 @@ export async function GET(request: NextRequest) {
     )
 
     const data: TasksRecordsInternalResponse = {
+      success: true,
       tasks: currentPageData,
       hasMore: hasMoreData,
       total: filteredData.length,
@@ -76,7 +77,7 @@ export async function GET(request: NextRequest) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
     return NextResponse.json(
-      { message: e.message },
+      { success: false, message: e.message },
       { status: 500, statusText: e.message, headers }
     )
   }

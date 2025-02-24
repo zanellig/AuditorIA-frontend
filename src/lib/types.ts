@@ -273,12 +273,22 @@ export const taskRecordsParamsSchema = originalTaskRecordsParamsSchema.extend({
 })
 export type TaskRecordsSearchParams = z.infer<typeof taskRecordsParamsSchema>
 
-export const tasksRecordsInternalResponseSchema = z.object({
-  tasks: z.array(tasksRecordsResponseSchema),
-  hasMore: z.boolean(),
-  total: z.number(),
-  pages: z.number(),
-})
+export const tasksRecordsInternalResponseSchema = z.discriminatedUnion(
+  "success",
+  [
+    z.object({
+      success: z.literal(true),
+      tasks: z.array(tasksRecordsResponseSchema),
+      hasMore: z.boolean(),
+      total: z.number(),
+      pages: z.number(),
+    }),
+    z.object({
+      success: z.literal(false),
+      message: z.string(),
+    }),
+  ]
+)
 
 export type TasksRecordsInternalResponse = z.infer<
   typeof tasksRecordsInternalResponseSchema

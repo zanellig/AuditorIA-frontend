@@ -47,7 +47,7 @@ export function useTasksRecords({
     isFetching,
     isPlaceholderData,
     refetch,
-  } = useQuery<TasksRecordsInternalResponse>({
+  } = useQuery({
     queryKey: ["tasks", "records", page, filters],
     queryFn: () => fetchTasksRecords(filters),
     enabled: true,
@@ -80,6 +80,7 @@ export function useTasksRecords({
   }, [debouncedSearch])
 
   React.useEffect(() => {
+    if (!data?.success) return
     // Only prefetch if there's more data available.
     if (data?.hasMore) {
       Promise.allSettled([
@@ -103,7 +104,7 @@ export function useTasksRecords({
         }),
       ])
     }
-    if (page >= 4) {
+    if (page + 2 <= data?.pages) {
       Promise.allSettled([
         queryClient.prefetchQuery({
           queryKey: [
@@ -112,7 +113,7 @@ export function useTasksRecords({
             page - 1,
             { ...filters, page: page - 1 },
           ],
-          queryFn: () => fetchTasksRecords({ ...filters, page: page + 1 }),
+          queryFn: () => fetchTasksRecords({ ...filters, page: page - 1 }),
         }),
         queryClient.prefetchQuery({
           queryKey: [
@@ -121,7 +122,7 @@ export function useTasksRecords({
             page - 2,
             { ...filters, page: page - 2 },
           ],
-          queryFn: () => fetchTasksRecords({ ...filters, page: page + 2 }),
+          queryFn: () => fetchTasksRecords({ ...filters, page: page - 2 }),
         }),
       ])
     }

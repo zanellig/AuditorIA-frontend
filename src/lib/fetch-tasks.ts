@@ -1,5 +1,8 @@
 import { getHost } from "@/lib/actions"
-import { TaskRecordsSearchParams } from "@/lib/types"
+import {
+  TaskRecordsSearchParams,
+  TasksRecordsInternalResponse,
+} from "@/lib/types"
 
 export const fetchTasksRecords = async (params: TaskRecordsSearchParams) => {
   const url = new URL(`${await getHost()}/api/tasks-records`)
@@ -23,6 +26,9 @@ export const fetchTasksRecords = async (params: TaskRecordsSearchParams) => {
   // Always set page
   url.searchParams.set("page", page.toString())
 
-  const data = await fetch(url.toString()).then(res => res.json())
+  const data: TasksRecordsInternalResponse = await fetch(url.toString()).then(
+    res => res.json()
+  )
+
   return data
 }
