@@ -6,7 +6,10 @@ import {
 } from "@tanstack/react-query"
 import { useDebounce } from "use-debounce"
 import { useToast } from "@/components/ui/use-toast"
-import { TaskRecordsSearchParams } from "@/lib/types.d"
+import {
+  TaskRecordsSearchParams,
+  TasksRecordsInternalResponse,
+} from "@/lib/types"
 import { fetchTasksRecords } from "@/lib/fetch-tasks"
 
 interface UseTasksRecordsParams {
@@ -44,7 +47,7 @@ export function useTasksRecords({
     isFetching,
     isPlaceholderData,
     refetch,
-  } = useQuery({
+  } = useQuery<TasksRecordsInternalResponse>({
     queryKey: ["tasks", "records", page, filters],
     queryFn: () => fetchTasksRecords(filters),
     enabled: true,

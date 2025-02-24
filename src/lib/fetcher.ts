@@ -1,5 +1,5 @@
 import "server-only"
-import { Method, FetchOptions } from "@/lib/types.d"
+import { Method, FetchOptions } from "@/lib/types"
 
 async function _request<T, R extends boolean | undefined = undefined>(
   url: string,

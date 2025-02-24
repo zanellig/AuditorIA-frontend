@@ -1,7 +1,7 @@
 // @/lib/actions.ts
 "use server"
 import "server-only"
-import { Task, Recording, Segment } from "@/lib/types.d"
+import { Task, Recording, Segment } from "@/lib/types"
 import fs from "fs/promises"
 import path from "path"
 import { INTERNAL_API, TASK_PATH } from "@/server-constants"

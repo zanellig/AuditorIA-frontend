@@ -1,5 +1,5 @@
 "use client"
-import { FoundWordsState } from "@/lib/types.d"
+import { FoundWordsState } from "@/lib/types"
 import { cn } from "@/lib/utils"
 import { AnimatePresence, motion } from "framer-motion"
 import { useState, useEffect } from "react"

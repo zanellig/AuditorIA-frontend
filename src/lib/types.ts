@@ -1,5 +1,4 @@
 import { z } from "zod"
-import { TaskRecordsResponseSchema } from "@/components/tables/troublesome-tasks/types"
 
 export const SupportedLocales = z.enum(["en", "es"])
 export enum TableSupportedDataTypes {
@@ -83,7 +82,7 @@ export enum Method {
 }
 export interface FetchOptions extends RequestInit {
   headers: Headers | Record<string, string>
-  method: Methods
+  method: Method
   body?: Record<string, string> | FormData | null
   next?: NextFetchRequestConfig
   cache?: RequestCache
@@ -234,7 +233,7 @@ export const EmotionsSchema = z.enum([
 export const FoundWordsState = z.tuple([z.boolean(), z.string(), z.number()])
 export type FoundWordsState = z.infer<typeof FoundWordsState>
 
-export const TaskRecordsStatus = z
+export const taskRecordsStatusSchema = z
   .enum([
     "completed",
     "processing",
@@ -245,20 +244,20 @@ export const TaskRecordsStatus = z
   ])
   .nullable()
 
-export const TaskRecordsResponseSchema = z.object({
-  uuid: z.string(),
+export const tasksRecordsResponseSchema = z.object({
+  uuid: z.string().uuid(),
   file_name: z.string(),
-  status: TaskRecordsStatus,
+  status: taskRecordsStatusSchema,
   audio_duration: z.number().nullable(),
   user: z.number().nullable(),
-  inicio: z.date().nullable(),
+  inicio: z.string().nullable(),
   campaign: z.number().nullable(),
   URL: z.string().nullable(),
 })
 
-export type TaskRecordsResponse = z.infer<typeof TaskRecordsResponseSchema>
+export type TasksRecordsResponse = z.infer<typeof tasksRecordsResponseSchema>
 
-const originalTaskRecordsParamsSchema = TaskRecordsResponseSchema.pick({
+const originalTaskRecordsParamsSchema = tasksRecordsResponseSchema.pick({
   uuid: true,
   file_name: true,
   status: true,
@@ -273,3 +272,14 @@ export const taskRecordsParamsSchema = originalTaskRecordsParamsSchema.extend({
   globalSearch: z.string().nullable(),
 })
 export type TaskRecordsSearchParams = z.infer<typeof taskRecordsParamsSchema>
+
+export const tasksRecordsInternalResponseSchema = z.object({
+  tasks: z.array(tasksRecordsResponseSchema),
+  hasMore: z.boolean(),
+  total: z.number(),
+  pages: z.number(),
+})
+
+export type TasksRecordsInternalResponse = z.infer<
+  typeof tasksRecordsInternalResponseSchema
+>

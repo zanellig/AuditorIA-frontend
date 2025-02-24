@@ -1,5 +1,5 @@
 import { QueryKey, useQuery } from "@tanstack/react-query"
-import { Task } from "@/lib/types.d"
+import { Task } from "@/lib/types"
 import { getHost } from "@/lib/actions"
 
 // Define the filter parameters type

@@ -1,5 +1,5 @@
 import { env } from "@/env"
-import { ServerStatusBadgeVariant } from "@/lib/types.d"
+import { ServerStatusBadgeVariant } from "@/lib/types"
 import { NextRequest, NextResponse } from "next/server"
 import { getHeaders } from "@/lib/get-headers"
 

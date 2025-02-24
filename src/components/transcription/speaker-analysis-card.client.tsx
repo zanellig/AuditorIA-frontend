@@ -5,7 +5,7 @@ import { cn, getUniqueWords, normalizeString } from "@/lib/utils"
 import { useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Check, ChevronLeft, Pencil } from "lucide-react"
-import { FoundWordsState, Segment, Task } from "@/lib/types.d"
+import { FoundWordsState, Segment, Task } from "@/lib/types"
 
 import {
   Accordion,

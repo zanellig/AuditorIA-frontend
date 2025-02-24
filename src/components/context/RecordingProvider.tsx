@@ -1,6 +1,6 @@
 import * as React from "react"
 import { useQuery } from "@tanstack/react-query"
-import { Recording } from "@/lib/types.d"
+import { Recording } from "@/lib/types"
 import { getHost } from "@/lib/actions"
 
 import type { UseQueryResult } from "@tanstack/react-query"

@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/select"
 import TitleContainer from "@/components/title-container"
 import { TypographyH4 } from "@/components/typography/h4"
-import { TaskRecordsSearchParams } from "@/lib/types.d"
+import { TaskRecordsSearchParams } from "@/lib/types"
 import { useTasksRecords } from "@/lib/hooks/use-task-records"
 import {
   Accordion,
@@ -212,8 +212,7 @@ export default function TroublesomeTasksPage() {
       </motion.div>
       <section className='flex justify-between items-center gap-2'>
         <span className='text-muted-foreground'>
-          Página {data?.total ? page : 0} de{" "}
-          {data?.total ? Math.floor(data.total / 10) : 0}
+          Página {data?.total ? page : 0} de {data?.total ? data.pages : 0}
         </span>
       </section>
     </TableContainer>

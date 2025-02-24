@@ -58,7 +58,11 @@ export const UserContextProvider = ({
 
   const { data: userData } = useQuery<LocalUserData>({
     queryKey: ["user"],
-    queryFn: () => fetchFromApi("user"),
+    queryFn: async () => {
+      const response = await fetchFromApi("user")
+      console.log("Respuesta de /api/user:", response)
+      return response
+    },
     enabled: true,
     refetchOnMount: true,
   })

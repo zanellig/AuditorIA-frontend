@@ -1,4 +1,4 @@
-import { Status } from "@/lib/types.d"
+import { Status } from "@/lib/types"
 import { GLOBAL_ICON_SIZE } from "@/lib/consts"
 import {
   CircleCheck,
@@ -29,6 +29,11 @@ export function renderMarker(status: Status) {
         />
       )
     default:
-      return <CircleHelp size={GLOBAL_ICON_SIZE} className='text-muted-foreground animate-pulse' />
+      return (
+        <CircleHelp
+          size={GLOBAL_ICON_SIZE}
+          className='text-muted-foreground animate-pulse'
+        />
+      )
   }
 }

@@ -1,4 +1,4 @@
-import { SupportedLocales } from "@/lib/types.d"
+import { SupportedLocales } from "@/lib/types"
 import { z } from "zod"
 
 type ErrorMessages = Record<string, string>

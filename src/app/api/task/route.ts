@@ -211,6 +211,7 @@ export async function POST(request: NextRequest) {
     })
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
+    console.log(e)
     return NextResponse.json([e.message, null], {
       status: 500,
       headers,

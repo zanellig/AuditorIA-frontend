@@ -8,7 +8,7 @@ import {
   Status,
   SegmentAnalysisProperties,
   SupportedLocales,
-} from "@/lib/types.d"
+} from "@/lib/types"
 import { Button } from "@/components/ui/button"
 import { AnalyzeTaskButton } from "@/components/analyze-task-button"
 import {

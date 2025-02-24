@@ -1,11 +1,11 @@
 import { ColumnDef } from "@tanstack/react-table"
-import { TaskRecordsResponse } from "@/lib/types.d"
+import { TaskRecordsResponse } from "@/lib/types"
 import Link from "next/link"
 import { formatTimestamp, secondsToHMS } from "@/lib/utils"
 import A from "@/components/typography/a"
 import { renderMarker } from "@/components/tables/marker-renderer"
 
-import { type Status } from "@/lib/types.d"
+import { type Status } from "@/lib/types"
 import { Badge } from "@/components/ui/badge"
 
 export const columns: ColumnDef<TaskRecordsResponse>[] = [

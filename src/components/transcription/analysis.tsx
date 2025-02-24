@@ -1,6 +1,6 @@
 "use client"
 import React from "react"
-import type { Averages, ITranscription } from "@/lib/types.d"
+import type { Averages, ITranscription } from "@/lib/types"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/components/ui/use-toast"
 import { calculateAverages } from "@/lib/actions"

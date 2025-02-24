@@ -7,7 +7,7 @@ import {
   AccordionTrigger,
   AccordionContent,
 } from "@/components/ui/accordion"
-import { Task } from "@/lib/types.d"
+import { Task } from "@/lib/types"
 import { cn } from "@/lib/utils"
 import { getHost } from "@/lib/actions"
 import { Loader, Sparkles } from "lucide-react"

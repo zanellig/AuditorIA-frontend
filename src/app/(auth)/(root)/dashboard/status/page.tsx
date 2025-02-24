@@ -7,7 +7,7 @@ import React from "react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { useQueries } from "@tanstack/react-query"
 import { getHost } from "@/lib/actions"
-import { ServerStatusBadgeVariant } from "@/lib/types.d"
+import { ServerStatusBadgeVariant } from "@/lib/types"
 import { Skeleton } from "@/components/ui/skeleton"
 import RotatingTextDiv from "@/components/rotating-text-div"
 

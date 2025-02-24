@@ -2,7 +2,7 @@ import ParagraphP from "@/components/typography/paragraphP"
 import SubtitleH2 from "@/components/typography/subtitleH2"
 import TitleH1 from "@/components/typography/titleH1"
 import ErrorRetryButton from "@/components/error/error-button.client"
-import { SupportedLocales } from "@/lib/types.d"
+import { SupportedLocales } from "@/lib/types"
 import { z } from "zod"
 
 interface ErrorCodeUserFriendlyProps {

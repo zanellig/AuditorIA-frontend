@@ -11,7 +11,7 @@ import {
   SentimentValues,
   Task,
   EmotionsSchema,
-} from "@/lib/types.d"
+} from "@/lib/types"
 import { getHost } from "@/lib/actions"
 
 export function cn(...inputs: ClassValue[]) {

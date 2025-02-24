@@ -26,7 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { TableSupportedDataTypes } from "@/lib/types.d"
+import { TableSupportedDataTypes } from "@/lib/types"
 import { CustomBorderCard } from "./custom-border-card"
 import { StatefulButton } from "./stateful-button"
 import { QueryKey, useQuery, useQueryClient } from "@tanstack/react-query"
@@ -211,6 +211,7 @@ export default function SearchRecords({
           <>
             <CustomBorderCard description={error.message} variant={"error"} />
             <DataTable
+              status={queryClient.getQueryState(queryKey)?.status ?? "idle"}
               columns={columns}
               data={[]}
               type={TableSupportedDataTypes.Recordings}
@@ -227,6 +228,7 @@ export default function SearchRecords({
               variant={"warning"}
             />
             <DataTable
+              status={queryClient.getQueryState(queryKey)?.status ?? "idle"}
               columns={columns}
               data={[]}
               type={TableSupportedDataTypes.Recordings}
@@ -245,6 +247,7 @@ export default function SearchRecords({
               variant={"success"}
             />
             <DataTable
+              status={queryClient.getQueryState(queryKey)?.status ?? "idle"}
               columns={columns}
               data={recordings}
               type={TableSupportedDataTypes.Recordings}

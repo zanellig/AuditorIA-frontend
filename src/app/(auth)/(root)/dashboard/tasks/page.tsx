@@ -1,6 +1,6 @@
 "use client"
 import React from "react"
-import { SupportedLocales, TableSupportedDataTypes } from "@/lib/types.d"
+import { SupportedLocales, TableSupportedDataTypes } from "@/lib/types"
 import DataTable from "@/components/tables/table-core/data-table"
 import { columns } from "@/components/tables/tasks-table/columns-tareas"
 import TableContainer from "@/components/tables/table-core/table-container"

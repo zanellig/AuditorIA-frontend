@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button"
 import { RefreshCw } from "lucide-react"
 import { GLOBAL_ICON_SIZE } from "@/lib/consts"
-import { SupportedLocales } from "@/lib/types.d"
+import { SupportedLocales } from "@/lib/types"
 import { z } from "zod"
 
 export default function ErrorRetryButton({

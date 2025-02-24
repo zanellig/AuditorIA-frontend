@@ -1,13 +1,11 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getHeaders } from "@/lib/get-headers"
 import {
-  type TaskRecordsResponse,
-  type TaskRecordsSearchParams,
-} from "@/lib/types.d"
+  TaskRecordsSearchParams,
+  TasksRecordsInternalResponse,
+  TasksRecordsResponse,
+} from "@/lib/types"
 import { env } from "@/env"
-// Only for caching purposes
-import * as fs from "fs/promises"
-import path from "path"
 import redisClient from "@/services/redisClient"
 
 const CACHE_KEY = "tasks-records"
@@ -41,7 +39,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Try to read from cache first
-    let tasksRecords: TaskRecordsResponse[] | [] = await getCachedData()
+    let tasksRecords: TasksRecordsResponse[] | [] = await getCachedData()
 
     // If cache is empty or invalid, fetch fresh data
     if (!tasksRecords?.length) {
@@ -61,11 +59,15 @@ export async function GET(request: NextRequest) {
     // Apply pagination
     const currentPageData = filteredData.slice(startIndex, endIndex)
     const hasMoreData = endIndex < filteredData.length
+    const totalPages = Math.ceil(
+      filteredData.length / AMOUNT_OF_RECORDS_PER_PAGE
+    )
 
-    const data = {
+    const data: TasksRecordsInternalResponse = {
       tasks: currentPageData,
       hasMore: hasMoreData,
       total: filteredData.length,
+      pages: totalPages,
     }
     return NextResponse.json(data, {
       status: 200,
@@ -80,7 +82,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-async function getCachedData(): Promise<TaskRecordsResponse[] | []> {
+async function getCachedData(): Promise<TasksRecordsResponse[] | []> {
   try {
     const cached = await redisClient.get(CACHE_KEY)
     if (cached) {
@@ -94,14 +96,14 @@ async function getCachedData(): Promise<TaskRecordsResponse[] | []> {
   return []
 }
 
-async function fetchFreshData(): Promise<TaskRecordsResponse[]> {
+async function fetchFreshData(): Promise<TasksRecordsResponse[]> {
   const requestUrl = new URL(`${env.API_CANARY_8000}/tasks-records`)
   const response = await fetch(requestUrl.toString())
   const data = await response.json()
   return data.tasks
 }
 
-async function updateCache(data: TaskRecordsResponse[]): Promise<void> {
+async function updateCache(data: TasksRecordsResponse[]): Promise<void> {
   try {
     const payload = JSON.stringify({ data })
     await redisClient.set(CACHE_KEY, payload, "EX", CACHE_TTL_SECONDS)
@@ -111,7 +113,7 @@ async function updateCache(data: TaskRecordsResponse[]): Promise<void> {
 }
 
 const filterData = (
-  data: TaskRecordsResponse[],
+  data: TasksRecordsResponse[],
   params: TaskRecordsSearchParams
 ) => {
   const matches = (

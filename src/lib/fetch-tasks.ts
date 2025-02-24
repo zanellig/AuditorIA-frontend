@@ -1,5 +1,5 @@
 import { getHost } from "@/lib/actions"
-import { TaskRecordsSearchParams } from "@/lib/types.d"
+import { TaskRecordsSearchParams } from "@/lib/types"
 
 export const fetchTasksRecords = async (params: TaskRecordsSearchParams) => {
   const url = new URL(`${await getHost()}/api/tasks-records`)

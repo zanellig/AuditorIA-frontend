@@ -1,7 +1,7 @@
 "use client"
 import { columns } from "@/components/tables/chats-table/columns-chats"
 import DataTable from "@/components/tables/table-core/data-table"
-import { TableSupportedDataTypes } from "@/lib/types.d"
+import { TableSupportedDataTypes } from "@/lib/types"
 // import { Metadata } from "next"
 
 // export const metadata: Metadata = {
