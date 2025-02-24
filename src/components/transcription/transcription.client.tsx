@@ -116,7 +116,6 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
     const scrollToSegment = (timestamp: number) => {
       if (!transcription?.result.segments) return
       if (!player.isPlaying) return
-      if (player.currentTime > 0) return
 
       const currentSegment = transcription.result.segments.find(
         segment => timestamp >= segment.start && timestamp <= segment.end
@@ -163,157 +162,161 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
                 <TaskHeader taskId={taskId} toast={toast} />
               </TitleContainer>
             )} */}
-            <section className='flex flex-col lg:flex-row gap-2 items-start mt-6 justify-start'>
-              <Card className='mb-4 md:mb-6 w-full'>
-                <CardHeader>
-                  <CardTitle className='text-lg md:text-xl'>
-                    Información del archivo
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className='flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 mb-4'>
-                    <FileAudio className='h-6 w-6 text-primary' />
-                    <div className='flex-1 min-w-0'>
-                      <p className='text-sm font-medium truncate'>
-                        Nombre del archivo
-                      </p>
-                      <p className='text-xs text-muted-foreground truncate'>
-                        {transcription?.metadata.file_name}
-                      </p>
+            <section className='flex flex-col gap-2 items-start mt-6 justify-start'>
+              {transcription?.status !== "analyzed" &&
+                transcription?.status !== "analyzing" && (
+                  <AnalyzeTaskButton taskId={taskId!} />
+                )}
+              <div className='flex gap-2 flex-col lg:flex-row w-full'>
+                <Card className='mb-4 md:mb-6 w-full'>
+                  <CardHeader>
+                    <CardTitle className='text-lg md:text-xl'>
+                      Información del archivo
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className='flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 mb-4'>
+                      <FileAudio className='h-6 w-6 text-primary' />
+                      <div className='flex-1 min-w-0'>
+                        <p className='text-sm font-medium truncate'>
+                          Nombre del archivo
+                        </p>
+                        <p className='text-xs text-muted-foreground truncate'>
+                          {transcription?.metadata.file_name}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                  <div className='flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4'>
-                    <Clock className='h-6 w-6 text-primary' />
-                    <div className='flex-1 min-w-0'>
-                      <p className='text-sm font-medium'>Tiempo de procesado</p>
-                      <p className='text-xs text-muted-foreground'>
-                        {formatTimestamp(
-                          secondsToHMS(transcription?.metadata.duration)
-                        )}
-                      </p>
+                    <div className='flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4'>
+                      <Clock className='h-6 w-6 text-primary' />
+                      <div className='flex-1 min-w-0'>
+                        <p className='text-sm font-medium'>
+                          Tiempo de procesado
+                        </p>
+                        <p className='text-xs text-muted-foreground'>
+                          {formatTimestamp(
+                            secondsToHMS(transcription?.metadata.duration)
+                          )}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
 
-              <Card className='mb-4 md:mb-6 w-full'>
-                <CardHeader>
-                  <CardTitle className='text-lg md:text-xl'>
-                    Información del llamado
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
-                    <div className='flex flex-col items-start space-y-2'>
-                      <div className='flex items-center gap-2'>
-                        <Headset className='h-6 w-6 text-primary' />
-                        <div className='flex-1 min-w-0'>
-                          <p className='text-sm font-medium truncate'>
-                            Campaña
-                          </p>
-                          <p className='text-xs text-muted-foreground'>
-                            {recordingQuery.data?.IDAPLICACION}
-                          </p>
+                <Card className='mb-4 md:mb-6 w-full'>
+                  <CardHeader>
+                    <CardTitle className='text-lg md:text-xl'>
+                      Información del llamado
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
+                      <div className='flex flex-col items-start space-y-2'>
+                        <div className='flex items-center gap-2'>
+                          <Headset className='h-6 w-6 text-primary' />
+                          <div className='flex-1 min-w-0'>
+                            <p className='text-sm font-medium truncate'>
+                              Campaña
+                            </p>
+                            <p className='text-xs text-muted-foreground'>
+                              {recordingQuery.data?.IDAPLICACION}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className='flex flex-col items-start space-y-2'>
+                        <div className='flex items-center gap-2'>
+                          <User className='h-6 w-6 text-primary' />
+                          <div className='flex-1 min-w-0'>
+                            <p className='text-sm font-medium truncate'>
+                              Operador
+                            </p>
+                            <p className='text-xs text-muted-foreground'>
+                              {recordingQuery.data?.USUARIO}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className='flex flex-col items-start space-y-2'>
+                        <div className='flex items-center gap-2'>
+                          <FileAudio className='h-6 w-6 text-primary' />
+                          <div className='flex-1 min-w-0'>
+                            <p className='text-sm font-medium truncate'>
+                              ID de llamada
+                            </p>
+                            <p className='text-xs text-muted-foreground'>
+                              {recordingQuery.data?.IDLLAMADA}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className='flex flex-col items-start space-y-2'>
+                        <div className='flex items-center gap-2'>
+                          <Phone className='h-6 w-6 text-primary' />
+                          <div className='flex-1 min-w-0'>
+                            <p className='text-sm font-medium truncate'>
+                              Teléfono
+                            </p>
+                            <p className='text-xs text-muted-foreground'>
+                              {recordingQuery.data?.ANI_TELEFONO}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className='flex flex-col items-start space-y-2'>
+                        <div className='flex items-center gap-2'>
+                          <ArrowLeftRight className='h-6 w-6 text-primary' />
+                          <div className='flex-1 min-w-0'>
+                            <p className='text-sm font-medium truncate'>
+                              Dirección
+                            </p>
+                            <p className='text-xs text-muted-foreground'>
+                              {recordingQuery.data?.DIRECCION}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className='flex flex-col items-start space-y-2'>
+                        <div className='flex items-center gap-2'>
+                          <CalendarClock className='h-6 w-6 text-primary' />
+                          <div className='flex-1 min-w-0'>
+                            <p className='text-sm font-medium truncate'>
+                              Fecha y hora
+                            </p>
+                            <p className='text-xs text-muted-foreground'>
+                              {formattedDate}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className='flex flex-col items-start space-y-2'>
+                        <div className='flex items-center gap-2'>
+                          <User className='h-6 w-6 text-primary' />
+                          <div className='flex-1 min-w-0'>
+                            <p className='text-sm font-medium truncate'>
+                              Duración del llamado
+                            </p>
+                            <p className='text-xs text-muted-foreground'>
+                              {formatTimestamp({
+                                ...secondsToHMS(
+                                  Number(recordingQuery.data?.SECTOT)
+                                ),
+                                concat: true,
+                              })}
+                              {}
+                            </p>
+                          </div>
                         </div>
                       </div>
                     </div>
-
-                    <div className='flex flex-col items-start space-y-2'>
-                      <div className='flex items-center gap-2'>
-                        <User className='h-6 w-6 text-primary' />
-                        <div className='flex-1 min-w-0'>
-                          <p className='text-sm font-medium truncate'>
-                            Operador
-                          </p>
-                          <p className='text-xs text-muted-foreground'>
-                            {recordingQuery.data?.USUARIO}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className='flex flex-col items-start space-y-2'>
-                      <div className='flex items-center gap-2'>
-                        <FileAudio className='h-6 w-6 text-primary' />
-                        <div className='flex-1 min-w-0'>
-                          <p className='text-sm font-medium truncate'>
-                            ID de llamada
-                          </p>
-                          <p className='text-xs text-muted-foreground'>
-                            {recordingQuery.data?.IDLLAMADA}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className='flex flex-col items-start space-y-2'>
-                      <div className='flex items-center gap-2'>
-                        <Phone className='h-6 w-6 text-primary' />
-                        <div className='flex-1 min-w-0'>
-                          <p className='text-sm font-medium truncate'>
-                            Teléfono
-                          </p>
-                          <p className='text-xs text-muted-foreground'>
-                            {recordingQuery.data?.ANI_TELEFONO}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className='flex flex-col items-start space-y-2'>
-                      <div className='flex items-center gap-2'>
-                        <ArrowLeftRight className='h-6 w-6 text-primary' />
-                        <div className='flex-1 min-w-0'>
-                          <p className='text-sm font-medium truncate'>
-                            Dirección
-                          </p>
-                          <p className='text-xs text-muted-foreground'>
-                            {recordingQuery.data?.DIRECCION}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className='flex flex-col items-start space-y-2'>
-                      <div className='flex items-center gap-2'>
-                        <CalendarClock className='h-6 w-6 text-primary' />
-                        <div className='flex-1 min-w-0'>
-                          <p className='text-sm font-medium truncate'>
-                            Fecha y hora
-                          </p>
-                          <p className='text-xs text-muted-foreground'>
-                            {formattedDate}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className='flex flex-col items-start space-y-2'>
-                      <div className='flex items-center gap-2'>
-                        <User className='h-6 w-6 text-primary' />
-                        <div className='flex-1 min-w-0'>
-                          <p className='text-sm font-medium truncate'>
-                            Duración del llamado
-                          </p>
-                          <p className='text-xs text-muted-foreground'>
-                            {formatTimestamp({
-                              ...secondsToHMS(
-                                Number(recordingQuery.data?.SECTOT)
-                              ),
-                              concat: true,
-                            })}
-                            {}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {transcription?.status !== "analyzed" && (
-                <AnalyzeTaskButton taskId={taskId!} />
-              )}
+                  </CardContent>
+                </Card>
+              </div>
             </section>
             <section className='flex gap-2 flex-col lg:flex-row'>
               {/* Segments */}
@@ -591,11 +594,17 @@ const SegmentRenderer = React.forwardRef<HTMLDivElement, SegmentRendererProps>(
                 segment={segment}
                 isCurrentSegmentFocused={isCurrentSegmentFocused}
               />
-              <SegmentAnalysisCard segmentAnalysis={segmentAnalysis ?? null} triggerClassName="self-center" />
+              <SegmentAnalysisCard
+                segmentAnalysis={segmentAnalysis ?? null}
+                triggerClassName='self-center'
+              />
             </>
           ) : (
             <>
-              <SegmentAnalysisCard segmentAnalysis={segmentAnalysis ?? null} triggerClassName="self-center" />
+              <SegmentAnalysisCard
+                segmentAnalysis={segmentAnalysis ?? null}
+                triggerClassName='self-center'
+              />
               <TextContainer
                 segment={segment}
                 isCurrentSegmentFocused={isCurrentSegmentFocused}
