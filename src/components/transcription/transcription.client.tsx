@@ -158,14 +158,8 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
           )}
           <SpeakerAnalysisCard segments={transcription?.result?.segments} />
           <TableContainer>
-            <TypographyH3>Tarea {taskId}</TypographyH3>
-
-            {/* {taskId && (
-              <TitleContainer separate>
-                <TaskHeader taskId={taskId} toast={toast} />
-              </TitleContainer>
-            )} */}
             <section className='flex flex-col gap-2 items-start mt-6 justify-start'>
+              <TypographyH3>Tarea {taskId}</TypographyH3>
               {transcription?.status !== "analyzed" &&
                 transcription?.status !== "analyzing" && (
                   <AnalyzeTaskButton taskId={taskId!} />
