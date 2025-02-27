@@ -195,7 +195,7 @@ export default function AdminSettings() {
     mutationFn: async (url: string) => {
       const form = new FormData()
       form.append("auditUrl", url)
-      const response = await fetch(`/api/routes`, {
+      const response = await fetch(`${await getHost()}/api/routes`, {
         method: "PUT",
         body: form,
       })
@@ -214,7 +214,8 @@ export default function AdminSettings() {
 
   const urlQuery = useSuspenseQuery({
     queryKey: ["apiUrls"],
-    queryFn: async () => fetch(`/api/routes`).then(res => res.json()),
+    queryFn: async () =>
+      fetch(`${await getHost()}/api/routes`).then(res => res.json()),
   })
 
   return (
