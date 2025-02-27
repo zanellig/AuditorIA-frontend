@@ -47,7 +47,7 @@ export default function AIChatInterface() {
   const loadingBubbleRef = React.useRef<HTMLDivElement>(null)
   const [isHistoryLoaded, setIsHistoryLoaded] = React.useState(false)
 
-  const { userAvatar, userInitials } = useUser()
+  const { userAvatar, userInitials, username } = useUser()
   const { taskId } = useTranscription()
 
   const chatHistoryQuery = useQuery<ChatHistoryResponse>({
@@ -55,6 +55,7 @@ export default function AIChatInterface() {
     queryFn: async () => {
       const url = new URL("http://10.20.62.96:5678/webhook/chat_history")
       url.searchParams.append("uuid", String(taskId))
+      url.searchParams.append("username", username)
       const response = await fetch(url)
       if (!response.ok) {
         throw new Error(
@@ -118,7 +119,7 @@ export default function AIChatInterface() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ chatInput, uuid: taskId }),
+        body: JSON.stringify({ chatInput, uuid: taskId, username }),
       })
 
       if (!response.ok) {
