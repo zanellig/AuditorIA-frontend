@@ -170,6 +170,7 @@ const config = {
         { values: flattenColorPalette(theme("backgroundColor")), type: "color" }
       )
     },
+    require("@tailwindcss/typography"),
   ],
 } satisfies Config
 
