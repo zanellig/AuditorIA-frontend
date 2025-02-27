@@ -1,7 +1,6 @@
 "use client"
 
-import type React from "react"
-import { useState, useRef } from "react"
+import * as React from "react"
 import {
   Card,
   CardHeader,
@@ -31,23 +30,28 @@ interface RedisChatHistory {
   type: "human" | "ai"
   data: {
     content: string
-    additional_kwargs?: {}
-    response_metadata?: {}
+    additional_kwargs?: Record<string, unknown>
+    response_metadata?: Record<string, unknown>
   }
 }
 
+interface ChatHistoryResponse {
+  chatHistory: string[]
+}
+
 export default function AIChatInterface() {
-  const [messages, setMessages] = useState<Message[]>([])
-  const [input, setInput] = useState("")
-  const scrollAreaRef = useRef<HTMLDivElement>(null)
-  const lastMessageRef = useRef<HTMLDivElement>(null)
-  const loadingBubbleRef = useRef<HTMLDivElement>(null)
+  const [messages, setMessages] = React.useState<Message[]>([])
+  const [input, setInput] = React.useState("")
+  const scrollAreaRef = React.useRef<HTMLDivElement>(null)
+  const lastMessageRef = React.useRef<HTMLDivElement>(null)
+  const loadingBubbleRef = React.useRef<HTMLDivElement>(null)
+  const [isHistoryLoaded, setIsHistoryLoaded] = React.useState(false)
 
   const { userAvatar, userInitials } = useUser()
   const { taskId } = useTranscription()
 
-  const chatHistoryQuery = useQuery<string[]>({
-    queryKey: ["chatHistory"],
+  const chatHistoryQuery = useQuery<ChatHistoryResponse>({
+    queryKey: ["chatHistory", taskId],
     queryFn: async () => {
       const url = new URL("http://10.20.62.96:5678/webhook/chat_history")
       url.searchParams.append("uuid", String(taskId))
@@ -59,15 +63,53 @@ export default function AIChatInterface() {
       }
 
       const data = await response.json()
-
       return data
     },
+    enabled: !!taskId,
   })
-  // falta iterar sobre la respuesta del servidor con el historial de mensajes, y ponerlos como dato inicial en set messages.
-  if (chatHistoryQuery.data) {
-    console.log(chatHistoryQuery.data)
-    console.log(typeof chatHistoryQuery.data)
-  }
+
+  React.useEffect(() => {
+    if (chatHistoryQuery.data?.chatHistory && !isHistoryLoaded) {
+      try {
+        const parsedMessages: Message[] = chatHistoryQuery.data.chatHistory
+          .map(jsonString => {
+            try {
+              const historyItem = JSON.parse(jsonString) as RedisChatHistory
+              return {
+                timestamp: Date.now().toString(),
+                content: historyItem.data.content,
+                sender: historyItem.type,
+              } as Message
+            } catch (e) {
+              console.error("Error parsing message:", e)
+              return null
+            }
+          })
+          .filter((msg): msg is Message => msg !== null)
+
+        if (parsedMessages.length > 0) {
+          setMessages(parsedMessages)
+          setIsHistoryLoaded(true)
+          // Scroll to the last message after a short delay to ensure rendering
+          setTimeout(() => {
+            const lastMessage = document.querySelector(
+              '[data-last-message="true"]'
+            )
+            if (lastMessage) {
+              scrollIntoView(lastMessage, {
+                scrollMode: "if-needed",
+                block: "end",
+                inline: "nearest",
+                behavior: "smooth",
+              })
+            }
+          }, 100)
+        }
+      } catch (e) {
+        console.error("Error processing chat history:", e)
+      }
+    }
+  }, [chatHistoryQuery.data, isHistoryLoaded])
 
   const chatMutation = useMutation({
     mutationFn: async (chatInput: string) => {
@@ -157,12 +199,28 @@ export default function AIChatInterface() {
       </CardHeader>
       <CardContent>
         <ScrollArea className='h-[400px] pr-4' ref={scrollAreaRef}>
+          {chatHistoryQuery.isLoading && (
+            <div className='flex justify-center items-center py-2 mb-4'>
+              <Sparkles className='h-6 w-6 animate-sparkle' />
+              <span className='ml-2 text-muted-foreground'>
+                Cargando historial...
+              </span>
+            </div>
+          )}
+          {chatHistoryQuery.isError && (
+            <div className='flex justify-center items-center py-2 mb-4 text-destructive text-sm'>
+              No se pudo cargar el historial del chat
+            </div>
+          )}
           <div className='space-y-4'>
             {messages.map((message, index) => (
               <div
-                key={message.timestamp}
+                key={`${message.timestamp}-${index}`}
                 className={`flex ${message.sender === "human" ? "justify-end" : "justify-start"}`}
                 ref={index === messages.length - 1 ? lastMessageRef : null}
+                data-last-message={
+                  index === messages.length - 1 ? "true" : "false"
+                }
               >
                 <div
                   className={`flex items-end space-x-2 ${message.sender === "human" ? "flex-row-reverse space-x-reverse" : "flex-row"}`}
@@ -269,7 +327,7 @@ export default function AIChatInterface() {
                     <AvatarImage src='' />
                     <AvatarFallback>AI</AvatarFallback>
                   </Avatar>
-                  <div className='flex gap-2 bg-muted rounded-lg px-4 py-2'>
+                  <div className='flex gap-2 bg-muted rounded-lg px-4 py-2 items-center'>
                     <Sparkles className='h-4 w-4 animate-sparkle' />
                     <span className='text-sm text-muted-foreground'>
                       {getAILoadingPhrase()}...
