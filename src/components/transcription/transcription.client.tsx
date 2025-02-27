@@ -1,4 +1,3 @@
-// @/components/transcription/transcription.client.tsx
 "use client"
 import * as React from "react"
 import { useRouter } from "next/navigation"
@@ -69,6 +68,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "../ui/card"
 import { useRecordingContext } from "../context/RecordingProvider"
 import SegmentAnalysisCard from "./segment-analysis-card"
 import { useSegmentsAnalysis } from "../context/SegmentsAnalysisProvider"
+import SubtitleH2 from "../typography/subtitleH2"
+import { CopyableText } from "../ui/copyable-text"
 
 const BASIC_STYLE = "flex text-sm rounded-md p-2 gap-2"
 
@@ -157,12 +158,8 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
           )}
           <SpeakerAnalysisCard segments={transcription?.result?.segments} />
           <TableContainer>
-            {/* {taskId && (
-              <TitleContainer separate>
-                <TaskHeader taskId={taskId} toast={toast} />
-              </TitleContainer>
-            )} */}
             <section className='flex flex-col gap-2 items-start mt-6 justify-start'>
+              <TypographyH3>Tarea {taskId}</TypographyH3>
               {transcription?.status !== "analyzed" &&
                 transcription?.status !== "analyzing" && (
                   <AnalyzeTaskButton taskId={taskId!} />
@@ -181,9 +178,9 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
                         <p className='text-sm font-medium truncate'>
                           Nombre del archivo
                         </p>
-                        <p className='text-xs text-muted-foreground truncate'>
+                        <CopyableText>
                           {transcription?.metadata.file_name}
-                        </p>
+                        </CopyableText>
                       </div>
                     </div>
                     <div className='flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4'>
@@ -217,9 +214,9 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
                             <p className='text-sm font-medium truncate'>
                               Campaña
                             </p>
-                            <p className='text-xs text-muted-foreground'>
+                            <CopyableText>
                               {recordingQuery.data?.IDAPLICACION}
-                            </p>
+                            </CopyableText>
                           </div>
                         </div>
                       </div>
@@ -231,9 +228,9 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
                             <p className='text-sm font-medium truncate'>
                               Operador
                             </p>
-                            <p className='text-xs text-muted-foreground'>
+                            <CopyableText>
                               {recordingQuery.data?.USUARIO}
-                            </p>
+                            </CopyableText>
                           </div>
                         </div>
                       </div>
@@ -245,9 +242,9 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
                             <p className='text-sm font-medium truncate'>
                               ID de llamada
                             </p>
-                            <p className='text-xs text-muted-foreground'>
+                            <CopyableText>
                               {recordingQuery.data?.IDLLAMADA}
-                            </p>
+                            </CopyableText>
                           </div>
                         </div>
                       </div>
@@ -259,9 +256,9 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
                             <p className='text-sm font-medium truncate'>
                               Teléfono
                             </p>
-                            <p className='text-xs text-muted-foreground'>
+                            <CopyableText>
                               {recordingQuery.data?.ANI_TELEFONO}
-                            </p>
+                            </CopyableText>
                           </div>
                         </div>
                       </div>
@@ -273,9 +270,9 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
                             <p className='text-sm font-medium truncate'>
                               Dirección
                             </p>
-                            <p className='text-xs text-muted-foreground'>
+                            <CopyableText>
                               {recordingQuery.data?.DIRECCION}
-                            </p>
+                            </CopyableText>
                           </div>
                         </div>
                       </div>
@@ -287,9 +284,7 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
                             <p className='text-sm font-medium truncate'>
                               Fecha y hora
                             </p>
-                            <p className='text-xs text-muted-foreground'>
-                              {formattedDate}
-                            </p>
+                            <CopyableText>{formattedDate}</CopyableText>
                           </div>
                         </div>
                       </div>

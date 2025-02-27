@@ -5,13 +5,15 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import Footer from "@/components/footer"
 import { CustomBorderCard } from "@/components/custom-border-card"
 import { env } from "@/env"
+import { Providers } from '@/components/context/Providers'
+import { Toaster } from '@/components/ui/toaster'
 
 const BACKGROUND = "bg-background"
 
 export default function Layout({ children }: { children: ReactNode }) {
   return (
     <>
-      {/* This one serves as the "body" tag so that we don't have to navigate to the root layout.tsx when we want to modify or check it. */}
+      <Providers>
       <div
         id='global-container'
         className={cn("flex relative bg-transparent w-dvw h-dvh")}
@@ -43,6 +45,8 @@ export default function Layout({ children }: { children: ReactNode }) {
           </ScrollArea>
         </section>
       </div>
+        <Toaster />
+        </Providers>
     </>
   )
 }

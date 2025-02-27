@@ -28,7 +28,6 @@ import { useRouter } from "next/navigation"
 import { getHost } from "@/lib/actions"
 import Link from "next/link"
 import { Checkbox } from "@/components/ui/checkbox"
-import { useUser } from "@/components/context/UserProvider"
 import { UserData } from "@/app/api/user/user"
 
 const loginUser = async (
@@ -65,7 +64,6 @@ const loginUser = async (
 export default function LoginForm() {
   const { toast } = useToast()
   const router = useRouter()
-  const { refreshUser, refreshAvatar } = useUser()
   const form = useForm<z.infer<typeof loginFormSchema>>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: {
@@ -81,7 +79,6 @@ export default function LoginForm() {
     mutationKey: ["login"],
     mutationFn: loginUserCallback,
     onSuccess: async (data: UserData) => {
-      await Promise.allSettled([refreshUser(), refreshAvatar()])
       toast({
         title: `¡Bienvenido${data ? " de nuevo " : ""}${data ? data?.userFullName.split(" ")[0] : ""}!`,
         description: "Has iniciado sesión exitosamente.",

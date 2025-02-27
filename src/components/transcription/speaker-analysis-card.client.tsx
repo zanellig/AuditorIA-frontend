@@ -4,7 +4,14 @@ import React from "react"
 import { cn, getUniqueWords, normalizeString } from "@/lib/utils"
 import { useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { ArrowRight, Check, ChevronLeft, Pencil } from "lucide-react"
+import {
+  ArrowRight,
+  Check,
+  ChevronLeft,
+  Pencil,
+  Trash2,
+  Sparkles,
+} from "lucide-react"
 import { FoundWordsState, Segment, Task } from "@/lib/types"
 
 import {
@@ -14,18 +21,18 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion"
 import { Input } from "@/components/ui/input"
-import { DASHBOARD_ICON_CLASSES } from "@/lib/consts"
+import { DASHBOARD_ICON_CLASSES, GLOBAL_ICON_SIZE } from "@/lib/consts"
 import { useToast } from "@/components/ui/use-toast"
 import {
   LoadingState,
   MultiStepLoader,
 } from "@/components/ui/multi-step-loader"
 import EvalSpeakerProfile from "@/components/transcription/eval-speaker-profile"
-import { Trash2 } from "lucide-react"
 import OperatorQualityAccordionWrapper from "@/components/transcription/operator-quality/operator-quality-accordion-wrapper"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import MetadataDisplay from "@/components/transcription/metadata-display"
 import { useTranscription } from "@/components/context/TranscriptionProvider"
+import AIChatInterface from "../ai-chat"
 
 /**
  * ### Here we get the operator_quality and spkanalysis.
@@ -70,21 +77,22 @@ export default function SpeakerAnalysisCard({
         )}
       >
         <div className='flex flex-row items-center justify-between space-x-4'>
-          <ScrollArea className='h-[600px] lg:min-w-[500px]'>
-            <Accordion type='multiple' className='h-full'>
+          <ScrollArea className='flex flex-col gap-4 p-4 h-[800px] lg:min-w-[500px]'>
+            <Accordion type='multiple'>
               <LocalWordSearch words={uniqueWords} />
               <EvalSpeakerProfile
                 id={id as Task["identifier"]}
                 className='lg:max-w-[650px]'
               />
               <OperatorQualityAccordionWrapper id={id as Task["identifier"]} />
-              <AccordionItem value='4'>
+              <AccordionItem value='5'>
                 <AccordionTrigger>Información avanzada</AccordionTrigger>
                 <AccordionContent className='flex flex-col gap-2'>
                   <MetadataDisplay metadata={transcription?.metadata} />
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
+            <AIChatInterface />
           </ScrollArea>
         </div>
       </div>
