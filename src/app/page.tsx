@@ -13,7 +13,6 @@ import {
   Fingerprint,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
 import Link from "next/link"
 import Logo from "@/components/logo"
 import type { Metadata } from "next"
@@ -39,7 +38,7 @@ export const metadata: Metadata = {
       "AuditorIA - Software y Servicio de Auditoría de Llamadas con IA en Argentina",
     description:
       "Mejore su servicio al cliente con análisis avanzado de llamadas, cumpliendo con las leyes argentinas y con total control de sus datos.",
-    url: "https://www.auditoria.linksolution.com.ar",
+    url: "http://auditoria.linksolution.com.ar",
     siteName: "AuditorIA",
     locale: "es_AR",
     type: "website",
@@ -52,7 +51,7 @@ export const metadata: Metadata = {
       "Mejore su servicio al cliente con análisis avanzado de llamadas, cumpliendo con las leyes argentinas y con total control de sus datos.",
   },
   alternates: {
-    canonical: "https://www.auditoria.linksolution.com.ar",
+    canonical: "http://auditoria.linksolution.com.ar",
   },
 }
 
@@ -178,10 +177,6 @@ export default function Home() {
                     description: "Todos tus datos, en nuestro país.",
                   },
                 ].map((feature, index) => (
-                  // <div key={index} className='flex items-start space-x-3'>
-                  //   <CheckCircle className='h-6 w-6 text-green-500 flex-shrink-0' />
-                  //   <ParagraphP className='text-lg'>{feature.title}</ParagraphP>
-                  // </div>
                   <Feature
                     title={feature.title}
                     icon={feature.icon}

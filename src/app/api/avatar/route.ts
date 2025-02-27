@@ -22,11 +22,9 @@ export async function GET(request: NextRequest) {
       cache: "no-store",
     })
     if (!response.ok) {
-      throw new Error(response.statusText)
+      throw new Error(JSON.stringify({ statusText: response.statusText, status: response.status }))
     }
     const body = await response.blob()
-
-    console.log(body)
 
     return new NextResponse(body, {
       headers: {
@@ -36,9 +34,10 @@ export async function GET(request: NextRequest) {
     })
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
+    const { status, statusText } = JSON.parse(error.message)
     return NextResponse.json(
       { message: error.message },
-      { status: 500, headers: responseHeaders }
+      { status, statusText, headers: responseHeaders }
     )
   }
 }

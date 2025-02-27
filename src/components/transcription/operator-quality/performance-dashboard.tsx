@@ -102,7 +102,6 @@ export function PerformanceDashboard({ initialData }: DashboardProps) {
 
   const handleInputChange = React.useCallback(
     (key: string, value: string) => {
-      console.log(key, value)
       if (key === "PUNTAJE TOTAL") {
         return toast({
           title: "Valor no permitido",
