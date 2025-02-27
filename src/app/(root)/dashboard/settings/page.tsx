@@ -174,7 +174,7 @@ export default function AdminSettings() {
     mutationFn: async (url: string) => {
       const form = new FormData()
       form.append("whisperUrl", url)
-      const response = await fetch(`/api/routes`, {
+      const response = await fetch(`${await getHost()}/api/routes`, {
         method: "PUT",
         body: form,
       })
