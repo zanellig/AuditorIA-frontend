@@ -1,22 +1,33 @@
+"use client"
 import React from "react"
-import type { Metadata } from "next"
 import { Open_Sans } from "next/font/google"
 import "./globals.css"
-import { Providers } from "@/components/context/Providers"
-import { Toaster } from "@/components/ui/toaster"
+
+import { ThemeProvider } from "@/components/context/ThemeProvider"
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 
 const openSans = Open_Sans({ subsets: ["latin"] })
-
-export const metadata: Metadata = {
-  title: "AuditorIA",
-  description: "Página principal de AuditorIA",
-}
 
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const [queryClient] = React.useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            retry: false,
+            refetchOnWindowFocus: false,
+            gcTime: 1000 * 60 * 5, // 5 minutes
+          },
+          mutations: {
+            retry: false,
+          },
+        },
+      })
+  )
   return (
     <html lang='es'>
       <meta
@@ -27,10 +38,15 @@ export default function RootLayout({
         <link rel='icon' href='/favicon.ico' sizes='any' />
       </head>
       <body className={openSans.className + " w-dvw h-dvh"}>
-        <Providers>
-          {children}
-          <Toaster />
-        </Providers>
+        <QueryClientProvider client={queryClient}>
+          <ThemeProvider
+            attribute='class'
+            defaultTheme='dark'
+            disableTransitionOnChange
+          >
+            {children}
+          </ThemeProvider>
+        </QueryClientProvider>
       </body>
     </html>
   )

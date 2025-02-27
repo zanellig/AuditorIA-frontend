@@ -22,10 +22,15 @@ export const GET = async function (request: NextRequest) {
         Accept: "application/json",
       },
     }).catch(error => {
-      throw new Error(error.detail)
+      throw new Error(JSON.stringify({ statusText: error.detail, status: 500 }))
     })
     if (!response.ok) {
-      throw new Error(response.statusText)
+      throw new Error(
+        JSON.stringify({
+          statusText: response.statusText,
+          status: response.status,
+        })
+      )
     }
     const data: ServerUserData = await response.json()
     const userData: UserData = {
@@ -39,6 +44,7 @@ export const GET = async function (request: NextRequest) {
     })
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
+    const { status, statusText } = JSON.parse(error.message)
     return NextResponse.json(
       {
         error: error.message,
@@ -47,7 +53,7 @@ export const GET = async function (request: NextRequest) {
         userFullName: "Unknown Error",
         message: error.message,
       },
-      { status: 500, statusText: error.message, headers: responseHeaders }
+      { status, statusText, headers: responseHeaders }
     )
   }
 }

@@ -11,7 +11,6 @@ export interface AuthTokens {
 
 export async function setAuthCookie(tokens: AuthTokens) {
   const cstore = await cookies()
-  console.log("Setting auth cookie:", tokens)
   const value = `${tokens.token_type} ${tokens.access_token}`
   cstore.set(AUTH_COOKIE, value, {
     httpOnly: true,
@@ -43,7 +42,9 @@ export async function isAuthenticated() {
       headers: {
         Authorization: `${tokenType} ${accessToken}`,
       },
-    }).then(r => r.status !== 200)
+    })
+      .then(r => r.status !== 200)
+      .catch(e => false)
 
     isAuthenticated = Boolean(!isExpired)
   } catch (error) {
