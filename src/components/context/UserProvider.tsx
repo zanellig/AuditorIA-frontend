@@ -8,6 +8,7 @@ interface UserContextType {
   username: string
   userFullName: string
   userAvatar: string
+  userInitials: string
   getUserEmail: () => Promise<string>
   getUserName: () => Promise<string>
   getUserFullName: () => Promise<string>
@@ -185,6 +186,14 @@ export const UserContextProvider = ({
     username: userData?.username ?? "",
     userFullName: userData?.userFullName ?? "",
     userAvatar: avatarData ?? blankImageUrl,
+    userInitials: userData?.userFullName
+      ? userData.userFullName
+          .split(" ")
+          .filter(word => word.length > 0)
+          .map(word => word[0])
+          .filter((_, index, arr) => index === 0 || index === arr.length - 1)
+          .join("")
+      : "",
     // Getter methods
     getUserEmail,
     getUserName,
