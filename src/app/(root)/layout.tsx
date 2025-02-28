@@ -8,8 +8,6 @@ import { env } from "@/env"
 import { Providers } from "@/components/context/Providers"
 import { Toaster } from "@/components/ui/toaster"
 
-export const dynamic = "force-dynamic"
-
 const BACKGROUND = "bg-background"
 
 export default function Layout({ children }: { children: ReactNode }) {

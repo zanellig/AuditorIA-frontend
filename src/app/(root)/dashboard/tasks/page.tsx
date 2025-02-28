@@ -9,9 +9,6 @@ import { CustomBorderCard } from "@/components/custom-border-card"
 import DashboardSkeleton from "@/components/skeletons/dashboard-skeleton"
 import { useTasks } from "@/lib/hooks/use-tasks"
 
-// Force dynamic rendering to prevent static generation issues
-export const dynamic = "force-dynamic"
-
 export default function TasksPage() {
   const TASKS_QUERY_KEY = ["tasks"]
   const {
