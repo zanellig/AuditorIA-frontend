@@ -43,18 +43,21 @@ import { useRouter } from "next/navigation"
 import Image from "next/image"
 import { useMediaQuery } from "@/lib/hooks/use-media-query"
 import { StatefulButton } from "../stateful-button"
+import { AspectRatio } from "@/components/ui/aspect-ratio"
 
 export function AvatarButton({ className }: { className?: string }) {
   const {
     username,
     userEmail,
     userFullName,
+    userInitials,
     userAvatar,
     updateUserEmail,
     updateUserFullName,
     refreshAvatar,
     refreshUser,
     removeUserData,
+    updateUserAvatar,
   } = useUser()
   const { toast } = useToast()
   const router = useRouter()
@@ -68,7 +71,47 @@ export function AvatarButton({ className }: { className?: string }) {
     },
   })
   const [file, setFile] = React.useState<File | null>(null)
+  const [previewUrl, setPreviewUrl] = React.useState<string | null>(null)
   const [isDialogOpen, setIsDialogOpen] = React.useState<boolean>(false)
+  const [isUploading, setIsUploading] = React.useState<boolean>(false)
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return
+    const file = e.target.files[0]
+    setFile(file)
+    // Create preview URL for immediate feedback
+    const objectUrl = URL.createObjectURL(file)
+    setPreviewUrl(objectUrl)
+  }
+
+  const handleAvatarSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!file) return
+
+    setIsUploading(true)
+    try {
+      const formData = new FormData()
+      formData.append("file", file, file.name)
+      await updateUserAvatar(formData)
+      await Promise.allSettled([refreshUser(), refreshAvatar()])
+      toast({ title: "Foto de perfil actualizada", variant: "success" })
+      setFile(null)
+      // Clean up preview URL
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl)
+        setPreviewUrl(null)
+      }
+    } catch (error) {
+      console.error("Error updating avatar:", error)
+      toast({
+        title: "Error al actualizar la foto de perfil",
+        variant: "destructive",
+      })
+    } finally {
+      setIsUploading(false)
+    }
+  }
+
   const onSubmit = async (
     data: z.infer<typeof updateUserProfileFormSchema>
   ) => {
@@ -130,49 +173,75 @@ export function AvatarButton({ className }: { className?: string }) {
       </DropdownMenu>
       <div className='h-full w-full'>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)}>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Editar perfil</DialogTitle>
-                  <DialogDescription>
-                    Realizá cambios en tu perfil acá.{" "}
-                    {isDesktop && "Tocá guardar cuando hayas terminado."}
-                  </DialogDescription>
-                </DialogHeader>
-                <article className='flex gap-8'>
-                  <section className='relative h-full'>
-                    <div className='flex flex-col gap-2 items-center justify-center h-full'>
-                      <Image
-                        alt={userFullName}
-                        width={128}
-                        height={128}
-                        src={userAvatar}
-                      />
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Editar perfil</DialogTitle>
+              <DialogDescription>
+                Realizá cambios en tu perfil acá.{" "}
+                {isDesktop && "Tocá guardar cuando hayas terminado."}
+              </DialogDescription>
+            </DialogHeader>
+            <div className='flex gap-8'>
+              <section className='relative h-full'>
+                <div className='flex flex-col gap-2 items-center justify-center h-full'>
+                  <div className='w-24 sm:w-32 md:w-40'>
+                    <AspectRatio ratio={1} className='relative overflow-hidden'>
+                      {previewUrl || userAvatar ? (
+                        <Image
+                          alt={userFullName}
+                          src={previewUrl || userAvatar}
+                          fill
+                          className='rounded-full object-cover'
+                          sizes='(max-width: 640px) 6rem, (max-width: 768px) 8rem, 10rem'
+                          priority
+                        />
+                      ) : (
+                        <div className='flex items-center justify-center w-full h-full rounded-full bg-muted text-lg sm:text-xl md:text-2xl'>
+                          {userInitials}
+                        </div>
+                      )}
+                    </AspectRatio>
+                  </div>
 
-                      <Button
-                        variant={"outline"}
-                        className='flex gap-2 items-center'
-                        onClick={e => {
-                          e.preventDefault()
-                          document.getElementById("profile-pic-input")?.click()
-                        }}
+                  <form
+                    onSubmit={handleAvatarSubmit}
+                    className='flex flex-col gap-2 items-center'
+                  >
+                    <Button
+                      variant={"outline"}
+                      className='flex gap-2 items-center'
+                      type='button'
+                      onClick={() =>
+                        document.getElementById("profile-pic-input")?.click()
+                      }
+                    >
+                      <Upload size={GLOBAL_ICON_SIZE} />
+                      <span>Editar foto</span>
+                    </Button>
+
+                    <input
+                      id='profile-pic-input'
+                      className='hidden'
+                      type='file'
+                      accept='image/*'
+                      onChange={handleFileChange}
+                    />
+
+                    {file && (
+                      <StatefulButton
+                        type='submit'
+                        isLoading={isUploading}
+                        className='w-full'
                       >
-                        <Upload size={GLOBAL_ICON_SIZE} />
-                        <span>Editar foto</span>
-                      </Button>
+                        {isUploading ? "Subiendo..." : "Guardar foto"}
+                      </StatefulButton>
+                    )}
+                  </form>
+                </div>
+              </section>
 
-                      <input
-                        id='profile-pic-input'
-                        className='hidden'
-                        type='file'
-                        onChange={e => {
-                          if (!e.target.files) return
-                          setFile(e.target.files[0])
-                        }}
-                      />
-                    </div>
-                  </section>
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className='flex-1'>
                   <section className='grid grid-cols-2 gap-2 items-center'>
                     <FormField
                       control={form.control}
@@ -235,31 +304,24 @@ export function AvatarButton({ className }: { className?: string }) {
                       )}
                     />
                   </section>
-                </article>
-                <DialogFooter className='flex flex-col gap-2'>
-                  {/* <DialogClose asChild> */}
-                  <Button
-                    className='w-full'
-                    type='submit'
-                    disabled={!form.formState.isDirty && file === null}
-                    // isLoading={
-                    //   form.formState.isSubmitting ||
-                    //   form.formState.isLoading ||
-                    //   form.formState.isValidating
-                    // }
-                  >
-                    Guardar
-                  </Button>
-                  {/* </DialogClose> */}
-                  {!isDesktop && (
-                    <DialogDescription>
-                      Tocá guardar cuando hayas terminado.
-                    </DialogDescription>
-                  )}
-                </DialogFooter>
-              </DialogContent>
-            </form>
-          </Form>
+                  <DialogFooter className='flex flex-col gap-2 mt-4'>
+                    <Button
+                      className='w-full'
+                      type='submit'
+                      disabled={!form.formState.isDirty}
+                    >
+                      Guardar
+                    </Button>
+                    {!isDesktop && (
+                      <DialogDescription>
+                        Tocá guardar cuando hayas terminado.
+                      </DialogDescription>
+                    )}
+                  </DialogFooter>
+                </form>
+              </Form>
+            </div>
+          </DialogContent>
         </Dialog>
       </div>
     </>
@@ -272,22 +334,23 @@ interface UserAvatarProps
 
 const UserAvatar = React.forwardRef<HTMLDivElement, UserAvatarProps>(
   ({ userFullName, className, children, ...props }, ref) => {
-    // Extract initials from the userFullName
-    const initials = userFullName
-      ? userFullName
-          .split(" ")
-          .map(name => name.charAt(0))
-          .join("")
-          .substring(0, 2) // Limit to 2 initials, e.g., for "John Doe" => "JD"
-      : "NN"
-
-    const { userAvatar } = useUser()
+    const { userAvatar, userInitials } = useUser()
 
     return (
-      <Avatar ref={ref} className={cn(className)} {...props}>
-        <AvatarImage alt={userFullName} src={userAvatar} />
-        <AvatarFallback className='select-none' delayMs={300}>
-          {initials}
+      <Avatar
+        ref={ref}
+        className={cn("relative overflow-hidden", className)}
+        {...props}
+      >
+        {userAvatar ? (
+          <AvatarImage
+            alt={userFullName}
+            src={userAvatar}
+            className='object-cover'
+          />
+        ) : null}
+        <AvatarFallback className='select-none' delayMs={userAvatar ? 300 : 0}>
+          {userInitials}
         </AvatarFallback>
         {children}
       </Avatar>
