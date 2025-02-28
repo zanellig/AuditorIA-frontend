@@ -78,11 +78,6 @@ const links = [
     href: "/dashboard",
   },
   {
-    href: "/dashboard/tasks",
-    title: "Historial de tareas",
-    Icon: History,
-  },
-  {
     href: "/dashboard/all-tasks",
     title: "Todas las tareas",
     Icon: LayoutList,
@@ -91,6 +86,12 @@ const links = [
     href: "/dashboard/upload",
     Icon: Upload,
     title: "Subir un archivo",
+  },
+  {
+    href: "/dashboard/tasks",
+    title: "Historial de tareas (desactivado)",
+    Icon: History,
+    disabled: true,
   },
   {
     title: "Buscar audios",
@@ -123,6 +124,7 @@ const links = [
     href: "/dashboard/reports",
     Icon: FileChartColumn,
     title: "Reportes",
+    disabled: true,
   },
   {
     href: "/dashboard/chats",
@@ -134,6 +136,7 @@ const links = [
     href: "/dashboard/settings",
     Icon: Settings,
     title: "Configuración",
+    disabled: true,
     Achildren: [
       {
         href: "/dashboard/settings/account",
@@ -339,6 +342,7 @@ export function TopNavbar({
         </Drawer>
       </article>
       <BreadcrumbWithCustomSeparator className='hidden lg:block' />
+      {/* <TaskSearch /> */}
       <div className='flex flex-row space-x-4 items-center'>
         {children}
         <AvatarButton />

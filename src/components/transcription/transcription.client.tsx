@@ -115,7 +115,7 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
 
   React.useEffect(() => {
     const scrollToSegment = (timestamp: number) => {
-      if (!transcription?.result.segments) return
+      if (!transcription?.result?.segments) return
       if (!player.isPlaying) return
 
       const currentSegment = transcription.result.segments.find(
