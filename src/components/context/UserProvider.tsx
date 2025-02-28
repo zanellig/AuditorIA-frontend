@@ -15,7 +15,7 @@ interface UserContextType {
   getUserAvatar: () => Promise<string>
   updateUserEmail: (email: string) => Promise<void>
   updateUserFullName: (fullName: string) => Promise<void>
-  updateUserAvatar: (avatar: string) => Promise<void>
+  updateUserAvatar: (formData: FormData) => Promise<void>
   refreshUser: () => Promise<void>
   refreshAvatar: () => Promise<void>
   removeUserData: () => Promise<void>
@@ -149,11 +149,10 @@ export const UserContextProvider = ({
   }).mutateAsync
 
   const updateUserAvatar = useMutation({
-    mutationFn: async (avatar: string) => {
+    mutationFn: async (formData: FormData) => {
       await fetchFromApi("avatar", {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ avatar }),
+        body: formData,
       })
     },
     onSuccess: async () => {
@@ -185,7 +184,7 @@ export const UserContextProvider = ({
     userEmail: userData?.userEmail ?? "",
     username: userData?.username ?? "",
     userFullName: userData?.userFullName ?? "",
-    userAvatar: avatarData ?? blankImageUrl,
+    userAvatar: avatarData ?? "",
     userInitials: userData?.userFullName
       ? userData.userFullName
           .split(" ")
