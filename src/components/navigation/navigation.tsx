@@ -343,9 +343,9 @@ export function TopNavbar({
         </Drawer>
       </article>
       <BreadcrumbWithCustomSeparator className='hidden lg:block' />
-      <TaskSearch />
-      <div className='flex flex-row space-x-4 items-center'>
+      <div className='flex flex-row gap-2 items-center justify-end'>
         {children}
+        <TaskSearch />
         <AvatarButton />
         <div className={`transition-all duration-500 `}>
           <ModeToggle />
