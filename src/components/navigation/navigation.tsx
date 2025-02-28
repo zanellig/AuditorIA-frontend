@@ -89,9 +89,9 @@ const links = [
   },
   {
     href: "/dashboard/tasks",
-    title: "Historial de tareas (desactivado)",
+    title: "Historial de tareas",
     Icon: History,
-    disabled: true,
+    disabled: false,
   },
   {
     title: "Buscar audios",

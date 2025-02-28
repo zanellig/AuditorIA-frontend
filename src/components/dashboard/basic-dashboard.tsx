@@ -41,13 +41,20 @@ export default function BasicDashboard() {
         "En este módulo, podrá subir audios de manera manual y enviarlos al sistema de procesamiento.",
       href: "/dashboard/upload",
     },
-
     {
-      title: "Ver tu historial (desactivado)",
+      title: "Ver todas las tareas",
+      icon: <LayoutList className={DASHBOARD_ICON_CLASSES} />,
+      description:
+        "En este módulo, podrá ver y revisar los audios marcados como problemáticos.",
+      href: "/dashboard/all-tasks",
+      disabled: false,
+    },
+    {
+      title: "Ver tu historial",
       icon: <History className={DASHBOARD_ICON_CLASSES} />,
       description: "En este módulo, podrá ver su historial de transcripciones.",
       href: "/dashboard/tasks",
-      disabled: true,
+      disabled: false,
     },
     {
       title: "Buscar por campaña",
@@ -60,14 +67,6 @@ export default function BasicDashboard() {
       icon: <User className={DASHBOARD_ICON_CLASSES} />,
       description: "En este módulo, podrá ver los audios por operador.",
       href: "/dashboard/records/operator",
-    },
-    {
-      title: "Ver todas las tareas",
-      icon: <LayoutList className={DASHBOARD_ICON_CLASSES} />,
-      description:
-        "En este módulo, podrá ver y revisar los audios marcados como problemáticos.",
-      href: "/dashboard/all-tasks",
-      disabled: false,
     },
     {
       title: "Buscar por fecha",
