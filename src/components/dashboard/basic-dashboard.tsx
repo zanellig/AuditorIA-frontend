@@ -43,10 +43,11 @@ export default function BasicDashboard() {
     },
 
     {
-      title: "Ver tu historial",
+      title: "Ver tu historial (desactivado)",
       icon: <History className={DASHBOARD_ICON_CLASSES} />,
       description: "En este módulo, podrá ver su historial de transcripciones.",
       href: "/dashboard/tasks",
+      disabled: true,
     },
     {
       title: "Buscar por campaña",
