@@ -81,8 +81,9 @@ export function useTasksRecords({
 
   React.useEffect(() => {
     if (!data?.success) return
+    // Pages are 0 indexed
     // Only prefetch if there's more data available.
-    if (data?.hasMore) {
+    if (data?.hasMore && page + 1 <= data?.pages) {
       Promise.allSettled([
         queryClient.prefetchQuery({
           queryKey: [
@@ -104,7 +105,8 @@ export function useTasksRecords({
         }),
       ])
     }
-    if (page + 2 <= data?.pages) {
+    // Prefetch 2 pages before the current page and only if the current page is not the first one
+    if (page + 2 <= data?.pages && page > 1) {
       Promise.allSettled([
         queryClient.prefetchQuery({
           queryKey: [
