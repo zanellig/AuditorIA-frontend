@@ -46,6 +46,7 @@ import {
 } from "@/components/ui/drawer"
 import { Button } from "@/components/ui/button"
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
+import { TaskSearch } from "./task-search"
 
 const TOP_HEIGHT = "h-14"
 
@@ -342,7 +343,7 @@ export function TopNavbar({
         </Drawer>
       </article>
       <BreadcrumbWithCustomSeparator className='hidden lg:block' />
-      {/* <TaskSearch /> */}
+      <TaskSearch />
       <div className='flex flex-row space-x-4 items-center'>
         {children}
         <AvatarButton />
