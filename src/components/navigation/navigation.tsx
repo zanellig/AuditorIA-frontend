@@ -47,7 +47,6 @@ import {
 import { Button } from "@/components/ui/button"
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 import { TaskSearch } from "./task-search"
-import { TaskSearch } from "./task-search"
 
 const TOP_HEIGHT = "h-14"
 
