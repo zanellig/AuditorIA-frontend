@@ -5,6 +5,8 @@ import { Card } from "@/components/ui/card"
 import { Loader2 } from "lucide-react"
 import { GLOBAL_ICON_SIZE } from "@/lib/consts"
 
+export const dynamic = "force-dynamic"
+
 export default function AudioPlayerWrapper({
   children,
 }: {
