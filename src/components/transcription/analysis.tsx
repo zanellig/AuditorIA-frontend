@@ -23,7 +23,6 @@ export default function Analysis({
   const { toast } = useToast()
   const [averages, setAverages] = React.useState<Averages | null>(null)
   const [averageChartData, setAverageChartData] = React.useState<any>(null)
-  const words = getUniqueWords(transcription?.result?.segments)
 
   const [allLoaded, setAllLoaded] = React.useState<boolean>(false)
   return (
