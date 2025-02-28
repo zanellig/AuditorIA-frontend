@@ -79,8 +79,9 @@ const links = [
   },
   {
     href: "/dashboard/tasks",
-    title: "Historial de tareas",
+    title: "Historial de tareas (desactivado)",
     Icon: History,
+    disabled: true,
   },
   {
     href: "/dashboard/all-tasks",
