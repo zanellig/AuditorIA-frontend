@@ -45,7 +45,6 @@ export default function Layout({ children }: { children: ReactNode }) {
             </ScrollArea>
           </section>
         </div>
-        <Toaster />
       </Providers>
     </>
   )

@@ -42,10 +42,14 @@ export async function POST(request: NextRequest) {
       response.status,
       response.statusText
     )
-    if (!response.ok)
-      throw new Error(
-        (await response.json().then(e => e.detail)) ?? "Error iniciando sesión"
-      )
+    if (!response.ok) {
+      const serverErrorMessage = await response
+        .json()
+        .then(e => e.detail)
+        .catch(() => "Error iniciando sesión")
+
+      throw new Error(serverErrorMessage)
+    }
     const tokenData: AuthTokens = await response.json()
     console.log("Setting cookie with data (login/route.ts):", tokenData)
     await setAuthCookie(tokenData)
