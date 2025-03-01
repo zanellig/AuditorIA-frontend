@@ -171,159 +171,157 @@ export function AvatarButton({ className }: { className?: string }) {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      <div className='h-full w-full'>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Editar perfil</DialogTitle>
-              <DialogDescription>
-                Realizá cambios en tu perfil acá.{" "}
-                {isDesktop && "Tocá guardar cuando hayas terminado."}
-              </DialogDescription>
-            </DialogHeader>
-            <div className='flex gap-8'>
-              <section className='relative h-full'>
-                <div className='flex flex-col gap-2 items-center justify-center h-full'>
-                  <div className='w-24 sm:w-32 md:w-40'>
-                    <AspectRatio ratio={1} className='relative overflow-hidden'>
-                      {previewUrl || userAvatar ? (
-                        <Image
-                          alt={userFullName}
-                          src={previewUrl || userAvatar}
-                          fill
-                          className='rounded-full object-cover'
-                          sizes='(max-width: 640px) 6rem, (max-width: 768px) 8rem, 10rem'
-                          priority
-                        />
-                      ) : (
-                        <div className='flex items-center justify-center w-full h-full rounded-full bg-muted text-lg sm:text-xl md:text-2xl'>
-                          {userInitials}
-                        </div>
-                      )}
-                    </AspectRatio>
-                  </div>
-
-                  <form
-                    onSubmit={handleAvatarSubmit}
-                    className='flex flex-col gap-2 items-center'
-                  >
-                    <Button
-                      variant={"outline"}
-                      className='flex gap-2 items-center'
-                      type='button'
-                      onClick={() =>
-                        document.getElementById("profile-pic-input")?.click()
-                      }
-                    >
-                      <Upload size={GLOBAL_ICON_SIZE} />
-                      <span>Editar foto</span>
-                    </Button>
-
-                    <input
-                      id='profile-pic-input'
-                      className='hidden'
-                      type='file'
-                      accept='image/*'
-                      onChange={handleFileChange}
-                    />
-
-                    {file && (
-                      <StatefulButton
-                        type='submit'
-                        isLoading={isUploading}
-                        className='w-full'
-                      >
-                        {isUploading ? "Subiendo..." : "Guardar foto"}
-                      </StatefulButton>
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Editar perfil</DialogTitle>
+            <DialogDescription>
+              Realizá cambios en tu perfil acá.{" "}
+              {isDesktop && "Tocá guardar cuando hayas terminado."}
+            </DialogDescription>
+          </DialogHeader>
+          <div className='flex gap-8'>
+            <section className='relative h-full'>
+              <div className='flex flex-col gap-2 items-center justify-center h-full'>
+                <div className='w-24 sm:w-32 md:w-40'>
+                  <AspectRatio ratio={1} className='relative overflow-hidden'>
+                    {previewUrl || userAvatar ? (
+                      <Image
+                        alt={userFullName}
+                        src={previewUrl || userAvatar}
+                        fill
+                        className='rounded-full object-cover'
+                        sizes='(max-width: 640px) 6rem, (max-width: 768px) 8rem, 10rem'
+                        priority
+                      />
+                    ) : (
+                      <div className='flex items-center justify-center w-full h-full rounded-full bg-muted text-lg sm:text-xl md:text-2xl'>
+                        {userInitials}
+                      </div>
                     )}
-                  </form>
+                  </AspectRatio>
                 </div>
-              </section>
 
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className='flex-1'>
-                  <section className='grid grid-cols-2 gap-2 items-center'>
-                    <FormField
-                      control={form.control}
-                      name='username'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel htmlFor='username'>
-                            Nombre de usuario
-                          </FormLabel>
-                          <FormControl>
-                            <Input
-                              {...field}
-                              name='username'
-                              placeholder={username}
-                              disabled
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                <form
+                  onSubmit={handleAvatarSubmit}
+                  className='flex flex-col gap-2 items-center'
+                >
+                  <Button
+                    variant={"outline"}
+                    className='flex gap-2 items-center'
+                    type='button'
+                    onClick={() =>
+                      document.getElementById("profile-pic-input")?.click()
+                    }
+                  >
+                    <Upload size={GLOBAL_ICON_SIZE} />
+                    <span>Editar foto</span>
+                  </Button>
 
-                    <FormField
-                      control={form.control}
-                      name='fullName'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel htmlFor='fullName'>
-                            Nombre completo
-                          </FormLabel>
-                          <FormControl>
-                            <Input
-                              {...field}
-                              name='fullName'
-                              placeholder={userFullName}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                  <input
+                    id='profile-pic-input'
+                    className='hidden'
+                    type='file'
+                    accept='image/*'
+                    onChange={handleFileChange}
+                  />
 
-                    <FormField
-                      control={form.control}
-                      name='email'
-                      render={({ field }) => (
-                        <FormItem className='col-span-2'>
-                          <FormLabel htmlFor='email'>
-                            Correo electrónico
-                          </FormLabel>
-                          <FormControl>
-                            <Input
-                              {...field}
-                              name='email'
-                              placeholder={userEmail}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </section>
-                  <DialogFooter className='flex flex-col gap-2 mt-4'>
-                    <Button
-                      className='w-full'
+                  {file && (
+                    <StatefulButton
                       type='submit'
-                      disabled={!form.formState.isDirty}
+                      isLoading={isUploading}
+                      className='w-full'
                     >
-                      Guardar
-                    </Button>
-                    {!isDesktop && (
-                      <DialogDescription>
-                        Tocá guardar cuando hayas terminado.
-                      </DialogDescription>
-                    )}
-                  </DialogFooter>
+                      {isUploading ? "Subiendo..." : "Guardar foto"}
+                    </StatefulButton>
+                  )}
                 </form>
-              </Form>
-            </div>
-          </DialogContent>
-        </Dialog>
-      </div>
+              </div>
+            </section>
+
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className='flex-1'>
+                <section className='grid grid-cols-2 gap-2 items-center'>
+                  <FormField
+                    control={form.control}
+                    name='username'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel htmlFor='username'>
+                          Nombre de usuario
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            name='username'
+                            placeholder={username}
+                            disabled
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name='fullName'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel htmlFor='fullName'>
+                          Nombre completo
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            name='fullName'
+                            placeholder={userFullName}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name='email'
+                    render={({ field }) => (
+                      <FormItem className='col-span-2'>
+                        <FormLabel htmlFor='email'>
+                          Correo electrónico
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            name='email'
+                            placeholder={userEmail}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </section>
+                <DialogFooter className='flex flex-col gap-2 mt-4'>
+                  <Button
+                    className='w-full'
+                    type='submit'
+                    disabled={!form.formState.isDirty}
+                  >
+                    Guardar
+                  </Button>
+                  {!isDesktop && (
+                    <DialogDescription>
+                      Tocá guardar cuando hayas terminado.
+                    </DialogDescription>
+                  )}
+                </DialogFooter>
+              </form>
+            </Form>
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   )
 }
