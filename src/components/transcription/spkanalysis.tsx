@@ -2,7 +2,7 @@
 import React from "react"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/components/ui/use-toast"
-import { localizeSpeaker } from "@/lib/utils"
+import { handleCopyToClipboard, localizeSpeaker } from "@/lib/utils"
 import { Check, Copy } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
@@ -19,16 +19,13 @@ export default function SpkAnalysis({
   )
   const [copiedSpeaker, setCopiedSpeaker] = React.useState<string | null>(null)
   const copyToClipboard = (speaker: string, feedback: string) => {
-    navigator.clipboard
-      .writeText(`${localizeSpeaker(speaker)}: ${feedback}`)
-      .then(() => {
-        setCopiedSpeaker(speaker)
-        toast({
-          title: "Se copió al portapapeles",
-          description: `Feedback del ${localizeSpeaker(speaker).toLocaleLowerCase()} ha sido copiado al portapapeles`,
-        })
-        setTimeout(() => setCopiedSpeaker(null), 3000)
-      })
+    const message = `${localizeSpeaker(speaker)}: ${feedback}`
+    handleCopyToClipboard(message)
+    setCopiedSpeaker(speaker)
+    toast({ title: "Copiado al portapapeles", variant: "success" })
+    setTimeout(() => {
+      setCopiedSpeaker(null)
+    }, 2000)
   }
   return (
     <>
