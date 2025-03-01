@@ -5,8 +5,6 @@ import LoginForm from "./_components/login-form"
 import LoginBackground from "./_components/login-background"
 import { ScrollArea } from "@/components/ui/scroll-area"
 
-export const dynamic = "force-dynamic"
-
 export const metadata: Metadata = {
   title: "Iniciar Sesión | AuditorIA - Auditoría de Llamadas Inteligente",
   description:
