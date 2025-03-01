@@ -1,6 +1,8 @@
 "use client"
 import React from "react"
 import { cn } from "@/lib/utils"
+import Link from "next/link"
+
 import {
   ArrowRightLeft,
   BarChart,
@@ -30,7 +32,6 @@ import { SendUsFeedbackButton } from "@/components/navigation/feedback-button"
 import { BreadcrumbWithCustomSeparator } from "./breadcrumbs-with-separator"
 import { AvatarButton } from "./avatar"
 import { ModeToggle } from "./mode-toggle"
-import Link from "next/link"
 import { SidebarButton, SidebarButtonProps } from "./sidebar-button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import Logo from "../logo"
@@ -347,9 +348,7 @@ export function TopNavbar({
         {children}
         <TaskSearch />
         <AvatarButton />
-        <div className={`transition-all duration-500 `}>
-          <ModeToggle />
-        </div>
+        <ModeToggle />
       </div>
     </div>
   )
