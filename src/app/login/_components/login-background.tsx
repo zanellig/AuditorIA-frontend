@@ -12,7 +12,7 @@ export default function LoginBackground({ className }: { className?: string }) {
   return (
     <section
       className={cn(
-        "w-full max-w-dvw min-h-dvh max-h-dvh relative p-8 overflow-hidden",
+        "w-full max-w-dvw min-h-dvh max-h-dvh relative p-8 overflow-hidden hidden lg:inline-block",
         className
       )}
     >

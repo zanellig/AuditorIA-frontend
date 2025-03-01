@@ -348,7 +348,9 @@ export function TopNavbar({
         {children}
         <TaskSearch />
         <AvatarButton />
-        <ModeToggle />
+        <div>
+          <ModeToggle />
+        </div>
       </div>
     </div>
   )
