@@ -61,7 +61,6 @@ export const UserContextProvider = ({
     queryKey: ["user"],
     queryFn: async () => {
       const response = await fetchFromApi("user")
-      console.log("Respuesta de /api/user:", response)
       return response
     },
     enabled: true,
