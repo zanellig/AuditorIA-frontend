@@ -5,6 +5,7 @@ import "./globals.css"
 
 import { ThemeProvider } from "@/components/context/ThemeProvider"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import { Toaster } from '@/components/ui/toaster'
 
 const openSans = Open_Sans({ subsets: ["latin"] })
 
@@ -37,7 +38,7 @@ export default function RootLayout({
       <head>
         <link rel='icon' href='/favicon.ico' sizes='any' />
       </head>
-      <body className={openSans.className + " w-dvw h-dvh"}>
+      <body className={openSans.className}>
         <QueryClientProvider client={queryClient}>
           <ThemeProvider
             attribute='class'
@@ -45,6 +46,7 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             {children}
+            <Toaster />
           </ThemeProvider>
         </QueryClientProvider>
       </body>

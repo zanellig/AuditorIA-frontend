@@ -66,6 +66,7 @@ export const UserContextProvider = ({
     },
     enabled: true,
     refetchOnMount: true,
+    staleTime: Infinity,
   })
 
   const { data: avatarData } = useQuery({
@@ -73,6 +74,7 @@ export const UserContextProvider = ({
     queryFn: () => fetchFromApi("avatar"),
     enabled: true,
     refetchOnMount: true,
+    staleTime: Infinity,
   })
 
   // Individual getter queries
@@ -169,14 +171,8 @@ export const UserContextProvider = ({
   }
 
   const removeUserData = async () => {
-    await queryClient.resetQueries(
-      { queryKey: ["user"], exact: true },
-      { cancelRefetch: true }
-    )
-    await queryClient.resetQueries(
-      { queryKey: ["user", "avatar"], exact: true },
-      { cancelRefetch: true }
-    )
+    queryClient.removeQueries({ queryKey: ["user"], exact: true })
+    queryClient.removeQueries({ queryKey: ["user", "avatar"], exact: true })
   }
 
   const value = {

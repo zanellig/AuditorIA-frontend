@@ -30,39 +30,42 @@ import Link from "next/link"
 import { Checkbox } from "@/components/ui/checkbox"
 import { UserData } from "@/app/api/user/user"
 
-const loginUser = async (
-  credentials: z.infer<typeof loginFormSchema>
-): Promise<UserData> => {
-  const host = await getHost()
-  const loginResponse = await fetch(`${host}/api/login`, {
-    method: "POST",
-    headers: {
-      "Origin": window.location.origin,
-      "Content-Type": "application/json",
-      "Accept": "application/json",
-    },
-    body: JSON.stringify(credentials),
-  })
-
-  if (!loginResponse.ok) {
-    const error = await loginResponse.json()
-    throw new Error(error.message || "Ha ocurrido un error iniciando sesión")
-  }
-
-  const userResponse = await fetch(`${host}/api/user`)
-
-  if (!userResponse.ok) {
-    const error = await userResponse.json()
-    throw new Error(error.message || "Ha ocurrido un error iniciando sesión")
-  }
-
-  const user: UserData = await userResponse.json()
-
-  return user
-}
-
 export default function LoginForm() {
   const { toast } = useToast()
+
+  const loginUser = async (
+    credentials: z.infer<typeof loginFormSchema>
+  ): Promise<UserData> => {
+    const host = await getHost()
+    const loginResponse = await fetch(`${host}/api/login`, {
+      method: "POST",
+      headers: {
+        "Origin": window.location.origin,
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+      },
+      body: JSON.stringify(credentials),
+    })
+
+    if (!loginResponse.ok) {
+      const error = await loginResponse.json()
+      throw new Error(error.message || "Ha ocurrido un error iniciando sesión")
+    }
+
+    toast({ title: "Sesión iniciada correctamente", variant: "success" })
+
+    const userResponse = await fetch(`${host}/api/user`)
+
+    if (!userResponse.ok) {
+      const error = await userResponse.json()
+      throw new Error(error.message || "Ha ocurrido un error iniciando sesión")
+    }
+
+    const user: UserData = await userResponse.json()
+
+    return user
+  }
+
   const router = useRouter()
   const form = useForm<z.infer<typeof loginFormSchema>>({
     resolver: zodResolver(loginFormSchema),
@@ -81,7 +84,6 @@ export default function LoginForm() {
     onSuccess: async (data: UserData) => {
       toast({
         title: `¡Bienvenido${data ? " de nuevo " : ""}${data ? data?.userFullName.split(" ")[0] : ""}!`,
-        description: "Has iniciado sesión exitosamente.",
       })
       // Redirect to dashboard or home page
       router.push("/dashboard")

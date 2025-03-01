@@ -47,7 +47,7 @@ export function useTasksRecords({
     isFetching,
     isPlaceholderData,
     refetch,
-  } = useQuery({
+  } = useQuery<TasksRecordsInternalResponse>({
     queryKey: ["tasks", "records", page, filters],
     queryFn: () => fetchTasksRecords(filters),
     enabled: true,

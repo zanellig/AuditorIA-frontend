@@ -134,6 +134,7 @@ export function AvatarButton({ className }: { className?: string }) {
   const onLogout = async () => {
     await Promise.allSettled([removeAuthCookie(), removeUserData()])
     router.push("/login")
+    toast({ title: "Sesión cerrada correctamente" })
   }
 
   const isDesktop = useMediaQuery(IPAD_SIZE_QUERY)

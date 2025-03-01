@@ -56,32 +56,36 @@ export default function TroublesomeTasksPage() {
     setFirstPage,
   } = useTasksRecords({})
 
+  if (!data?.success)
+    return (
+      <Accordion type='single' collapsible>
+        <AccordionItem value='1'>
+          <AccordionTrigger className='text-error'>
+            Ocurrió un error
+          </AccordionTrigger>
+          <AccordionContent className='flex flex-col gap-2'>
+            <p>
+              {data?.success === false && (data?.message || error?.message)}
+            </p>
+            <Button
+              variant='secondary'
+              onClick={() => {
+                refetch()
+              }}
+            >
+              Reintentar
+            </Button>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+    )
+
   return (
     <TableContainer className='gap-2'>
       <TitleContainer separate className='gap-2'>
         <BookAudio className={DASHBOARD_ICON_CLASSES} />
         <TypographyH4>Todas las tareas</TypographyH4>
       </TitleContainer>
-      {(typeof data?.message === "string" || error !== null) && (
-        <Accordion type='single' collapsible>
-          <AccordionItem value='1'>
-            <AccordionTrigger className='text-error'>
-              Ocurrió un error
-            </AccordionTrigger>
-            <AccordionContent className='flex flex-col gap-2'>
-              <p>{data?.message || error?.message}</p>
-              <Button
-                variant='secondary'
-                onClick={() => {
-                  refetch()
-                }}
-              >
-                Reintentar
-              </Button>
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
-      )}
       <section className='flex justify-start items-center gap-2'>
         <div className='flex flex-row justify-start items-center gap-2'>
           <Button
@@ -101,7 +105,6 @@ export default function TroublesomeTasksPage() {
           onChange={e => setSearch(e.target.value)}
           value={search || ""}
           className='bg-popover'
-          disabled={isFetching || isPending}
         />
         <Select
           onValueChange={(value: keyof TaskRecordsSearchParams) => {
@@ -194,7 +197,7 @@ export default function TroublesomeTasksPage() {
           {data && (
             <ServerDataTable
               columns={columns}
-              data={data?.tasks ? data.tasks : []}
+              data={data?.success ? data?.tasks : []}
             />
           )}
           {error && (
@@ -213,7 +216,7 @@ export default function TroublesomeTasksPage() {
       </motion.div>
       <section className='flex justify-between items-center gap-2'>
         <span className='text-muted-foreground'>
-          Página {data?.total ? page : 0} de {data?.total ? data.pages : 0}
+          Página {data?.total ? page + 1 : 0} de {data?.total ? data.pages : 0}
         </span>
       </section>
     </TableContainer>
