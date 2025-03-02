@@ -17,12 +17,11 @@ export async function middleware(request: NextRequest, event: NextFetchEvent) {
   const authenticated = await isAuthenticated()
 
   if (!authenticated) {
-    const response = NextResponse.redirect(new URL("/login", request.url), {
-      headers,
-    })
     await setRedirectPathCookie(request.nextUrl.pathname)
 
-    return response
+    return NextResponse.redirect(new URL("/login", request.url), {
+      headers,
+    })
   }
 
   return NextResponse.next()
