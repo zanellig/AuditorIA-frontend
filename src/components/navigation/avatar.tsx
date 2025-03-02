@@ -133,7 +133,8 @@ export function AvatarButton({ className }: { className?: string }) {
   }
   const onLogout = async () => {
     await Promise.allSettled([removeAuthCookie(), removeUserData()])
-    await setRedirectPathCookie(window.location.pathname)
+    const path = window.location.pathname + window.location.search
+    await setRedirectPathCookie(path)
     router.push("/login")
     toast({ title: "Sesión cerrada correctamente" })
   }

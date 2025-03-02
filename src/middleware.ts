@@ -20,13 +20,17 @@ export async function middleware(request: NextRequest, event: NextFetchEvent) {
     Object.entries(headers).forEach(([key, value]) => {
       response.headers.set(key, value)
     })
-    response.cookies.set(REDIRECT_COOKIE_NAME, request.nextUrl.pathname, {
-      httpOnly: true,
-      secure: false,
-      maxAge: 60 * 5, // 5 minutes
-      path: "/",
-      sameSite: "lax",
-    })
+    response.cookies.set(
+      REDIRECT_COOKIE_NAME,
+      request.nextUrl.pathname + request.nextUrl.search,
+      {
+        httpOnly: true,
+        secure: false,
+        maxAge: 60 * 5, // 5 minutes
+        path: "/",
+        sameSite: "lax",
+      }
+    )
 
     return response
   }
