@@ -13,13 +13,22 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Sparkles } from "lucide-react"
+import {
+  Check,
+  Clipboard,
+  RefreshCw,
+  Sparkles,
+  ThumbsDown,
+  ThumbsUp,
+} from "lucide-react"
 import scrollIntoView from "smooth-scroll-into-view-if-needed"
 import { useUser } from "./context/UserProvider"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { useTranscription } from "./context/TranscriptionProvider"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip"
+import { handleCopyToClipboard } from "@/lib/utils"
 
 interface Message {
   timestamp: string
@@ -47,10 +56,14 @@ interface QuestionsResponse {
 export default function AIChatInterface() {
   const [messages, setMessages] = React.useState<Message[]>([])
   const [input, setInput] = React.useState("")
+  const [isHistoryLoaded, setIsHistoryLoaded] = React.useState(false)
+  const [copiedMessageId, setCopiedMessageId] = React.useState<string | null>(
+    null
+  )
+
   const scrollAreaRef = React.useRef<HTMLDivElement>(null)
   const lastMessageRef = React.useRef<HTMLDivElement>(null)
   const loadingBubbleRef = React.useRef<HTMLDivElement>(null)
-  const [isHistoryLoaded, setIsHistoryLoaded] = React.useState(false)
 
   const { userAvatar, userInitials, username } = useUser()
   const { taskId } = useTranscription()
@@ -98,6 +111,36 @@ export default function AIChatInterface() {
     refetchOnReconnect: false,
   })
 
+  const chatMutation = useMutation({
+    mutationFn: async (chatInput: string) => {
+      const response = await fetch("http://10.20.62.96:5678/webhook/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ chatInput, uuid: taskId, username }),
+      })
+
+      if (!response.ok) {
+        throw new Error(
+          `Error en la respuesta: ${response.status} ${response.statusText}`
+        )
+      }
+
+      const data = await response.json()
+
+      // Handle non-array responses
+      const responseArray = Array.isArray(data) ? data : [data]
+
+      // Check if we have a valid response with output
+      if (responseArray.length === 0 || !responseArray[0]?.output) {
+        throw new Error("Respuesta inválida del servidor")
+      }
+
+      return responseArray[0].output
+    },
+  })
+
   React.useEffect(() => {
     if (chatHistoryQuery.data?.chatHistory && !isHistoryLoaded) {
       try {
@@ -140,36 +183,6 @@ export default function AIChatInterface() {
       }
     }
   }, [chatHistoryQuery.data, isHistoryLoaded])
-
-  const chatMutation = useMutation({
-    mutationFn: async (chatInput: string) => {
-      const response = await fetch("http://10.20.62.96:5678/webhook/chat", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ chatInput, uuid: taskId, username }),
-      })
-
-      if (!response.ok) {
-        throw new Error(
-          `Error en la respuesta: ${response.status} ${response.statusText}`
-        )
-      }
-
-      const data = await response.json()
-
-      // Handle non-array responses
-      const responseArray = Array.isArray(data) ? data : [data]
-
-      // Check if we have a valid response with output
-      if (responseArray.length === 0 || !responseArray[0]?.output) {
-        throw new Error("Respuesta inválida del servidor")
-      }
-
-      return responseArray[0].output
-    },
-  })
 
   const scrollToElement = (ref: React.RefObject<HTMLDivElement>) => {
     if (ref.current) {
@@ -222,6 +235,15 @@ export default function AIChatInterface() {
       }
     }
   }
+
+  const handleCopyMessage = (content: string, id: string) => {
+    handleCopyToClipboard(content)
+    setCopiedMessageId(id)
+    setTimeout(() => {
+      setCopiedMessageId(null)
+    }, 2000)
+  }
+
   return (
     <Card className='w-[500px] max-w-[500px] mx-auto'>
       <CardHeader>
@@ -268,7 +290,7 @@ export default function AIChatInterface() {
                     </AvatarFallback>
                   </Avatar>
                   <div
-                    className={`rounded-lg px-4 py-2 max-w-[70%] ${
+                    className={`flex flex-col gap-2 rounded-lg px-4 py-2 max-w-[70%] ${
                       message.sender === "human"
                         ? "bg-primary text-primary-foreground"
                         : message.content.startsWith("Error") ||
@@ -345,6 +367,71 @@ export default function AIChatInterface() {
                       </ReactMarkdown>
                     ) : (
                       message.content
+                    )}
+                    {message.sender === "ai" && (
+                      <div className='flex gap-2'>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              size='icon'
+                              variant='ghost'
+                              className='rounded-full hover:bg-muted-foreground/10 h-6 w-6'
+                              onClick={() =>
+                                handleCopyMessage(
+                                  message.content,
+                                  message.timestamp
+                                )
+                              }
+                            >
+                              {copiedMessageId === message.timestamp ? (
+                                <Check className='h-4 w-4' />
+                              ) : (
+                                <Clipboard className='h-4 w-4' />
+                              )}
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Copiar</TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              size='icon'
+                              variant='ghost'
+                              className='rounded-full hover:bg-muted-foreground/10 h-6 w-6'
+                            >
+                              <ThumbsUp className='h-4 w-4' />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Respuesta adecuada</TooltipContent>
+                        </Tooltip>
+
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              size='icon'
+                              variant='ghost'
+                              className='rounded-full hover:bg-muted-foreground/10 h-6 w-6'
+                            >
+                              <ThumbsDown className='h-4 w-4' />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Respuesta inadecuada</TooltipContent>
+                        </Tooltip>
+
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              size='icon'
+                              variant='ghost'
+                              className='rounded-full hover:bg-muted-foreground/10 h-6 w-6'
+                              disabled
+                            >
+                              <RefreshCw className='h-4 w-4' />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Regenerar respuesta</TooltipContent>
+                        </Tooltip>
+                      </div>
                     )}
                   </div>
                 </div>
