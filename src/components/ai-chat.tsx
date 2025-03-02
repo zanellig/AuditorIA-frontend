@@ -453,33 +453,32 @@ export default function AIChatInterface() {
                 </div>
               </div>
             )}
+            <AnimatePresence mode='wait'>
+              {questionsQuery.data &&
+                messages.length === 0 &&
+                questionsQuery.data.questions?.map((question, index) => (
+                  <motion.div
+                    key={question}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.3 + index * 0.1 }}
+                    className='w-full'
+                  >
+                    <Button
+                      variant='ghost'
+                      className='w-full text-xs text-wrap'
+                      onClick={() => handleSend(question)}
+                    >
+                      {question}
+                    </Button>
+                  </motion.div>
+                ))}
+            </AnimatePresence>
           </div>
         </ScrollArea>
       </CardContent>
       <CardFooter className='flex flex-col gap-2'>
-        <AnimatePresence mode='wait'>
-          {questionsQuery.data &&
-            messages.length === 0 &&
-            questionsQuery.data.questions?.map((question, index) => (
-              <motion.div
-                key={question}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.3 + index * 0.1 }}
-                className='w-full'
-              >
-                <Button
-                  variant='ghost'
-                  className='w-full text-xs text-wrap'
-                  onClick={() => handleSend(question)}
-                >
-                  {question}
-                </Button>
-              </motion.div>
-            ))}
-        </AnimatePresence>
-
         <form
           onSubmit={e => {
             e.preventDefault()
