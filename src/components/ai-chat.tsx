@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { AnimatePresence, motion } from "framer-motion"
 import {
   Card,
   CardHeader,
@@ -39,6 +40,10 @@ interface ChatHistoryResponse {
   chatHistory: string[]
 }
 
+interface QuestionsResponse {
+  questions: string[]
+}
+
 export default function AIChatInterface() {
   const [messages, setMessages] = React.useState<Message[]>([])
   const [input, setInput] = React.useState("")
@@ -67,6 +72,30 @@ export default function AIChatInterface() {
       return data
     },
     enabled: !!taskId,
+  })
+
+  const questionsQuery = useQuery<QuestionsResponse>({
+    queryKey: ["questions", taskId],
+    queryFn: async () => {
+      const url = new URL("http://10.20.62.96:5678/webhook/generate_questions")
+      url.searchParams.append("uuid", String(taskId))
+      const response = await fetch(url)
+      if (!response.ok) {
+        throw new Error(
+          `Error en la respuesta: ${response.status} ${response.statusText}`
+        )
+      }
+
+      const data = await response.json()
+
+      return data[0]
+    },
+    enabled:
+      !!taskId && messages.length === 0 && !chatHistoryQuery.data?.chatHistory,
+    staleTime: Infinity,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
   })
 
   React.useEffect(() => {
@@ -153,11 +182,11 @@ export default function AIChatInterface() {
     }
   }
 
-  const handleSend = async () => {
-    if (input.trim()) {
+  const handleSend = async (message?: string) => {
+    if (input.trim() || message) {
       const newMessage: Message = {
         timestamp: Date.now().toString(),
-        content: input.trim(),
+        content: message ?? input.trim(),
         sender: "human",
       }
       setMessages(prev => [...prev, newMessage])
@@ -167,7 +196,7 @@ export default function AIChatInterface() {
       setTimeout(() => scrollToElement(loadingBubbleRef), 100)
 
       try {
-        const response = await chatMutation.mutateAsync(input.trim())
+        const response = await chatMutation.mutateAsync(message ?? input.trim())
         const aiResponse: Message = {
           timestamp: Date.now().toString(),
           content: response,
@@ -194,7 +223,7 @@ export default function AIChatInterface() {
     }
   }
   return (
-    <Card className='w-full max-w-2xl mx-auto'>
+    <Card className='w-[500px] max-w-[500px] mx-auto'>
       <CardHeader>
         <CardTitle>Conversar con el llamado</CardTitle>
       </CardHeader>
@@ -340,7 +369,30 @@ export default function AIChatInterface() {
           </div>
         </ScrollArea>
       </CardContent>
-      <CardFooter>
+      <CardFooter className='flex flex-col gap-2'>
+        <AnimatePresence mode='wait'>
+          {questionsQuery.data &&
+            messages.length === 0 &&
+            questionsQuery.data.questions?.map((question, index) => (
+              <motion.div
+                key={question}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 + index * 0.1 }}
+                className='w-full'
+              >
+                <Button
+                  variant='ghost'
+                  className='w-full text-xs text-wrap'
+                  onClick={() => handleSend(question)}
+                >
+                  {question}
+                </Button>
+              </motion.div>
+            ))}
+        </AnimatePresence>
+
         <form
           onSubmit={e => {
             e.preventDefault()

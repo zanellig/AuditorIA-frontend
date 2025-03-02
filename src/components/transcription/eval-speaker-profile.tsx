@@ -10,15 +10,17 @@ import {
 import { Task } from "@/lib/types"
 import { cn } from "@/lib/utils"
 import { getHost } from "@/lib/actions"
-import { Loader, Sparkles } from "lucide-react"
+import { Loader2, Sparkles } from "lucide-react"
 import SpkAnalysis from "./spkanalysis"
 
 function EvalSpeakerProfile({
   className,
   id,
+  setFetchStatus,
 }: {
   className?: string
   id: Task["identifier"]
+  setFetchStatus?: React.Dispatch<React.SetStateAction<boolean>>
 }) {
   const [ableToFetch, setAbleToFetch] = React.useState(false)
   const {
@@ -28,7 +30,7 @@ function EvalSpeakerProfile({
   } = useQuery({
     queryKey: ["LLMAnalysis", id],
     queryFn: fetchLLMAnalysis,
-    enabled: ableToFetch,
+    enabled: !!id && ableToFetch,
     retry: false,
   })
 
@@ -47,10 +49,7 @@ function EvalSpeakerProfile({
 
   return (
     <AccordionItem value='2'>
-      <AccordionTrigger
-        className='space-x-4'
-        onClick={() => setAbleToFetch(true)}
-      >
+      <AccordionTrigger onClick={() => setAbleToFetch(true)}>
         <span className='flex gap-2 justify-start items-center'>
           <span>Evaluar perfil de hablante</span>
           <Sparkles size={GLOBAL_ICON_SIZE} className='animate-sparkle' />
@@ -59,13 +58,15 @@ function EvalSpeakerProfile({
       <AccordionContent className={cn(className)}>
         {isLoading && (
           <div className='flex justify-center w-full'>
-            <Loader className={cn(DASHBOARD_ICON_CLASSES, "animate-spin")} />
+            <Loader2 className={cn(DASHBOARD_ICON_CLASSES, "animate-spin")} />
           </div>
         )}
         {error && (
           <code className='text-error'>{(error as Error).message}</code>
         )}
-        <SpkAnalysis speakers={speakers} LLMAnalysis={LLMAnalysis} />
+        {LLMAnalysis && (
+          <SpkAnalysis speakers={speakers} LLMAnalysis={LLMAnalysis} />
+        )}
       </AccordionContent>
     </AccordionItem>
   )

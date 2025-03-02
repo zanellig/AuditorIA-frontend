@@ -12,7 +12,7 @@ import {
 import { cn } from "@/lib/utils"
 import { LogOut, Settings, Upload } from "lucide-react"
 import { GLOBAL_ICON_SIZE, IPAD_SIZE_QUERY } from "@/lib/consts"
-import { removeAuthCookie } from "@/lib/auth"
+import { removeAuthCookie, setRedirectPathCookie } from "@/lib/auth"
 import {
   Dialog,
   DialogClose,
@@ -133,6 +133,8 @@ export function AvatarButton({ className }: { className?: string }) {
   }
   const onLogout = async () => {
     await Promise.allSettled([removeAuthCookie(), removeUserData()])
+    const path = window.location.pathname + window.location.search
+    await setRedirectPathCookie(path)
     router.push("/login")
     toast({ title: "Sesión cerrada correctamente" })
   }

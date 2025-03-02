@@ -86,6 +86,26 @@ export default function TroublesomeTasksPage() {
         <BookAudio className={DASHBOARD_ICON_CLASSES} />
         <TypographyH4>Todas las tareas</TypographyH4>
       </TitleContainer>
+      {data?.success === false && (
+        <Accordion type='single' collapsible>
+          <AccordionItem value='1'>
+            <AccordionTrigger className='text-error'>
+              Ocurrió un error
+            </AccordionTrigger>
+            <AccordionContent className='flex flex-col gap-2'>
+              <p>{data?.message || error?.message}</p>
+              <Button
+                variant='secondary'
+                onClick={() => {
+                  refetch()
+                }}
+              >
+                Reintentar
+              </Button>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+      )}
       <section className='flex justify-start items-center gap-2'>
         <div className='flex flex-row justify-start items-center gap-2'>
           <Button

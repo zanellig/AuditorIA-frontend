@@ -72,8 +72,9 @@ export const TranscriptionProvider = ({
     queryFn: () => fetchTranscription(taskIdState!),
     enabled: !!taskIdState,
     refetchOnMount: false,
-    refetchOnWindowFocus: true,
-    retry: false,
+    refetchOnWindowFocus: false,
+    retry: true,
+    refetchInterval: 10 * 1000, // 10 seconds
   })
 
   const agentIdentityQuery = useQuery({

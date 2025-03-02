@@ -3,6 +3,7 @@ import { env } from "@/env"
 import { cookies } from "next/headers"
 
 const AUTH_COOKIE = "session"
+const REDIRECT_COOKIE_NAME = "redirect_path"
 
 export interface AuthTokens {
   access_token: string
@@ -52,4 +53,24 @@ export async function isAuthenticated() {
     isAuthenticated = false
   }
   return isAuthenticated
+}
+
+export async function setRedirectPathCookie(path: string) {
+  const cstore = await cookies()
+  cstore.set(REDIRECT_COOKIE_NAME, path, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 60 * 5, // 5 minutes
+    path: "/",
+  })
+}
+
+export async function getRedirectPathCookie() {
+  const cstore = await cookies()
+  return cstore.get(REDIRECT_COOKIE_NAME)?.value || "/dashboard"
+}
+
+export async function clearRedirectPathCookie() {
+  const cstore = await cookies()
+  cstore.set(REDIRECT_COOKIE_NAME, "", { expires: new Date(0) })
 }

@@ -29,8 +29,9 @@ import { getHost } from "@/lib/actions"
 import Link from "next/link"
 import { Checkbox } from "@/components/ui/checkbox"
 import { UserData } from "@/app/api/user/user"
+import { clearRedirectPathCookie } from "@/lib/auth"
 
-export default function LoginForm() {
+export default function LoginForm({ redirectPath }: { redirectPath: string }) {
   const { toast } = useToast()
 
   const loginUser = async (
@@ -85,8 +86,11 @@ export default function LoginForm() {
       toast({
         title: `¡Bienvenido${data ? " de nuevo " : ""}${data ? data?.userFullName.split(" ")[0] : ""}!`,
       })
-      // Redirect to dashboard or home page
-      router.push("/dashboard")
+
+      await clearRedirectPathCookie()
+
+      // Redirect to the saved path or dashboard
+      router.push(redirectPath)
     },
     onError: (error: Error) => {
       toast({

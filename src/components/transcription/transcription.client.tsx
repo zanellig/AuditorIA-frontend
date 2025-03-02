@@ -134,28 +134,33 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
     scrollToSegment(player.currentTime)
   }, [player.isPlaying, player.currentTime, transcription?.result?.segments])
 
-  if (queryStatus.isPending) return <TranscriptionSkeleton />
-  if (queryStatus.error)
-    return (
-      <ErrorCodeUserFriendly
-        error={queryStatus.error}
-        locale={SupportedLocales.Values.es}
-      />
-    )
-
   const recordingDate = new Date(recordingQuery.data?.INICIO!)
   let formattedDate = ""
   if (recordingDate && !isNaN(recordingDate.getTime())) {
     formattedDate = formatDate(recordingDate, "dd-MM-yyyy HH:mm:ss")
   }
 
+  if (queryStatus.isPending) {
+    return <TranscriptionSkeleton />
+  }
+
+  if (queryStatus.error) {
+    return (
+      <ErrorCodeUserFriendly
+        error={queryStatus.error}
+        locale={SupportedLocales.Values.es}
+      />
+    )
+  }
+
+  if (isAnalysisNotReady) {
+    return <TranscriptionNotReady status={transcription?.status} />
+  }
+
   return (
     <>
       {!drawerOptions?.show && transcription && (
         <>
-          {isAnalysisNotReady && (
-            <TranscriptionNotReady status={transcription?.status} />
-          )}
           <SpeakerAnalysisCard segments={transcription?.result?.segments} />
           <TableContainer>
             <section className='flex flex-col gap-2 items-start mt-6 justify-start'>
