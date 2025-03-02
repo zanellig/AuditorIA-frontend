@@ -56,30 +56,6 @@ export default function TroublesomeTasksPage() {
     setFirstPage,
   } = useTasksRecords({})
 
-  if (!data?.success)
-    return (
-      <Accordion type='single' collapsible>
-        <AccordionItem value='1'>
-          <AccordionTrigger className='text-error'>
-            Ocurrió un error
-          </AccordionTrigger>
-          <AccordionContent className='flex flex-col gap-2'>
-            <p>
-              {data?.success === false && (data?.message || error?.message)}
-            </p>
-            <Button
-              variant='secondary'
-              onClick={() => {
-                refetch()
-              }}
-            >
-              Reintentar
-            </Button>
-          </AccordionContent>
-        </AccordionItem>
-      </Accordion>
-    )
-
   return (
     <TableContainer className='gap-2'>
       <TitleContainer separate className='gap-2'>
