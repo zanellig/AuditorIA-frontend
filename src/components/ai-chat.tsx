@@ -90,7 +90,8 @@ export default function AIChatInterface() {
 
       return data[0]
     },
-    enabled: !!taskId && messages.length === 0,
+    enabled:
+      !!taskId && messages.length === 0 && !chatHistoryQuery.data?.chatHistory,
     staleTime: Infinity,
     refetchOnMount: false,
     refetchOnWindowFocus: false,

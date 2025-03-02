@@ -15,7 +15,6 @@ import {
   Users,
 } from "lucide-react"
 import type { ITranscription } from "@/lib/types"
-import { formatTimestamp, secondsToHMS } from "@/lib/utils"
 import m from "@/lib/locales"
 
 interface IMetadataDisplayProps {
