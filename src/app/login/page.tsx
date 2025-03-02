@@ -4,6 +4,7 @@ import { Metadata } from "next"
 import LoginForm from "./_components/login-form"
 import LoginBackground from "./_components/login-background"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { getRedirectPathCookie } from "@/lib/auth"
 
 export const metadata: Metadata = {
   title: "Iniciar Sesión | AuditorIA - Auditoría de Llamadas Inteligente",
@@ -22,6 +23,8 @@ export const metadata: Metadata = {
 }
 
 export default async function LoginPage() {
+  const redirectPath = await getRedirectPathCookie()
+
   return (
     <main className='w-dvw min-w-dvw h-dvh min-h-dvh'>
       <ScrollArea>
@@ -43,7 +46,7 @@ export default async function LoginPage() {
               </TypographyH4>
 
               <div className='w-full'>
-                <LoginForm />
+                <LoginForm redirectPath={redirectPath} />
               </div>
             </article>
           </section>
