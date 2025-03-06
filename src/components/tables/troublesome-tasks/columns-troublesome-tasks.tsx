@@ -1,21 +1,41 @@
 import { ColumnDef } from "@tanstack/react-table"
-import { TaskRecordsResponse } from "@/lib/types"
+import { TasksRecordsResponse } from "@/lib/types"
 import Link from "next/link"
-import { formatTimestamp, secondsToHMS } from "@/lib/utils"
+import {
+  formatTimestamp,
+  handleCopyToClipboard,
+  secondsToHMS,
+} from "@/lib/utils"
 import A from "@/components/typography/a"
 import { renderMarker } from "@/components/tables/marker-renderer"
 
 import { type Status } from "@/lib/types"
 import { Badge } from "@/components/ui/badge"
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Button } from "@/components/ui/button"
+import { Clipboard, Ellipsis, Loader2, Sparkles, Trash } from "lucide-react"
+import { GLOBAL_ICON_SIZE } from "@/lib/consts"
+import { Checkbox } from "@/components/ui/checkbox"
+import { useToast } from "@/hooks/use-toast"
+import { useMutation } from "@tanstack/react-query"
+import { getHost } from "@/lib/actions"
 
-export const columns: ColumnDef<TaskRecordsResponse>[] = [
+export const columns: ColumnDef<TasksRecordsResponse>[] = [
   {
     accessorKey: "uuid",
     header: () => {
       return <div className='text-start'>ID</div>
     },
     cell: ({ row }) => {
-      const ID = row.original?.uuid as TaskRecordsResponse["uuid"]
+      const ID = row.original?.uuid as TasksRecordsResponse["uuid"]
       const slicedID = `${ID.slice(0, 6)}...`
 
       return (
@@ -113,6 +133,84 @@ export const columns: ColumnDef<TaskRecordsResponse>[] = [
         {row.original?.URL ? "Audio disponible" : "Audio no disponible"}
       </Badge>
     ),
+  },
+  {
+    accessorKey: "null",
+    header: () => {
+      return <></>
+    },
+    cell: ({ row }) => {
+      const canAnalyze =
+        row.original?.status !== "analyzed" &&
+        row.original?.status !== "analyzing"
+
+      const { toast } = useToast()
+
+      const deleteTaskMutation = useMutation({
+        mutationFn: async () => {
+          const url = new URL(`${await getHost()}/api/task`)
+          url.searchParams.append("identifier", row.original?.uuid as string)
+          const res = await fetch(url.toString(), {
+            method: "DELETE",
+          })
+          if (!res.ok) {
+            throw new Error("Error al borrar la tarea")
+          }
+          return res.json()
+        },
+        onSuccess: () => {
+          toast({ title: "Tarea borrada", variant: "success" })
+        },
+        onError: () => {
+          toast({ title: "Error al borrar la tarea", variant: "destructive" })
+        },
+      })
+
+      const handleCopyId = () => {
+        handleCopyToClipboard(row.original?.uuid as string)
+        toast({ title: "ID copiado al portapapeles" })
+      }
+      return (
+        <div className='justify-end'>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button size='icon' variant={"ghost"}>
+                <span className='sr-only'>Acciones</span>
+                <Ellipsis size={GLOBAL_ICON_SIZE} />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className='min-w-60' align={"center"}>
+              {canAnalyze && (
+                <DropdownMenuItem className='gap-2'>
+                  <Sparkles
+                    size={GLOBAL_ICON_SIZE}
+                    className='animate-sparkle'
+                  />
+                  <span>Analizar tarea</span>
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuItem className='gap-2' onClick={handleCopyId}>
+                <Clipboard size={GLOBAL_ICON_SIZE} />
+                <span>Copiar ID</span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                className='gap-2 text-destructive'
+                onClick={() => deleteTaskMutation.mutate()}
+                disabled={deleteTaskMutation.isPending}
+              >
+                {deleteTaskMutation.isPending ? (
+                  <Loader2 size={GLOBAL_ICON_SIZE} className='animate-spin' />
+                ) : (
+                  <Trash size={GLOBAL_ICON_SIZE} />
+                )}
+                <span>Borrar tarea</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      )
+    },
   },
 ]
 
