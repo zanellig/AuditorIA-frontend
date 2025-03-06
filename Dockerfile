@@ -69,6 +69,8 @@ ENV API_MAIN=${API_MAIN} \
 # --- Security ---
 RUN addgroup -S nodejs && adduser -S nextjs -G nodejs
 
+RUN mkdir -p /app/.next/cache && chown nextjs:nodejs /app/.next/cache
+
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static

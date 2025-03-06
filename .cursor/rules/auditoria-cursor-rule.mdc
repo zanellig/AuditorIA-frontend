@@ -1,0 +1,9 @@
+---
+description: writing and extending nextjs 14 react components and typescript utilities
+globs: *.tsx, *.ts
+alwaysApply: true
+---
+always search for existing types, utils and components, and use typescript type system combined with zod. always use react components and try to modularize resposibly. recommend refactors for better readability, modularity and usability.
+[utils.ts](mdc:src/lib/utils.ts), [forms.ts](mdc:src/lib/forms.ts), [types.ts](mdc:src/lib/types.ts), [actions.ts](mdc:src/lib/actions.ts), [auth.ts](mdc:src/lib/auth.ts) and [consts.ts](mdc:src/lib/consts.ts) have the utilities you need.
+
+don't remove comments, and only add comments if you have to explain a certain way of doing things that is not usual, because of edge-cases
