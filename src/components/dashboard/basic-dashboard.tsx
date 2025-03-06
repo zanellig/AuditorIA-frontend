@@ -17,6 +17,8 @@ import {
   Upload,
   User,
 } from "lucide-react"
+import { usePostHog } from "posthog-js/react"
+import { useUser } from "../context/UserProvider"
 
 const ButtonArrow = React.forwardRef<
   SVGSVGElement,
@@ -33,6 +35,16 @@ const ButtonArrow = React.forwardRef<
 ButtonArrow.displayName = "ButtonArrow"
 
 export default function BasicDashboard() {
+  const posthog = usePostHog()
+  const { username, userEmail, userFullName } = useUser()
+  React.useEffect(() => {
+    posthog?.identify(undefined, {
+      email: userEmail,
+      full_name: userFullName,
+      username,
+    })
+  }, [username, userEmail, userFullName])
+
   const dashboardItems = [
     {
       title: "Subir archivos",
