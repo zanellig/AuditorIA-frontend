@@ -9,5 +9,5 @@ export default function Error({
   error: Error & { digest?: string }
   reset: () => void
 }) {
-  return <ErrorScreen error={error} reset={reset} />
+  return <ErrorScreen error={error} reset={reset} showNavbar={false} />
 }
