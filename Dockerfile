@@ -14,7 +14,7 @@ COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* .npmrc* ./
 RUN \
   if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
   elif [ -f package-lock.json ]; then npm ci; \
-  elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm i --frozen-lockfile; \
+  elif [ -f pnpm-lock.yaml ]; then npm install -g pnpm && pnpm i --frozen-lockfile; \
   else echo "Lockfile not found." && exit 1; \
   fi
 
@@ -69,6 +69,7 @@ ENV API_MAIN=${API_MAIN} \
 # --- Security ---
 RUN addgroup -S nodejs && adduser -S nextjs -G nodejs
 
+# Create cache directory with proper permissions in one step
 RUN mkdir -p /app/.next/cache && chown nextjs:nodejs /app/.next/cache
 
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
