@@ -135,7 +135,7 @@ export const columns: ColumnDef<TasksRecordsResponse>[] = [
     ),
   },
   {
-    accessorKey: "null",
+    accessorKey: "acciones",
     header: () => {
       return <></>
     },
