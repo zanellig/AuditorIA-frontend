@@ -151,7 +151,9 @@ export default function TroublesomeTasksPage() {
             onClick={setNextPage}
             variant={"outline"}
             size='icon'
-            disabled={!data?.hasMore || isFetching || isPending}
+            disabled={
+              data?.success && (!data?.hasMore || isFetching || isPending)
+            }
           >
             <ChevronRightIcon size={GLOBAL_ICON_SIZE} />
           </Button>
@@ -159,62 +161,66 @@ export default function TroublesomeTasksPage() {
             onClick={setLastPage}
             variant={"outline"}
             size='icon'
-            disabled={!data?.hasMore || isFetching || isPending}
+            disabled={
+              data?.success && (!data?.hasMore || isFetching || isPending)
+            }
           >
             <ChevronsRightIcon size={GLOBAL_ICON_SIZE} />
           </Button>
         </div>
       </section>
-      <motion.div
-        layout
-        className='relative w-full min-h-32 flex flex-col gap-2'
-      >
-        <AnimatePresence mode='popLayout'>
-          {(isPending || isFetching) && (
+      {data?.success && (
+        <>
+          <motion.div
+            layout
+            className='relative w-full min-h-32 flex flex-col gap-2'
+          >
+            <AnimatePresence mode='popLayout'>
+              {(isPending || isFetching) && (
+                <motion.div
+                  key='loader'
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className='absolute inset-0 flex justify-center items-center rounded-md bg-background/80 backdrop-blur-sm z-10'
+                >
+                  <Loader className='animate-spin' />
+                </motion.div>
+              )}
+            </AnimatePresence>
             <motion.div
-              key='loader'
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className='absolute inset-0 flex justify-center items-center rounded-md bg-background/80 backdrop-blur-sm z-10'
+              layout
+              transition={{
+                layout: { duration: 0.3, ease: "easeInOut" },
+              }}
             >
-              <Loader className='animate-spin' />
+              {data && (
+                <ServerDataTable columns={columns} data={data?.tasks || []} />
+              )}
+              {error && (
+                <motion.div
+                  key='error'
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className='text-destructive'
+                >
+                  {error?.message}
+                </motion.div>
+              )}
             </motion.div>
-          )}
-        </AnimatePresence>
+          </motion.div>
 
-        <motion.div
-          layout
-          transition={{
-            layout: { duration: 0.3, ease: "easeInOut" },
-          }}
-        >
-          {data && (
-            <ServerDataTable
-              columns={columns}
-              data={data?.success ? data?.tasks : []}
-            />
-          )}
-          {error && (
-            <motion.div
-              key='error'
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className='text-destructive'
-            >
-              {error?.message}
-            </motion.div>
-          )}
-        </motion.div>
-      </motion.div>
-      <section className='flex justify-between items-center gap-2'>
-        <span className='text-muted-foreground'>
-          Página {data?.total ? page + 1 : 0} de {data?.total ? data.pages : 0}
-        </span>
-      </section>
+          <section className='flex justify-between items-center gap-2'>
+            <span className='text-muted-foreground'>
+              Página {data?.total ? page + 1 : 0} de{" "}
+              {data?.total ? data.pages : 0}
+            </span>
+          </section>
+        </>
+      )}
     </TableContainer>
   )
 }
