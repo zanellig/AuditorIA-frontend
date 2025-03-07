@@ -169,58 +169,54 @@ export default function TroublesomeTasksPage() {
           </Button>
         </div>
       </section>
-      {data?.success && (
-        <>
-          <motion.div
-            layout
-            className='relative w-full min-h-32 flex flex-col gap-2'
-          >
-            <AnimatePresence mode='popLayout'>
-              {(isPending || isFetching) && (
-                <motion.div
-                  key='loader'
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className='absolute inset-0 flex justify-center items-center rounded-md bg-background/80 backdrop-blur-sm z-10'
-                >
-                  <Loader className='animate-spin' />
-                </motion.div>
-              )}
-            </AnimatePresence>
-            <motion.div
-              layout
-              transition={{
-                layout: { duration: 0.3, ease: "easeInOut" },
-              }}
-            >
-              {data && (
-                <ServerDataTable columns={columns} data={data?.tasks || []} />
-              )}
-              {error && (
-                <motion.div
-                  key='error'
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className='text-destructive'
-                >
-                  {error?.message}
-                </motion.div>
-              )}
-            </motion.div>
-          </motion.div>
 
-          <section className='flex justify-between items-center gap-2'>
-            <span className='text-muted-foreground'>
-              Página {data?.total ? page + 1 : 0} de{" "}
-              {data?.total ? data.pages : 0}
-            </span>
-          </section>
-        </>
-      )}
+      <motion.div
+        layout
+        className='relative w-full min-h-32 flex flex-col gap-2'
+      >
+        <AnimatePresence mode='popLayout'>
+          {(isPending || isFetching) && (
+            <motion.div
+              key='loader'
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className='absolute inset-0 flex justify-center items-center rounded-md bg-background/80 backdrop-blur-sm z-10'
+            >
+              <Loader className='animate-spin' />
+            </motion.div>
+          )}
+        </AnimatePresence>
+        <motion.div
+          layout
+          transition={{
+            layout: { duration: 0.3, ease: "easeInOut" },
+          }}
+        >
+          {data && (
+            <ServerDataTable columns={columns} data={data?.tasks || []} />
+          )}
+          {error && (
+            <motion.div
+              key='error'
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className='text-destructive'
+            >
+              {error?.message}
+            </motion.div>
+          )}
+        </motion.div>
+      </motion.div>
+
+      <section className='flex justify-between items-center gap-2'>
+        <span className='text-muted-foreground'>
+          Página {data?.total ? page + 1 : 0} de {data?.total ? data.pages : 0}
+        </span>
+      </section>
     </TableContainer>
   )
 }
