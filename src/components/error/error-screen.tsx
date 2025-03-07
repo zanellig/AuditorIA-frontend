@@ -13,19 +13,21 @@ export default function ErrorScreen({
   redirectUrl = "/dashboard",
   errorTitle = "¡Ha ocurrido un error! 😯",
   id,
+  showNavbar = true,
 }: {
   error?: Error & { digest?: string }
   reset?: () => void
   redirectUrl?: string
   errorTitle?: string
   id?: string
+  showNavbar?: boolean
 }) {
   if (!id) id = "generic-error-screen"
   const router = useRouter()
   return (
     <>
       <main id={id} className='flex flex-col'>
-        <TopNavbar />
+        {showNavbar && <TopNavbar />}
         <div className='flex flex-col items-start space-y-5 p-16'>
           <TitleH1>{errorTitle}</TitleH1>
           <ParagraphP>
