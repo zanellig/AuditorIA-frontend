@@ -19,9 +19,12 @@ export async function getNetworkAudio(
     const smbClientInstalled =
       (await execAsync("which smbclient").catch(() => null)) !== null
     if (!smbClientInstalled) {
-      console.log("smbclient not installed")
-
-      return [new Error("smbclient is not installed on this system"), null]
+      return [
+        new Error(
+          "smbclient is not installed on this system. Please install it using: sudo apt install samba-client"
+        ),
+        null,
+      ]
     }
   }
 

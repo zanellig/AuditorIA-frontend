@@ -21,12 +21,18 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
-import { Clipboard, Ellipsis, Loader2, Sparkles, Trash } from "lucide-react"
+import {
+  Clipboard,
+  Download,
+  Ellipsis,
+  Loader2,
+  Sparkles,
+  Trash,
+} from "lucide-react"
 import { GLOBAL_ICON_SIZE } from "@/lib/consts"
-import { Checkbox } from "@/components/ui/checkbox"
-import { useToast } from "@/hooks/use-toast"
-import { useMutation } from "@tanstack/react-query"
-import { getHost } from "@/lib/actions"
+import { useToast } from "@/components/ui/use-toast"
+import { useDeleteTaskMutation } from "@/lib/hooks/mutations/delete-task-mutation"
+import { fetchAudioData } from "@/lib/actions"
 
 export const columns: ColumnDef<TasksRecordsResponse>[] = [
   {
@@ -126,7 +132,7 @@ export const columns: ColumnDef<TasksRecordsResponse>[] = [
   {
     accessorKey: "URL",
     header: () => {
-      return <></>
+      return <>Audio</>
     },
     cell: ({ row }) => (
       <Badge variant={row.original?.URL ? "success" : "error"}>
@@ -137,7 +143,7 @@ export const columns: ColumnDef<TasksRecordsResponse>[] = [
   {
     accessorKey: "acciones",
     header: () => {
-      return <></>
+      return <>Acciones</>
     },
     cell: ({ row }) => {
       const canAnalyze =
@@ -146,30 +152,66 @@ export const columns: ColumnDef<TasksRecordsResponse>[] = [
 
       const { toast } = useToast()
 
-      const deleteTaskMutation = useMutation({
-        mutationFn: async () => {
-          const url = new URL(`${await getHost()}/api/task`)
-          url.searchParams.append("identifier", row.original?.uuid as string)
-          const res = await fetch(url.toString(), {
-            method: "DELETE",
-          })
-          if (!res.ok) {
-            throw new Error("Error al borrar la tarea")
-          }
-          return res.json()
-        },
-        onSuccess: () => {
-          toast({ title: "Tarea borrada", variant: "success" })
-        },
-        onError: () => {
-          toast({ title: "Error al borrar la tarea", variant: "destructive" })
-        },
-      })
+      const deleteTaskMutation = useDeleteTaskMutation()
 
       const handleCopyId = () => {
         handleCopyToClipboard(row.original?.uuid as string)
         toast({ title: "ID copiado al portapapeles" })
       }
+
+      const handleDownloadAudio = async () => {
+        const audioURL = row.original?.URL
+        if (!audioURL) {
+          toast({ title: "No hay audio disponible" })
+          return
+        }
+
+        // Check if it's a network path
+        if (audioURL.startsWith("\\\\") || audioURL.startsWith("file://")) {
+          const a = document.createElement("a")
+          const gettingAudioToast = toast({
+            title: "Obteniendo audio...",
+            duration: 3000,
+          })
+          try {
+            const audioBuffer = await fetchAudioData(audioURL)
+            if (!audioBuffer) {
+              gettingAudioToast.dismiss()
+              throw new Error("No se pudo obtener el audio")
+            }
+            // Create blob from buffer and create download link
+            const blob = new Blob([audioBuffer])
+            const url = window.URL.createObjectURL(blob)
+            a.href = url
+            a.download = `${row.original?.uuid}.mp3`
+            a.click()
+
+            // Cleanup
+            window.URL.revokeObjectURL(url)
+            gettingAudioToast.dismiss()
+            toast({ title: "Audio descargado" })
+          } catch (error) {
+            gettingAudioToast.dismiss()
+            toast({
+              title: "Error al descargar el audio",
+              description:
+                error instanceof Error ? error.message : "Error desconocido",
+              variant: "destructive",
+            })
+          } finally {
+            a.remove()
+          }
+          return
+        }
+
+        // Handle regular HTTP URLs as before
+        const a = document.createElement("a")
+        a.href = audioURL
+        a.download = `${row.original?.uuid}.mp3`
+        a.click()
+        toast({ title: "Audio descargado" })
+      }
+
       return (
         <div className='justify-end'>
           <DropdownMenu>
@@ -193,10 +235,18 @@ export const columns: ColumnDef<TasksRecordsResponse>[] = [
                 <Clipboard size={GLOBAL_ICON_SIZE} />
                 <span>Copiar ID</span>
               </DropdownMenuItem>
+              <DropdownMenuItem
+                className='gap-2'
+                onClick={handleDownloadAudio}
+                disabled={!row.original?.URL}
+              >
+                <Download size={GLOBAL_ICON_SIZE} />
+                <span>Descargar audio</span>
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 className='gap-2 text-destructive'
-                onClick={() => deleteTaskMutation.mutate()}
+                onClick={() => deleteTaskMutation.mutate(row.original?.uuid)}
                 disabled={deleteTaskMutation.isPending}
               >
                 {deleteTaskMutation.isPending ? (

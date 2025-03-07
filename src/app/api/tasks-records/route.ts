@@ -9,7 +9,7 @@ import { env } from "@/env"
 import redisClient from "@/services/redisClient"
 
 const CACHE_KEY = "tasks-records"
-const CACHE_TTL_SECONDS = 30
+const CACHE_TTL_SECONDS = env.NODE_ENV === "production" ? 30 : 3600
 
 export async function GET(request: NextRequest) {
   const headers = await getHeaders(request)

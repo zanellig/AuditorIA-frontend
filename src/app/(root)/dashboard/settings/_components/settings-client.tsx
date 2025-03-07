@@ -26,7 +26,7 @@ import { TypographyH4 } from "@/components/typography/h4"
 import { DASHBOARD_ICON_CLASSES } from "@/lib/consts"
 import { StatefulButton } from "@/components/stateful-button"
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query"
-import { useToast } from "@/hooks/use-toast"
+import { useToast } from "@/components/ui/use-toast"
 
 // Define types for the state
 interface AuditApiState {

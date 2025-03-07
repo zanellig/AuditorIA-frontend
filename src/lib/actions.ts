@@ -61,7 +61,7 @@ export async function calculateAverages(segments: Segment[]) {
 export const fetchAudioData = async (nasPath: string) => {
   const [err, res] = await getNetworkAudio(nasPath)
   if (err !== null) {
-    throw new Error("(1010): Error desconocido al leer el archivo.")
+    throw err
   }
   return res
 }
