@@ -2,7 +2,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { getNetworkAudio } from "@/lib/audio"
 import { getHeaders } from "@/lib/get-headers"
-import { isAuthenticated } from "@/lib/auth"
 
 export async function OPTIONS(request: NextRequest) {
   return NextResponse.json(null, {
@@ -22,20 +21,20 @@ export async function GET(request: NextRequest) {
         headers,
       })
     }
-    const [err, audioBuffer] = await getNetworkAudio(path)
-    if (audioBuffer === null) {
+    const result = await getNetworkAudio(path)
+    if (result.buffer === null) {
       return NextResponse.json(new Error("No audio found in the path"), {
         status: 404,
         headers,
       })
     }
-    if (err !== null) {
-      throw new Error(err.message)
+    if (result.error !== null) {
+      throw new Error(result.error.message)
     }
-    return new NextResponse(audioBuffer, {
+    return new NextResponse(result.buffer, {
       headers: {
         ...headers,
-        "Content-Type": "audio/mpeg",
+        "Content-Type": result.mimeType ?? "audio/mpeg",
       },
       status: 200,
     })

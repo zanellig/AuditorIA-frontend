@@ -32,7 +32,7 @@ import {
 import { GLOBAL_ICON_SIZE } from "@/lib/consts"
 import { useToast } from "@/components/ui/use-toast"
 import { useDeleteTaskMutation } from "@/lib/hooks/mutations/delete-task-mutation"
-import { fetchAudioData } from "@/lib/actions"
+import { getHost } from "@/lib/actions"
 
 export const columns: ColumnDef<TasksRecordsResponse>[] = [
   {
@@ -174,14 +174,18 @@ export const columns: ColumnDef<TasksRecordsResponse>[] = [
             duration: 3000,
           })
           try {
-            const audioBuffer = await fetchAudioData(audioURL)
-            if (!audioBuffer) {
+            const response = await fetch(
+              `${await getHost()}/api/audio?path=${audioURL}`
+            )
+            if (!response.ok) {
+              throw new Error("No se pudo obtener el audio")
+            }
+            const result = await response.blob()
+            if (!result.size) {
               gettingAudioToast.dismiss()
               throw new Error("No se pudo obtener el audio")
             }
-            // Create blob from buffer and create download link
-            const blob = new Blob([audioBuffer])
-            const url = window.URL.createObjectURL(blob)
+            const url = window.URL.createObjectURL(result)
             a.href = url
             a.download = `${row.original?.uuid}.mp3`
             a.click()
@@ -199,17 +203,11 @@ export const columns: ColumnDef<TasksRecordsResponse>[] = [
               variant: "destructive",
             })
           } finally {
+            gettingAudioToast.dismiss()
             a.remove()
           }
           return
         }
-
-        // Handle regular HTTP URLs as before
-        const a = document.createElement("a")
-        a.href = audioURL
-        a.download = `${row.original?.uuid}.mp3`
-        a.click()
-        toast({ title: "Audio descargado" })
       }
 
       return (
