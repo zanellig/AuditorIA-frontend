@@ -13,11 +13,20 @@ const notificationTexts = [
   "Reminder: Review pending tasks",
 ]
 
+// Sample global notification texts
+const globalNotificationTexts = [
+  "System maintenance scheduled for tomorrow",
+  "New feature released: Advanced Analytics",
+  "Important: Security update available",
+  "Platform update completed successfully",
+  "Welcome to the new dashboard experience",
+]
+
 // Keep track of sent notification UUIDs to avoid duplicates
 const sentNotificationUUIDs = new Set()
 
 // Function to send a notification
-async function sendNotification(text, delay = 0) {
+async function sendNotification(text, isGlobal = false, delay = 0) {
   // Wait for the specified delay
   if (delay > 0) {
     await new Promise(resolve => setTimeout(resolve, delay))
@@ -39,7 +48,11 @@ async function sendNotification(text, delay = 0) {
       identifier: `task-${uuidv4().substring(0, 8)}`,
       file_name: `recording-${Math.floor(Math.random() * 1000)}.mp3`,
     },
-    userId: "eyJhbGciOi",
+  }
+
+  // Add userId only for non-global notifications
+  if (!isGlobal) {
+    notification.userId = "eyJhbGciOi"
   }
 
   try {
@@ -56,7 +69,9 @@ async function sendNotification(text, delay = 0) {
     }
 
     const data = await response.json()
-    console.log(`Notification sent: ${text} (UUID: ${uuid})`)
+    console.log(
+      `${isGlobal ? "Global" : "User"} notification sent: ${text} (UUID: ${uuid})`
+    )
     return data
   } catch (error) {
     console.error("Error sending notification:", error)
@@ -68,10 +83,18 @@ async function sendNotification(text, delay = 0) {
 async function sendNotificationsWithDelay() {
   console.log("Starting to send test notifications...")
 
+  // Send user-specific notifications
   for (let i = 0; i < notificationTexts.length; i++) {
     const text = notificationTexts[i]
     const delay = i * 2000 // 2 seconds between notifications
-    await sendNotification(text, delay)
+    await sendNotification(text, false, delay)
+  }
+
+  // Send global notifications
+  for (let i = 0; i < globalNotificationTexts.length; i++) {
+    const text = globalNotificationTexts[i]
+    const delay = i * 2000 // 2 seconds between notifications
+    await sendNotification(text, true, delay)
   }
 
   console.log("All test notifications sent!")

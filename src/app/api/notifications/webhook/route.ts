@@ -21,10 +21,15 @@ import { notificationSchema } from "@/lib/types"
  *   "userId": "optional-user-id-for-targeting-specific-user"
  * }
  *
+ * [!IMPORTANT]:
+ * If no userId is provided, the notification will be treated as global
+ * and sent to all connected clients.
+ *
  * For detailed documentation, see docs/notifications-webhook.md
  */
 
 const NOTIFICATIONS_TTL = 60 * 60 * 24 * 7 // 7 days
+const GLOBAL_NOTIFICATIONS_KEY = "notifications:global"
 
 // Get user-specific Redis key for notifications
 async function getUserNotificationsKey(userId = "anonymous") {
@@ -37,7 +42,9 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
 
     // Extract user ID from the request if provided
-    const userId = body.userId || "anonymous"
+    // If no userId is provided, this is a global notification
+    const isGlobalNotification = !body.userId
+    const userId = body.userId || "global"
 
     const notification = {
       uuid: body.uuid || randomUUID(),
@@ -50,7 +57,7 @@ export async function POST(request: NextRequest) {
     // Validate notification
     const validatedNotification = notificationSchema.parse(notification)
 
-    // Get the user-specific key
+    // Get the user-specific key or global key
     const key = await getUserNotificationsKey(userId)
 
     // Start processing the notification asynchronously
@@ -81,11 +88,26 @@ export async function POST(request: NextRequest) {
         // Set expiration on the key if it doesn't exist
         await redisClient.expire(key, NOTIFICATIONS_TTL)
 
-        // Publish the notification to the user's channel for real-time updates
-        await redisClient.publish(
-          `notification:${key}`,
-          JSON.stringify(validatedNotification)
-        )
+        // Publish the notification to the appropriate channel for real-time updates
+        if (isGlobalNotification) {
+          // For global notifications, publish to the global channel
+          await redisClient.publish(
+            "notification:global",
+            JSON.stringify(validatedNotification)
+          )
+          console.log(
+            `Global notification ${validatedNotification.uuid} published`
+          )
+        } else {
+          // For user-specific notifications, publish to the user's channel
+          await redisClient.publish(
+            `notification:${key}`,
+            JSON.stringify(validatedNotification)
+          )
+          console.log(
+            `User notification ${validatedNotification.uuid} published to ${key}`
+          )
+        }
 
         console.log(
           `Notification ${validatedNotification.uuid} processed successfully`

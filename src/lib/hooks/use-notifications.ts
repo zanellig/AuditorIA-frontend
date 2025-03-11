@@ -112,19 +112,28 @@ export function useNotifications() {
   // Function to programmatically send a notification
   const sendNotificationMutation = useMutation({
     mutationFn: async (
-      notification: Omit<Notification, "uuid" | "timestamp" | "read">
+      notification: Omit<Notification, "uuid" | "timestamp" | "read"> & {
+        isGlobal?: boolean
+      }
     ) => {
-      const response = await fetch(`${await getHost()}/api/notifications`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          ...notification,
-          timestamp: Date.now(),
-          read: false,
-        }),
-      })
+      const { isGlobal, ...notificationData } = notification
+
+      const response = await fetch(
+        `${await getHost()}/api/notifications/webhook`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            ...notificationData,
+            timestamp: Date.now(),
+            read: false,
+            // Only include userId if it's not a global notification
+            ...(isGlobal ? {} : { userId: "current" }),
+          }),
+        }
+      )
 
       if (!response.ok) {
         throw new Error("Failed to send notification")

@@ -6,6 +6,7 @@ import { notificationSchema } from "@/lib/types"
 import { cookies } from "next/headers"
 
 const NOTIFICATIONS_TTL = 60 * 60 * 24 * 7 // 7 days
+const GLOBAL_NOTIFICATIONS_KEY = "notifications:global"
 
 // Get user-specific Redis key for notifications
 async function getUserNotificationsKey() {
@@ -19,24 +20,51 @@ async function getUserNotificationsKey() {
   return `notifications:${userId}`
 }
 
-// GET all notifications for the current user
+// GET all notifications for the current user, including global notifications
 export async function GET() {
   try {
-    const key = await getUserNotificationsKey()
-    const notificationsData = await redisClient.lrange(key, 0, -1)
+    const userKey = await getUserNotificationsKey()
 
-    const notifications = notificationsData
+    // Fetch both user-specific and global notifications
+    const [userNotificationsData, globalNotificationsData] = await Promise.all([
+      redisClient.lrange(userKey, 0, -1),
+      redisClient.lrange(GLOBAL_NOTIFICATIONS_KEY, 0, -1),
+    ])
+
+    // Parse user notifications
+    const userNotifications = userNotificationsData
       .map(item => {
         try {
           return JSON.parse(item)
         } catch (e) {
-          console.error("Error parsing notification:", e)
+          console.error("Error parsing user notification:", e)
           return null
         }
       })
       .filter(Boolean)
 
-    return NextResponse.json({ notifications }, { status: 200 })
+    // Parse global notifications
+    const globalNotifications = globalNotificationsData
+      .map(item => {
+        try {
+          return JSON.parse(item)
+        } catch (e) {
+          console.error("Error parsing global notification:", e)
+          return null
+        }
+      })
+      .filter(Boolean)
+
+    // Combine and sort notifications by timestamp (newest first)
+    const allNotifications = [
+      ...userNotifications,
+      ...globalNotifications,
+    ].sort((a, b) => b.timestamp - a.timestamp)
+
+    return NextResponse.json(
+      { notifications: allNotifications },
+      { status: 200 }
+    )
   } catch (error) {
     console.error("Error fetching notifications:", error)
     return NextResponse.json(
@@ -131,18 +159,23 @@ export async function DELETE(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const uuid = searchParams.get("uuid")
-    const key = await getUserNotificationsKey()
+    const userKey = await getUserNotificationsKey()
 
     if (uuid) {
       // Delete specific notification
-      const notificationsData = await redisClient.lrange(key, 0, -1)
+      const [userNotificationsData, globalNotificationsData] =
+        await Promise.all([
+          redisClient.lrange(userKey, 0, -1),
+          redisClient.lrange(GLOBAL_NOTIFICATIONS_KEY, 0, -1),
+        ])
 
-      for (let i = 0; i < notificationsData.length; i++) {
+      // Check user notifications
+      for (let i = 0; i < userNotificationsData.length; i++) {
         try {
-          const notification = JSON.parse(notificationsData[i])
+          const notification = JSON.parse(userNotificationsData[i])
           if (notification.uuid === uuid) {
             // Remove the notification at this index
-            await redisClient.lrem(key, 1, notificationsData[i])
+            await redisClient.lrem(userKey, 1, userNotificationsData[i])
             break
           }
         } catch (e) {
@@ -150,22 +183,62 @@ export async function DELETE(request: NextRequest) {
         }
       }
 
+      // Check global notifications (for read status only)
+      for (let i = 0; i < globalNotificationsData.length; i++) {
+        try {
+          const notification = JSON.parse(globalNotificationsData[i])
+          if (notification.uuid === uuid) {
+            // For global notifications, we don't delete them but mark them as read
+            // by adding them to the user's read list
+            notification.read = true
+            await redisClient.lpush(userKey, JSON.stringify(notification))
+            await redisClient.expire(userKey, NOTIFICATIONS_TTL)
+            break
+          }
+        } catch (e) {
+          console.error(
+            "Error parsing global notification during read marking:",
+            e
+          )
+        }
+      }
+
       return NextResponse.json(
-        { message: "Notification deleted" },
+        { message: "Notification processed" },
         { status: 200 }
       )
     } else {
-      // Delete all notifications
-      await redisClient.del(key)
+      // Delete all user notifications
+      await redisClient.del(userKey)
+
+      // For global notifications, mark all as read by adding them to user's read list
+      const globalNotificationsData = await redisClient.lrange(
+        GLOBAL_NOTIFICATIONS_KEY,
+        0,
+        -1
+      )
+
+      for (const item of globalNotificationsData) {
+        try {
+          const notification = JSON.parse(item)
+          notification.read = true
+          await redisClient.lpush(userKey, JSON.stringify(notification))
+        } catch (e) {
+          console.error("Error marking global notification as read:", e)
+        }
+      }
+
+      await redisClient.expire(userKey, NOTIFICATIONS_TTL)
+
       return NextResponse.json(
-        { message: "All notifications deleted" },
+        { message: "All notifications processed" },
         { status: 200 }
       )
     }
   } catch (error) {
-    console.error("Error deleting notification(s):", error)
+    console.error("Error processing notification(s):", error)
     return NextResponse.json(
-      { error: "Failed to delete notification(s)" },
+      { error: "Failed to process notification(s)" },
       { status: 500 }
     )
   }

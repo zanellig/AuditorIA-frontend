@@ -12,10 +12,13 @@ async function getUserNotificationsKey() {
   return `notifications:${userId}`
 }
 
+// Global notifications channel
+const GLOBAL_CHANNEL = "notification:global"
+
 export async function GET(request: NextRequest) {
   const encoder = new TextEncoder()
   const userKey = await getUserNotificationsKey()
-  const channelName = `notification:${userKey}`
+  const userChannel = `notification:${userKey}`
 
   // Create a new ReadableStream
   const stream = new ReadableStream({
@@ -23,13 +26,15 @@ export async function GET(request: NextRequest) {
       // Send initial connection message
       controller.enqueue(encoder.encode("event: connected\ndata: {}\n\n"))
 
-      // Subscribe to Redis pub/sub channel for this user
+      // Subscribe to Redis pub/sub channels for this user and global notifications
       const subscriber = redisClient.duplicate()
-      await subscriber.subscribe(channelName)
+      await subscriber.subscribe(userChannel, GLOBAL_CHANNEL)
 
-      console.log(`Subscribed to channel: ${channelName}`)
+      console.log(
+        `Subscribed to channels: ${userChannel} and ${GLOBAL_CHANNEL}`
+      )
 
-      // Listen for messages on the channel
+      // Listen for messages on the channels
       subscriber.on("message", (channel, message) => {
         try {
           console.log(`Received message on channel ${channel}:`, message)
@@ -44,8 +49,10 @@ export async function GET(request: NextRequest) {
 
       // Handle client disconnect
       request.signal.addEventListener("abort", () => {
-        console.log(`Unsubscribing from channel: ${channelName}`)
-        subscriber.unsubscribe(channelName)
+        console.log(
+          `Unsubscribing from channels: ${userChannel} and ${GLOBAL_CHANNEL}`
+        )
+        subscriber.unsubscribe(userChannel, GLOBAL_CHANNEL)
         subscriber.quit()
         controller.close()
       })
