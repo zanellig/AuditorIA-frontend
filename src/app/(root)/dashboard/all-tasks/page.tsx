@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars -- Disabled while testing */
 "use client"
 
 import * as React from "react"
