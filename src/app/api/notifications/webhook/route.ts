@@ -4,6 +4,26 @@ import { randomUUID } from "crypto"
 import redisClient from "@/services/redisClient"
 import { notificationSchema } from "@/lib/types"
 
+/**
+ * Notifications Webhook API
+ *
+ * This endpoint allows external systems to send notifications to users.
+ * Notifications are stored in Redis and published to a Redis channel for real-time updates.
+ *
+ * Request format:
+ * {
+ *   "uuid": "optional-uuid-will-be-generated-if-not-provided",
+ *   "text": "Your notification message here",
+ *   "task": {
+ *     "identifier": "task-identifier",
+ *     "file_name": "optional-file-name.mp3"
+ *   },
+ *   "userId": "optional-user-id-for-targeting-specific-user"
+ * }
+ *
+ * For detailed documentation, see docs/notifications-webhook.md
+ */
+
 const NOTIFICATIONS_TTL = 60 * 60 * 24 * 7 // 7 days
 
 // Get user-specific Redis key for notifications
