@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { Notification, Notifications } from "@/lib/types"
 import { useEffect } from "react"
 import { useNotificationToast } from "@/components/notifications/notification-toast"
+import { getHost } from "../actions"
 
 // Query key for notifications
 export const NOTIFICATIONS_QUERY_KEY = "notifications"
@@ -13,7 +14,8 @@ interface NotificationsResponse {
 
 // Function to fetch notifications
 async function fetchNotifications(): Promise<Notifications> {
-  const response = await fetch("/api/notifications")
+  const host = await getHost()
+  const response = await fetch(`${host}/api/notifications`)
   if (!response.ok) {
     throw new Error("Failed to fetch notifications")
   }
@@ -28,10 +30,12 @@ async function markAllAsRead(notifications: Notifications): Promise<void> {
     read: true,
   }))
 
+  const host = await getHost()
+
   // Update each notification
   await Promise.all(
-    updatedNotifications.map(notification =>
-      fetch("/api/notifications", {
+    updatedNotifications.map(async notification =>
+      fetch(`${host}/api/notifications`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -44,9 +48,12 @@ async function markAllAsRead(notifications: Notifications): Promise<void> {
 
 // Function to delete a notification
 async function deleteNotification(uuid: string): Promise<void> {
-  const response = await fetch(`/api/notifications?uuid=${uuid}`, {
-    method: "DELETE",
-  })
+  const response = await fetch(
+    `${await getHost()}/api/notifications?uuid=${uuid}`,
+    {
+      method: "DELETE",
+    }
+  )
   if (!response.ok) {
     throw new Error("Failed to delete notification")
   }
@@ -54,7 +61,7 @@ async function deleteNotification(uuid: string): Promise<void> {
 
 // Function to delete all notifications
 async function deleteAllNotifications(): Promise<void> {
-  const response = await fetch("/api/notifications", {
+  const response = await fetch(`${await getHost()}/api/notifications`, {
     method: "DELETE",
   })
   if (!response.ok) {
@@ -102,6 +109,34 @@ export function useNotifications() {
     },
   })
 
+  // Function to programmatically send a notification
+  const sendNotificationMutation = useMutation({
+    mutationFn: async (
+      notification: Omit<Notification, "uuid" | "timestamp" | "read">
+    ) => {
+      const response = await fetch(`${await getHost()}/api/notifications`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...notification,
+          timestamp: Date.now(),
+          read: false,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to send notification")
+      }
+
+      return response.json()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [NOTIFICATIONS_QUERY_KEY] })
+    },
+  })
+
   // Count of unread notifications
   const unreadCount = notifications.filter(n => !n.read).length
 
@@ -114,6 +149,7 @@ export function useNotifications() {
     markAllAsRead: markAllAsReadMutation.mutate,
     deleteNotification: deleteNotificationMutation.mutate,
     deleteAllNotifications: deleteAllNotificationsMutation.mutate,
+    sendNotification: sendNotificationMutation.mutate,
   }
 }
 
@@ -126,7 +162,7 @@ export function useNotificationEvents() {
     console.log("Setting up EventSource connection...")
 
     // Create an EventSource connection
-    const eventSource = new EventSource("/api/notifications/events")
+    const eventSource = new EventSource(`/api/notifications/events`)
 
     // Connection opened
     eventSource.onopen = () => {
