@@ -98,7 +98,7 @@ curl -X POST auditoria.linksolution.com.ar/api/notifications/webhook \
       "identifier": "task-123",
       "file_name": "recording.mp3"
     },
-    "userId": "user-email@example.com"
+    "userId": "bearer {{ token }}"
   }'
 ```
 
