@@ -10,30 +10,39 @@ export function useNotificationToast() {
   const router = useRouter()
 
   const showNotificationToast = (notification: Notification) => {
-    if (notification.task?.identifier) {
-      toast({
-        title: "Nueva notificación",
-        description: notification.text,
-        variant: "default",
-        duration: 5000,
-        action: (
-          <ToastAction
-            altText='Ver'
-            onClick={() => {
-              router.push(
-                `/dashboard/transcription?identifier=${notification.task?.identifier}${
-                  notification.task?.file_name
-                    ? `&file_name=${notification.task.file_name}`
-                    : ""
-                }`
-              )
-            }}
-          >
-            Ver
-          </ToastAction>
-        ),
-      })
-    } else {
+    console.log("Showing toast for notification:", notification.uuid)
+
+    try {
+      if (notification.task?.identifier) {
+        const url = `/dashboard/transcription?identifier=${notification.task.identifier}${
+          notification.task.file_name
+            ? `&file_name=${notification.task.file_name}`
+            : ""
+        }`
+
+        toast({
+          title: "Nueva notificación",
+          description: notification.text,
+          variant: "default",
+          duration: 5000,
+          action: (
+            <ToastAction altText='Ver' onClick={() => router.push(url)}>
+              Ver
+            </ToastAction>
+          ),
+        })
+      } else {
+        toast({
+          title: "Nueva notificación",
+          description: notification.text,
+          variant: "default",
+          duration: 5000,
+        })
+      }
+    } catch (error) {
+      console.error("Error showing toast:", error)
+
+      // Fallback to simpler toast if there's an error
       toast({
         title: "Nueva notificación",
         description: notification.text,
