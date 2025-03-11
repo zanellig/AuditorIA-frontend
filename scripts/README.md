@@ -31,7 +31,7 @@ This will send 5 test notifications with a 2-second delay between each one.
 You can also test individual notifications using cURL:
 
 ```bash
-curl -X POST auditoria.linksolution.com.ar/api/notifications/webhook \
+curl -X POST http://auditoria.linksolution.com.ar/api/notifications/webhook \
   -H "Content-Type: application/json" \
   -d '{"text":"Test notification from cURL","task":{"identifier":"test-id","file_name":"test.mp3"}}'
 ```
