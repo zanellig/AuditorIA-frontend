@@ -48,6 +48,7 @@ async function sendNotification(text, isGlobal = false, delay = 0) {
       identifier: `task-${uuidv4().substring(0, 8)}`,
       file_name: `recording-${Math.floor(Math.random() * 1000)}.mp3`,
     },
+    isGlobal: isGlobal,
   }
 
   // Add userId only for non-global notifications

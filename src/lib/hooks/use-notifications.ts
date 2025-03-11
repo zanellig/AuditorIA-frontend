@@ -48,24 +48,57 @@ async function markAllAsRead(notifications: Notifications): Promise<void> {
 
 // Function to delete a notification
 async function deleteNotification(uuid: string): Promise<void> {
-  const response = await fetch(
-    `${await getHost()}/api/notifications?uuid=${uuid}`,
-    {
+  console.log(`Attempting to delete notification with UUID: ${uuid}`)
+  try {
+    const host = await getHost()
+    const response = await fetch(`${host}/api/notifications?uuid=${uuid}`, {
       method: "DELETE",
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}))
+      console.error(
+        `Failed to delete notification: ${response.status} ${response.statusText}`,
+        errorData
+      )
+      throw new Error(`Failed to delete notification: ${response.statusText}`)
     }
-  )
-  if (!response.ok) {
-    throw new Error("Failed to delete notification")
+
+    console.log(
+      `Successfully deleted/processed notification with UUID: ${uuid}`
+    )
+    return await response.json()
+  } catch (error) {
+    console.error("Error in deleteNotification:", error)
+    throw error
   }
 }
 
 // Function to delete all notifications
 async function deleteAllNotifications(): Promise<void> {
-  const response = await fetch(`${await getHost()}/api/notifications`, {
-    method: "DELETE",
-  })
-  if (!response.ok) {
-    throw new Error("Failed to delete all notifications")
+  console.log("Attempting to delete all notifications")
+  try {
+    const host = await getHost()
+    const response = await fetch(`${host}/api/notifications`, {
+      method: "DELETE",
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}))
+      console.error(
+        `Failed to delete all notifications: ${response.status} ${response.statusText}`,
+        errorData
+      )
+      throw new Error(
+        `Failed to delete all notifications: ${response.statusText}`
+      )
+    }
+
+    console.log("Successfully deleted/processed all notifications")
+    return await response.json()
+  } catch (error) {
+    console.error("Error in deleteAllNotifications:", error)
+    throw error
   }
 }
 

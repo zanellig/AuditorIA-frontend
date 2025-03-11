@@ -126,7 +126,7 @@ export default function LoginForm({ redirectPath }: { redirectPath: string }) {
                   <FormControl>
                     <Input
                       {...field}
-                      placeholder='Ingrese su correo o usuario'
+                      placeholder='Ingrese su usuario'
                       disabled={isLoading}
                     />
                   </FormControl>

@@ -46,12 +46,17 @@ export async function POST(request: NextRequest) {
     const isGlobalNotification = !body.userId
     const userId = body.userId || "global"
 
+    console.log(
+      `Webhook notification received. Global: ${isGlobalNotification}, UserId: ${userId}`
+    )
+
     const notification = {
       uuid: body.uuid || randomUUID(),
       timestamp: body.timestamp || Date.now(),
       read: false,
       text: body.text,
       task: body.task,
+      isGlobal: isGlobalNotification, // Add a flag to identify global notifications
     }
 
     // Validate notification
@@ -121,7 +126,13 @@ export async function POST(request: NextRequest) {
     // This prevents blocking the response
 
     // Return a success response immediately
-    return NextResponse.json(validatedNotification, { status: 201 })
+    return NextResponse.json(
+      {
+        ...validatedNotification,
+        isGlobal: isGlobalNotification,
+      },
+      { status: 201 }
+    )
   } catch (error) {
     console.error("Error creating notification via webhook:", error)
     if (error instanceof z.ZodError) {

@@ -325,6 +325,7 @@ export const notificationSchema = z.object({
       file_name: z.string().optional(),
     })
     .optional(),
+  isGlobal: z.boolean().optional(),
 })
 
 export type Notification = z.infer<typeof notificationSchema>

@@ -161,6 +161,10 @@ export async function DELETE(request: NextRequest) {
     const uuid = searchParams.get("uuid")
     const userKey = await getUserNotificationsKey()
 
+    console.log(
+      `DELETE request received. UUID: ${uuid || "all"}, User key: ${userKey}`
+    )
+
     if (uuid) {
       // Delete specific notification
       const [userNotificationsData, globalNotificationsData] =
@@ -169,13 +173,26 @@ export async function DELETE(request: NextRequest) {
           redisClient.lrange(GLOBAL_NOTIFICATIONS_KEY, 0, -1),
         ])
 
+      console.log(
+        `Found ${userNotificationsData.length} user notifications and ${globalNotificationsData.length} global notifications`
+      )
+
       // Check user notifications
+      let userNotificationDeleted = false
       for (let i = 0; i < userNotificationsData.length; i++) {
         try {
           const notification = JSON.parse(userNotificationsData[i])
           if (notification.uuid === uuid) {
             // Remove the notification at this index
-            await redisClient.lrem(userKey, 1, userNotificationsData[i])
+            const result = await redisClient.lrem(
+              userKey,
+              1,
+              userNotificationsData[i]
+            )
+            console.log(
+              `Deleted user notification with UUID ${uuid}, result: ${result}`
+            )
+            userNotificationDeleted = true
             break
           }
         } catch (e) {
@@ -184,6 +201,7 @@ export async function DELETE(request: NextRequest) {
       }
 
       // Check global notifications (for read status only)
+      let globalNotificationMarked = false
       for (let i = 0; i < globalNotificationsData.length; i++) {
         try {
           const notification = JSON.parse(globalNotificationsData[i])
@@ -193,6 +211,10 @@ export async function DELETE(request: NextRequest) {
             notification.read = true
             await redisClient.lpush(userKey, JSON.stringify(notification))
             await redisClient.expire(userKey, NOTIFICATIONS_TTL)
+            console.log(
+              `Marked global notification with UUID ${uuid} as read for user ${userKey}`
+            )
+            globalNotificationMarked = true
             break
           }
         } catch (e) {
@@ -203,13 +225,29 @@ export async function DELETE(request: NextRequest) {
         }
       }
 
+      if (!userNotificationDeleted && !globalNotificationMarked) {
+        console.log(
+          `Notification with UUID ${uuid} not found for user ${userKey}`
+        )
+      }
+
       return NextResponse.json(
-        { message: "Notification processed" },
+        {
+          message: "Notification processed",
+          details: {
+            userNotificationDeleted,
+            globalNotificationMarked,
+            uuid,
+          },
+        },
         { status: 200 }
       )
     } else {
       // Delete all user notifications
-      await redisClient.del(userKey)
+      const deletedCount = await redisClient.del(userKey)
+      console.log(
+        `Deleted ${deletedCount} user notifications for user ${userKey}`
+      )
 
       // For global notifications, mark all as read by adding them to user's read list
       const globalNotificationsData = await redisClient.lrange(
@@ -218,27 +256,42 @@ export async function DELETE(request: NextRequest) {
         -1
       )
 
+      console.log(
+        `Marking ${globalNotificationsData.length} global notifications as read for user ${userKey}`
+      )
+
+      let markedCount = 0
       for (const item of globalNotificationsData) {
         try {
           const notification = JSON.parse(item)
           notification.read = true
           await redisClient.lpush(userKey, JSON.stringify(notification))
+          markedCount++
         } catch (e) {
           console.error("Error marking global notification as read:", e)
         }
       }
 
       await redisClient.expire(userKey, NOTIFICATIONS_TTL)
+      console.log(
+        `Successfully marked ${markedCount} global notifications as read for user ${userKey}`
+      )
 
       return NextResponse.json(
-        { message: "All notifications processed" },
+        {
+          message: "All notifications processed",
+          details: {
+            userNotificationsDeleted: deletedCount,
+            globalNotificationsMarked: markedCount,
+          },
+        },
         { status: 200 }
       )
     }
   } catch (error) {
     console.error("Error processing notification(s):", error)
     return NextResponse.json(
-      { error: "Failed to process notification(s)" },
+      { error: "Failed to process notification(s)", details: String(error) },
       { status: 500 }
     )
   }
