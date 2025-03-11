@@ -3,7 +3,6 @@ import { z } from "zod"
 import { randomUUID } from "crypto"
 import redisClient from "@/services/redisClient"
 import { notificationSchema } from "@/lib/types"
-import { cookies } from "next/headers"
 
 const NOTIFICATIONS_TTL = 60 * 60 * 24 * 7 // 7 days
 
@@ -33,6 +32,24 @@ export async function POST(request: NextRequest) {
 
     // Get the user-specific key
     const key = await getUserNotificationsKey(userId)
+
+    // Check if this notification already exists (by uuid)
+    const existingNotifications = await redisClient.lrange(key, 0, -1)
+    const exists = existingNotifications.some(item => {
+      try {
+        const parsedItem = JSON.parse(item)
+        return parsedItem.uuid === validatedNotification.uuid
+      } catch {
+        return false
+      }
+    })
+
+    if (exists) {
+      console.log(
+        `Notification with UUID ${validatedNotification.uuid} already exists, not adding duplicate`
+      )
+      return NextResponse.json(validatedNotification, { status: 200 })
+    }
 
     // Add notification to the beginning of the list
     await redisClient.lpush(key, JSON.stringify(validatedNotification))
