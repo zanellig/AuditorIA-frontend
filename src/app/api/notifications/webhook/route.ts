@@ -33,36 +33,52 @@ export async function POST(request: NextRequest) {
     // Get the user-specific key
     const key = await getUserNotificationsKey(userId)
 
-    // Check if this notification already exists (by uuid)
-    const existingNotifications = await redisClient.lrange(key, 0, -1)
-    const exists = existingNotifications.some(item => {
+    // Start processing the notification asynchronously
+    // This allows us to return a response quickly without waiting for Redis operations
+    const processNotificationPromise = (async () => {
       try {
-        const parsedItem = JSON.parse(item)
-        return parsedItem.uuid === validatedNotification.uuid
-      } catch {
-        return false
+        // Check if this notification already exists (by uuid)
+        const existingNotifications = await redisClient.lrange(key, 0, -1)
+        const exists = existingNotifications.some(item => {
+          try {
+            const parsedItem = JSON.parse(item)
+            return parsedItem.uuid === validatedNotification.uuid
+          } catch {
+            return false
+          }
+        })
+
+        if (exists) {
+          console.log(
+            `Notification with UUID ${validatedNotification.uuid} already exists, not adding duplicate`
+          )
+          return
+        }
+
+        // Add notification to the beginning of the list
+        await redisClient.lpush(key, JSON.stringify(validatedNotification))
+
+        // Set expiration on the key if it doesn't exist
+        await redisClient.expire(key, NOTIFICATIONS_TTL)
+
+        // Publish the notification to the user's channel for real-time updates
+        await redisClient.publish(
+          `notification:${key}`,
+          JSON.stringify(validatedNotification)
+        )
+
+        console.log(
+          `Notification ${validatedNotification.uuid} processed successfully`
+        )
+      } catch (error) {
+        console.error("Error in async notification processing:", error)
       }
-    })
+    })()
 
-    if (exists) {
-      console.log(
-        `Notification with UUID ${validatedNotification.uuid} already exists, not adding duplicate`
-      )
-      return NextResponse.json(validatedNotification, { status: 200 })
-    }
+    // Don't await the promise, let it run in the background
+    // This prevents blocking the response
 
-    // Add notification to the beginning of the list
-    await redisClient.lpush(key, JSON.stringify(validatedNotification))
-
-    // Set expiration on the key if it doesn't exist
-    await redisClient.expire(key, NOTIFICATIONS_TTL)
-
-    // Publish the notification to the user's channel for real-time updates
-    await redisClient.publish(
-      `notification:${key}`,
-      JSON.stringify(validatedNotification)
-    )
-
+    // Return a success response immediately
     return NextResponse.json(validatedNotification, { status: 201 })
   } catch (error) {
     console.error("Error creating notification via webhook:", error)

@@ -20,6 +20,7 @@ import {
 import { cn } from "@/lib/utils"
 import { GLOBAL_ICON_SIZE } from "@/lib/consts"
 import { ScrollArea } from "../ui/scroll-area"
+import { es } from "date-fns/locale"
 
 export function NotificationButton() {
   const router = useRouter()
@@ -65,8 +66,8 @@ export function NotificationButton() {
         <Button variant='outline' size='icon' className='relative'>
           <Bell size={GLOBAL_ICON_SIZE} />
           {unreadCount > 0 && (
-            <div className='absolute -top-1 -right-1'>
-              <PulsingDot className='text-red-500' size={12} />
+            <div className='absolute -top-2 -right-2'>
+              <PulsingDot className='text-red-500' size={20} />
             </div>
           )}
         </Button>
@@ -132,6 +133,7 @@ export function NotificationButton() {
                   <p className='text-xs text-muted-foreground mt-1'>
                     {formatDistanceToNow(new Date(notification.timestamp), {
                       addSuffix: true,
+                      locale: es,
                     })}
                   </p>
                 </DropdownMenuItem>

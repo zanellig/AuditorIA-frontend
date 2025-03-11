@@ -133,6 +133,72 @@ export function useNotificationEvents() {
       console.log("EventSource connection established")
     }
 
+    // Use a debounce mechanism to avoid processing too many notifications at once
+    let processingQueue: Notification[] = []
+    let isProcessing = false
+
+    // Function to process notifications in batches
+    const processNotificationQueue = async () => {
+      if (isProcessing || processingQueue.length === 0) return
+
+      isProcessing = true
+      console.log(`Processing ${processingQueue.length} notifications in queue`)
+
+      // Take a copy of the current queue and clear it
+      const currentBatch = [...processingQueue]
+      processingQueue = []
+
+      try {
+        // Process each notification in the batch
+        for (const notification of currentBatch) {
+          // Get current notifications from the cache
+          const existingNotifications =
+            queryClient.getQueryData<Notifications>([
+              NOTIFICATIONS_QUERY_KEY,
+            ]) || []
+
+          // Check if this notification already exists
+          const exists = existingNotifications.some(
+            n => n.uuid === notification.uuid
+          )
+
+          if (!exists) {
+            // Update the query cache with the new notification
+            queryClient.setQueryData<Notifications>(
+              [NOTIFICATIONS_QUERY_KEY],
+              oldNotifications => {
+                if (!oldNotifications) return [notification]
+                return [notification, ...oldNotifications]
+              }
+            )
+
+            // Show a toast notification for the new notification
+            // Use setTimeout to avoid blocking the main thread
+            setTimeout(() => {
+              showNotificationToast(notification)
+            }, 0)
+          } else {
+            console.log(
+              "Notification already exists, not adding duplicate:",
+              notification.uuid
+            )
+          }
+
+          // Small delay between processing each notification to avoid UI freezing
+          await new Promise(resolve => setTimeout(resolve, 50))
+        }
+      } catch (error) {
+        console.error("Error processing notification batch:", error)
+      } finally {
+        isProcessing = false
+
+        // If more notifications arrived while processing, process them too
+        if (processingQueue.length > 0) {
+          setTimeout(processNotificationQueue, 100)
+        }
+      }
+    }
+
     // Listen for new notifications
     eventSource.addEventListener("notification", event => {
       console.log("Notification event received:", event.data)
@@ -141,44 +207,12 @@ export function useNotificationEvents() {
         const notification = JSON.parse(event.data) as Notification
         console.log("Parsed notification:", notification)
 
-        // Update the query cache with the new notification
-        queryClient.setQueryData<Notifications>(
-          [NOTIFICATIONS_QUERY_KEY],
-          oldNotifications => {
-            console.log("Previous notifications:", oldNotifications)
+        // Add the notification to the processing queue
+        processingQueue.push(notification)
 
-            // If there are no existing notifications, just return the new one
-            if (!oldNotifications) return [notification]
-
-            // Check if this notification already exists (by uuid)
-            const exists = oldNotifications.some(
-              n => n.uuid === notification.uuid
-            )
-
-            if (exists) {
-              console.log(
-                "Notification already exists, not adding duplicate:",
-                notification.uuid
-              )
-              return oldNotifications
-            }
-
-            console.log("Adding new notification to state:", notification.uuid)
-            return [notification, ...oldNotifications]
-          }
-        )
-
-        // Show a toast notification (only for new notifications)
-        const existingNotifications =
-          queryClient.getQueryData<Notifications>([NOTIFICATIONS_QUERY_KEY]) ||
-          []
-        const isNewNotification = !existingNotifications.some(
-          n => n.uuid === notification.uuid
-        )
-
-        if (isNewNotification) {
-          console.log("Showing toast for new notification:", notification.uuid)
-          showNotificationToast(notification)
+        // Start processing the queue if not already processing
+        if (!isProcessing) {
+          setTimeout(processNotificationQueue, 0)
         }
       } catch (error) {
         console.error("Error processing notification:", error)
