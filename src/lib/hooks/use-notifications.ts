@@ -3,6 +3,11 @@ import { Notification, Notifications } from "@/lib/types"
 import { useEffect } from "react"
 import { useNotificationToast } from "@/components/notifications/notification-toast"
 import { getHost } from "../actions"
+import React from "react"
+import {
+  addEventListener,
+  checkAndReconnectEventSource,
+} from "../notification-event-source"
 
 // Query key for notifications
 export const NOTIFICATIONS_QUERY_KEY = "notifications"
@@ -162,17 +167,15 @@ export function useNotifications() {
   // Mutation to delete a notification
   const deleteNotificationMutation = useMutation({
     mutationFn: deleteNotification,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [NOTIFICATIONS_QUERY_KEY] })
-    },
+    // We don't need onSuccess here because we're using optimistic updates
+    // The UI will already be updated before the mutation completes
   })
 
   // Mutation to delete all notifications
   const deleteAllNotificationsMutation = useMutation({
     mutationFn: deleteAllNotifications,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [NOTIFICATIONS_QUERY_KEY] })
-    },
+    // We don't need onSuccess here because we're using optimistic updates
+    // The UI will already be updated before the mutation completes
   })
 
   // Mutation to delete all global notifications (admin only)
@@ -243,15 +246,12 @@ export function useNotificationEvents() {
   const { showNotificationToast } = useNotificationToast()
 
   useEffect(() => {
-    console.log("Setting up EventSource connection...")
+    console.log("Setting up notification event listeners...")
 
-    // Create an EventSource connection
-    const eventSource = new EventSource(`/api/notifications/events`)
-
-    // Connection opened
-    eventSource.onopen = () => {
-      console.log("EventSource connection established")
-    }
+    // Set up a periodic check to ensure the connection is maintained
+    const connectionCheckInterval = setInterval(() => {
+      checkAndReconnectEventSource()
+    }, 30000) // Check every 30 seconds
 
     // Use a debounce mechanism to avoid processing too many notifications at once
     let processingQueue: Notification[] = []
@@ -319,8 +319,8 @@ export function useNotificationEvents() {
       }
     }
 
-    // Listen for new notifications
-    eventSource.addEventListener("notification", event => {
+    // Handler for notification events
+    const notificationHandler = (event: MessageEvent) => {
       console.log("Notification event received:", event.data)
 
       try {
@@ -337,23 +337,29 @@ export function useNotificationEvents() {
       } catch (error) {
         console.error("Error processing notification:", error)
       }
-    })
-
-    // Listen for connected event
-    eventSource.addEventListener("connected", event => {
-      console.log("Connected event received:", event.data)
-    })
-
-    // Handle connection errors
-    eventSource.onerror = error => {
-      console.error("EventSource error:", error)
-      // Don't close the connection on error, let it retry automatically
     }
 
-    // Clean up the connection when the component unmounts
+    // Handler for connected events
+    const connectedHandler = (event: MessageEvent) => {
+      console.log("Connected event received:", event.data)
+    }
+
+    // Register event listeners using our singleton module
+    // The addEventListener function returns a cleanup function
+    const removeNotificationListener = addEventListener(
+      "notification",
+      notificationHandler
+    )
+    const removeConnectedListener = addEventListener(
+      "connected",
+      connectedHandler
+    )
+
+    // Clean up event listeners when the component unmounts
     return () => {
-      console.log("Closing EventSource connection...")
-      eventSource.close()
+      removeNotificationListener()
+      removeConnectedListener()
+      clearInterval(connectionCheckInterval)
     }
   }, [queryClient, showNotificationToast])
 }

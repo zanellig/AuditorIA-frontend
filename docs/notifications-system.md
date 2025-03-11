@@ -196,9 +196,18 @@ Features:
 - Displays unread notification count
 - Marks notifications as read when opened
 - Shows notification text and timestamp
-- Allows deletion of notifications
+- Allows deletion of notifications with optimistic UI updates
 - Indicates global notifications with a "Global" badge
 - Navigates to related content when a notification is clicked
+
+#### Optimistic Updates
+
+The notification system implements optimistic updates for a better user experience:
+
+- When a notification is deleted, it is immediately removed from the UI before the server confirms the deletion
+- If the deletion fails, the notification is restored in the UI
+- When all notifications are deleted, they are immediately removed from the UI
+- The system handles both user-specific and global notifications appropriately during optimistic updates
 
 ### AdminGlobalNotifications Component
 

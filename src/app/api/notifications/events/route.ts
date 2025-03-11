@@ -1,24 +1,16 @@
 import { NextRequest } from "next/server"
-import { cookies } from "next/headers"
 import redisClient from "@/services/redisClient"
-
-// Function to get user-specific Redis key for notifications
-async function getUserNotificationsKey() {
-  const cookieStore = cookies()
-  const sessionCookie = cookieStore.get("session")
-  const userId = sessionCookie?.value
-    ? sessionCookie.value.split(" ")[1].substring(0, 10)
-    : "anonymous"
-  return `notifications:${userId}`
-}
-
-// Global notifications channel
-const GLOBAL_CHANNEL = "notification:global"
+import {
+  getUserNotificationsKey,
+  getNotificationsChannel,
+  getGlobalNotificationsChannel,
+} from "@/lib/notifications-utils"
 
 export async function GET(request: NextRequest) {
   const encoder = new TextEncoder()
   const userKey = await getUserNotificationsKey()
-  const userChannel = `notification:${userKey}`
+  const userChannel = getNotificationsChannel(userKey)
+  const globalChannel = getGlobalNotificationsChannel()
 
   // Create a new ReadableStream
   const stream = new ReadableStream({
@@ -28,11 +20,9 @@ export async function GET(request: NextRequest) {
 
       // Subscribe to Redis pub/sub channels for this user and global notifications
       const subscriber = redisClient.duplicate()
-      await subscriber.subscribe(userChannel, GLOBAL_CHANNEL)
+      await subscriber.subscribe(userChannel, globalChannel)
 
-      console.log(
-        `Subscribed to channels: ${userChannel} and ${GLOBAL_CHANNEL}`
-      )
+      console.log(`Subscribed to channels: ${userChannel} and ${globalChannel}`)
 
       // Listen for messages on the channels
       subscriber.on("message", (channel, message) => {
@@ -50,9 +40,9 @@ export async function GET(request: NextRequest) {
       // Handle client disconnect
       request.signal.addEventListener("abort", () => {
         console.log(
-          `Unsubscribing from channels: ${userChannel} and ${GLOBAL_CHANNEL}`
+          `Unsubscribing from channels: ${userChannel} and ${globalChannel}`
         )
-        subscriber.unsubscribe(userChannel, GLOBAL_CHANNEL)
+        subscriber.unsubscribe(userChannel, globalChannel)
         subscriber.quit()
         controller.close()
       })

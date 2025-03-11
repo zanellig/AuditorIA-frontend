@@ -3,22 +3,12 @@ import { z } from "zod"
 import { randomUUID } from "crypto"
 import redisClient from "@/services/redisClient"
 import { notificationSchema } from "@/lib/types"
-import { cookies } from "next/headers"
-
-const NOTIFICATIONS_TTL = 60 * 60 * 24 * 7 // 7 days
-const GLOBAL_NOTIFICATIONS_KEY = "notifications:global"
-
-// Get user-specific Redis key for notifications
-async function getUserNotificationsKey() {
-  // Use a cookie or session ID to identify the user
-  const cookieStore = cookies()
-  const sessionCookie = cookieStore.get("session")
-  // Create a unique key based on the session or a default for anonymous users
-  const userId = sessionCookie?.value
-    ? sessionCookie.value.split(" ")[1].substring(0, 10)
-    : "anonymous"
-  return `notifications:${userId}`
-}
+import {
+  getUserNotificationsKey,
+  GLOBAL_NOTIFICATIONS_KEY,
+  NOTIFICATIONS_TTL,
+  getNotificationsChannel,
+} from "@/lib/notifications-utils"
 
 // GET all notifications for the current user, including global notifications
 export async function GET() {
@@ -121,8 +111,9 @@ export async function POST(request: NextRequest) {
         await redisClient.expire(key, NOTIFICATIONS_TTL)
 
         // Publish the notification to the user's channel for real-time updates
+        const channelName = getNotificationsChannel(key)
         await redisClient.publish(
-          `notification:${key}`,
+          channelName,
           JSON.stringify(validatedNotification)
         )
 

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { Bell, Trash2 } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
@@ -23,14 +23,18 @@ import { ScrollArea } from "../ui/scroll-area"
 import { es } from "date-fns/locale"
 import { useToast } from "@/components/ui/use-toast"
 import { Notification } from "@/lib/types"
+import { useQueryClient } from "@tanstack/react-query"
+import { NOTIFICATIONS_QUERY_KEY } from "@/lib/hooks/use-notifications"
 
 export function NotificationButton() {
   const router = useRouter()
   const { toast } = useToast()
+  const queryClient = useQueryClient()
   const [open, setOpen] = useState(false)
-  const [deletingNotifications, setDeletingNotifications] = useState<
-    Set<string>
-  >(new Set())
+  const [optimisticDeletions, setOptimisticDeletions] = useState<Set<string>>(
+    new Set()
+  )
+
   const {
     notifications,
     unreadCount,
@@ -66,7 +70,12 @@ export function NotificationButton() {
     setOpen(false)
   }
 
-  // Handle notification deletion
+  // Get filtered notifications (excluding optimistically deleted ones)
+  const filteredNotifications = notifications.filter(
+    notification => !optimisticDeletions.has(notification.uuid)
+  )
+
+  // Handle notification deletion with optimistic updates
   const handleDeleteNotification = async (
     notification: Notification,
     e: React.MouseEvent
@@ -75,8 +84,18 @@ export function NotificationButton() {
 
     try {
       console.log("Deleting notification:", notification.uuid)
-      setDeletingNotifications(prev => new Set(prev).add(notification.uuid))
 
+      // Optimistically update UI by adding to optimistic deletions set
+      setOptimisticDeletions(prev => new Set([...prev, notification.uuid]))
+
+      // Optimistically update the cache
+      queryClient.setQueryData(
+        [NOTIFICATIONS_QUERY_KEY],
+        (oldData: Notification[] | undefined) =>
+          oldData ? oldData.filter(n => n.uuid !== notification.uuid) : []
+      )
+
+      // Perform the actual deletion
       await deleteNotification(notification.uuid)
 
       toast({
@@ -87,26 +106,43 @@ export function NotificationButton() {
       })
     } catch (error) {
       console.error("Error deleting notification:", error)
+
+      // Revert optimistic update on error
+      setOptimisticDeletions(prev => {
+        const newSet = new Set(prev)
+        newSet.delete(notification.uuid)
+        return newSet
+      })
+
+      // Revert cache update by refetching
+      queryClient.invalidateQueries({ queryKey: [NOTIFICATIONS_QUERY_KEY] })
+
       toast({
         title: "Error",
         description: "No se pudo eliminar la notificación. Inténtalo de nuevo.",
         variant: "destructive",
         duration: 5000,
       })
-    } finally {
-      setDeletingNotifications(prev => {
-        const newSet = new Set(prev)
-        newSet.delete(notification.uuid)
-        return newSet
-      })
     }
   }
 
-  // Handle delete all notifications
+  // Handle delete all notifications with optimistic updates
   const handleDeleteAllNotifications = async () => {
     try {
       console.log("Deleting all notifications")
-      await deleteAllNotifications()
+
+      // Store current notifications for potential rollback
+      const previousNotifications = [...notifications]
+
+      // Optimistically update UI by adding all notifications to optimistic deletions
+      const notificationIds = notifications.map(n => n.uuid)
+      setOptimisticDeletions(prev => new Set([...prev, ...notificationIds]))
+
+      // Optimistically update the cache
+      queryClient.setQueryData([NOTIFICATIONS_QUERY_KEY], [])
+
+      // Perform the actual deletion
+      deleteAllNotifications()
 
       toast({
         title: "Notificaciones eliminadas",
@@ -117,6 +153,13 @@ export function NotificationButton() {
       })
     } catch (error) {
       console.error("Error deleting all notifications:", error)
+
+      // Revert optimistic update on error
+      setOptimisticDeletions(new Set())
+
+      // Revert cache update by refetching
+      queryClient.invalidateQueries({ queryKey: [NOTIFICATIONS_QUERY_KEY] })
+
       toast({
         title: "Error",
         description:
@@ -158,7 +201,7 @@ export function NotificationButton() {
       <DropdownMenuContent align='end' className='w-80'>
         <div className='flex items-center justify-between p-2'>
           <h3 className='font-medium'>Notificaciones</h3>
-          {notifications.length > 0 && (
+          {filteredNotifications.length > 0 && (
             <Button
               variant='ghost'
               size='sm'
@@ -172,12 +215,12 @@ export function NotificationButton() {
         <DropdownMenuSeparator />
         <ScrollArea>
           <div className='max-h-80'>
-            {notifications.length === 0 ? (
+            {filteredNotifications.length === 0 ? (
               <div className='p-4 text-center text-muted-foreground'>
                 No hay notificaciones
               </div>
             ) : (
-              notifications.map(notification => (
+              filteredNotifications.map(notification => (
                 <DropdownMenuItem
                   key={notification.uuid}
                   className={cn(
@@ -199,20 +242,11 @@ export function NotificationButton() {
                     <Button
                       variant='ghost'
                       size='icon'
-                      className={cn(
-                        "h-6 w-6 ml-2 -mr-2 opacity-50 hover:opacity-100",
-                        deletingNotifications.has(notification.uuid) &&
-                          "pointer-events-none opacity-30"
-                      )}
+                      className='h-6 w-6 ml-2 -mr-2 opacity-50 hover:opacity-100'
                       onClick={e => handleDeleteNotification(notification, e)}
-                      disabled={deletingNotifications.has(notification.uuid)}
                     >
                       <span className='sr-only'>Delete</span>
-                      {deletingNotifications.has(notification.uuid) ? (
-                        <span className='animate-spin'>⟳</span>
-                      ) : (
-                        <span aria-hidden>×</span>
-                      )}
+                      <span aria-hidden>×</span>
                     </Button>
                   </div>
                   <div className='flex w-full justify-between items-center'>
