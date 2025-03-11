@@ -313,3 +313,19 @@ export const segmentAnalyisSchema = z.object({
 })
 
 export type SegmentAnalysis = z.infer<typeof segmentAnalyisSchema>
+
+export const notificationSchema = z.object({
+  uuid: z.string(),
+  timestamp: z.number(),
+  read: z.boolean(),
+  text: z.string(),
+  task: z
+    .object({
+      identifier: z.string(),
+      file_name: z.string().optional(),
+    })
+    .optional(),
+})
+
+export type Notification = z.infer<typeof notificationSchema>
+export type Notifications = Notification[]

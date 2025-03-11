@@ -48,6 +48,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 import { TaskSearch } from "./task-search"
+import { NotificationButton } from "../notifications/notification-button"
 
 const TOP_HEIGHT = "h-14"
 
@@ -348,6 +349,7 @@ export function TopNavbar({
         {children}
         <TaskSearch />
         <AvatarButton />
+        <NotificationButton />
         <div>
           <ModeToggle />
         </div>

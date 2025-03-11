@@ -1,0 +1,13 @@
+{
+  "name": "notification-test",
+  "version": "1.0.0",
+  "description": "Test script for notifications",
+  "main": "test-notifications.js",
+  "scripts": {
+    "test": "node test-notifications.js"
+  },
+  "dependencies": {
+    "node-fetch": "^2.6.7",
+    "uuid": "^8.3.2"
+  }
+}
