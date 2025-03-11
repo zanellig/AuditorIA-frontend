@@ -64,6 +64,24 @@ export async function POST(request: NextRequest) {
 
     const key = await getUserNotificationsKey()
 
+    // Check if this notification already exists (by uuid)
+    const existingNotifications = await redisClient.lrange(key, 0, -1)
+    const exists = existingNotifications.some(item => {
+      try {
+        const parsedItem = JSON.parse(item)
+        return parsedItem.uuid === validatedNotification.uuid
+      } catch {
+        return false
+      }
+    })
+
+    if (exists) {
+      console.log(
+        `Notification with UUID ${validatedNotification.uuid} already exists, not adding duplicate`
+      )
+      return NextResponse.json(validatedNotification, { status: 200 })
+    }
+
     // Add notification to the beginning of the list
     await redisClient.lpush(key, JSON.stringify(validatedNotification))
 

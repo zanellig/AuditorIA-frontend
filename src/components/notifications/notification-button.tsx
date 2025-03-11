@@ -19,6 +19,7 @@ import {
 } from "@/lib/hooks/use-notifications"
 import { cn } from "@/lib/utils"
 import { GLOBAL_ICON_SIZE } from "@/lib/consts"
+import { ScrollArea } from "../ui/scroll-area"
 
 export function NotificationButton() {
   const router = useRouter()
@@ -88,57 +89,60 @@ export function NotificationButton() {
           )}
         </div>
         <DropdownMenuSeparator />
-        <div className='max-h-80 overflow-y-auto'>
-          {notifications.length === 0 ? (
-            <div className='p-4 text-center text-muted-foreground'>
-              No hay notificaciones
-            </div>
-          ) : (
-            notifications.map(notification => (
-              <DropdownMenuItem
-                key={notification.uuid}
-                className={cn(
-                  "flex flex-col items-start p-3 cursor-pointer",
-                  !notification.read && "bg-muted/50"
-                )}
-                onClick={() => {
-                  if (notification.task?.identifier) {
-                    console.log("Clicked on notification:", notification)
-                    navigateToTranscription(
-                      notification.task.identifier,
-                      notification.task.file_name
-                    )
-                  }
-                }}
-              >
-                <div className='flex w-full justify-between'>
-                  <p className='text-sm font-medium'>{notification.text}</p>
-                  <Button
-                    variant='ghost'
-                    size='icon'
-                    className='h-6 w-6 ml-2 -mr-2 opacity-50 hover:opacity-100'
-                    onClick={e => {
-                      e.stopPropagation()
-                      console.log("Deleting notification:", notification.uuid)
-                      deleteNotification(notification.uuid)
-                    }}
-                  >
-                    <span className='sr-only'>Delete</span>
-                    <span aria-hidden>×</span>
-                  </Button>
-                </div>
-                <p className='text-xs text-muted-foreground mt-1'>
-                  {formatDistanceToNow(new Date(notification.timestamp), {
-                    addSuffix: true,
-                  })}
-                </p>
-              </DropdownMenuItem>
-            ))
-          )}
-        </div>
+        <ScrollArea>
+          <div className='max-h-80'>
+            {notifications.length === 0 ? (
+              <div className='p-4 text-center text-muted-foreground'>
+                No hay notificaciones
+              </div>
+            ) : (
+              notifications.map(notification => (
+                <DropdownMenuItem
+                  key={notification.uuid}
+                  className={cn(
+                    "flex flex-col items-start p-3 cursor-pointer",
+                    !notification.read && "bg-muted/50"
+                  )}
+                  onClick={() => {
+                    if (notification.task?.identifier) {
+                      console.log("Clicked on notification:", notification)
+                      navigateToTranscription(
+                        notification.task.identifier,
+                        notification.task.file_name
+                      )
+                    }
+                  }}
+                >
+                  <div className='flex w-full justify-between'>
+                    <p className='text-sm font-medium'>{notification.text}</p>
+                    <Button
+                      variant='ghost'
+                      size='icon'
+                      className='h-6 w-6 ml-2 -mr-2 opacity-50 hover:opacity-100'
+                      onClick={e => {
+                        e.stopPropagation()
+                        console.log("Deleting notification:", notification.uuid)
+                        deleteNotification(notification.uuid)
+                      }}
+                    >
+                      <span className='sr-only'>Delete</span>
+                      <span aria-hidden>×</span>
+                    </Button>
+                  </div>
+                  <p className='text-xs text-muted-foreground mt-1'>
+                    {formatDistanceToNow(new Date(notification.timestamp), {
+                      addSuffix: true,
+                    })}
+                  </p>
+                </DropdownMenuItem>
+              ))
+            )}
+          </div>
+        </ScrollArea>
+
         <DropdownMenuSeparator />
         <div className='text-xs text-center text-muted-foreground py-2'>
-          Notifications are stored for 7 days
+          Las notificaciones se almacenan por 7 días
         </div>
       </DropdownMenuContent>
     </DropdownMenu>

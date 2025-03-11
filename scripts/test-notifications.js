@@ -13,6 +13,9 @@ const notificationTexts = [
   "Reminder: Review pending tasks",
 ]
 
+// Keep track of sent notification UUIDs to avoid duplicates
+const sentNotificationUUIDs = new Set()
+
 // Function to send a notification
 async function sendNotification(text, delay = 0) {
   // Wait for the specified delay
@@ -20,8 +23,15 @@ async function sendNotification(text, delay = 0) {
     await new Promise(resolve => setTimeout(resolve, delay))
   }
 
+  // Generate a unique UUID that hasn't been used before
+  let uuid = uuidv4()
+  while (sentNotificationUUIDs.has(uuid)) {
+    uuid = uuidv4()
+  }
+  sentNotificationUUIDs.add(uuid)
+
   const notification = {
-    uuid: uuidv4(),
+    uuid,
     timestamp: Date.now(),
     read: false,
     text,
@@ -29,6 +39,7 @@ async function sendNotification(text, delay = 0) {
       identifier: `task-${uuidv4().substring(0, 8)}`,
       file_name: `recording-${Math.floor(Math.random() * 1000)}.mp3`,
     },
+    userId: "eyJhbGciOi",
   }
 
   try {
@@ -45,7 +56,7 @@ async function sendNotification(text, delay = 0) {
     }
 
     const data = await response.json()
-    console.log(`Notification sent: ${text}`)
+    console.log(`Notification sent: ${text} (UUID: ${uuid})`)
     return data
   } catch (error) {
     console.error("Error sending notification:", error)
@@ -64,6 +75,7 @@ async function sendNotificationsWithDelay() {
   }
 
   console.log("All test notifications sent!")
+  console.log("Sent notification UUIDs:", Array.from(sentNotificationUUIDs))
 }
 
 // Run the test

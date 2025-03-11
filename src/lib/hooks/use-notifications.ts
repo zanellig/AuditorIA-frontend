@@ -146,13 +146,40 @@ export function useNotificationEvents() {
           [NOTIFICATIONS_QUERY_KEY],
           oldNotifications => {
             console.log("Previous notifications:", oldNotifications)
+
+            // If there are no existing notifications, just return the new one
             if (!oldNotifications) return [notification]
+
+            // Check if this notification already exists (by uuid)
+            const exists = oldNotifications.some(
+              n => n.uuid === notification.uuid
+            )
+
+            if (exists) {
+              console.log(
+                "Notification already exists, not adding duplicate:",
+                notification.uuid
+              )
+              return oldNotifications
+            }
+
+            console.log("Adding new notification to state:", notification.uuid)
             return [notification, ...oldNotifications]
           }
         )
 
-        // Show a toast notification
-        showNotificationToast(notification)
+        // Show a toast notification (only for new notifications)
+        const existingNotifications =
+          queryClient.getQueryData<Notifications>([NOTIFICATIONS_QUERY_KEY]) ||
+          []
+        const isNewNotification = !existingNotifications.some(
+          n => n.uuid === notification.uuid
+        )
+
+        if (isNewNotification) {
+          console.log("Showing toast for new notification:", notification.uuid)
+          showNotificationToast(notification)
+        }
       } catch (error) {
         console.error("Error processing notification:", error)
       }
