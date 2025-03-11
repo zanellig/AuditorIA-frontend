@@ -176,6 +176,24 @@ async function testAdminFunctions() {
 async function runTests() {
   const args = process.argv.slice(2)
 
+  // Show help information
+  if (args.includes("--help") || args.includes("-h")) {
+    console.log(`
+Test Notifications Script
+
+Usage:
+  node test-notifications.js [options]
+
+Options:
+  --send   Send test notifications only
+  --admin  Test admin API functions only
+  --help   Show this help message
+
+If no options are provided, all tests will run.
+    `);
+    return;
+  }
+
   if (args.includes("--send") || args.length === 0) {
     await sendNotificationsWithDelay()
   }
