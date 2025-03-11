@@ -59,7 +59,7 @@ export async function setRedirectPathCookie(path: string) {
   const cstore = await cookies()
   cstore.set(REDIRECT_COOKIE_NAME, path, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: env.NODE_ENV === "production",
     maxAge: 60 * 5, // 5 minutes
     path: "/",
   })

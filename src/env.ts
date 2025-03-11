@@ -17,7 +17,7 @@ const envSchema = z.object({
   NEXT_TURBOPACK_TRACING: z.string().optional(),
   PORT: z.string().regex(/^\d+$/).transform(Number).default("80"), // Defaults to HTTP port
   HOST: z.string(),
-  
+
   MAIL_HOST: z.string(),
   MAIL_PORT: z.string(),
   MAIL_USER: z.string(),
@@ -29,6 +29,8 @@ const envSchema = z.object({
 
   NEXT_PUBLIC_POSTHOG_KEY: z.string(),
   NEXT_PUBLIC_POSTHOG_HOST: z.string(),
+
+  ADMIN_API_KEY: z.string(),
 })
 
 // Parse and validate the environment variables

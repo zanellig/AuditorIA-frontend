@@ -1,5 +1,6 @@
 import "server-only"
 import Redis from "ioredis"
+import { env } from "@/env"
 
 // Use a global variable to maintain a singleton instance across hot reloads and serverless invocations
 declare global {
@@ -19,7 +20,7 @@ const redisClient =
     },
   })
 
-if (process.env.NODE_ENV !== "production") {
+if (env.NODE_ENV !== "production") {
   // In development, assign the client to the global object to avoid creating multiple instances during hot reloads.
   global.redisClient = redisClient
 }

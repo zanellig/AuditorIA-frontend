@@ -1,3 +1,4 @@
+import { env } from "@/env"
 import { cookies } from "next/headers"
 
 // Constants for notification keys
@@ -7,7 +8,7 @@ export const NOTIFICATIONS_TTL = 60 * 60 * 24 * 7 // 7 days
 // Admin API key should be stored in environment variables
 // For development, we'll use a hardcoded value, but in production
 // this should be a secure, randomly generated string
-const ADMIN_API_KEY = process.env.ADMIN_API_KEY
+const ADMIN_API_KEY = env.ADMIN_API_KEY
 
 /**
  * Gets the Redis key for user-specific notifications based on the session cookie
