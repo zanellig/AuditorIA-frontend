@@ -1,26 +1,18 @@
-# Notifications Webhook Documentation
+# Notifications Webhook API
 
-This document explains how to use the notifications webhook to send real-time notifications to users in the AuditorIA platform.
+This document describes the webhook API for sending notifications to users in the AuditorIA platform.
 
 ## Overview
 
-The notification system provides a webhook endpoint that allows external systems to send notifications to users. These notifications will appear in the notification dropdown in the UI and can also trigger toast notifications.
+The Notifications Webhook API allows external systems to send notifications to users. Notifications are stored in Redis and delivered to clients in real-time via Server-Sent Events (SSE).
 
-The system is designed to be:
-
-- **Event-driven**: Notifications are pushed to clients in real-time using Server-Sent Events (SSE)
-- **Non-blocking**: Processing happens asynchronously to prevent blocking the main thread
-- **Deduplicated**: The system prevents duplicate notifications with the same UUID
-
-## Webhook Endpoint
+## Endpoint
 
 ```
 POST /api/notifications/webhook
 ```
 
-### Request Format
-
-The webhook accepts POST requests with a JSON body containing the notification data:
+## Request Format
 
 ```json
 {
@@ -36,61 +28,66 @@ The webhook accepts POST requests with a JSON body containing the notification d
 
 ### Parameters
 
-| Parameter         | Type   | Required                  | Description                                                                                                            |
-| ----------------- | ------ | ------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| `uuid`            | string | No                        | A unique identifier for the notification. If not provided, a random UUID will be generated.                            |
-| `text`            | string | Yes                       | The notification message text.                                                                                         |
-| `task`            | object | No                        | Information about the related task.                                                                                    |
-| `task.identifier` | string | Yes (if task is provided) | The identifier of the related task. This is used for navigation when the notification is clicked.                      |
-| `task.file_name`  | string | No                        | The file name of the related task. This is used as a query parameter for navigation.                                   |
-| `userId`          | string | No                        | The ID of the user who should receive the notification. If not provided, the notification will be sent to "anonymous". |
+| Parameter       | Type   | Required                  | Description                                                                                                                        |
+| --------------- | ------ | ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| uuid            | string | No                        | A unique identifier for the notification. If not provided, a UUID will be generated.                                               |
+| text            | string | Yes                       | The notification message text.                                                                                                     |
+| task            | object | No                        | Information about the related task.                                                                                                |
+| task.identifier | string | Yes (if task is provided) | The identifier of the related task.                                                                                                |
+| task.file_name  | string | No                        | The file name associated with the task.                                                                                            |
+| userId          | string | No                        | The ID of the user to receive the notification. If not provided, the notification will be treated as global and sent to all users. |
 
-### Response
+## Global Notifications
 
-The webhook returns a JSON response with the created notification:
+When no `userId` is provided in the request, the notification is treated as a **global notification** and will be:
+
+1. Stored in a global notifications list (`notifications:global`)
+2. Delivered to all connected clients
+3. Marked with an `isGlobal: true` flag
+4. Visible to all users of the platform
+5. Cannot be deleted by regular users (only marked as read)
+6. Can only be deleted by administrators using the admin API
+
+Global notifications are useful for system-wide announcements such as:
+
+- Maintenance notifications
+- New feature announcements
+- Important updates
+- Platform-wide alerts
+
+## Response
+
+### Success Response
 
 ```json
 {
   "uuid": "generated-or-provided-uuid",
-  "timestamp": 1678901234567,
+  "timestamp": 1647532800000,
   "read": false,
   "text": "Your notification message here",
   "task": {
     "identifier": "task-identifier",
     "file_name": "optional-file-name.mp3"
-  }
+  },
+  "isGlobal": true // Only present for global notifications
 }
 ```
 
-### Status Codes
+### Error Response
 
-| Status Code | Description                                  |
-| ----------- | -------------------------------------------- |
-| 201         | Notification created successfully            |
-| 200         | Notification already exists (duplicate UUID) |
-| 400         | Invalid notification data                    |
-| 500         | Server error                                 |
+```json
+{
+  "error": "Error message",
+  "details": {} // Optional error details
+}
+```
 
 ## Examples
 
-### Basic Notification
+### Sending a User-Specific Notification
 
 ```bash
-curl -X POST auditoria.linksolution.com.ar/api/notifications/webhook \
-  -H "Content-Type: application/json" \
-  -d '{
-    "text": "Your transcription is ready",
-    "task": {
-      "identifier": "task-123",
-      "file_name": "recording.mp3"
-    }
-  }'
-```
-
-### Notification for Specific User
-
-```bash
-curl -X POST auditoria.linksolution.com.ar/api/notifications/webhook \
+curl -X POST http://localhost:3000/api/notifications/webhook \
   -H "Content-Type: application/json" \
   -d '{
     "text": "Your transcription is ready",
@@ -98,47 +95,89 @@ curl -X POST auditoria.linksolution.com.ar/api/notifications/webhook \
       "identifier": "task-123",
       "file_name": "recording.mp3"
     },
-    "userId": "bearer {{ token }}"
+    "userId": "user-456"
   }'
 ```
 
-## Behavior
+### Sending a Global Notification
 
-When a notification is sent to the webhook:
-
-1. The notification is validated and stored in Redis
-2. The notification is published to a Redis channel for real-time updates
-3. Connected clients receive the notification via Server-Sent Events
-4. The notification appears in the notification dropdown in the UI
-5. A toast notification is displayed to the user
-
-## Navigation
-
-When a user clicks on a notification, they will be navigated to:
-
-```
-/dashboard/transcription?identifier={task.identifier}&file_name={task.file_name}
+```bash
+curl -X POST http://localhost:3000/api/notifications/webhook \
+  -H "Content-Type: application/json" \
+  -d '{
+    "text": "System maintenance scheduled for tomorrow",
+    "task": {
+      "identifier": "maintenance-123"
+    }
+  }'
 ```
 
-This allows for deep linking to specific content related to the notification.
+## Notes
+
+- Notifications are stored in Redis with a TTL of 7 days.
+- Duplicate notifications (with the same UUID) are not added.
+- The webhook processes notifications asynchronously to provide a quick response.
+- For real-time delivery, clients should connect to the `/api/notifications/events` endpoint using Server-Sent Events.
+
+## Related APIs
+
+### Admin API for Global Notifications
+
+Administrators can manage global notifications using the admin API:
+
+```
+GET /api/notifications/admin    # Get all global notifications
+DELETE /api/notifications/admin # Delete all global notifications
+```
+
+These endpoints require authentication with an admin API key:
+
+```
+Authorization: Bearer <admin-api-key>
+```
+
+For more details, see the [Notification System Documentation](./notifications-system.md).
 
 ## Implementation Notes
 
-- Notifications are stored in Redis for 7 days
-- Notifications are deduplicated based on UUID
-- Processing happens asynchronously to prevent blocking the main thread
-- The system uses Server-Sent Events for real-time updates
-- Toast notifications are displayed for new notifications
+- The notification system uses Redis for storage and pub/sub.
+- Notifications are stored in Redis lists with keys:
+  - `notifications:{userId}` for user-specific notifications
+  - `notifications:global` for global notifications
+- Real-time updates are delivered via Redis pub/sub channels:
+  - `notification:notifications:{userId}` for user-specific notifications
+  - `notification:global` for global notifications
+- The frontend subscribes to both user-specific and global notification channels.
+- Global notifications cannot be deleted by regular users, only marked as read.
+- The admin API provides secure management of global notifications.
 
 ## Testing
 
-You can test the webhook using the provided test page at `/test-notifications` or with the test script in `scripts/test-notifications.js`.
+You can test the notification system using the provided test script:
+
+```bash
+# Send test notifications (both user-specific and global)
+node scripts/test-notifications.js --send
+
+# Test admin API functions
+node scripts/test-notifications.js --admin
+
+# Run all tests
+node scripts/test-notifications.js
+```
 
 ## Troubleshooting
 
-If notifications are not appearing:
+### Common Issues
 
-1. Check the browser console for errors
-2. Verify that the Redis connection is working using the debug endpoint at `/api/notifications/debug`
-3. Ensure that the notification has a valid UUID and text
-4. Check that the Server-Sent Events connection is established
+- **Notifications not appearing**: Check that the client is connected to the SSE endpoint and that the Redis service is running.
+- **Duplicate notifications**: Ensure you're providing a unique UUID for each notification or let the system generate one.
+- **Global notifications not reaching all users**: Verify that the notification was sent without a userId parameter.
+- **Cannot delete global notifications**: Regular users cannot delete global notifications, only mark them as read. Use the admin API to delete global notifications.
+
+### Debugging
+
+- Check the server logs for errors related to notification processing.
+- Use the browser console to check for SSE connection issues.
+- Verify Redis connectivity and pub/sub functionality.
+- For admin API issues, ensure the correct API key is being used.

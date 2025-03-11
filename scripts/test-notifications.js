@@ -2,7 +2,11 @@
 const fetch = require("node-fetch")
 const { v4: uuidv4 } = require("uuid")
 
-const API_URL = "http://localhost:3000/api/notifications/webhook"
+const BASE_URL = "http://localhost:3000"
+const WEBHOOK_URL = `${BASE_URL}/api/notifications/webhook`
+const ADMIN_API_URL = `${BASE_URL}/api/notifications/admin`
+const ADMIN_API_KEY =
+  process.env.ADMIN_API_KEY || "admin-api-key-secure-random-string"
 
 // Sample notification texts
 const notificationTexts = [
@@ -57,7 +61,7 @@ async function sendNotification(text, isGlobal = false, delay = 0) {
   }
 
   try {
-    const response = await fetch(API_URL, {
+    const response = await fetch(WEBHOOK_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -76,6 +80,60 @@ async function sendNotification(text, isGlobal = false, delay = 0) {
     return data
   } catch (error) {
     console.error("Error sending notification:", error)
+    return null
+  }
+}
+
+// Function to delete all global notifications (admin only)
+async function deleteAllGlobalNotifications() {
+  try {
+    console.log("Attempting to delete all global notifications as admin...")
+
+    const response = await fetch(ADMIN_API_URL, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${ADMIN_API_KEY}`,
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to delete global notifications: ${response.statusText}`
+      )
+    }
+
+    const data = await response.json()
+    console.log("Successfully deleted all global notifications:", data)
+    return data
+  } catch (error) {
+    console.error("Error deleting global notifications:", error)
+    return null
+  }
+}
+
+// Function to get all global notifications (admin only)
+async function getAllGlobalNotifications() {
+  try {
+    console.log("Attempting to get all global notifications as admin...")
+
+    const response = await fetch(ADMIN_API_URL, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${ADMIN_API_KEY}`,
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to get global notifications: ${response.statusText}`
+      )
+    }
+
+    const data = await response.json()
+    console.log(`Retrieved ${data.notifications.length} global notifications`)
+    return data
+  } catch (error) {
+    console.error("Error getting global notifications:", error)
     return null
   }
 }
@@ -102,5 +160,29 @@ async function sendNotificationsWithDelay() {
   console.log("Sent notification UUIDs:", Array.from(sentNotificationUUIDs))
 }
 
-// Run the test
-sendNotificationsWithDelay()
+// Test admin API functions
+async function testAdminFunctions() {
+  // First, get all global notifications
+  await getAllGlobalNotifications()
+
+  // Then, delete all global notifications
+  await deleteAllGlobalNotifications()
+
+  // Finally, verify they were deleted
+  await getAllGlobalNotifications()
+}
+
+// Run the tests
+async function runTests() {
+  const args = process.argv.slice(2)
+
+  if (args.includes("--send") || args.length === 0) {
+    await sendNotificationsWithDelay()
+  }
+
+  if (args.includes("--admin") || args.length === 0) {
+    await testAdminFunctions()
+  }
+}
+
+runTests()

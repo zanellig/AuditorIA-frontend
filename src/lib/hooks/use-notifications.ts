@@ -102,6 +102,39 @@ async function deleteAllNotifications(): Promise<void> {
   }
 }
 
+// Function to delete all global notifications (admin only)
+async function deleteAllGlobalNotifications(
+  adminApiKey: string
+): Promise<void> {
+  console.log("Attempting to delete all global notifications (admin only)")
+  try {
+    const host = await getHost()
+    const response = await fetch(`${host}/api/notifications/admin`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${adminApiKey}`,
+      },
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}))
+      console.error(
+        `Failed to delete global notifications: ${response.status} ${response.statusText}`,
+        errorData
+      )
+      throw new Error(
+        `Failed to delete global notifications: ${response.statusText}`
+      )
+    }
+
+    console.log("Successfully deleted all global notifications")
+    return await response.json()
+  } catch (error) {
+    console.error("Error in deleteAllGlobalNotifications:", error)
+    throw error
+  }
+}
+
 // Hook to use notifications
 export function useNotifications() {
   const queryClient = useQueryClient()
@@ -137,6 +170,14 @@ export function useNotifications() {
   // Mutation to delete all notifications
   const deleteAllNotificationsMutation = useMutation({
     mutationFn: deleteAllNotifications,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [NOTIFICATIONS_QUERY_KEY] })
+    },
+  })
+
+  // Mutation to delete all global notifications (admin only)
+  const deleteAllGlobalNotificationsMutation = useMutation({
+    mutationFn: deleteAllGlobalNotifications,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [NOTIFICATIONS_QUERY_KEY] })
     },
@@ -191,6 +232,7 @@ export function useNotifications() {
     markAllAsRead: markAllAsReadMutation.mutate,
     deleteNotification: deleteNotificationMutation.mutate,
     deleteAllNotifications: deleteAllNotificationsMutation.mutate,
+    deleteAllGlobalNotifications: deleteAllGlobalNotificationsMutation.mutate,
     sendNotification: sendNotificationMutation.mutate,
   }
 }
