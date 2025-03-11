@@ -17,7 +17,7 @@ npm install
 
 ### Running the Test
 
-1. Make sure your Next.js application is running on http://localhost:3000
+1. Make sure your Next.js application is running on auditoria.linksolution.com.ar
 2. Run the test script:
 
 ```bash
@@ -31,7 +31,7 @@ This will send 5 test notifications with a 2-second delay between each one.
 You can also test individual notifications using cURL:
 
 ```bash
-curl -X POST http://localhost:3000/api/notifications/webhook \
+curl -X POST auditoria.linksolution.com.ar/api/notifications/webhook \
   -H "Content-Type: application/json" \
   -d '{"text":"Test notification from cURL","task":{"identifier":"test-id","file_name":"test.mp3"}}'
 ```
