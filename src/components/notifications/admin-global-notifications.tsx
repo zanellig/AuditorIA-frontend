@@ -39,7 +39,7 @@ export function AdminGlobalNotifications() {
 
       toast({
         title: "Success",
-        description: "All global notifications have been deleted",
+        description: "Todas las notificaciones globales han sido eliminadas",
         variant: "default",
       })
 
@@ -49,8 +49,7 @@ export function AdminGlobalNotifications() {
       console.error("Error deleting global notifications:", error)
       toast({
         title: "Error",
-        description:
-          "Failed to delete global notifications. Check your API key and try again.",
+        description: "No se pudo eliminar las notificaciones globales.",
         variant: "destructive",
       })
     } finally {

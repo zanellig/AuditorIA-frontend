@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, memo } from "react"
 import { useRouter } from "next/navigation"
 import { Bell, Trash2 } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
@@ -13,10 +13,7 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
 import PulsingDot from "@/components/pulsing-dot"
-import {
-  useNotifications,
-  useNotificationEvents,
-} from "@/lib/hooks/use-notifications"
+import { useNotifications } from "@/lib/hooks/use-notifications"
 import { cn } from "@/lib/utils"
 import { GLOBAL_ICON_SIZE } from "@/lib/consts"
 import { ScrollArea } from "../ui/scroll-area"
@@ -26,7 +23,8 @@ import { Notification } from "@/lib/types"
 import { useQueryClient } from "@tanstack/react-query"
 import { NOTIFICATIONS_QUERY_KEY } from "@/lib/hooks/use-notifications"
 
-export function NotificationButton() {
+// Export a memoized version of the component to prevent unnecessary re-renders
+export const NotificationButton = memo(function NotificationButton() {
   const router = useRouter()
   const { toast } = useToast()
   const queryClient = useQueryClient()
@@ -35,6 +33,7 @@ export function NotificationButton() {
     new Set()
   )
 
+  // useNotifications hook provides the notifications state and operations
   const {
     notifications,
     unreadCount,
@@ -43,32 +42,32 @@ export function NotificationButton() {
     deleteAllNotifications,
   } = useNotifications()
 
-  // Setup real-time notifications
-  useNotificationEvents()
-
-  // Log notifications for debugging
-  useEffect(() => {
-    console.log("Current notifications:", notifications)
-    console.log("Unread count:", unreadCount)
-  }, [notifications, unreadCount])
+  // Remove unnecessary debugging effect that causes additional renders
+  // and contributes to the notification duplication issue
 
   // Mark all as read when dropdown is opened
-  const handleOpenChange = (isOpen: boolean) => {
-    console.log("Dropdown open state changed:", isOpen)
-    setOpen(isOpen)
-    if (isOpen && unreadCount > 0) {
-      console.log("Marking all notifications as read")
-      markAllAsRead()
-    }
-  }
+  const handleOpenChange = useCallback(
+    (isOpen: boolean) => {
+      console.log("Dropdown open state changed:", isOpen)
+      setOpen(isOpen)
+      if (isOpen && unreadCount > 0) {
+        console.log("Marking all notifications as read")
+        markAllAsRead()
+      }
+    },
+    [markAllAsRead, unreadCount]
+  )
 
   // Navigate to transcription page
-  const navigateToTranscription = (identifier: string, fileName?: string) => {
-    const url = `/dashboard/transcription?identifier=${identifier}${fileName ? `&file_name=${fileName}` : ""}`
-    console.log("Navigating to:", url)
-    router.push(url)
-    setOpen(false)
-  }
+  const navigateToTranscription = useCallback(
+    (identifier: string, fileName?: string) => {
+      const url = `/dashboard/transcription?identifier=${identifier}${fileName ? `&file_name=${fileName}` : ""}`
+      console.log("Navigating to:", url)
+      router.push(url)
+      setOpen(false)
+    },
+    [router]
+  )
 
   // Get filtered notifications (excluding optimistically deleted ones)
   const filteredNotifications = notifications.filter(
@@ -76,58 +75,59 @@ export function NotificationButton() {
   )
 
   // Handle notification deletion with optimistic updates
-  const handleDeleteNotification = async (
-    notification: Notification,
-    e: React.MouseEvent
-  ) => {
-    e.stopPropagation()
+  const handleDeleteNotification = useCallback(
+    async (notification: Notification, e: React.MouseEvent) => {
+      e.stopPropagation()
 
-    try {
-      console.log("Deleting notification:", notification.uuid)
+      try {
+        console.log("Deleting notification:", notification.uuid)
 
-      // Optimistically update UI by adding to optimistic deletions set
-      setOptimisticDeletions(prev => new Set([...prev, notification.uuid]))
+        // Optimistically update UI by adding to optimistic deletions set
+        setOptimisticDeletions(prev => new Set([...prev, notification.uuid]))
 
-      // Optimistically update the cache
-      queryClient.setQueryData(
-        [NOTIFICATIONS_QUERY_KEY],
-        (oldData: Notification[] | undefined) =>
-          oldData ? oldData.filter(n => n.uuid !== notification.uuid) : []
-      )
+        // Optimistically update the cache
+        queryClient.setQueryData(
+          [NOTIFICATIONS_QUERY_KEY],
+          (oldData: Notification[] | undefined) =>
+            oldData ? oldData.filter(n => n.uuid !== notification.uuid) : []
+        )
 
-      // Perform the actual deletion
-      await deleteNotification(notification.uuid)
+        // Perform the actual deletion
+        await deleteNotification(notification.uuid)
 
-      toast({
-        title: "Notificación eliminada",
-        description: "La notificación ha sido eliminada correctamente.",
-        variant: "default",
-        duration: 3000,
-      })
-    } catch (error) {
-      console.error("Error deleting notification:", error)
+        toast({
+          title: "Notificación eliminada",
+          description: "La notificación ha sido eliminada correctamente.",
+          variant: "default",
+          duration: 3000,
+        })
+      } catch (error) {
+        console.error("Error deleting notification:", error)
 
-      // Revert optimistic update on error
-      setOptimisticDeletions(prev => {
-        const newSet = new Set(prev)
-        newSet.delete(notification.uuid)
-        return newSet
-      })
+        // Revert optimistic update on error
+        setOptimisticDeletions(prev => {
+          const newSet = new Set(prev)
+          newSet.delete(notification.uuid)
+          return newSet
+        })
 
-      // Revert cache update by refetching
-      queryClient.invalidateQueries({ queryKey: [NOTIFICATIONS_QUERY_KEY] })
+        // Revert cache update by refetching
+        queryClient.invalidateQueries({ queryKey: [NOTIFICATIONS_QUERY_KEY] })
 
-      toast({
-        title: "Error",
-        description: "No se pudo eliminar la notificación. Inténtalo de nuevo.",
-        variant: "destructive",
-        duration: 5000,
-      })
-    }
-  }
+        toast({
+          title: "Error",
+          description:
+            "No se pudo eliminar la notificación. Inténtalo de nuevo.",
+          variant: "destructive",
+          duration: 5000,
+        })
+      }
+    },
+    [queryClient, deleteNotification, toast]
+  )
 
   // Handle delete all notifications with optimistic updates
-  const handleDeleteAllNotifications = async () => {
+  const handleDeleteAllNotifications = useCallback(async () => {
     try {
       console.log("Deleting all notifications")
 
@@ -168,7 +168,7 @@ export function NotificationButton() {
         duration: 5000,
       })
     }
-  }
+  }, [notifications, queryClient, deleteAllNotifications, toast])
 
   // Determine if a notification is a global notification
   const isGlobalNotification = (notification: Notification) => {
@@ -275,4 +275,4 @@ export function NotificationButton() {
       </DropdownMenuContent>
     </DropdownMenu>
   )
-}
+})
