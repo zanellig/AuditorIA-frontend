@@ -16,9 +16,8 @@ export async function middleware(request: NextRequest, event: NextFetchEvent) {
 
   const authenticated = await isAuthenticated()
   if (!authenticated) {
-    const response = NextResponse.redirect(new URL("/login", request.url))
-    Object.entries(headers).forEach(([key, value]) => {
-      response.headers.set(key, value)
+    const response = NextResponse.redirect(new URL("/login", request.url), {
+      headers,
     })
     response.cookies.set(
       REDIRECT_COOKIE_NAME,
@@ -35,7 +34,7 @@ export async function middleware(request: NextRequest, event: NextFetchEvent) {
     return response
   }
 
-  return NextResponse.next()
+  return NextResponse.next({ headers })
 }
 
 export const config = {
