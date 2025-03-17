@@ -16,7 +16,7 @@ export async function setAuthCookie(tokens: AuthTokens) {
   cstore.set(AUTH_COOKIE, value, {
     httpOnly: true,
     secure: false,
-    expires: new Date(Date.now() + 120 * 60 * 1000),
+    expires: new Date(Date.now() + 240 * 60 * 1000),
   })
 }
 
