@@ -3,11 +3,12 @@ import { Notification, Notifications } from "@/lib/types"
 import { useEffect } from "react"
 import { useNotificationToast } from "@/components/notifications/notification-toast"
 import { getHost } from "../actions"
-import React from "react"
 import {
   addEventListener,
   checkAndReconnectEventSource,
 } from "../notification-event-source"
+import { useUser } from "@/components/context/UserProvider"
+import React from "react"
 
 // Query key for notifications
 export const NOTIFICATIONS_QUERY_KEY = "notifications"
@@ -30,24 +31,42 @@ async function fetchNotifications(): Promise<Notifications> {
 
 // Function to mark all notifications as read
 async function markAllAsRead(notifications: Notifications): Promise<void> {
-  const updatedNotifications = notifications.map(notification => ({
-    ...notification,
-    read: true,
-  }))
+  if (!notifications || notifications.length === 0) {
+    console.log("No notifications to mark as read")
+    return
+  }
+
+  console.log(`Marking ${notifications.length} notifications as read`)
 
   const host = await getHost()
 
-  // Update each notification
+  // Update each notification, preserving all original properties
   await Promise.all(
-    updatedNotifications.map(async notification =>
-      fetch(`${host}/api/notifications`, {
+    notifications.map(async notification => {
+      if (notification.read) {
+        console.log(
+          `Notification ${notification.uuid} already marked as read, skipping`
+        )
+        return
+      }
+
+      // Create an updated notification with read=true, preserving all other properties
+      const updatedNotification = {
+        ...notification,
+        read: true,
+      }
+
+      console.log(`Marking notification ${notification.uuid} as read`)
+
+      // Send the updated notification to the API
+      return fetch(`${host}/api/notifications`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(notification),
+        body: JSON.stringify(updatedNotification),
       })
-    )
+    })
   )
 }
 
@@ -143,7 +162,7 @@ async function deleteAllGlobalNotifications(
 // Hook to use notifications
 export function useNotifications() {
   const queryClient = useQueryClient()
-
+  const { username } = useUser()
   // Query to fetch notifications
   const {
     data: notifications = [],
@@ -154,6 +173,9 @@ export function useNotifications() {
     queryKey: [NOTIFICATIONS_QUERY_KEY],
     queryFn: fetchNotifications,
     refetchInterval: 30000, // Refetch every 30 seconds
+    enabled: !!username,
+    staleTime: 10000, // Consider data fresh for 10 seconds to prevent excessive refetching
+    refetchOnWindowFocus: false, // Disable refetching on window focus to prevent duplicate notifications
   })
 
   // Mutation to mark all notifications as read
@@ -218,9 +240,6 @@ export function useNotifications() {
 
       return response.json()
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [NOTIFICATIONS_QUERY_KEY] })
-    },
   })
 
   // Count of unread notifications
@@ -243,9 +262,16 @@ export function useNotifications() {
 // Hook to setup Server-Sent Events for real-time notifications
 export function useNotificationEvents() {
   const queryClient = useQueryClient()
+  const { username } = useUser()
   const { showNotificationToast } = useNotificationToast()
 
+  // Use a ref to persist the processed notification IDs between renders
+  // This prevents duplicate processing even if the component re-renders
+  const processedNotificationIds = React.useRef(new Set<string>())
+
   useEffect(() => {
+    if (!username) return // Don't set up listeners if no username
+
     console.log("Setting up notification event listeners...")
 
     // Set up a periodic check to ensure the connection is maintained
@@ -271,13 +297,25 @@ export function useNotificationEvents() {
       try {
         // Process each notification in the batch
         for (const notification of currentBatch) {
+          // Skip processing if we've already processed this notification
+          if (processedNotificationIds.current.has(notification.uuid)) {
+            console.log(
+              "Skipping already processed notification:",
+              notification.uuid
+            )
+            continue
+          }
+
+          // Mark this notification as processed
+          processedNotificationIds.current.add(notification.uuid)
+
           // Get current notifications from the cache
           const existingNotifications =
             queryClient.getQueryData<Notifications>([
               NOTIFICATIONS_QUERY_KEY,
             ]) || []
 
-          // Check if this notification already exists
+          // Check if this notification already exists in the cache
           const exists = existingNotifications.some(
             n => n.uuid === notification.uuid
           )
@@ -288,6 +326,23 @@ export function useNotificationEvents() {
               [NOTIFICATIONS_QUERY_KEY],
               oldNotifications => {
                 if (!oldNotifications) return [notification]
+
+                // More aggressive deduplication check with multiple conditions
+                const isDuplicate = oldNotifications.some(n => {
+                  // Check UUID (most reliable)
+                  if (n.uuid === notification.uuid) return true
+
+                  return false
+                })
+
+                if (isDuplicate) {
+                  console.log(
+                    "Prevented duplicate notification:",
+                    notification.uuid
+                  )
+                  return oldNotifications
+                }
+
                 return [notification, ...oldNotifications]
               }
             )
@@ -299,7 +354,7 @@ export function useNotificationEvents() {
             }, 0)
           } else {
             console.log(
-              "Notification already exists, not adding duplicate:",
+              "Notification already exists in cache, not adding duplicate:",
               notification.uuid
             )
           }
@@ -361,5 +416,5 @@ export function useNotificationEvents() {
       removeConnectedListener()
       clearInterval(connectionCheckInterval)
     }
-  }, [queryClient, showNotificationToast])
+  }, [username, queryClient, showNotificationToast]) // Include all dependencies
 }
