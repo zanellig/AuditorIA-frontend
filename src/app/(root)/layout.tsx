@@ -6,7 +6,6 @@ import Footer from "@/components/footer"
 import { CustomBorderCard } from "@/components/custom-border-card"
 import { env } from "@/env"
 import { Providers } from "@/components/context/Providers"
-import { Toaster } from "@/components/ui/toaster"
 
 const BACKGROUND = "bg-background"
 
@@ -16,19 +15,21 @@ export default function Layout({ children }: { children: ReactNode }) {
       <Providers>
         <div
           id='global-container'
-          className={cn("flex relative bg-transparent w-dvw h-dvh")}
+          className={cn(
+            "flex relative bg-transparent w-dvw h-dvh overflow-hidden"
+          )}
         >
           <Sidebar className={cn(BACKGROUND, "dark:bg-pulse")} />
           <section
             id='main-container'
             className={cn(
               BACKGROUND,
-              "border-s border-solid border-muted relative dark:bg-primary-foreground w-full h-dvh"
+              "border-s border-solid border-muted dark:bg-primary-foreground w-full h-dvh"
             )}
           >
-            <ScrollArea className='flex flex-col relative h-full'>
+            <ScrollArea className='flex flex-col h-full'>
               <TopNavbar />
-              <div className='px-5 py-2 min-h-full h-full flex flex-col gap-2 w-full flex-grow'>
+              <div className='px-5 py-2 flex flex-col gap-2 w-full min-h-dvh flex-grow'>
                 {env.NODE_ENV === "development" && (
                   <CustomBorderCard
                     title={"¡Advertencia!"}
@@ -41,7 +42,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                 )}
                 {children}
               </div>
-              <Footer className='mt-auto' />
+              <Footer className='sticky bottom-0' />
             </ScrollArea>
           </section>
         </div>

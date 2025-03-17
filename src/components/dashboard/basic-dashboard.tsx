@@ -1,7 +1,5 @@
 "use client"
 import React from "react"
-import { CardBody, CardContainer, CardItem } from "@/components/ui/3d-card"
-import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { DASHBOARD_ICON_CLASSES, GLOBAL_ICON_SIZE } from "@/lib/consts"
 import { StatefulButton } from "@/components/stateful-button"
@@ -19,6 +17,7 @@ import {
 } from "lucide-react"
 import { usePostHog } from "posthog-js/react"
 import { useUser } from "../context/UserProvider"
+import { useRouter } from "next/navigation"
 
 const ButtonArrow = React.forwardRef<
   SVGSVGElement,
@@ -96,7 +95,7 @@ export default function BasicDashboard() {
       title: "Ver reportes",
       icon: <FileChartColumn className={DASHBOARD_ICON_CLASSES} />,
       description: "En este módulo, podrá ver los reportes.",
-      href: "/dashboard/reports",
+      // href: "/dashboard/reports",
       disabled: true,
     },
     {
@@ -107,112 +106,61 @@ export default function BasicDashboard() {
       disabled: true,
     },
   ]
+
+  const router = useRouter()
+
   return (
     <>
       <main
         id='basic-dashboard'
-        className='grid lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 gap-4 w-full justify-items-center relative '
+        className='grid lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 gap-4 w-full'
         style={{ userSelect: "none" }}
       >
-        {dashboardItems.map((dashboardItem, index) => (
-          <Card3D
-            title={dashboardItem.title}
-            description={dashboardItem.description}
-            icon={dashboardItem.icon}
-            buttonIcon={<ButtonArrow className='text-primary-foreground' />}
-            href={dashboardItem.href}
-            disabled={dashboardItem.disabled}
-            key={`${dashboardItem}-${index}-card`}
-          />
-        ))}
+        {dashboardItems.map((dashboardItem, index) => {
+          const [isRedirecting, setIsRedirecting] =
+            React.useState<boolean>(false)
+
+          const ButtonContent = React.memo(() => {
+            return (
+              <div className='flex items-center justify-center space-x-2'>
+                <span>{<ArrowRight size={GLOBAL_ICON_SIZE} />}</span>
+                <span>{"Ir a " + dashboardItem.title.toLowerCase()}</span>
+              </div>
+            )
+          })
+
+          if (!dashboardItem.disabled && !dashboardItem.href) {
+            throw new Error(
+              "Invalid dashboard item. An href must be specified for non-disabled items."
+            )
+            return null
+          }
+
+          return (
+            <div className='border border-muted bg-popover rounded-xl p-4 min-h-40'>
+              <div className='flex flex-col gap-4 justify-between h-full'>
+                <div className='flex flex-col gap-2'>
+                  <span>{dashboardItem.icon}</span>
+                  <h1 className='font-semibold'>{dashboardItem.title}</h1>
+                  <p className='text-sm text-muted-foreground'>
+                    {dashboardItem.description}
+                  </p>
+                </div>
+                <StatefulButton
+                  isLoading={isRedirecting}
+                  onClick={() => {
+                    setIsRedirecting(true)
+                    router.push(dashboardItem.href!)
+                  }}
+                  disabled={dashboardItem.disabled}
+                >
+                  <ButtonContent />
+                </StatefulButton>
+              </div>
+            </div>
+          )
+        })}
       </main>
     </>
-  )
-}
-
-function Card3D({
-  title,
-  description,
-  icon,
-  buttonIcon,
-  href,
-  disabled = false,
-  className,
-}: {
-  title: string
-  description: string
-  icon: React.JSX.Element
-  buttonIcon: React.JSX.Element
-  href?: string
-  disabled?: boolean
-  className?: string
-}) {
-  const [isRedirecting, setIsRedirecting] = React.useState(false)
-  if (href && !href.startsWith("/")) {
-    throw new Error("href must start with /")
-  }
-
-  const buttonContent = () => {
-    return (
-      <div className='flex items-center justify-center space-x-2'>
-        <span>{buttonIcon}</span>
-        <span>{"Ir a " + title.toLowerCase()}</span>
-      </div>
-    )
-  }
-  return (
-    <CardContainer className={cn("inter-var", className)}>
-      <CardBody
-        className={cn(
-          "bg-background relative group/card  dark:hover:shadow-2xl dark:hover:shadow-emerald-500/[0.1] dark:bg-black dark:border-white/[0.2] border-black/[0.1] w-full h-auto lg:min-h-[200px] lg:min-w-full rounded-xl p-4 border flex flex-col gap-2 justify-between min-h-48",
-          disabled && "cursor-not-allowed"
-        )}
-      >
-        <CardItem
-          translateZ='50'
-          className={cn(
-            "text-xl font-bold text-secondary-foreground flex flex-row gap-2 items-center",
-            disabled && "text-muted-foreground"
-          )}
-        >
-          {icon}
-          {title}
-        </CardItem>
-        <CardItem
-          as='p'
-          translateZ='60'
-          className={cn("text-muted-foreground text-sm max-w-sm mt-2")}
-        >
-          {description}
-        </CardItem>
-
-        <CardItem translateZ='100' className='w-full'>
-          {!disabled && href ? (
-            <Link
-              href={href}
-              className={"w-full h-full"}
-              onClick={() => setIsRedirecting(true)}
-            >
-              <StatefulButton
-                variant={"default"}
-                className='w-full'
-                isLoading={isRedirecting}
-              >
-                {buttonContent()}
-              </StatefulButton>
-            </Link>
-          ) : (
-            <StatefulButton
-              variant={"default"}
-              className='w-full'
-              disabled={disabled}
-              isLoading={isRedirecting}
-            >
-              {buttonContent()}
-            </StatefulButton>
-          )}
-        </CardItem>
-      </CardBody>
-    </CardContainer>
   )
 }
