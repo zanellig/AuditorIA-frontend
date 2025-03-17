@@ -10,6 +10,7 @@ import {
   getNotificationsChannel,
   getGlobalNotificationsChannel,
 } from "@/lib/notifications-utils"
+import { getHeaders } from "@/lib/get-headers"
 
 /**
  * Notifications Webhook API
@@ -72,19 +73,61 @@ export async function POST(request: NextRequest) {
       try {
         // Check if this notification already exists (by uuid)
         const existingNotifications = await redisClient.lrange(key, 0, -1)
-        const exists = existingNotifications.some(item => {
+        let existingNotificationJson = null
+
+        for (const item of existingNotifications) {
           try {
             const parsedItem = JSON.parse(item)
-            return parsedItem.uuid === validatedNotification.uuid
+            if (parsedItem.uuid === validatedNotification.uuid) {
+              existingNotificationJson = item
+              break
+            }
           } catch {
-            return false
+            continue
           }
-        })
+        }
 
-        if (exists) {
+        if (existingNotificationJson) {
           console.log(
-            `Notification with UUID ${validatedNotification.uuid} already exists, not adding duplicate`
+            `Notification with UUID ${validatedNotification.uuid} already exists, updating it`
           )
+
+          // Remove the existing notification
+          await redisClient.lrem(key, 0, existingNotificationJson)
+
+          // Add the updated notification to the beginning of the list
+          await redisClient.lpush(key, JSON.stringify(validatedNotification))
+
+          // Set expiration on the key if it doesn't exist
+          await redisClient.expire(key, NOTIFICATIONS_TTL)
+
+          console.log(
+            `Notification ${validatedNotification.uuid} updated successfully`
+          )
+
+          // Publish the updated notification to the appropriate channel
+          if (isGlobalNotification) {
+            // For global notifications, publish to the global channel
+            const globalChannel = getGlobalNotificationsChannel()
+            await redisClient.publish(
+              globalChannel,
+              JSON.stringify(validatedNotification)
+            )
+            console.log(
+              `Updated global notification ${validatedNotification.uuid} published`
+            )
+          } else {
+            // For user-specific notifications, publish to the user's channel
+            const userChannel = getNotificationsChannel(key)
+            await redisClient.publish(
+              userChannel,
+              JSON.stringify(validatedNotification)
+            )
+            console.log(
+              `Updated user notification ${validatedNotification.uuid} published to ${key}`
+            )
+          }
+
           return
         }
 
@@ -134,19 +177,19 @@ export async function POST(request: NextRequest) {
         ...validatedNotification,
         isGlobal: isGlobalNotification,
       },
-      { status: 201 }
+      { status: 201, headers: await getHeaders(request) }
     )
   } catch (error) {
     console.error("Error creating notification via webhook:", error)
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: "Invalid notification data", details: error.errors },
-        { status: 400 }
+        { status: 400, headers: await getHeaders(request) }
       )
     }
     return NextResponse.json(
       { error: "Failed to create notification" },
-      { status: 500 }
+      { status: 500, headers: await getHeaders(request) }
     )
   }
 }
