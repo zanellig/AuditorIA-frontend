@@ -51,8 +51,6 @@ export default function TaskUploadForm({ className }: { className?: string }) {
       file: [],
     },
   })
-  // Get query key from user and time of upload
-  const user = useUser()
 
   const mutation = useMutation({
     mutationFn: async (values: FormValues) => {
