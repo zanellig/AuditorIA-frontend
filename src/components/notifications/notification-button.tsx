@@ -118,91 +118,23 @@ export const NotificationButton = memo(function NotificationButton() {
     notification => !optimisticDeletions.has(notification.uuid)
   )
 
-  // Handle notification deletion with optimistic updates
+  // Handle notification deletion
   const handleDeleteNotification = useCallback(
     async (notification: Notification, e: React.MouseEvent) => {
       e.stopPropagation()
 
-      try {
-        console.log("Deleting notification:", notification.uuid)
-
-        // Perform the actual deletion
-        deleteNotification(notification.uuid)
-
-        toast({
-          title: "Notificación eliminada",
-          description: "La notificación ha sido eliminada correctamente.",
-          variant: "default",
-          duration: 3000,
-        })
-      } catch (error) {
-        console.error("Error deleting notification:", error)
-
-        // Revert optimistic update on error
-        setOptimisticDeletions(prev => {
-          const newSet = new Set(prev)
-          newSet.delete(notification.uuid)
-          return newSet
-        })
-
-        // Revert cache update by refetching
-        queryClient.invalidateQueries({ queryKey: [NOTIFICATIONS_QUERY_KEY] })
-
-        toast({
-          title: "Error",
-          description:
-            "No se pudo eliminar la notificación. Inténtalo de nuevo.",
-          variant: "destructive",
-          duration: 5000,
-        })
-      }
-    },
-    [queryClient, deleteNotification, toast]
-  )
-
-  // Handle delete all notifications with optimistic updates
-  const handleDeleteAllNotifications = useCallback(async () => {
-    try {
-      console.log("Deleting all notifications")
-
-      // Store current notifications for potential rollback
-      const previousNotifications = [...notifications]
-
-      // Optimistically update UI by adding all notifications to optimistic deletions
-      const notificationIds = notifications.map(n => n.uuid)
-      setOptimisticDeletions(prev => new Set([...prev, ...notificationIds]))
-
-      // Optimistically update the cache
-      // queryClient.setQueryData([NOTIFICATIONS_QUERY_KEY], [])
+      console.log("Deleting notification:", notification.uuid)
 
       // Perform the actual deletion
-      deleteAllNotifications()
+      deleteNotification(notification.uuid)
+    },
+    [deleteNotification]
+  )
 
-      toast({
-        title: "Notificaciones eliminadas",
-        description:
-          "Todas las notificaciones han sido eliminadas correctamente.",
-        variant: "default",
-        duration: 3000,
-      })
-    } catch (error) {
-      console.error("Error deleting all notifications:", error)
-
-      // Revert optimistic update on error
-      setOptimisticDeletions(new Set())
-
-      // Revert cache update by refetching
-      queryClient.invalidateQueries({ queryKey: [NOTIFICATIONS_QUERY_KEY] })
-
-      toast({
-        title: "Error",
-        description:
-          "No se pudieron eliminar todas las notificaciones. Inténtalo de nuevo.",
-        variant: "destructive",
-        duration: 5000,
-      })
-    }
-  }, [notifications, queryClient, deleteAllNotifications, toast])
+  // Handle delete all notifications
+  const handleDeleteAllNotifications = useCallback(async () => {
+    deleteAllNotifications()
+  }, [deleteAllNotifications])
 
   // Determine if a notification is a global notification
   const isGlobalNotification = (notification: Notification) => {

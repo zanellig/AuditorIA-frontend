@@ -50,7 +50,6 @@ import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 import { TaskSearch } from "./task-search"
 import { NotificationButton } from "../notifications/notification-button"
 import { useNotificationEvents } from "@/lib/hooks/use-notifications"
-import { getHost } from "@/lib/actions"
 
 const TOP_HEIGHT = "h-14"
 
@@ -280,6 +279,8 @@ export function TopNavbar({
   className?: string
   style?: React.CSSProperties
 }) {
+  useNotificationEvents()
+
   const memoizedDrawerContent = React.useMemo(
     () => (
       <DrawerContent className='max-h-[550px] h-dvh'>

@@ -34,12 +34,7 @@ export const dynamic = "force-dynamic"
 
 // GET all notifications for the current user, including global notifications
 export async function GET(request: NextRequest) {
-  // Handle SSE events route
-  const { pathname, searchParams } = new URL(request.url)
-
-  if (pathname.endsWith("/events")) {
-    return handleSSEEvents(request)
-  }
+  const { searchParams } = new URL(request.url)
 
   try {
     const userKey = await getUserNotificationsKey()
@@ -122,19 +117,10 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
 
     // Check if this is an admin operation targeting a specific user or sending globally
-    const isAdminRequest = body.isAdminRequest === true
     let targetUser = body.targetUser
 
-    // Validate admin rights if this is an admin request
-    if (isAdminRequest && !(await isAdmin())) {
-      return NextResponse.json(
-        { error: "Unauthorized: Admin access required" },
-        { status: 403, headers: await getHeaders(request) }
-      )
-    }
-
     // Determine if this is a global notification
-    const isGlobalNotification = isAdminRequest && !targetUser
+    const isGlobalNotification = !targetUser
 
     // Create the notification object
     const notification = {
@@ -153,7 +139,7 @@ export async function POST(request: NextRequest) {
     let key
     if (isGlobalNotification) {
       key = GLOBAL_NOTIFICATIONS_KEY
-    } else if (isAdminRequest && targetUser) {
+    } else if (targetUser) {
       key = getNotificationsKeyForUser(targetUser)
     } else {
       key = await getUserNotificationsKey()
@@ -288,34 +274,10 @@ export async function DELETE(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const uuid = searchParams.get("uuid")
     const userKey = await getUserNotificationsKey()
-
-    // Check for admin operations
-    const isAdminRequest = searchParams.get("isAdmin") === "true"
-
-    if (isAdminRequest && !(await isAdmin())) {
-      return NextResponse.json(
-        { error: "Unauthorized: Admin access required" },
-        { status: 403, headers: await getHeaders(request) }
-      )
-    }
-
+    const body = await request.json()
     console.log(
-      `DELETE request received. UUID: ${uuid || "all"}, User key: ${userKey}, Admin: ${isAdminRequest}`
+      `DELETE request received. UUID: ${uuid || "all"}, User key: ${userKey}`
     )
-
-    if (isAdminRequest && !uuid) {
-      // Admin deleting all global notifications
-      const deletedCount = await redisClient.del(GLOBAL_NOTIFICATIONS_KEY)
-      console.log(`Deleted ${deletedCount} global notifications`)
-
-      return NextResponse.json(
-        {
-          message: "All global notifications deleted",
-          details: { deletedCount },
-        },
-        { status: 200, headers: await getHeaders(request) }
-      )
-    }
 
     if (uuid) {
       // Delete specific notification
@@ -353,12 +315,23 @@ export async function DELETE(request: NextRequest) {
       }
 
       // Handle admin deleting global notification
-      if (isAdminRequest && !userNotificationDeleted) {
+      if (!userNotificationDeleted) {
         for (let i = 0; i < globalNotificationsData.length; i++) {
           try {
             const notification = JSON.parse(globalNotificationsData[i])
             if (notification.uuid === uuid) {
               // Remove the global notification
+              return NextResponse.json(
+                {
+                  error:
+                    "Solo los administradores pueden eliminar notificaciones globales",
+                },
+                {
+                  status: 403,
+                  statusText: "Forbidden",
+                  headers: await getHeaders(request),
+                }
+              )
               const result = await redisClient.lrem(
                 GLOBAL_NOTIFICATIONS_KEY,
                 1,
@@ -381,209 +354,49 @@ export async function DELETE(request: NextRequest) {
         }
       }
 
-      // For regular users, handle global notifications (for read status only)
-      let globalNotificationMarked = false
-      if (!isAdminRequest) {
-        for (let i = 0; i < globalNotificationsData.length; i++) {
-          try {
-            const notification = JSON.parse(globalNotificationsData[i])
-            if (notification.uuid === uuid) {
-              // For global notifications, we don't delete them but mark them as read
-              notification.read = true
-
-              // Remove any existing copies of this notification from the user's list
-              const userNotifications = await redisClient.lrange(userKey, 0, -1)
-              for (const item of userNotifications) {
-                try {
-                  const existingNotification = JSON.parse(item)
-                  if (existingNotification.uuid === uuid) {
-                    await redisClient.lrem(userKey, 0, item)
-                    console.log(
-                      `Removed existing notification with UUID ${uuid} from user ${userKey}`
-                    )
-                  }
-                } catch (e) {
-                  console.error("Error parsing notification during removal:", e)
-                }
-              }
-
-              // Add the updated notification with read=true
-              await redisClient.lpush(userKey, JSON.stringify(notification))
-              await redisClient.expire(userKey, NOTIFICATIONS_TTL)
-              console.log(
-                `Marked global notification with UUID ${uuid} as read for user ${userKey}`
-              )
-              globalNotificationMarked = true
-              break
-            }
-          } catch (e) {
-            console.error(
-              "Error parsing global notification during read marking:",
-              e
-            )
-          }
-        }
-      }
-
-      if (!userNotificationDeleted && !globalNotificationMarked) {
-        console.log(
-          `Notification with UUID ${uuid} not found for user ${userKey}`
-        )
-      }
-
       return NextResponse.json(
         {
-          message: "Notification processed",
+          message: "Notificación procesada",
           details: {
             userNotificationDeleted,
-            globalNotificationMarked,
             uuid,
           },
         },
         { status: 200, headers: await getHeaders(request) }
       )
     } else {
+      if (body.adminSecret === process.env.ADMIN_API_KEY) {
+        // Delete all global notifications
+        const deletedCount = await redisClient.del(GLOBAL_NOTIFICATIONS_KEY)
+        console.log(`Deleted ${deletedCount} global notifications`)
+        return NextResponse.json(
+          { message: "Todas las notificaciones globales eliminadas" },
+          { status: 200, headers: await getHeaders(request) }
+        )
+      }
       // Delete all user notifications
       const deletedCount = await redisClient.del(userKey)
       console.log(
         `Deleted ${deletedCount} user notifications for user ${userKey}`
       )
 
-      // For global notifications, mark all as read
-      const globalNotificationsData = await redisClient.lrange(
-        GLOBAL_NOTIFICATIONS_KEY,
-        0,
-        -1
-      )
-
-      console.log(
-        `Marking ${globalNotificationsData.length} global notifications as read for user ${userKey}`
-      )
-
-      // First, get all existing notifications for the user to check for duplicates
-      const existingUserNotifications = await redisClient.lrange(userKey, 0, -1)
-      const existingGlobalIds = new Set()
-
-      // Extract UUIDs of global notifications that might already be in the user's list
-      for (const item of existingUserNotifications) {
-        try {
-          const notification = JSON.parse(item)
-          if (notification.isGlobal) {
-            existingGlobalIds.add(notification.uuid)
-          }
-        } catch (e) {
-          console.error("Error parsing existing notification:", e)
-        }
-      }
-
-      let markedCount = 0
-      for (const item of globalNotificationsData) {
-        try {
-          const notification = JSON.parse(item)
-          notification.read = true
-
-          // If this global notification is already in the user's list, update it
-          if (existingGlobalIds.has(notification.uuid)) {
-            // Remove the existing version first
-            for (const existingItem of existingUserNotifications) {
-              try {
-                const existingNotification = JSON.parse(existingItem)
-                if (existingNotification.uuid === notification.uuid) {
-                  await redisClient.lrem(userKey, 0, existingItem)
-                  console.log(
-                    `Removed existing global notification with UUID ${notification.uuid}`
-                  )
-                  break
-                }
-              } catch (e) {
-                continue
-              }
-            }
-          }
-
-          // Add the updated notification with read=true
-          await redisClient.lpush(userKey, JSON.stringify(notification))
-          markedCount++
-        } catch (e) {
-          console.error("Error marking global notification as read:", e)
-        }
-      }
-
       await redisClient.expire(userKey, NOTIFICATIONS_TTL)
-      console.log(
-        `Successfully marked ${markedCount} global notifications as read for user ${userKey}`
-      )
 
       return NextResponse.json(
         {
-          message: "All notifications processed",
+          message: "Todas las notificaciones procesadas",
           details: {
             userNotificationsDeleted: deletedCount,
-            globalNotificationsMarked: markedCount,
           },
         },
         { status: 200, headers: await getHeaders(request) }
       )
     }
   } catch (error) {
-    console.error("Error processing notification(s):", error)
+    console.error("Error procesando notificación(es):", error)
     return NextResponse.json(
-      { error: "Failed to process notification(s)", details: String(error) },
+      { error: "Error al procesar notificación(es)", details: String(error) },
       { status: 500, headers: await getHeaders(request) }
     )
   }
-}
-
-// Handle SSE events for real-time notifications
-async function handleSSEEvents(request: NextRequest) {
-  const encoder = new TextEncoder()
-  const userKey = await getUserNotificationsKey()
-  const userChannel = getNotificationsChannel(userKey)
-  const globalChannel = getGlobalNotificationsChannel()
-
-  // Create a new ReadableStream
-  const stream = new ReadableStream({
-    async start(controller) {
-      // Send initial connection message
-      controller.enqueue(encoder.encode("event: connected\ndata: {}\n\n"))
-
-      // Subscribe to Redis pub/sub channels for this user and global notifications
-      const subscriber = redisClient.duplicate()
-      await subscriber.subscribe(userChannel, globalChannel)
-
-      console.log(`Subscribed to channels: ${userChannel} and ${globalChannel}`)
-
-      // Listen for messages on the channels
-      subscriber.on("message", (channel, message) => {
-        try {
-          console.log(`Received message on channel ${channel}:`, message)
-          // Send the notification as an event
-          controller.enqueue(
-            encoder.encode(`event: notification\ndata: ${message}\n\n`)
-          )
-        } catch (error) {
-          console.error("Error sending notification event:", error)
-        }
-      })
-
-      // Handle client disconnect
-      request.signal.addEventListener("abort", () => {
-        console.log(
-          `Unsubscribing from channels: ${userChannel} and ${globalChannel}`
-        )
-        subscriber.unsubscribe(userChannel, globalChannel)
-        subscriber.quit()
-        controller.close()
-      })
-    },
-  })
-
-  // Return the stream as a Server-Sent Events response
-  return new Response(stream, {
-    headers: {
-      "Content-Type": "text/event-stream",
-      "Cache-Control": "no-cache",
-      "Connection": "keep-alive",
-    },
-  })
 }

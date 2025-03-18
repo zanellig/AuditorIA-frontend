@@ -1,8 +1,8 @@
 import {
-  useQuery,
   useMutation,
   useQueryClient,
   useInfiniteQuery,
+  InfiniteData,
 } from "@tanstack/react-query"
 import { Notification, Notifications, NotificationsResponse } from "@/lib/types"
 import { useEffect } from "react"
@@ -14,6 +14,7 @@ import {
 } from "../notification-event-source"
 import { useUser } from "@/components/context/UserProvider"
 import React from "react"
+import { useToast } from "@/components/ui/use-toast"
 
 // Query key for notifications
 export const NOTIFICATIONS_QUERY_KEY = "notifications"
@@ -83,10 +84,10 @@ async function deleteNotification(uuid: string): Promise<void> {
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}))
       console.error(
-        `Failed to delete notification: ${response.status} ${response.statusText}`,
+        `Failed to delete notification: ${response.status} ${errorData.error}`,
         errorData
       )
-      throw new Error(`Failed to delete notification: ${response.statusText}`)
+      throw new Error(`Failed to delete notification: ${errorData.error}`)
     }
 
     console.log(
@@ -111,12 +112,10 @@ async function deleteAllNotifications(): Promise<void> {
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}))
       console.error(
-        `Failed to delete all notifications: ${response.status} ${response.statusText}`,
+        `Failed to delete all notifications: ${response.status} ${errorData.error}`,
         errorData
       )
-      throw new Error(
-        `Failed to delete all notifications: ${response.statusText}`
-      )
+      throw new Error(`Failed to delete all notifications: ${errorData.error}`)
     }
 
     console.log("Successfully deleted/processed all notifications")
@@ -165,6 +164,8 @@ export function useNotifications() {
   const queryClient = useQueryClient()
   const { username } = useUser()
 
+  const { toast } = useToast()
+
   // Infinite query for notifications
   const {
     data,
@@ -180,6 +181,8 @@ export function useNotifications() {
     initialPageParam: 0,
     getNextPageParam: lastPage => lastPage.nextCursor,
     enabled: !!username,
+    refetchInterval: 30000,
+    refetchOnWindowFocus: true,
   })
 
   // Flatten all notifications from all pages
@@ -200,6 +203,20 @@ export function useNotifications() {
   const deleteNotificationMutation = useMutation({
     mutationFn: deleteNotification,
     onSuccess: () => {
+      toast({
+        title: "Notificación eliminada",
+        variant: "success",
+        duration: 3000,
+      })
+    },
+    onError: error => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      })
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: [NOTIFICATIONS_QUERY_KEY] })
     },
   })
@@ -208,6 +225,20 @@ export function useNotifications() {
   const deleteAllNotificationsMutation = useMutation({
     mutationFn: deleteAllNotifications,
     onSuccess: () => {
+      toast({
+        title: "Notificaciones eliminadas",
+        variant: "success",
+        duration: 3000,
+      })
+    },
+    onError: error => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      })
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: [NOTIFICATIONS_QUERY_KEY] })
     },
   })
@@ -322,40 +353,57 @@ export function useNotificationEvents() {
           processedNotificationIds.current.add(notification.uuid)
 
           // Get current notifications from the cache
-          const existingNotifications =
-            queryClient.getQueryData<Notifications>([
-              NOTIFICATIONS_QUERY_KEY,
-            ]) || []
+          const queryData = queryClient.getQueryData<
+            InfiniteData<NotificationsResponse>
+          >([NOTIFICATIONS_QUERY_KEY])
+
+          // Extract notifications from all pages in the infinite query structure
+          const existingNotifications = queryData?.pages
+            ? queryData.pages.flatMap(page => page.notifications)
+            : []
+
+          console.log("existingNotifications", existingNotifications)
 
           // Check if this notification already exists in the cache
           const exists = existingNotifications.some(
-            n => n.uuid === notification.uuid
+            (n: Notification) => n.uuid === notification.uuid
           )
 
           if (!exists) {
             // Update the query cache with the new notification
-            queryClient.setQueryData<Notifications>(
+            queryClient.setQueryData<InfiniteData<NotificationsResponse>>(
               [NOTIFICATIONS_QUERY_KEY],
-              oldNotifications => {
-                if (!oldNotifications) return [notification]
+              old => {
+                if (!old)
+                  return {
+                    pages: [
+                      {
+                        notifications: [notification],
+                        nextCursor: null,
+                        total: 1,
+                        pages: 1,
+                      },
+                    ],
+                    pageParams: [0],
+                  }
 
-                // More aggressive deduplication check with multiple conditions
-                const isDuplicate = oldNotifications.some(n => {
-                  // Check UUID (most reliable)
-                  if (n.uuid === notification.uuid) return true
-
-                  return false
-                })
-
-                if (isDuplicate) {
-                  console.log(
-                    "Prevented duplicate notification:",
-                    notification.uuid
-                  )
-                  return oldNotifications
+                // Add notification to the first page
+                return {
+                  ...old,
+                  pages: [
+                    // Update first page with the new notification
+                    {
+                      ...old.pages[0],
+                      notifications: [
+                        notification,
+                        ...old.pages[0].notifications,
+                      ],
+                      total: (old.pages[0].total || 0) + 1,
+                    },
+                    // Keep the rest of the pages unchanged
+                    ...old.pages.slice(1),
+                  ],
                 }
-
-                return [notification, ...oldNotifications]
               }
             )
 

@@ -30,6 +30,9 @@ export async function getUserNotificationsKey(): Promise<string> {
 
   // Create a unique key based on the session or a default for anonymous users
   console.log("userId on getUserNotificationsKey", userData.username)
+  if (!userData.username) {
+    return GLOBAL_NOTIFICATIONS_KEY
+  }
   return `notifications:${userData.username}`
 }
 
