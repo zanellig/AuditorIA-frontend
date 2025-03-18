@@ -9,16 +9,6 @@ export async function middleware(request: NextRequest, event: NextFetchEvent) {
   const isPreflight = request.method === "OPTIONS"
   if (isPreflight) return NextResponse.next()
 
-  // Add headers for API routes
-  if (request.nextUrl.pathname.startsWith("/api")) {
-    const headers = await getHeaders(request)
-    const response = NextResponse.next()
-    headers.forEach((value, key) => {
-      response.headers.set(key, value)
-    })
-    return response
-  }
-
   const authenticated = await isAuthenticated()
   if (!authenticated) {
     const response = NextResponse.redirect(new URL("/login", request.url))
@@ -41,5 +31,5 @@ export async function middleware(request: NextRequest, event: NextFetchEvent) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/api/:path*"],
+  matcher: ["/dashboard/:path*"],
 }
