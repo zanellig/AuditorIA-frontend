@@ -24,7 +24,7 @@ export function useNotificationToast() {
           title: "Nueva notificación",
           description: notification.text,
           variant: "default",
-          duration: 5000,
+          duration: 2000,
           action: (
             <ToastAction altText='Ver' onClick={() => router.push(url)}>
               Ver
@@ -36,7 +36,7 @@ export function useNotificationToast() {
           title: "Nueva notificación",
           description: notification.text,
           variant: "default",
-          duration: 5000,
+          duration: 2000,
         })
       }
     } catch (error) {
@@ -47,7 +47,7 @@ export function useNotificationToast() {
         title: "Nueva notificación",
         description: notification.text,
         variant: "default",
-        duration: 5000,
+        duration: 2000,
       })
     }
   }
