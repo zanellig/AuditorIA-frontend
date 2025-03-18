@@ -467,7 +467,7 @@ export default function AIChatInterface() {
                   >
                     <Button
                       variant='ghost'
-                      className='w-full text-xs text-wrap'
+                      className='w-full text-xs text-wrap h-fit'
                       onClick={() => handleSend(question)}
                     >
                       {question}
