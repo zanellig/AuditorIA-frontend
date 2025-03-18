@@ -349,14 +349,6 @@ export function TopNavbar({
       <BreadcrumbWithCustomSeparator className='hidden lg:block' />
       <div className='flex flex-row gap-2 items-center justify-end'>
         {children}
-        <Button
-          variant={"outline"}
-          size={"icon"}
-          onClick={async () => {
-            const host = await getHost()
-            console.log("host", host)
-          }}
-        ></Button>
         <TaskSearch />
         <AvatarButton />
         <NotificationButton />
