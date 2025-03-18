@@ -1,5 +1,10 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { Notification, Notifications } from "@/lib/types"
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  useInfiniteQuery,
+} from "@tanstack/react-query"
+import { Notification, Notifications, NotificationsResponse } from "@/lib/types"
 import { useEffect } from "react"
 import { useNotificationToast } from "@/components/notifications/notification-toast"
 import { getHost } from "../actions"
@@ -13,20 +18,16 @@ import React from "react"
 // Query key for notifications
 export const NOTIFICATIONS_QUERY_KEY = "notifications"
 
-// Interface for the notifications response
-interface NotificationsResponse {
-  notifications: Notifications
-}
-
 // Function to fetch notifications
-async function fetchNotifications(): Promise<Notifications> {
+async function fetchNotificationsPage({
+  cursor = 0,
+}): Promise<NotificationsResponse> {
   const host = await getHost()
-  const response = await fetch(`${host}/api/notifications`)
+  const response = await fetch(`${host}/api/notifications?cursor=${cursor}`)
   if (!response.ok) {
     throw new Error("Failed to fetch notifications")
   }
-  const data: NotificationsResponse = await response.json()
-  return data.notifications
+  return response.json()
 }
 
 // Function to mark all notifications as read
@@ -163,20 +164,29 @@ async function deleteAllGlobalNotifications(
 export function useNotifications() {
   const queryClient = useQueryClient()
   const { username } = useUser()
-  // Query to fetch notifications
+
+  // Infinite query for notifications
   const {
-    data: notifications = [],
-    isLoading,
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    status,
     error,
     refetch,
-  } = useQuery({
+  } = useInfiniteQuery({
     queryKey: [NOTIFICATIONS_QUERY_KEY],
-    queryFn: fetchNotifications,
-    refetchInterval: 30000, // Refetch every 30 seconds
+    queryFn: ({ pageParam }) => fetchNotificationsPage({ cursor: pageParam }),
+    initialPageParam: 0,
+    getNextPageParam: lastPage => lastPage.nextCursor,
     enabled: !!username,
-    staleTime: 10000, // Consider data fresh for 10 seconds to prevent excessive refetching
-    refetchOnWindowFocus: false, // Disable refetching on window focus to prevent duplicate notifications
   })
+
+  // Flatten all notifications from all pages
+  const notifications = data?.pages.flatMap(page => page.notifications) ?? []
+
+  // Count of unread notifications across all pages
+  const unreadCount = notifications.filter(n => !n.read).length
 
   // Mutation to mark all notifications as read
   const markAllAsReadMutation = useMutation({
@@ -189,15 +199,17 @@ export function useNotifications() {
   // Mutation to delete a notification
   const deleteNotificationMutation = useMutation({
     mutationFn: deleteNotification,
-    // We don't need onSuccess here because we're using optimistic updates
-    // The UI will already be updated before the mutation completes
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [NOTIFICATIONS_QUERY_KEY] })
+    },
   })
 
   // Mutation to delete all notifications
   const deleteAllNotificationsMutation = useMutation({
     mutationFn: deleteAllNotifications,
-    // We don't need onSuccess here because we're using optimistic updates
-    // The UI will already be updated before the mutation completes
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [NOTIFICATIONS_QUERY_KEY] })
+    },
   })
 
   // Mutation to delete all global notifications (admin only)
@@ -217,22 +229,19 @@ export function useNotifications() {
     ) => {
       const { isGlobal, ...notificationData } = notification
 
-      const response = await fetch(
-        `${await getHost()}/api/notifications/webhook`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            ...notificationData,
-            timestamp: Date.now(),
-            read: false,
-            // Only include userId if it's not a global notification
-            ...(isGlobal ? {} : { userId: "current" }),
-          }),
-        }
-      )
+      const response = await fetch(`${await getHost()}/api/notifications`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...notificationData,
+          timestamp: Date.now(),
+          read: false,
+          // Only include userId if it's not a global notification
+          ...(isGlobal ? {} : { userId: "current" }),
+        }),
+      })
 
       if (!response.ok) {
         throw new Error("Failed to send notification")
@@ -240,17 +249,20 @@ export function useNotifications() {
 
       return response.json()
     },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [NOTIFICATIONS_QUERY_KEY] })
+    },
   })
-
-  // Count of unread notifications
-  const unreadCount = notifications.filter(n => !n.read).length
 
   return {
     notifications,
     unreadCount,
-    isLoading,
+    isLoading: status === "pending",
     error,
     refetch,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
     markAllAsRead: markAllAsReadMutation.mutate,
     deleteNotification: deleteNotificationMutation.mutate,
     deleteAllNotifications: deleteAllNotificationsMutation.mutate,

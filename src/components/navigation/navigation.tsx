@@ -50,6 +50,7 @@ import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 import { TaskSearch } from "./task-search"
 import { NotificationButton } from "../notifications/notification-button"
 import { useNotificationEvents } from "@/lib/hooks/use-notifications"
+import { getHost } from "@/lib/actions"
 
 const TOP_HEIGHT = "h-14"
 
@@ -279,8 +280,6 @@ export function TopNavbar({
   className?: string
   style?: React.CSSProperties
 }) {
-  useNotificationEvents()
-
   const memoizedDrawerContent = React.useMemo(
     () => (
       <DrawerContent className='max-h-[550px] h-dvh'>
@@ -350,6 +349,14 @@ export function TopNavbar({
       <BreadcrumbWithCustomSeparator className='hidden lg:block' />
       <div className='flex flex-row gap-2 items-center justify-end'>
         {children}
+        <Button
+          variant={"outline"}
+          size={"icon"}
+          onClick={async () => {
+            const host = await getHost()
+            console.log("host", host)
+          }}
+        ></Button>
         <TaskSearch />
         <AvatarButton />
         <NotificationButton />

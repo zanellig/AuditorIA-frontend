@@ -5,7 +5,6 @@ import "./globals.css"
 
 import { ThemeProvider } from "@/components/context/ThemeProvider"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import { PostHogProvider } from "@/components/context/Posthog"
 import { Toaster } from "@/components/ui/toaster"
 
 const openSans = Open_Sans({ subsets: ["latin"] })
@@ -38,19 +37,21 @@ export default function RootLayout({
       ></meta>
       <head>
         <link rel='icon' href='/favicon.ico' sizes='any' />
+        {/* <script
+          crossOrigin='anonymous'
+          src='//unpkg.com/react-scan/dist/auto.global.js'
+        ></script> */}
       </head>
       <body className={openSans.className}>
-        <PostHogProvider>
-          <QueryClientProvider client={queryClient}>
-            <ThemeProvider
-              attribute='class'
-              defaultTheme='dark'
-              disableTransitionOnChange
-            >
-              {children}
-            </ThemeProvider>
-          </QueryClientProvider>
-        </PostHogProvider>
+        <QueryClientProvider client={queryClient}>
+          <ThemeProvider
+            attribute='class'
+            defaultTheme='dark'
+            disableTransitionOnChange
+          >
+            {children}
+          </ThemeProvider>
+        </QueryClientProvider>
         <Toaster />
       </body>
     </html>

@@ -1,9 +1,11 @@
 import "server-only"
 import { cookies } from "next/headers"
+import { env } from "@/env"
+import { ServerUserData } from "@/app/api/user/user"
 
 // Constants for notification keys
 export const GLOBAL_NOTIFICATIONS_KEY = "notifications:global"
-export const NOTIFICATIONS_TTL = 60 * 60 * 24 * 7 // 7 days
+export const NOTIFICATIONS_TTL = 60 * 60 * 24 // 24 hours
 
 /**
  * Gets the Redis key for user-specific notifications based on the session cookie
@@ -16,12 +18,19 @@ export async function getUserNotificationsKey(): Promise<string> {
   const cookieStore = await cookies()
   const sessionCookie = cookieStore.get("session")
 
-  // Create a unique key based on the session or a default for anonymous users
-  const userId = sessionCookie?.value
-    ? sessionCookie.value.split(" ")[1].substring(0, 10)
-    : "anonymous"
+  const userCookie = sessionCookie?.value
+  const userData: ServerUserData = await fetch(
+    `${env.API_CANARY_8000}/users/me`,
+    {
+      headers: {
+        Authorization: userCookie!,
+      },
+    }
+  ).then(async res => await res.json())
 
-  return `notifications:${userId}`
+  // Create a unique key based on the session or a default for anonymous users
+  console.log("userId on getUserNotificationsKey", userData.username)
+  return `notifications:${userData.username}`
 }
 
 /**

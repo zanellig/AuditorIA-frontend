@@ -14,6 +14,8 @@ import {
 } from "@/lib/notifications-utils"
 import { getHeaders } from "@/lib/get-headers"
 
+export const dynamic = "force-dynamic"
+
 /**
  * Unified Notification System
  *
@@ -33,7 +35,7 @@ import { getHeaders } from "@/lib/get-headers"
 // GET all notifications for the current user, including global notifications
 export async function GET(request: NextRequest) {
   // Handle SSE events route
-  const { pathname } = new URL(request.url)
+  const { pathname, searchParams } = new URL(request.url)
 
   if (pathname.endsWith("/events")) {
     return handleSSEEvents(request)
@@ -41,11 +43,23 @@ export async function GET(request: NextRequest) {
 
   try {
     const userKey = await getUserNotificationsKey()
+    const cursor = parseInt(searchParams.get("cursor") || "0")
+    const pageSize = 10 // Number of notifications per page
 
-    // Fetch both user-specific and global notifications
+    // Calculate Redis list range indices
+    const start = cursor
+    const end = cursor + pageSize - 1
+
+    // Fetch both user-specific and global notifications with pagination
     const [userNotificationsData, globalNotificationsData] = await Promise.all([
-      redisClient.lrange(userKey, 0, -1),
-      redisClient.lrange(GLOBAL_NOTIFICATIONS_KEY, 0, -1),
+      redisClient.lrange(userKey, start, end),
+      redisClient.lrange(GLOBAL_NOTIFICATIONS_KEY, start, end),
+    ])
+
+    // Get total counts for pagination
+    const [userTotal, globalTotal] = await Promise.all([
+      redisClient.llen(userKey),
+      redisClient.llen(GLOBAL_NOTIFICATIONS_KEY),
     ])
 
     // Parse user notifications
@@ -78,8 +92,19 @@ export async function GET(request: NextRequest) {
       ...globalNotifications,
     ].sort((a, b) => b.timestamp - a.timestamp)
 
+    // Calculate if there are more pages
+    const total = userTotal + globalTotal
+    const hasMore = cursor + pageSize < total
+    const nextCursor = hasMore ? cursor + pageSize : null
+    const pages = Math.ceil(total / pageSize)
+
     return NextResponse.json(
-      { notifications: allNotifications },
+      {
+        notifications: allNotifications,
+        total,
+        pages,
+        nextCursor,
+      },
       { status: 200, headers: await getHeaders(request) }
     )
   } catch (error) {

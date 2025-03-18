@@ -1,8 +1,8 @@
 "use client"
 
-import { useState, useEffect, useCallback, memo } from "react"
+import { useState, useEffect, useCallback, memo, useRef } from "react"
 import { useRouter } from "next/navigation"
-import { Bell, Trash2 } from "lucide-react"
+import { Bell, Loader2 } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 import { Button } from "@/components/ui/button"
 import {
@@ -32,30 +32,74 @@ export const NotificationButton = memo(function NotificationButton() {
   const [optimisticDeletions, setOptimisticDeletions] = useState<Set<string>>(
     new Set()
   )
+  const scrollAreaRef = useRef<HTMLDivElement>(null)
 
   // useNotifications hook provides the notifications state and operations
   const {
     notifications,
     unreadCount,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
     markAllAsRead,
     deleteNotification,
     deleteAllNotifications,
   } = useNotifications()
 
-  // Remove unnecessary debugging effect that causes additional renders
-  // and contributes to the notification duplication issue
+  // Set up scroll listener when dropdown is open
+  useEffect(() => {
+    if (!open) return
+
+    const checkForInfiniteScroll = () => {
+      if (!scrollAreaRef.current) return
+
+      // Find the viewport element inside the ScrollArea
+      const viewport = scrollAreaRef.current.querySelector(
+        "[data-radix-scroll-area-viewport]"
+      )
+      if (!viewport || !(viewport instanceof HTMLElement)) return
+
+      const isNearBottom =
+        viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight < 50
+
+      if (isNearBottom && hasNextPage && !isFetchingNextPage) {
+        console.log("Loading more notifications...")
+        fetchNextPage()
+      }
+    }
+
+    // Get the viewport element
+    const scrollAreaElement = scrollAreaRef.current
+    if (!scrollAreaElement) return
+
+    const viewport = scrollAreaElement.querySelector(
+      "[data-radix-scroll-area-viewport]"
+    )
+    if (!viewport) return
+
+    // Add scroll event listener
+    viewport.addEventListener("scroll", checkForInfiniteScroll)
+
+    // Initial check in case we start near the bottom
+    checkForInfiniteScroll()
+
+    return () => {
+      viewport.removeEventListener("scroll", checkForInfiniteScroll)
+    }
+  }, [open, hasNextPage, isFetchingNextPage, fetchNextPage])
 
   // Mark all as read when dropdown is opened
   const handleOpenChange = useCallback(
     (isOpen: boolean) => {
-      console.log("Dropdown open state changed:", isOpen)
+      // console.log("Dropdown open state changed:", isOpen)
       setOpen(isOpen)
+      return
       if (isOpen && unreadCount > 0) {
         console.log("Marking all notifications as read")
         markAllAsRead()
       }
     },
-    [markAllAsRead, unreadCount]
+    [unreadCount]
   )
 
   // Navigate to transcription page
@@ -82,18 +126,8 @@ export const NotificationButton = memo(function NotificationButton() {
       try {
         console.log("Deleting notification:", notification.uuid)
 
-        // Optimistically update UI by adding to optimistic deletions set
-        setOptimisticDeletions(prev => new Set([...prev, notification.uuid]))
-
-        // Optimistically update the cache
-        queryClient.setQueryData(
-          [NOTIFICATIONS_QUERY_KEY],
-          (oldData: Notification[] | undefined) =>
-            oldData ? oldData.filter(n => n.uuid !== notification.uuid) : []
-        )
-
         // Perform the actual deletion
-        await deleteNotification(notification.uuid)
+        deleteNotification(notification.uuid)
 
         toast({
           title: "Notificación eliminada",
@@ -139,7 +173,7 @@ export const NotificationButton = memo(function NotificationButton() {
       setOptimisticDeletions(prev => new Set([...prev, ...notificationIds]))
 
       // Optimistically update the cache
-      queryClient.setQueryData([NOTIFICATIONS_QUERY_KEY], [])
+      // queryClient.setQueryData([NOTIFICATIONS_QUERY_KEY], [])
 
       // Perform the actual deletion
       deleteAllNotifications()
@@ -213,64 +247,75 @@ export const NotificationButton = memo(function NotificationButton() {
           )}
         </div>
         <DropdownMenuSeparator />
-        <ScrollArea>
+        <ScrollArea className='relative' ref={scrollAreaRef}>
           <div className='max-h-80'>
             {filteredNotifications.length === 0 ? (
               <div className='p-4 text-center text-muted-foreground'>
                 No hay notificaciones
               </div>
             ) : (
-              filteredNotifications.map(notification => (
-                <DropdownMenuItem
-                  key={notification.uuid}
-                  className={cn(
-                    "flex flex-col items-start p-3 cursor-pointer",
-                    !notification.read && "bg-muted/50"
-                  )}
-                  onClick={() => {
-                    if (notification.task?.identifier) {
-                      console.log("Clicked on notification:", notification)
-                      navigateToTranscription(
-                        notification.task.identifier,
-                        notification.task.file_name
-                      )
-                    }
-                  }}
-                >
-                  <div className='flex w-full justify-between'>
-                    <p className='text-sm font-medium'>{notification.text}</p>
-                    <Button
-                      variant='ghost'
-                      size='icon'
-                      className='h-6 w-6 ml-2 -mr-2 opacity-50 hover:opacity-100'
-                      onClick={e => handleDeleteNotification(notification, e)}
-                    >
-                      <span className='sr-only'>Delete</span>
-                      <span aria-hidden>×</span>
-                    </Button>
-                  </div>
-                  <div className='flex w-full justify-between items-center'>
-                    <p className='text-xs text-muted-foreground mt-1'>
-                      {formatDistanceToNow(new Date(notification.timestamp), {
-                        addSuffix: true,
-                        locale: es,
-                      })}
-                    </p>
-                    {isGlobalNotification(notification) && (
-                      <span className='text-xs bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded-full'>
-                        Global
-                      </span>
+              <>
+                {filteredNotifications.map(notification => (
+                  <DropdownMenuItem
+                    key={notification.uuid}
+                    className={cn(
+                      "flex flex-col items-start p-3 cursor-pointer",
+                      !notification.read && "bg-muted/50"
                     )}
+                    onClick={() => {
+                      if (notification.task?.identifier) {
+                        navigateToTranscription(
+                          notification.task.identifier,
+                          notification.task.file_name
+                        )
+                      }
+                    }}
+                  >
+                    <div className='flex w-full justify-between'>
+                      <p className='text-sm font-medium'>{notification.text}</p>
+                      <Button
+                        variant='ghost'
+                        size='icon'
+                        className='h-6 w-6 ml-2 -mr-2 opacity-50 hover:opacity-100'
+                        onClick={e => handleDeleteNotification(notification, e)}
+                      >
+                        <span className='sr-only'>Delete</span>
+                        <span aria-hidden>×</span>
+                      </Button>
+                    </div>
+                    {notification.task ? (
+                      <p className='text-xs text-muted-foreground mt-1'>
+                        {notification.task?.identifier}
+                      </p>
+                    ) : null}
+                    <div className='flex w-full justify-between items-center'>
+                      <p className='text-xs text-muted-foreground mt-1'>
+                        {formatDistanceToNow(new Date(notification.timestamp), {
+                          addSuffix: true,
+                          locale: es,
+                        })}
+                      </p>
+                      {isGlobalNotification(notification) && (
+                        <span className='text-xs bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded-full'>
+                          Global
+                        </span>
+                      )}
+                    </div>
+                  </DropdownMenuItem>
+                ))}
+                {isFetchingNextPage && (
+                  <div className='flex justify-center p-4'>
+                    <Loader2 size={GLOBAL_ICON_SIZE} className='animate-spin' />
                   </div>
-                </DropdownMenuItem>
-              ))
+                )}
+              </>
             )}
           </div>
         </ScrollArea>
 
         <DropdownMenuSeparator />
         <div className='text-xs text-center text-muted-foreground py-2'>
-          Las notificaciones se almacenan por 7 días
+          Las notificaciones se almacenan por 24 horas
         </div>
       </DropdownMenuContent>
     </DropdownMenu>

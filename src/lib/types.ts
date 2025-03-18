@@ -328,5 +328,14 @@ export const notificationSchema = z.object({
   isGlobal: z.boolean().optional(),
 })
 
+export const notificationsResponseSchema = z.object({
+  notifications: z.array(notificationSchema),
+  total: z.number(),
+  pages: z.number(),
+  nextCursor: z.number().nullable(),
+})
+
+export type NotificationsResponse = z.infer<typeof notificationsResponseSchema>
+
 export type Notification = z.infer<typeof notificationSchema>
 export type Notifications = Notification[]
