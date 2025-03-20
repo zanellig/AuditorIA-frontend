@@ -397,7 +397,7 @@ export async function submitForm({
  * ### USED ON HREF
  * **Don't use this function more than it's needed**. It's only a helper function to centralize the URL building in the task table's hrefs
  */
-export function _URLBuilder(task: Task) {
+export function _URLBuilder(task: Partial<Task>) {
   const taskURL = `/dashboard/transcription?identifier=${task?.identifier}${
     task?.file_name ? `&file_name=${task?.file_name}` : ""
   }`
