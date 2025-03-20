@@ -71,7 +71,7 @@ export default function SpeakerAnalysisCard({
       </Button>
       <div
         className={cn(
-          "shadow-lg border bg-popover rounded-md fixed right-0 flex h-fit px-2 transition-transform duration-400 z-10 top-[104px]",
+          "shadow-lg border bg-popover rounded-md fixed right-0 flex px-2 transition-transform duration-400 z-10 top-[104px] h-[calc(100dvh-104px)] overflow-auto",
           className,
           isOpen ? "-translate-x-2" : "translate-x-full"
         )}

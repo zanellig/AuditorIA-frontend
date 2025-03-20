@@ -245,7 +245,7 @@ export default function AIChatInterface() {
   }
 
   return (
-    <Card className='w-[500px] max-w-[500px] mx-auto'>
+    <Card className='w-full mx-auto'>
       <CardHeader>
         <CardTitle>Conversar con el llamado</CardTitle>
       </CardHeader>
