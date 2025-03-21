@@ -13,39 +13,54 @@ import { type Status } from "@/lib/types"
 import { Badge } from "@/components/ui/badge"
 import {
   DropdownMenu,
-  DropdownMenuCheckboxItem,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
 import {
+  Check,
+  ChevronDown,
+  ChevronsUpDown,
   Clipboard,
   Download,
   Ellipsis,
   Loader2,
   Sparkles,
   Trash,
+  User,
+  X,
 } from "lucide-react"
 import { GLOBAL_ICON_SIZE } from "@/lib/consts"
 import { useToast } from "@/components/ui/use-toast"
 import { useDeleteTaskMutation } from "@/lib/hooks/mutations/delete-task-mutation"
 import { getHost } from "@/lib/actions"
+import { useTasksRecords } from "@/lib/hooks/use-task-records"
+import { useTags } from "@/lib/hooks/use-tags"
+import { useCampaign } from "@/lib/hooks/use-campaign"
+import { useAgent } from "@/lib/hooks/use-agent"
 
 export const columns: ColumnDef<TasksRecordsResponse>[] = [
   {
     accessorKey: "uuid",
     header: () => {
-      return <div className='text-start'>ID</div>
+      const a = useTasksRecords({})
+      return (
+        <div className='text-start'>
+          <Button variant={"ghost"} className='gap-2'>
+            ID
+            <ChevronsUpDown size={GLOBAL_ICON_SIZE} />
+          </Button>
+        </div>
+      )
     },
     cell: ({ row }) => {
       const ID = row.original?.uuid as TasksRecordsResponse["uuid"]
       const slicedID = `${ID.slice(0, 6)}...`
 
       return (
-        <div key={`check-${row.original?.uuid}`}>
+        <div key={`check-${row.original?.uuid}`} className='text-start'>
           <Link
             href={UrlBuilder({
               uuid: row.original?.uuid,
@@ -62,11 +77,18 @@ export const columns: ColumnDef<TasksRecordsResponse>[] = [
   {
     accessorKey: "status",
     header: () => {
-      return <div>Estado</div>
+      return (
+        <div>
+          <Button variant={"ghost"} className='gap-2'>
+            <span>Estado</span>
+            <ChevronsUpDown size={GLOBAL_ICON_SIZE} />
+          </Button>
+        </div>
+      )
     },
     cell: ({ row }) => {
       return (
-        <div className='flex items-center gap-2'>
+        <div className='flex gap-2 items-center justify-center'>
           {renderMarker(row.original?.status as Status)}
           <span className='font-bold capitalize'>{row.original?.status}</span>
         </div>
@@ -76,7 +98,14 @@ export const columns: ColumnDef<TasksRecordsResponse>[] = [
   {
     accessorKey: "user",
     header: () => {
-      return <div>Agente</div>
+      return (
+        <div>
+          <Button variant={"ghost"} className='gap-2'>
+            <span>Agente</span>
+            <ChevronsUpDown size={GLOBAL_ICON_SIZE} />
+          </Button>
+        </div>
+      )
     },
     cell: ({ row }) => {
       if (!row.original?.user) {
@@ -88,19 +117,41 @@ export const columns: ColumnDef<TasksRecordsResponse>[] = [
   {
     accessorKey: "campaign",
     header: () => {
-      return <div>Campaña</div>
+      return (
+        <div>
+          <Button variant={"ghost"} className='gap-2'>
+            Campaña
+            <ChevronsUpDown size={GLOBAL_ICON_SIZE} />
+          </Button>
+        </div>
+      )
     },
     cell: ({ row }) => {
+      const campaignQuery = useCampaign(row.original?.campaign as number)
       if (!row.original?.campaign) {
         return <div>-</div>
       }
-      return <A>{row.original?.campaign}</A>
+      if (campaignQuery.isPending) {
+        return (
+          <div className='flex items-center justify-center'>
+            <Loader2 size={GLOBAL_ICON_SIZE} className='animate-spin' />
+          </div>
+        )
+      }
+      return <A>{campaignQuery.data?.name}</A>
     },
   },
   {
     accessorKey: "audio_duration",
     header: () => {
-      return <div>Duración</div>
+      return (
+        <div>
+          <Button variant={"ghost"} className='gap-2'>
+            Duración
+            <ChevronsUpDown size={GLOBAL_ICON_SIZE} />
+          </Button>
+        </div>
+      )
     },
     cell: ({ row }) => {
       if (!row.original?.audio_duration) {
@@ -114,7 +165,14 @@ export const columns: ColumnDef<TasksRecordsResponse>[] = [
   {
     accessorKey: "inicio",
     header: () => {
-      return <div>Fecha</div>
+      return (
+        <div>
+          <Button variant={"ghost"} className='gap-2'>
+            Fecha
+            <ChevronsUpDown size={GLOBAL_ICON_SIZE} />
+          </Button>
+        </div>
+      )
     },
     cell: ({ row }) => {
       if (!row.original?.inicio) {
@@ -132,13 +190,47 @@ export const columns: ColumnDef<TasksRecordsResponse>[] = [
   {
     accessorKey: "URL",
     header: () => {
-      return <>Audio</>
+      return <div>Audio</div>
     },
     cell: ({ row }) => (
-      <Badge variant={row.original?.URL ? "success" : "error"}>
-        {row.original?.URL ? "Audio disponible" : "Audio no disponible"}
-      </Badge>
+      <div className='flex items-center justify-center'>
+        {row.original?.URL ? (
+          <Check className='text-success' size={GLOBAL_ICON_SIZE} />
+        ) : (
+          <X className='text-destructive' size={GLOBAL_ICON_SIZE} />
+        )}
+      </div>
     ),
+  },
+  {
+    accessorKey: "tags",
+    header: () => {
+      return <div>Etiquetas</div>
+    },
+    cell: ({ row }) => {
+      const tagsQuery = useTags(row.original?.uuid as string)
+      return (
+        <div className='flex gap-2 justify-center items-center'>
+          {tagsQuery.isPending && (
+            <Loader2 size={GLOBAL_ICON_SIZE} className='animate-spin' />
+          )}
+          {tagsQuery.data?.tags?.map((tag: string, index: number) =>
+            index < 2 ? (
+              <Badge key={tag}>
+                {tag
+                  .split("_")
+                  .map(
+                    word =>
+                      word.toLowerCase().charAt(0).toUpperCase() +
+                      word.toLowerCase().slice(1)
+                  )
+                  .join(" ")}
+              </Badge>
+            ) : null
+          )}
+        </div>
+      )
+    },
   },
   {
     accessorKey: "acciones",
@@ -153,6 +245,8 @@ export const columns: ColumnDef<TasksRecordsResponse>[] = [
       const { toast } = useToast()
 
       const deleteTaskMutation = useDeleteTaskMutation()
+
+      const agentQuery = useAgent(row.original?.user as number)
 
       const handleCopyId = () => {
         handleCopyToClipboard(row.original?.uuid as string)
@@ -219,7 +313,31 @@ export const columns: ColumnDef<TasksRecordsResponse>[] = [
                 <Ellipsis size={GLOBAL_ICON_SIZE} />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className='min-w-60' align={"center"}>
+            <DropdownMenuContent
+              className='min-w-60'
+              align={"center"}
+              onClick={(e: React.MouseEvent<HTMLDivElement>) =>
+                e.stopPropagation()
+              }
+            >
+              <div className='p-2 flex flex-col gap-2'>
+                <h1 className='text-sm font-bold'>Información adicional</h1>
+                <section className='flex gap-2 items-center'>
+                  {agentQuery.isPending && (
+                    <Loader2 size={GLOBAL_ICON_SIZE} className='animate-spin' />
+                  )}
+                  {agentQuery.data && (
+                    <>
+                      <User size={GLOBAL_ICON_SIZE} />
+                      <span className='text-sm'>
+                        {agentQuery.data?.name} {agentQuery.data?.surname}
+                      </span>
+                    </>
+                  )}
+                </section>
+              </div>
+              <DropdownMenuSeparator />
+
               {canAnalyze && (
                 <DropdownMenuItem className='gap-2'>
                   <Sparkles

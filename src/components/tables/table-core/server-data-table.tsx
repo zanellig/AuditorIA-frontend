@@ -6,22 +6,26 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { _URLBuilder } from "@/lib/utils"
 import {
   ColumnDef,
   flexRender,
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table"
+import { useRouter } from "next/navigation"
+import { TasksRecordsResponse } from "@/lib/types"
 
-interface ServerDataTableProps<TData> {
+interface ServerDataTableProps<TData extends TasksRecordsResponse> {
   columns: ColumnDef<TData>[]
   data: TData[]
 }
 
-export default function ServerDataTable<TData>({
+export default function ServerDataTable<TData extends TasksRecordsResponse>({
   columns,
   data,
 }: ServerDataTableProps<TData>) {
+  const router = useRouter()
   const table = useReactTable({
     columns,
     data,
@@ -34,7 +38,7 @@ export default function ServerDataTable<TData>({
           {table.getHeaderGroups().map(headerGroup => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map(header => (
-                <TableHead key={header.id}>
+                <TableHead key={header.id} className='text-center'>
                   {header.isPlaceholder
                     ? null
                     : flexRender(
@@ -48,9 +52,20 @@ export default function ServerDataTable<TData>({
         </TableHeader>
         <TableBody>
           {table.getRowModel().rows.map(row => (
-            <TableRow key={row.id}>
+            <TableRow
+              key={row.id}
+              onClick={() => {
+                router.push(
+                  _URLBuilder({
+                    identifier: row.original.uuid! as string,
+                    file_name: row.original.file_name! as string,
+                  })
+                )
+              }}
+              className='cursor-pointer'
+            >
               {row.getVisibleCells().map(cell => (
-                <TableCell key={cell.id}>
+                <TableCell key={cell.id} className='text-center'>
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </TableCell>
               ))}
