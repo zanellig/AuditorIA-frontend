@@ -11,6 +11,7 @@ import {
   Braces,
   Scale,
   Fingerprint,
+  Loader2,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
@@ -19,12 +20,38 @@ import type { Metadata } from "next"
 import { LoginButton } from "./_client-buttons/buttons"
 import { ModeToggle } from "@/components/navigation/mode-toggle"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { TypewriterEffect } from "@/components/ui/typewriter-effect"
-import { Opulento } from "uvcanvas"
 import { cn } from "@/lib/utils"
 import ParagraphP from "@/components/typography/paragraphP"
 import { CardBody, CardContainer, CardItem } from "@/components/ui/3d-card"
-import { LinkPreview } from "@/components/ui/link-preview"
+
+import dynamic from "next/dynamic"
+
+const HeroSection = dynamic(
+  () => import("@/components/landing/MainContent").then(mod => mod.HeroSection),
+  {
+    ssr: false,
+    loading: () => (
+      <div className='h-[calc(100vh-4rem)] w-full flex items-center justify-center'>
+        <Loader2 className='animate-spin' />
+      </div>
+    ),
+  }
+)
+
+const Threads = dynamic(
+  () => import("@/components/landing/3D/Threads").then(mod => mod.default),
+  {
+    ssr: false,
+  }
+)
+
+const LinkPreview = dynamic(
+  () => import("@/components/ui/link-preview").then(mod => mod.LinkPreview),
+  {
+    ssr: false,
+    loading: () => <Loader2 className='animate-spin' />,
+  }
+)
 
 export const metadata: Metadata = {
   title:
@@ -79,52 +106,10 @@ export default function Home() {
           </header>
 
           <main>
-            <section className='relative p-0 content-center h-[calc(100vh-4rem)] select-none'>
-              <Opulento className='absolute z-10 top-0 left-0' />
-              <div className='absolute z-20 top-0 left-0 w-full h-full flex flex-col items-center justify-center text-center backdrop-blur-md bg-gradient-to-b from-background to-transparent'>
-                <h1 className='text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-b dark:from-foreground dark:to-secondary from-foreground to-muted-foreground'>
-                  Auditar llamados <br />
-                  <TypewriterEffect
-                    words={[
-                      {
-                        text: "nunca",
-                        className: "dark:animate-sparkle text-blue-500",
-                      },
-                      {
-                        text: "fue",
-                        className: "dark:animate-sparkle text-blue-500",
-                      },
-                      {
-                        text: "tan",
-                        className: "dark:animate-sparkle text-blue-500",
-                      },
-                      {
-                        text: "fácil",
-                        className: "dark:animate-sparkle text-blue-500",
-                      },
-                    ]}
-                    cursorClassName='bg-foreground'
-                    className='justify-center'
-                  />
-                </h1>
-                <ParagraphP className='text-xl sm:text-2xl mb-8 max-w-4xl mx-auto dark:text-muted-foreground text-foreground text-center'>
-                  Optimice su servicio al cliente con análisis avanzado de
-                  llamadas con inteligencia artificial, con total control de sus
-                  datos.
-                </ParagraphP>
-                <Button size='lg' asChild>
-                  <LinkPreview
-                    url='https://www.linksolution.com.ar/auditoria-de-llamadas-con-ia'
-                    className='font-bold'
-                  >
-                    Solicitar una Demostración
-                  </LinkPreview>
-                </Button>
-              </div>
-            </section>
+            <HeroSection />
 
-            <section className='py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 min-h-[calc(100vh-4rem)] bg-primary-foreground'>
-              <h2 className='text-3xl sm:text-4xl font-bold mb-8 text-center bg-clip-text text-transparent bg-gradient-to-b dark:from-foreground dark:to-secondary from-black to-neutral-500'>
+            <section className='py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 min-h-[calc(100dvh)] bg-primary-foreground'>
+              <h2 className='text-3xl sm:text-4xl font-bold mb-8 text-center bg-clip-text text-transparent bg-gradient-to-b dark:from-foreground dark:to-secondary from-black to-neutral-600'>
                 Características Principales
               </h2>
               <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 relative z-10 py-10 max-w-7xl mx-auto'>
@@ -188,10 +173,10 @@ export default function Home() {
               </div>
             </section>
 
-            <section className='py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 min-h-[calc(100vh-4rem)] w-full bg-background dark:bg-grid-small-white/[0.2] bg-grid-small-black/[0.2] relative flex items-center justify-center'>
+            <section className='py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 min-h-[calc(100dvh)] w-full bg-background dark:bg-grid-small-white/[0.2] bg-grid-small-black/[0.2] relative flex items-center justify-center'>
               <div className='absolute pointer-events-none inset-0 flex items-center justify-center bg-background [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]'></div>
               <div className='container mx-auto'>
-                <h2 className='text-3xl sm:text-4xl font-bold mb-8 text-center bg-clip-text text-transparent bg-gradient-to-b dark:from-neutral-50 dark:to-neutral-500 from-black to-neutral-500'>
+                <h2 className='text-3xl sm:text-4xl font-bold mb-8 text-center bg-clip-text text-transparent bg-gradient-to-b dark:from-foreground dark:to-secondary from-black to-neutral-600'>
                   Cómo AuditorIA Optimiza Diferentes Industrias
                 </h2>
                 <div className='grid grid-cols-1 md:grid-cols-2 gap-8 w-full'>
@@ -267,7 +252,7 @@ export default function Home() {
 
             <section className='py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 bg-secondary'>
               <div className='container mx-auto'>
-                <h2 className='text-3xl sm:text-4xl font-bold mb-8 text-center bg-clip-text text-transparent bg-gradient-to-b dark:from-neutral-50 dark:to-neutral-300 from-black to-neutral-500'>
+                <h2 className='text-3xl sm:text-4xl font-bold mb-8 text-center bg-clip-text text-transparent bg-gradient-to-b dark:from-neutral-50 dark:to-neutral-300 from-black to-neutral-600'>
                   Funcionamiento de AuditorIA: Paso a Paso
                 </h2>
                 <div className='grid grid-cols-1 md:grid-cols-2 gap-8'>
@@ -315,9 +300,13 @@ export default function Home() {
               </div>
             </section>
 
-            <section className='py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 dark:bg-grid-small-white/[0.2] bg-grid-small-black/[0.2] relative flex items-center justify-center min-h-[calc(100vh-4rem)]'>
-              <div className='container mx-auto text-center'>
-                <h2 className='text-3xl sm:text-4xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-b dark:from-neutral-50 dark:to-neutral-300 from-black to-neutral-500'>
+            <section className='py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 relative flex items-center justify-center min-h-[calc(100dvh-4rem)] dark:bg-grid-small-white/[0.2] bg-grid-small-black/[0.5]'>
+              {/* <div className='w-full h-full absolute bg-primary-foreground'>
+                <Threads amplitude={1.6} distance={0} enableMouseInteraction />
+                <div className='absolute inset-0 backdrop-blur-sm bg-gradient-to-b from-background to-transparent z-20' />
+              </div> */}
+              <div className='container mx-auto text-center absolute z-30'>
+                <h2 className='text-3xl sm:text-4xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-b dark:from-neutral-50 dark:to-neutral-300 from-black to-neutral-600'>
                   ¿Por Qué Elegirnos?
                 </h2>
                 <ParagraphP className='text-xl mb-8 max-w-3xl mx-auto'>
