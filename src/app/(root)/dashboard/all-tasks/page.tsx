@@ -168,6 +168,18 @@ export default function TroublesomeTasksPage() {
           </Button>
         </div>
       </section>
+      {selectedFilter === "campaign" && (
+        <div className='flex flex-col gap-2 text-muted-foreground text-sm text-start'>
+          <p>
+            Por el momento únicamente se puede buscar la campaña por su{" "}
+            <span className='text-foreground'>identificador numérico</span>.
+          </p>
+          <p>
+            ¡Estamos trabajando para poder brindarle una mejor experiencia de
+            usuario!
+          </p>
+        </div>
+      )}
 
       <motion.div
         layout
