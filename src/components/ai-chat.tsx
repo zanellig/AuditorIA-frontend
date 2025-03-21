@@ -268,7 +268,7 @@ export default function AIChatInterface() {
             {messages.map((message, index) => (
               <div
                 key={`${message.timestamp}-${index}`}
-                className={`flex ${message.sender === "human" ? "justify-end" : "justify-start"}`}
+                className={`flex ${message.sender === "human" ? "justify-end" : "justify-start"} max-w-[70%]`}
                 ref={index === messages.length - 1 ? lastMessageRef : null}
                 data-last-message={
                   index === messages.length - 1 ? "true" : "false"
