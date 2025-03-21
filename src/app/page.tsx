@@ -38,13 +38,6 @@ const HeroSection = dynamic(
   }
 )
 
-const Threads = dynamic(
-  () => import("@/components/landing/3D/Threads").then(mod => mod.default),
-  {
-    ssr: false,
-  }
-)
-
 const LinkPreview = dynamic(
   () => import("@/components/ui/link-preview").then(mod => mod.LinkPreview),
   {
