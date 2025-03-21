@@ -8,7 +8,7 @@ import {
   ChevronRightIcon,
   ChevronsLeftIcon,
   ChevronsRightIcon,
-  Loader,
+  Loader2,
   RefreshCw,
 } from "lucide-react"
 import ServerDataTable from "@/components/tables/table-core/server-data-table"
@@ -195,7 +195,7 @@ export default function TroublesomeTasksPage() {
               transition={{ duration: 0.3 }}
               className='absolute inset-0 flex justify-center items-center rounded-md bg-background/80 backdrop-blur-sm z-10'
             >
-              <Loader className='animate-spin' />
+              <Loader2 className='animate-spin' />
             </motion.div>
           )}
         </AnimatePresence>
