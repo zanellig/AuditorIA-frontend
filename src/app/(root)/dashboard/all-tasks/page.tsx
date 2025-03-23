@@ -106,7 +106,6 @@ export default function TroublesomeTasksPage() {
             setSelectedFilter(value)
           }}
           value={selectedFilter || "globalSearch"}
-          disabled={isFetching || isPending}
         >
           <SelectTrigger className='bg-popover'>
             <SelectValue placeholder='Seleccionar filtro...' />
@@ -123,11 +122,7 @@ export default function TroublesomeTasksPage() {
           </SelectContent>
         </Select>
         <div className='flex flex-row justify-start items-center gap-2'>
-          <Button
-            onClick={resetFilters}
-            variant={"outline"}
-            disabled={isFetching || isPending}
-          >
+          <Button onClick={resetFilters} variant={"outline"}>
             Borrar filtros
           </Button>
           <Button
