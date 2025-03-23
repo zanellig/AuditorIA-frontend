@@ -87,7 +87,10 @@ export default function Page() {
     <main className='flex flex-col w-full space-y-2'>
       {statusQueries.map(query => {
         return (
-          <section className={"flex flex-col w-full space-y-4"}>
+          <section
+            key={query.data?.server || "loading"}
+            className={"flex flex-col w-full space-y-4"}
+          >
             <TitleContainer separate>
               <Server className={DASHBOARD_ICON_CLASSES} />
               <TypographyH4 className='flex gap-2 items-center'>
