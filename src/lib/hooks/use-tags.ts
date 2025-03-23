@@ -9,7 +9,7 @@ export const useTags = (uuid: string) => {
   return useQuery<TagsResponse>({
     queryKey: ["tags", uuid],
     queryFn: () => getTags(uuid),
-    gcTime: 60 * 5, // 5 minutes
+    gcTime: Infinity,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: false,
