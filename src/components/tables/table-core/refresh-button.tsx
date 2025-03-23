@@ -21,22 +21,26 @@ export default function RefreshButton({
   queryKey,
   status,
 }: RefreshButtonProps) {
-  if (!queryKey) return null
   const queryClient = useQueryClient()
   const mutation = useMutation({
     mutationKey: queryKey,
     mutationFn: async () => {
       console.log(`Starting fetch for query ${queryKey}`)
-      console.time(queryKey.toString())
-      queryClient.cancelQueries({ queryKey })
-      await queryClient.refetchQueries({ queryKey })
+      console.time(queryKey?.toString() || "refresh")
+      if (queryKey) {
+        queryClient.cancelQueries({ queryKey })
+        await queryClient.refetchQueries({ queryKey })
+      }
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["todos"] })
       console.log(`Refetched query ${queryKey}`)
-      console.timeEnd(queryKey.toString())
+      console.timeEnd(queryKey?.toString() || "refresh")
     },
   })
+
+  if (!queryKey) return null
+
   const isLoading =
     mutation.isPending || status === "pending" || status === "fetching"
   return (
