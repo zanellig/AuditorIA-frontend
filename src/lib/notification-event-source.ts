@@ -10,9 +10,7 @@ let eventSourceInstance: EventSource | null = null
 let isConnected = false
 
 // Store event listeners
-type EventListenerMap = {
-  [eventName: string]: Set<(event: MessageEvent) => void>
-}
+type EventListenerMap = Record<string, Set<(event: MessageEvent) => void>>
 const eventListeners: EventListenerMap = {
   notification: new Set(),
   connected: new Set(),
