@@ -41,9 +41,7 @@ export async function getUserNotificationsKey(): Promise<string> {
  * @param userId The user ID to get the notifications key for
  * @returns The Redis key for the specified user's notifications
  */
-export function getNotificationsKeyForUser(
-  userId: string = "anonymous"
-): string {
+export function getNotificationsKeyForUser(userId = "anonymous"): string {
   return `notifications:${userId}`
 }
 
