@@ -51,6 +51,7 @@ import {
   handleCopyToClipboard,
   getSpanishEmotion,
   getColorForEmotion,
+  normalizeTag,
 } from "@/lib/utils"
 import { formatDate } from "date-fns"
 import TitleH1 from "@/components/typography/titleH1"
@@ -70,6 +71,9 @@ import SegmentAnalysisCard from "./segment-analysis-card"
 import { useSegmentsAnalysis } from "../context/SegmentsAnalysisProvider"
 import SubtitleH2 from "../typography/subtitleH2"
 import { CopyableText } from "../ui/copyable-text"
+import { useTags } from "@/lib/hooks/use-tags"
+import { Badge } from "../ui/badge"
+import { Separator } from "../ui/separator"
 
 const BASIC_STYLE = "flex text-sm rounded-md p-2 gap-2"
 
@@ -89,6 +93,7 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
   const { transcription, fetchTranscription, queryStatus } = useTranscription()
   const { recordingQuery } = useRecordingContext()
   const { segmentsAnalysis, setTaskId } = useSegmentsAnalysis()
+  const tagsQuery = useTags({ uuid: taskId!, generateNewTags: true })
   const player = useAudioPlayer()
 
   setTaskId({ taskId: taskId! })
@@ -165,12 +170,39 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
         <>
           <SpeakerAnalysisCard segments={transcription?.result?.segments} />
           <TableContainer>
-            <section className='flex flex-col gap-2 items-start mt-6 justify-start'>
-              <TypographyH3>Tarea {taskId}</TypographyH3>
-              {transcription?.status !== "analyzed" &&
-                transcription?.status !== "analyzing" && (
-                  <AnalyzeTaskButton taskId={taskId!} />
-                )}
+            <article className='flex flex-col gap-2 items-start mt-6 justify-start'>
+              <div className='flex flex-col lg:flex-row justify-between items-center w-full gap-2'>
+                <h1 className='text-2xl font-bold'>Tarea {taskId}</h1>
+                {transcription?.status !== "analyzed" &&
+                  transcription?.status !== "analyzing" && (
+                    <AnalyzeTaskButton taskId={taskId!} />
+                  )}
+              </div>
+              <Separator />
+
+              <section id='tags' className='flex flex-col gap-2'>
+                <h2 className='text-lg font-semibold'>Etiquetas</h2>
+                <div className='flex flex-wrap gap-2'>
+                  {tagsQuery.data
+                    ? tagsQuery.data.tags?.map(tag => (
+                        <Badge key={tag} className='whitespace-nowrap'>
+                          {normalizeTag(tag)}
+                        </Badge>
+                      ))
+                    : null}
+                  {tagsQuery.data
+                    ? tagsQuery.data.extraTags?.map(tag => (
+                        <Badge
+                          variant='secondary'
+                          key={tag}
+                          className='whitespace-nowrap'
+                        >
+                          {normalizeTag(tag)}
+                        </Badge>
+                      ))
+                    : null}
+                </div>
+              </section>
               <div className='flex gap-2 flex-col lg:flex-row w-full'>
                 <Card className='mb-4 md:mb-6 w-full'>
                   <CardHeader>
@@ -319,7 +351,7 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
                   </CardContent>
                 </Card>
               </div>
-            </section>
+            </article>
             <section className='flex gap-2 flex-col lg:flex-row'>
               {/* Segments */}
               <article className='flex flex-col gap-2 h-fit w-full p-4'>

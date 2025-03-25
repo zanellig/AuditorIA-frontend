@@ -5,6 +5,7 @@ import Link from "next/link"
 import {
   formatTimestamp,
   handleCopyToClipboard,
+  normalizeTag,
   secondsToHMS,
 } from "@/lib/utils"
 import A from "@/components/typography/a"
@@ -210,25 +211,14 @@ export const columns: ColumnDef<TasksRecordsResponse>[] = [
       return <div>Etiquetas</div>
     },
     cell: ({ row }) => {
-      const tagsQuery = useTags(row.original?.uuid as string)
+      const tagsQuery = useTags({ uuid: row.original?.uuid as string })
       return (
         <div className='flex gap-2 justify-center items-center'>
           {tagsQuery.isPending && (
             <Loader2 size={GLOBAL_ICON_SIZE} className='animate-spin' />
           )}
           {tagsQuery.data?.tags?.map((tag: string, index: number) =>
-            index < 2 ? (
-              <Badge key={tag}>
-                {tag
-                  .split("_")
-                  .map(
-                    word =>
-                      word.toLowerCase().charAt(0).toUpperCase() +
-                      word.toLowerCase().slice(1)
-                  )
-                  .join(" ")}
-              </Badge>
-            ) : null
+            index < 2 ? <Badge key={tag}>{normalizeTag(tag)}</Badge> : null
           )}
         </div>
       )

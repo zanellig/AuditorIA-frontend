@@ -403,3 +403,13 @@ export function _URLBuilder(task: Partial<Task>) {
   }`
   return taskURL
 }
+
+export function normalizeTag(tag: string) {
+  return tag
+    .split("_")
+    .map(
+      word =>
+        word.toLowerCase().charAt(0).toUpperCase() + word.toLowerCase().slice(1)
+    )
+    .join(" ")
+}
