@@ -44,6 +44,7 @@ import Image from "next/image"
 import { useMediaQuery } from "@/lib/hooks/use-media-query"
 import { StatefulButton } from "../stateful-button"
 import { AspectRatio } from "@/components/ui/aspect-ratio"
+import { usePostHog } from "posthog-js/react"
 
 export function AvatarButton({ className }: { className?: string }) {
   const {
@@ -74,6 +75,8 @@ export function AvatarButton({ className }: { className?: string }) {
   const [previewUrl, setPreviewUrl] = React.useState<string | null>(null)
   const [isDialogOpen, setIsDialogOpen] = React.useState<boolean>(false)
   const [isUploading, setIsUploading] = React.useState<boolean>(false)
+
+  const posthog = usePostHog()
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return
@@ -116,7 +119,6 @@ export function AvatarButton({ className }: { className?: string }) {
     data: z.infer<typeof updateUserProfileFormSchema>
   ) => {
     try {
-      console.log(data)
       if (data.fullName !== userFullName) {
         await updateUserFullName(data.fullName)
       }
@@ -132,6 +134,7 @@ export function AvatarButton({ className }: { className?: string }) {
     }
   }
   const onLogout = async () => {
+    posthog.reset()
     await Promise.allSettled([removeAuthCookie(), removeUserData()])
     const path = window.location.pathname + window.location.search
     await setRedirectPathCookie(path)

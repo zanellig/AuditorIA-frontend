@@ -7,6 +7,7 @@ import { usePostHog } from "posthog-js/react"
 
 import posthog from "posthog-js"
 import { PostHogProvider as PHProvider } from "posthog-js/react"
+import { useUser } from "./UserProvider"
 
 export function PostHogProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
@@ -30,7 +31,7 @@ function PostHogPageView() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const posthog = usePostHog()
-
+  const user = useUser()
   // Track pageviews
   useEffect(() => {
     if (pathname && posthog) {
@@ -41,7 +42,7 @@ function PostHogPageView() {
 
       posthog.capture("$pageview", { $current_url: url })
     }
-  }, [pathname, searchParams, posthog])
+  }, [pathname, searchParams, posthog, user])
 
   return null
 }

@@ -30,9 +30,12 @@ import Link from "next/link"
 import { Checkbox } from "@/components/ui/checkbox"
 import { UserData } from "@/app/api/user/user"
 import { clearRedirectPathCookie } from "@/lib/auth"
+import { usePostHog } from "posthog-js/react"
 
 export default function LoginForm({ redirectPath }: { redirectPath: string }) {
   const { toast } = useToast()
+
+  const posthog = usePostHog()
 
   const loginUser = async (
     credentials: z.infer<typeof loginFormSchema>
@@ -72,6 +75,11 @@ export default function LoginForm({ redirectPath }: { redirectPath: string }) {
 
     const user: UserData = await userResponse.json()
 
+    posthog.identify(user.username, {
+      email: user.userEmail,
+      full_name: user.userFullName,
+    })
+
     return user
   }
 
@@ -85,6 +93,7 @@ export default function LoginForm({ redirectPath }: { redirectPath: string }) {
     },
   })
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const loginUserCallback = React.useCallback(loginUser, [])
 
   const mutation = useMutation({
