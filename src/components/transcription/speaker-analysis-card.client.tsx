@@ -71,14 +71,14 @@ export default function SpeakerAnalysisCard({
       </Button>
       <div
         className={cn(
-          "shadow-lg border bg-popover rounded-md fixed right-0 flex px-2 transition-transform duration-400 z-10 top-[104px] h-[calc(100dvh-104px)] overflow-auto",
+          "shadow-lg border bg-popover rounded-md fixed right-0 flex px-2 transition-transform duration-400 z-10 top-[104px] h-[calc(100dvh-104px)]",
           className,
           isOpen ? "-translate-x-2" : "translate-x-full"
         )}
       >
-        <div className='flex flex-row items-center justify-between space-x-4'>
-          <ScrollArea className='flex flex-col gap-4 p-4 h-[800px] lg:min-w-[500px]'>
-            <Accordion type='multiple'>
+        <ScrollArea>
+          <div className='flex flex-col gap-4 items-center justify-between space-x-4 h-[800px] lg:min-w-[500px] p-4 w-full'>
+            <Accordion type='multiple' className='w-full'>
               <AccordionItem value='1'>
                 <AccordionTrigger>Buscar palabras</AccordionTrigger>
                 <AccordionContent className='flex flex-col space-y-2'>
@@ -98,8 +98,8 @@ export default function SpeakerAnalysisCard({
               </AccordionItem>
             </Accordion>
             <AIChatInterface />
-          </ScrollArea>
-        </div>
+          </div>
+        </ScrollArea>
       </div>
     </>
   )

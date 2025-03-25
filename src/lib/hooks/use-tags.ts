@@ -15,7 +15,8 @@ export const useTags = ({
   return useQuery<TagsResponse>({
     queryKey: ["tags", uuid, { generateNewTags }],
     queryFn: () => getTags(uuid, generateNewTags),
-    gcTime: Infinity,
+    gcTime: 5 * 60 * 1000,
+    staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: false,

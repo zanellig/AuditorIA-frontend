@@ -41,6 +41,7 @@ import {
   ArrowLeftRight,
   TriangleAlert,
   Headset,
+  Loader2,
 } from "lucide-react"
 import { GLOBAL_ICON_SIZE } from "@/lib/consts"
 import {
@@ -69,11 +70,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "../ui/card"
 import { useRecordingContext } from "../context/RecordingProvider"
 import SegmentAnalysisCard from "./segment-analysis-card"
 import { useSegmentsAnalysis } from "../context/SegmentsAnalysisProvider"
-import SubtitleH2 from "../typography/subtitleH2"
 import { CopyableText } from "../ui/copyable-text"
 import { useTags } from "@/lib/hooks/use-tags"
 import { Badge } from "../ui/badge"
 import { Separator } from "../ui/separator"
+import { Skeleton } from "../ui/skeleton"
+import { AnimatePresence, motion } from "framer-motion"
 
 const BASIC_STYLE = "flex text-sm rounded-md p-2 gap-2"
 
@@ -147,10 +149,6 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
     formattedDate = formatDate(recordingDate, "dd-MM-yyyy HH:mm:ss")
   }
 
-  if (queryStatus.isPending) {
-    return <TranscriptionSkeleton />
-  }
-
   if (queryStatus.error) {
     return (
       <ErrorCodeUserFriendly
@@ -166,9 +164,11 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
 
   return (
     <>
-      {!drawerOptions?.show && transcription && (
+      {!drawerOptions?.show && (
         <>
-          <SpeakerAnalysisCard segments={transcription?.result?.segments} />
+          {transcription && (
+            <SpeakerAnalysisCard segments={transcription?.result?.segments} />
+          )}
           <TableContainer>
             <article className='flex flex-col gap-2 items-start mt-6 justify-start'>
               <div className='flex flex-col lg:flex-row justify-between items-center w-full gap-2'>
@@ -183,26 +183,60 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
               <section id='tags' className='flex flex-col gap-2'>
                 <h2 className='text-lg font-semibold'>Etiquetas</h2>
                 <div className='flex flex-wrap gap-2'>
-                  {tagsQuery.data
-                    ? tagsQuery.data.tags?.map(tag => (
-                        <Badge key={tag} className='whitespace-nowrap'>
-                          {normalizeTag(tag)}
-                        </Badge>
-                      ))
-                    : null}
-                  {tagsQuery.data
-                    ? tagsQuery.data.extraTags?.map(tag => (
-                        <Badge
-                          variant='secondary'
-                          key={tag}
-                          className='whitespace-nowrap'
-                        >
-                          {normalizeTag(tag)}
-                        </Badge>
-                      ))
-                    : null}
+                  <AnimatePresence mode='popLayout'>
+                    {tagsQuery.isFetching || tagsQuery.isPending
+                      ? [1, 2, 3, 4, 5].map(i => (
+                          <motion.div
+                            key={`tag-skeleton-${i}`}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.3 }}
+                          >
+                            <Skeleton
+                              key={`tag-skeleton-${i}`}
+                              className='w-20 h-6 bg-pulse dark:bg-secondary'
+                            />
+                          </motion.div>
+                        ))
+                      : null}
+                    {tagsQuery.data
+                      ? tagsQuery.data.tags?.map(tag => (
+                          <motion.div
+                            key={tag}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.3 }}
+                          >
+                            <Badge key={tag} className='whitespace-nowrap'>
+                              {normalizeTag(tag)}
+                            </Badge>
+                          </motion.div>
+                        ))
+                      : null}
+                    {tagsQuery.data
+                      ? tagsQuery.data.extraTags?.map(tag => (
+                          <motion.div
+                            key={tag}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.3 }}
+                          >
+                            <Badge
+                              variant='secondary'
+                              className='whitespace-nowrap'
+                            >
+                              {normalizeTag(tag)}
+                            </Badge>
+                          </motion.div>
+                        ))
+                      : null}
+                  </AnimatePresence>
                 </div>
               </section>
+
               <div className='flex gap-2 flex-col lg:flex-row w-full'>
                 <Card className='mb-4 md:mb-6 w-full'>
                   <CardHeader>
@@ -218,7 +252,14 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
                           Nombre del archivo
                         </p>
                         <CopyableText>
-                          {transcription?.metadata.file_name}
+                          {queryStatus.isPending ? (
+                            <Loader2
+                              className='animate-spin'
+                              size={GLOBAL_ICON_SIZE}
+                            />
+                          ) : (
+                            transcription?.metadata.file_name
+                          )}
                         </CopyableText>
                       </div>
                     </div>
@@ -229,8 +270,15 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
                           Tiempo de procesado
                         </p>
                         <p className='text-xs text-muted-foreground'>
-                          {formatTimestamp(
-                            secondsToHMS(transcription?.metadata.duration)
+                          {queryStatus.isPending ? (
+                            <Loader2
+                              className='animate-spin'
+                              size={GLOBAL_ICON_SIZE}
+                            />
+                          ) : (
+                            formatTimestamp(
+                              secondsToHMS(transcription?.metadata.duration)
+                            )
                           )}
                         </p>
                       </div>
@@ -254,7 +302,14 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
                               Campaña
                             </p>
                             <CopyableText>
-                              {recordingQuery.data?.IDAPLICACION}
+                              {queryStatus.isPending ? (
+                                <Loader2
+                                  className='animate-spin'
+                                  size={GLOBAL_ICON_SIZE}
+                                />
+                              ) : (
+                                recordingQuery.data?.IDAPLICACION
+                              )}
                             </CopyableText>
                           </div>
                         </div>
@@ -268,7 +323,14 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
                               Operador
                             </p>
                             <CopyableText>
-                              {recordingQuery.data?.USUARIO}
+                              {queryStatus.isPending ? (
+                                <Loader2
+                                  className='animate-spin'
+                                  size={GLOBAL_ICON_SIZE}
+                                />
+                              ) : (
+                                recordingQuery.data?.USUARIO
+                              )}
                             </CopyableText>
                           </div>
                         </div>
@@ -282,7 +344,14 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
                               ID de llamada
                             </p>
                             <CopyableText>
-                              {recordingQuery.data?.IDLLAMADA}
+                              {queryStatus.isPending ? (
+                                <Loader2
+                                  className='animate-spin'
+                                  size={GLOBAL_ICON_SIZE}
+                                />
+                              ) : (
+                                recordingQuery.data?.IDLLAMADA
+                              )}
                             </CopyableText>
                           </div>
                         </div>
@@ -296,7 +365,14 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
                               Teléfono
                             </p>
                             <CopyableText>
-                              {recordingQuery.data?.ANI_TELEFONO}
+                              {queryStatus.isPending ? (
+                                <Loader2
+                                  className='animate-spin'
+                                  size={GLOBAL_ICON_SIZE}
+                                />
+                              ) : (
+                                recordingQuery.data?.ANI_TELEFONO
+                              )}
                             </CopyableText>
                           </div>
                         </div>
@@ -310,7 +386,14 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
                               Dirección
                             </p>
                             <CopyableText>
-                              {recordingQuery.data?.DIRECCION}
+                              {queryStatus.isPending ? (
+                                <Loader2
+                                  className='animate-spin'
+                                  size={GLOBAL_ICON_SIZE}
+                                />
+                              ) : (
+                                recordingQuery.data?.DIRECCION
+                              )}
                             </CopyableText>
                           </div>
                         </div>
@@ -323,11 +406,19 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
                             <p className='text-sm font-medium truncate'>
                               Fecha y hora
                             </p>
-                            <CopyableText>{formattedDate}</CopyableText>
+                            <CopyableText>
+                              {queryStatus.isPending ? (
+                                <Loader2
+                                  className='animate-spin'
+                                  size={GLOBAL_ICON_SIZE}
+                                />
+                              ) : (
+                                formattedDate
+                              )}
+                            </CopyableText>
                           </div>
                         </div>
                       </div>
-
                       <div className='flex flex-col items-start space-y-2'>
                         <div className='flex items-center gap-2'>
                           <User className='h-6 w-6 text-primary' />
@@ -336,13 +427,19 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
                               Duración del llamado
                             </p>
                             <p className='text-xs text-muted-foreground'>
-                              {formatTimestamp({
-                                ...secondsToHMS(
-                                  Number(recordingQuery.data?.SECTOT)
-                                ),
-                                concat: true,
-                              })}
-                              {}
+                              {queryStatus.isPending ? (
+                                <Loader2
+                                  className='animate-spin'
+                                  size={GLOBAL_ICON_SIZE}
+                                />
+                              ) : (
+                                formatTimestamp({
+                                  ...secondsToHMS(
+                                    Number(recordingQuery.data?.SECTOT)
+                                  ),
+                                  concat: true,
+                                })
+                              )}
                             </p>
                           </div>
                         </div>
@@ -358,57 +455,63 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
                 <CardTitle className='text-lg md:text-xl'>
                   Conversación
                 </CardTitle>
-                {transcription?.result?.segments.map(
-                  (segment, index, segments) => {
-                    const isNewSpeaker = segment?.speaker !== lastSpeaker
-                    lastSpeaker = segment.speaker
-                    const isNewEmotion =
-                      segment?.analysis?.emotion !== lastEmotion || isNewSpeaker
-                    lastEmotion = segment?.analysis?.emotion
+                {queryStatus.isPending ? (
+                  <TranscriptionSkeleton />
+                ) : (
+                  transcription?.result?.segments.map(
+                    (segment, index, segments) => {
+                      const isNewSpeaker = segment?.speaker !== lastSpeaker
+                      lastSpeaker = segment.speaker
+                      const isNewEmotion =
+                        segment?.analysis?.emotion !== lastEmotion ||
+                        isNewSpeaker
+                      lastEmotion = segment?.analysis?.emotion
 
-                    // Si se detecta que entre el segmento anterior y el actual ha habido 5 segundos o más de diferencia, se considera silencio
-                    const lastSegment = segments[index - 1]
-                    let isSilenceDetected = false
-                    let silenceTimeSeconds = 0
-                    if (lastSegment) {
-                      silenceTimeSeconds = segment?.start - lastSegment?.end
-                      isSilenceDetected =
-                        silenceTimeSeconds >= 5 && silenceTimeSeconds <= 10
+                      // Si se detecta que entre el segmento anterior y el actual ha habido 5 segundos o más de diferencia, se considera silencio
+                      const lastSegment = segments[index - 1]
+                      let isSilenceDetected = false
+                      let silenceTimeSeconds = 0
+                      if (lastSegment) {
+                        silenceTimeSeconds = segment?.start - lastSegment?.end
+                        isSilenceDetected =
+                          silenceTimeSeconds >= 5 && silenceTimeSeconds <= 10
+                      }
+
+                      return (
+                        <>
+                          {isSilenceDetected && (
+                            <Card className='w-full'>
+                              <CardHeader>
+                                <CardTitle className='flex justify-between'>
+                                  <>Silencio detectado</>
+                                  <TriangleAlert className='text-warning' />
+                                </CardTitle>
+                              </CardHeader>
+                              <CardContent>
+                                <span className='text-muted-foreground'>
+                                  Se han detectado{" "}
+                                  {silenceTimeSeconds.toFixed(2)} segundos de
+                                  silencio.
+                                </span>
+                              </CardContent>
+                            </Card>
+                          )}
+                          <SegmentRenderer
+                            ref={el => {
+                              segmentRefs.current[
+                                Number(segment.start.toFixed(2))
+                              ] = el
+                            }}
+                            key={`${segment.speaker}-segment-${index}`}
+                            segment={segment}
+                            renderSpeakerText={isNewSpeaker}
+                            renderEmotion={isNewEmotion}
+                            segmentAnalysis={segmentsAnalysis[index]}
+                          />
+                        </>
+                      )
                     }
-
-                    return (
-                      <>
-                        {isSilenceDetected && (
-                          <Card className='w-full'>
-                            <CardHeader>
-                              <CardTitle className='flex justify-between'>
-                                <>Silencio detectado</>
-                                <TriangleAlert className='text-warning' />
-                              </CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                              <span className='text-muted-foreground'>
-                                Se han detectado {silenceTimeSeconds.toFixed(2)}{" "}
-                                segundos de silencio.
-                              </span>
-                            </CardContent>
-                          </Card>
-                        )}
-                        <SegmentRenderer
-                          ref={el => {
-                            segmentRefs.current[
-                              Number(segment.start.toFixed(2))
-                            ] = el
-                          }}
-                          key={`${segment.speaker}-segment-${index}`}
-                          segment={segment}
-                          renderSpeakerText={isNewSpeaker}
-                          renderEmotion={isNewEmotion}
-                          segmentAnalysis={segmentsAnalysis[index]}
-                        />
-                      </>
-                    )
-                  }
+                  )
                 )}
               </article>
             </section>
