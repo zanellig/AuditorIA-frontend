@@ -5,6 +5,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { getHost } from "@/lib/actions"
 import { StatefulButton } from "./stateful-button"
 import { cn } from "@/lib/utils"
+import { Sparkles } from "lucide-react"
+import { GLOBAL_ICON_SIZE } from "@/lib/consts"
 
 export interface AnalyzeTaskButtonProps extends ButtonProps {
   taskId: string
@@ -47,7 +49,7 @@ export const AnalyzeTaskButton = React.forwardRef<
   })
   return (
     <StatefulButton
-      className={cn(className, "w-full lg:w-32")}
+      className={cn(className, "w-full lg:w-36")}
       ref={ref}
       onClick={() => {
         toast({ title: "La tarea se está analizando...", description: taskId })
@@ -55,9 +57,10 @@ export const AnalyzeTaskButton = React.forwardRef<
       }}
       isLoading={mutation.isPending}
       {...props}
-      variant={"shine"}
+      variant='gooeyLeft'
     >
-      Analizar tarea
+      <Sparkles size={GLOBAL_ICON_SIZE} className='animate-sparkle' />
+      <span>Analizar tarea</span>
     </StatefulButton>
   )
 })
