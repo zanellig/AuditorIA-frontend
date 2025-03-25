@@ -40,7 +40,12 @@ function PostHogPageView() {
         url = url + "?" + searchParams.toString()
       }
 
-      posthog.capture("$pageview", { $current_url: url })
+      posthog.capture("$pageview", {
+        $current_url: url,
+        username: user?.username,
+        email: user?.userEmail,
+        full_name: user?.userFullName,
+      })
     }
   }, [pathname, searchParams, posthog, user])
 
