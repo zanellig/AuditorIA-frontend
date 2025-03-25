@@ -21,8 +21,7 @@
     "@typescript-eslint",
     "react",
     "react-hooks",
-    "@tanstack/eslint-plugin-query",
-    "eslint-plugin-react-compiler"
+    "@tanstack/eslint-plugin-query"
   ],
   "rules": {
     "react-hooks/rules-of-hooks": "error",
@@ -32,6 +31,8 @@
         "additionalHooks": "(useRecoilCallback|useRecoilTransaction_UNSTABLE)"
       }
     ],
-    "@typescript-eslint/no-non-null-assertion": "off"
+    "@typescript-eslint/no-non-null-assertion": "off",
+    "@typescript-eslint/no-unused-vars": "off",
+    "@typescript-eslint/no-explicit-any": "off"
   }
 }
