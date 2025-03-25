@@ -134,7 +134,9 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
     scrollToSegment(player.currentTime)
   }, [player.isPlaying, player.currentTime, transcription?.result?.segments])
 
-  const recordingDate = new Date(recordingQuery.data?.INICIO!)
+  const recordingDate = recordingQuery.data?.INICIO
+    ? new Date(recordingQuery.data.INICIO)
+    : null
   let formattedDate = ""
   if (recordingDate && !isNaN(recordingDate.getTime())) {
     formattedDate = formatDate(recordingDate, "dd-MM-yyyy HH:mm:ss")

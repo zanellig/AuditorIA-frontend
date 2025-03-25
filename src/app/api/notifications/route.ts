@@ -117,7 +117,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
 
     // Check if this is an admin operation targeting a specific user or sending globally
-    let targetUser = body.targetUser
+    const targetUser = body.targetUser
 
     // Determine if this is a global notification
     const isGlobalNotification = !targetUser
@@ -293,16 +293,12 @@ export async function DELETE(request: NextRequest) {
 
       // Check user notifications
       let userNotificationDeleted = false
-      for (let i = 0; i < userNotificationsData.length; i++) {
+      for (const userNotification of userNotificationsData) {
         try {
-          const notification = JSON.parse(userNotificationsData[i])
+          const notification = JSON.parse(userNotification)
           if (notification.uuid === uuid) {
             // Remove the notification at this index
-            const result = await redisClient.lrem(
-              userKey,
-              1,
-              userNotificationsData[i]
-            )
+            const result = await redisClient.lrem(userKey, 1, userNotification)
             console.log(
               `Deleted user notification with UUID ${uuid}, result: ${result}`
             )
@@ -316,9 +312,9 @@ export async function DELETE(request: NextRequest) {
 
       // Handle admin deleting global notification
       if (!userNotificationDeleted) {
-        for (let i = 0; i < globalNotificationsData.length; i++) {
+        for (const globalNotification of globalNotificationsData) {
           try {
-            const notification = JSON.parse(globalNotificationsData[i])
+            const notification = JSON.parse(globalNotification)
             if (notification.uuid === uuid) {
               // Remove the global notification
               return NextResponse.json(
@@ -335,7 +331,7 @@ export async function DELETE(request: NextRequest) {
               const result = await redisClient.lrem(
                 GLOBAL_NOTIFICATIONS_KEY,
                 1,
-                globalNotificationsData[i]
+                globalNotification
               )
               console.log(
                 `Admin deleted global notification with UUID ${uuid}, result: ${result}`

@@ -91,13 +91,18 @@ export function DateTimePicker({
                         captionLayout='dropdown'
                         selected={date || field.value}
                         onSelect={selectedDate => {
-                          const [hours, minutes] = time?.split(":")!
-                          selectedDate?.setHours(
-                            parseInt(hours),
-                            parseInt(minutes)
-                          )
-                          setDate(selectedDate!)
-                          field.onChange(selectedDate)
+                          const [hours, minutes] = time?.split(":") || [
+                            "00",
+                            "00",
+                          ]
+                          if (selectedDate) {
+                            selectedDate.setHours(
+                              parseInt(hours),
+                              parseInt(minutes)
+                            )
+                            setDate(selectedDate)
+                            field.onChange(selectedDate)
+                          }
                         }}
                         onDayClick={() => setIsOpen(false)}
                         fromYear={2000}
@@ -123,7 +128,7 @@ export function DateTimePicker({
                   <FormLabel>Hora</FormLabel>
                   <FormControl>
                     <Select
-                      defaultValue={time!}
+                      defaultValue={time}
                       onValueChange={e => {
                         setTime(e)
                         if (date) {

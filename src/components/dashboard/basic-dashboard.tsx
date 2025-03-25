@@ -116,51 +116,56 @@ export default function BasicDashboard() {
         className='grid lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 gap-4 w-full'
         style={{ userSelect: "none" }}
       >
-        {dashboardItems.map((dashboardItem, index) => {
-          const [isRedirecting, setIsRedirecting] =
-            React.useState<boolean>(false)
-
-          const ButtonContent = React.memo(() => {
-            return (
-              <div className='flex items-center justify-center space-x-2'>
-                <span>{<ArrowRight size={GLOBAL_ICON_SIZE} />}</span>
-                <span>{"Ir a " + dashboardItem.title.toLowerCase()}</span>
-              </div>
-            )
-          })
-
-          if (!dashboardItem.disabled && !dashboardItem.href) {
-            throw new Error(
-              "Invalid dashboard item. An href must be specified for non-disabled items."
-            )
-            return null
-          }
-
-          return (
-            <div className='border border-muted bg-popover rounded-xl p-4 min-h-40'>
-              <div className='flex flex-col gap-4 justify-between h-full'>
-                <div className='flex flex-col gap-2'>
-                  <span>{dashboardItem.icon}</span>
-                  <h1 className='font-semibold'>{dashboardItem.title}</h1>
-                  <p className='text-sm text-muted-foreground'>
-                    {dashboardItem.description}
-                  </p>
-                </div>
-                <StatefulButton
-                  isLoading={isRedirecting}
-                  onClick={() => {
-                    setIsRedirecting(true)
-                    router.push(dashboardItem.href!)
-                  }}
-                  disabled={dashboardItem.disabled}
-                >
-                  <ButtonContent />
-                </StatefulButton>
-              </div>
-            </div>
-          )
-        })}
+        {dashboardItems.map((dashboardItem, index) => (
+          <DashboardItem key={index} item={dashboardItem} />
+        ))}
       </main>
     </>
+  )
+}
+
+interface DashboardItemProps {
+  item: {
+    title: string
+    icon: React.ReactNode
+    description: string
+    href?: string
+    disabled?: boolean
+  }
+}
+
+const DashboardItem = ({ item }: DashboardItemProps) => {
+  const router = useRouter()
+  const [isRedirecting, setIsRedirecting] = React.useState<boolean>(false)
+
+  if (!item.disabled && !item.href) {
+    throw new Error(
+      "Invalid dashboard item. An href must be specified for non-disabled items."
+    )
+  }
+
+  return (
+    <div className='border border-muted bg-popover rounded-xl p-4 min-h-40'>
+      <div className='flex flex-col gap-4 justify-between h-full'>
+        <div className='flex flex-col gap-2'>
+          <span>{item.icon}</span>
+          <h1 className='font-semibold'>{item.title}</h1>
+          <p className='text-sm text-muted-foreground'>{item.description}</p>
+        </div>
+        <StatefulButton
+          isLoading={isRedirecting}
+          onClick={() => {
+            setIsRedirecting(true)
+            router.push(item.href!)
+          }}
+          disabled={item.disabled}
+        >
+          <div className='flex items-center justify-center space-x-2'>
+            <span>{<ArrowRight size={GLOBAL_ICON_SIZE} />}</span>
+            <span>{"Ir a " + item.title.toLowerCase()}</span>
+          </div>
+        </StatefulButton>
+      </div>
+    </div>
   )
 }
