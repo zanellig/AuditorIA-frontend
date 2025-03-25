@@ -10,10 +10,10 @@ export function useNotificationToast() {
   const router = useRouter()
 
   const showNotificationToast = (notification: Notification) => {
-    console.log("Showing toast for notification:", notification.uuid)
-
     // Don't show toast if the notification is global
     if (notification.isGlobal) return
+
+    console.log("Showing toast for notification:", notification.uuid)
 
     try {
       if (notification.task?.identifier) {
