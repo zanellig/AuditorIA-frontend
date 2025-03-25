@@ -7,7 +7,7 @@ export default function DashboardSkeleton({
   className?: string
 }) {
   return (
-    <div className={cn("flex flex-col space-y-2", className)}>
+    <div className={cn("flex flex-col space-y-2 w-full", className)}>
       <Skeleton className='h-10 bg-pulse dark:bg-secondary w-full' />
       <div className='flex space-x-2 items-center justify-between w-full'>
         <div className='flex space-x-2 items-center'>
