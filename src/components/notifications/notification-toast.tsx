@@ -12,6 +12,9 @@ export function useNotificationToast() {
   const showNotificationToast = (notification: Notification) => {
     console.log("Showing toast for notification:", notification.uuid)
 
+    // Don't show toast if the notification is global
+    if (notification.isGlobal) return
+
     try {
       if (notification.task?.identifier) {
         const url = `/dashboard/transcription?identifier=${notification.task.identifier}${
