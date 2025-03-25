@@ -4,11 +4,11 @@ import {
   TASK_PATH,
 } from "@/server-constants"
 import { NextRequest, NextResponse } from "next/server"
-import { fetchAudioData } from "@/lib/actions"
 import { env } from "@/env"
 import { validateMimeType } from "@/lib/forms"
 import { getHeaders } from "@/lib/get-headers"
 import { enhanceUrlWithSpeechToTextParams } from "./utils"
+import { getNetworkAudio } from "@/lib/audio"
 
 export const revalidate = 5
 
@@ -129,18 +129,54 @@ export async function POST(request: NextRequest) {
 
     if (isRecordForm) {
       try {
-        const binaryFromNAS = await fetchAudioData(nasUrl)
+        const binaryFromNAS = await getNetworkAudio(nasUrl)
+
         const fileType = fileName.split(".").pop() || "octet-stream"
-        const mimeType = `audio/${fileType}`
+        // Standardize mime type to audio/mpeg for mp3 files
+        const mimeType =
+          fileType.toLowerCase() === "mp3" ? "audio/mpeg" : `audio/${fileType}`
         const isValidMimeType = validateMimeType(mimeType)
-        if (binaryFromNAS && isValidMimeType) {
-          // Convert Buffer to Blob
-          const blob = new Blob([binaryFromNAS], { type: mimeType })
+
+        // Check if file has reasonable size (at least 1KB)
+        const MIN_FILE_SIZE = 1024
+        // Use type checking to ensure we have data with size property
+        const isReasonableSize =
+          binaryFromNAS.buffer &&
+          (binaryFromNAS.buffer instanceof Buffer
+            ? binaryFromNAS.buffer.length >= MIN_FILE_SIZE
+            : (binaryFromNAS.buffer as any).size >= MIN_FILE_SIZE)
+
+        if (binaryFromNAS.buffer && isValidMimeType && isReasonableSize) {
+          // Convert Buffer to Blob - extract binary data from AudioFileResult
+          let binaryData
+          if (binaryFromNAS.buffer instanceof Buffer) {
+            binaryData = binaryFromNAS.buffer
+          } else if (binaryFromNAS.buffer instanceof ArrayBuffer) {
+            binaryData = binaryFromNAS.buffer
+          } else if (binaryFromNAS.buffer instanceof Uint8Array) {
+            binaryData = binaryFromNAS.buffer
+          } else {
+            // If it's a custom type, try to extract binary data
+            // This handles the case where AudioFileResult is a custom type
+            binaryData =
+              (binaryFromNAS.buffer as any).data || binaryFromNAS.buffer
+          }
+
+          const blob = new Blob([binaryData], { type: mimeType })
           serverForm.set("file", blob, fileName)
+          console.log("Blob set in serverForm:", serverForm)
         } else {
-          const errorMessage = `(1006): ${!isValidMimeType ? "Tipo de archivo no soportado." : "Archivo no encontrado."}`
+          let errorMessage = ""
+          if (!isValidMimeType) {
+            errorMessage = "(1006): Tipo de archivo no soportado."
+          } else if (!isReasonableSize) {
+            errorMessage = "(1007): El archivo está vacío o dañado."
+          } else {
+            errorMessage = "(1006): Archivo no encontrado."
+          }
+
           return NextResponse.json([new Error(errorMessage), null], {
-            status: !isValidMimeType ? 415 : 404,
+            status: !isValidMimeType ? 415 : !isReasonableSize ? 400 : 404,
             statusText: errorMessage,
             headers,
           })
@@ -193,12 +229,34 @@ export async function POST(request: NextRequest) {
       )
     })
     if (!response.ok) {
-      console.log(response)
-      const error = await response.json()
-      throw new Error(error.detail)
+      console.log("Response not OK:", response.status, response.statusText)
+      try {
+        const error = await response.json()
+        throw new Error(error.detail || JSON.stringify(error))
+      } catch (parseError) {
+        // Handle case where response is not JSON
+        const textContent = await response.text()
+        console.log("Non-JSON error response:", textContent)
+        throw new Error(
+          `Server error (${response.status}): ${textContent.substring(0, 100)}`
+        )
+      }
     }
-    const data = await response.json()
-    console.log(`Data received from task API:`, data)
+
+    // Parse the JSON response
+    let data
+    try {
+      data = await response.json()
+      console.log(`Data received from task API:`, data)
+    } catch (jsonError) {
+      console.error("Failed to parse JSON response:", jsonError)
+      const textContent = await response.text()
+      console.log("Raw response content:", textContent)
+      throw new Error(
+        "Respuesta del servidor inválida. Por favor contacte a su ingeniero de soporte."
+      )
+    }
+
     if ("task" in data) {
       return NextResponse.json([null, data.task], {
         status: 200,

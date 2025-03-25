@@ -166,7 +166,7 @@ export async function getNetworkAudio(
   let audioBuffer: Buffer
   try {
     audioBuffer = await fs.readFile(tempFile)
-    console.log("Successfully read temporary file")
+    console.log("Successfully read temporary file:", audioBuffer)
   } catch (err) {
     console.error("Failed to read temporary file:", err)
     await fs
@@ -195,6 +195,21 @@ export async function getNetworkAudio(
       }`
     )
   }
+
+  console.debug("getNetworkAudio result:", {
+    buffer: audioBuffer,
+    filename: result.filename,
+    mimeType: result.mimeType,
+    size: result.size,
+    error: result.error,
+    isBuffer: audioBuffer instanceof Buffer,
+    isArrayBuffer: audioBuffer instanceof ArrayBuffer,
+    isUint8Array: audioBuffer instanceof Uint8Array,
+    isCustomType:
+      typeof audioBuffer === "object" &&
+      audioBuffer !== null &&
+      "data" in audioBuffer,
+  })
 
   // End of getNetworkAudio
   return {

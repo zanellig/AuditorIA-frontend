@@ -58,14 +58,6 @@ export async function calculateAverages(segments: Segment[]) {
   return await calculateAverageForSegments(segments)
 }
 
-export const fetchAudioData = async (nasPath: string) => {
-  const result = await getNetworkAudio(nasPath)
-  if (result.error !== null) {
-    throw result.error
-  }
-  return result
-}
-
 export const getAudioPath = async (
   file_name: string
 ): Promise<Recording["URL"] | null> => {
