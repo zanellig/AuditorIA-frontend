@@ -75,6 +75,8 @@ export default function LoginForm({ redirectPath }: { redirectPath: string }) {
 
     const user: UserData = await userResponse.json()
 
+    posthog.reset()
+
     posthog.identify(user.userEmail, {
       username: user.username,
       email: user.userEmail,
