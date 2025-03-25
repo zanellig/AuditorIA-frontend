@@ -270,6 +270,10 @@ export const taskRecordsParamsSchema = originalTaskRecordsParamsSchema.extend({
   file_name: z.string().nullable(),
   page: z.number(),
   globalSearch: z.string().nullable(),
+  sortBy: z
+    .enum(["uuid", "status", "user", "campaign", "audio_duration", "inicio"])
+    .nullable(),
+  sortOrder: z.enum(["asc", "desc"]).nullable(),
 })
 export type TaskRecordsSearchParams = z.infer<typeof taskRecordsParamsSchema>
 

@@ -23,6 +23,8 @@ export async function GET(request: NextRequest) {
     const campaign = searchParams.get("campaign") ?? null
     // not implemented in API
     const globalSearch = searchParams.get("search") ?? null
+    const sortBy = searchParams.get("sortBy") ?? null
+    const sortOrder = searchParams.get("sortOrder") ?? "asc"
 
     const params = {
       uuid,
@@ -31,6 +33,8 @@ export async function GET(request: NextRequest) {
       user,
       campaign,
       globalSearch,
+      sortBy,
+      sortOrder,
     } as TaskRecordsSearchParams
 
     const page = parseInt(pageRequested)
@@ -125,7 +129,7 @@ const filterData = (
       ? String(value).toLowerCase().includes(String(filter).toLowerCase())
       : true
 
-  return data.filter(task => {
+  const filteredData = data.filter(task => {
     const matchesSpecificFilters =
       matches(task.uuid, params.uuid) &&
       matches(task.file_name, params.file_name) &&
@@ -145,7 +149,6 @@ const filterData = (
       ]
         .filter(Boolean) // Remove null/undefined entries
         .some(field =>
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           field!
             .toLowerCase()
             .includes(String(params.globalSearch).toLowerCase())
@@ -170,4 +173,31 @@ const filterData = (
     // If no filters or search terms are provided, include all data
     return true
   })
+
+  // Apply sorting if sortBy parameter is provided
+  if (params.sortBy) {
+    filteredData.sort((a, b) => {
+      const aValue = a[params.sortBy as keyof TasksRecordsResponse]
+      const bValue = b[params.sortBy as keyof TasksRecordsResponse]
+
+      // Handle null values
+      if (aValue === null && bValue === null) return 0
+      if (aValue === null) return 1
+      if (bValue === null) return -1
+
+      // Special handling for dates
+      if (params.sortBy === "inicio") {
+        const aDate = aValue ? new Date(aValue as string).getTime() : 0
+        const bDate = bValue ? new Date(bValue as string).getTime() : 0
+        return params.sortOrder === "desc" ? bDate - aDate : aDate - bDate
+      }
+
+      // Regular comparison for other types
+      if (aValue < bValue) return params.sortOrder === "desc" ? 1 : -1
+      if (aValue > bValue) return params.sortOrder === "desc" ? -1 : 1
+      return 0
+    })
+  }
+
+  return filteredData
 }
