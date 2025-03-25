@@ -25,7 +25,7 @@ export function TaskSearch({ className }: { className?: string }) {
   const [open, setOpen] = React.useState(false)
   const router = useRouter()
   const { data, setSearch, isPending, isFetching, resetFilters } =
-    useTasksRecords({})
+    useTasksRecords()
 
   React.useEffect(() => {
     const down = (e: KeyboardEvent) => {

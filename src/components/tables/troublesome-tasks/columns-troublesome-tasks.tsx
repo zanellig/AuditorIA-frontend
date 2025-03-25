@@ -1,5 +1,6 @@
+"use client"
 import { ColumnDef } from "@tanstack/react-table"
-import { TasksRecordsResponse } from "@/lib/types"
+import { TasksRecordsResponse, TaskRecordsSearchParams } from "@/lib/types"
 import Link from "next/link"
 import {
   formatTimestamp,
@@ -22,6 +23,7 @@ import { Button } from "@/components/ui/button"
 import {
   Check,
   ChevronDown,
+  ChevronUp,
   ChevronsUpDown,
   Clipboard,
   Download,
@@ -41,20 +43,45 @@ import { useTags } from "@/lib/hooks/use-tags"
 import { useCampaign } from "@/lib/hooks/use-campaign"
 import { useAgent } from "@/lib/hooks/use-agent"
 
+const SortableHeader = ({
+  field,
+  label,
+}: {
+  field: NonNullable<TaskRecordsSearchParams["sortBy"]>
+  label: string
+}) => {
+  const { filters, toggleSort } = useTasksRecords()
+  const isActive = filters.sortBy === field
+  const isAsc = isActive && filters.sortOrder === "asc"
+
+  return (
+    <Button
+      variant='ghost'
+      className='gap-2 w-full justify-center'
+      onClick={() => toggleSort(field)}
+    >
+      <span>{label}</span>
+      {isActive ? (
+        isAsc ? (
+          <ChevronUp size={GLOBAL_ICON_SIZE} />
+        ) : (
+          <ChevronDown size={GLOBAL_ICON_SIZE} />
+        )
+      ) : (
+        <ChevronsUpDown size={GLOBAL_ICON_SIZE} />
+      )}
+    </Button>
+  )
+}
+
 export const columns: ColumnDef<TasksRecordsResponse>[] = [
   {
     accessorKey: "uuid",
-    header: () => {
-      const a = useTasksRecords({})
-      return (
-        <div className='text-start'>
-          <Button variant={"ghost"} className='gap-2'>
-            ID
-            <ChevronsUpDown size={GLOBAL_ICON_SIZE} />
-          </Button>
-        </div>
-      )
-    },
+    header: () => (
+      <div className='text-start'>
+        <SortableHeader field='uuid' label='ID' />
+      </div>
+    ),
     cell: ({ row }) => {
       const ID = row.original?.uuid as TasksRecordsResponse["uuid"]
       const slicedID = `${ID.slice(0, 6)}...`
@@ -76,16 +103,11 @@ export const columns: ColumnDef<TasksRecordsResponse>[] = [
   },
   {
     accessorKey: "status",
-    header: () => {
-      return (
-        <div>
-          <Button variant={"ghost"} className='gap-2'>
-            <span>Estado</span>
-            <ChevronsUpDown size={GLOBAL_ICON_SIZE} />
-          </Button>
-        </div>
-      )
-    },
+    header: () => (
+      <div>
+        <SortableHeader field='status' label='Estado' />
+      </div>
+    ),
     cell: ({ row }) => {
       return (
         <div className='flex gap-2 items-center justify-center'>
@@ -97,16 +119,11 @@ export const columns: ColumnDef<TasksRecordsResponse>[] = [
   },
   {
     accessorKey: "user",
-    header: () => {
-      return (
-        <div>
-          <Button variant={"ghost"} className='gap-2'>
-            <span>Agente</span>
-            <ChevronsUpDown size={GLOBAL_ICON_SIZE} />
-          </Button>
-        </div>
-      )
-    },
+    header: () => (
+      <div>
+        <SortableHeader field='user' label='Agente' />
+      </div>
+    ),
     cell: ({ row }) => {
       if (!row.original?.user) {
         return <div>-</div>
@@ -116,16 +133,11 @@ export const columns: ColumnDef<TasksRecordsResponse>[] = [
   },
   {
     accessorKey: "campaign",
-    header: () => {
-      return (
-        <div>
-          <Button variant={"ghost"} className='gap-2'>
-            Campaña
-            <ChevronsUpDown size={GLOBAL_ICON_SIZE} />
-          </Button>
-        </div>
-      )
-    },
+    header: () => (
+      <div>
+        <SortableHeader field='campaign' label='Campaña' />
+      </div>
+    ),
     cell: ({ row }) => {
       const campaignQuery = useCampaign(row.original?.campaign as number)
       if (!row.original?.campaign) {
@@ -143,16 +155,11 @@ export const columns: ColumnDef<TasksRecordsResponse>[] = [
   },
   {
     accessorKey: "audio_duration",
-    header: () => {
-      return (
-        <div>
-          <Button variant={"ghost"} className='gap-2'>
-            Duración
-            <ChevronsUpDown size={GLOBAL_ICON_SIZE} />
-          </Button>
-        </div>
-      )
-    },
+    header: () => (
+      <div>
+        <SortableHeader field='audio_duration' label='Duración' />
+      </div>
+    ),
     cell: ({ row }) => {
       if (!row.original?.audio_duration) {
         return <div>-</div>
@@ -164,16 +171,11 @@ export const columns: ColumnDef<TasksRecordsResponse>[] = [
   },
   {
     accessorKey: "inicio",
-    header: () => {
-      return (
-        <div>
-          <Button variant={"ghost"} className='gap-2'>
-            Fecha
-            <ChevronsUpDown size={GLOBAL_ICON_SIZE} />
-          </Button>
-        </div>
-      )
-    },
+    header: () => (
+      <div>
+        <SortableHeader field='inicio' label='Fecha' />
+      </div>
+    ),
     cell: ({ row }) => {
       if (!row.original?.inicio) {
         return <div>-</div>

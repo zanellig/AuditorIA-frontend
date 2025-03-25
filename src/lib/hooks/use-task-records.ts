@@ -11,31 +11,23 @@ import {
   TasksRecordsInternalResponse,
 } from "@/lib/types"
 import { fetchTasksRecords } from "@/lib/fetch-tasks"
+import { useTasksRecordsStore } from "@/lib/stores/use-tasks-records-store"
 
-interface UseTasksRecordsParams {
-  initialFilters?: Partial<TaskRecordsSearchParams>
-}
+export function useTasksRecords() {
+  const {
+    page,
+    search,
+    selectedFilter,
+    filters,
+    setPage,
+    setSearch,
+    setSelectedFilter,
+    updateFilters,
+    resetFilters,
+    toggleSort,
+  } = useTasksRecordsStore()
 
-export function useTasksRecords({
-  initialFilters = {},
-}: UseTasksRecordsParams) {
-  const [page, setPage] = React.useState(0)
-  const [search, setSearch] = React.useState<string | null>(null)
-  const [selectedFilter, setSelectedFilter] = React.useState<
-    keyof TaskRecordsSearchParams | null
-  >(null)
   const [debouncedSearch] = useDebounce(search, 500)
-  const [filters, setFilters] = React.useState<TaskRecordsSearchParams>({
-    uuid: null,
-    file_name: null,
-    status: null,
-    user: null,
-    campaign: null,
-    page: 0,
-    globalSearch: null,
-    ...initialFilters,
-  })
-
   const queryClient = useQueryClient()
   const { toast } = useToast()
 
@@ -62,8 +54,7 @@ export function useTasksRecords({
     // Remove previous queries to free up resources
     queryClient.removeQueries({ queryKey: ["tasks", "records", page, filters] })
 
-    setFilters(prev => ({
-      ...prev,
+    updateFilters({
       uuid: null,
       file_name: null,
       status: null,
@@ -71,13 +62,14 @@ export function useTasksRecords({
       campaign: null,
       [selectedFilter || "globalSearch"]: debouncedSearch,
       page: 0,
-    }))
+    })
     setPage(0)
 
     if (isError) {
       toast({ title: "Error al cargar los datos", variant: "destructive" })
     }
-  }, [debouncedSearch])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSearch]) // DON'T MODIFY. This is a dependency that triggers the query to refetch when the search input changes
 
   React.useEffect(() => {
     if (!data?.success) return
@@ -131,50 +123,15 @@ export function useTasksRecords({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, page, filters])
 
-  const updateFilters = (newFilters: Partial<TaskRecordsSearchParams>) => {
-    setFilters(prev => ({ ...prev, ...newFilters }))
-  }
-
-  const fetchWithNewFilters = (
-    newFilters: Partial<TaskRecordsSearchParams>
-  ) => {
-    const updatedFilters = { ...filters, ...newFilters }
-    setFilters(updatedFilters)
-    queryClient.invalidateQueries({
-      queryKey: ["tasks", "records", updatedFilters],
-    })
-  }
-
-  const resetFilters = () => {
-    setFilters({
-      uuid: null,
-      file_name: null,
-      status: null,
-      user: null,
-      campaign: null,
-      page: 0,
-      globalSearch: null,
-    })
-    setSearch(null)
-    setSelectedFilter("globalSearch")
-    setPage(0)
-  }
-
   const setNextPage = () => {
-    setPage(old => (data?.success && data?.hasMore ? old + 1 : old))
-    setFilters(prev => ({
-      ...prev,
-      page: data?.success && data?.hasMore ? prev.page + 1 : prev.page,
-    }))
+    if (data?.success && data?.hasMore) {
+      setPage(page + 1)
+    }
   }
 
   const setPreviousPage = () => {
     if (page > 0) {
-      setPage(old => old - 1)
-      setFilters(prev => ({
-        ...prev,
-        page: prev.page > 0 ? prev.page - 1 : 0,
-      }))
+      setPage(page - 1)
     }
   }
 
@@ -182,18 +139,10 @@ export function useTasksRecords({
     if (!data?.success) return
     const lastPage = Math.floor(data.total / 10)
     setPage(lastPage)
-    setFilters(prev => ({
-      ...prev,
-      page: lastPage,
-    }))
   }
 
   const setFirstPage = () => {
     setPage(0)
-    setFilters(prev => ({
-      ...prev,
-      page: 0,
-    }))
   }
 
   return {
@@ -211,12 +160,13 @@ export function useTasksRecords({
     setSelectedFilter,
     setPage,
     updateFilters,
-    fetchWithNewFilters,
+    fetchWithNewFilters: updateFilters,
     refetch,
     resetFilters,
     setNextPage,
     setPreviousPage,
     setLastPage,
     setFirstPage,
+    toggleSort,
   }
 }

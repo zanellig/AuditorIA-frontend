@@ -53,7 +53,7 @@ export default function TroublesomeTasksPage() {
     setPreviousPage,
     setLastPage,
     setFirstPage,
-  } = useTasksRecords({})
+  } = useTasksRecords()
 
   return (
     <TableContainer className='gap-2'>
