@@ -53,6 +53,14 @@ export default function LoginForm({ redirectPath }: { redirectPath: string }) {
       throw new Error(error.message || "Ha ocurrido un error iniciando sesión")
     }
 
+    const loginData = await loginResponse.json()
+
+    if (!loginData.success) {
+      throw new Error(
+        loginData.message || "Ha ocurrido un error iniciando sesión"
+      )
+    }
+
     toast({ title: "Sesión iniciada correctamente", variant: "success" })
 
     const userResponse = await fetch(`${host}/api/user`)

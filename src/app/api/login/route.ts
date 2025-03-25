@@ -54,12 +54,12 @@ export async function POST(request: NextRequest) {
     console.log("Setting cookie with data (login/route.ts):", tokenData)
     await setAuthCookie(tokenData)
 
-    return NextResponse.json({ ok: true }, { headers: responseHeaders })
+    return NextResponse.json({ success: true }, { headers: responseHeaders })
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
     return NextResponse.json(
-      { message: e.message },
+      { success: false, message: e.message },
       { status: 500, headers: responseHeaders }
     )
   }
