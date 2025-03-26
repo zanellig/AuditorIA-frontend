@@ -1,5 +1,4 @@
 import { env } from "@/env"
-import { getAuthCookie } from "@/lib/auth"
 import { getHeaders } from "@/lib/get-headers"
 import { NextRequest, NextResponse } from "next/server"
 import { ServerUserData, UserData } from "./user"
@@ -7,14 +6,17 @@ import { ServerUserData, UserData } from "./user"
 export const GET = async function (request: NextRequest) {
   const responseHeaders = await getHeaders(request)
   try {
-    const { tokenType, accessToken } = (await getAuthCookie()) ?? {
-      tokenType: "",
-      accessToken: "",
+    const authHeader = request.headers.get("Authorization")
+
+    if (!authHeader) {
+      return NextResponse.json(
+        { error: "Unauthorized", message: "No auth header found" },
+        { status: 401, headers: responseHeaders }
+      )
     }
-    const requestAuthHeaders = request.headers.get("Authorization")
-    const authHeader = `${tokenType ? tokenType + " " : ""}${accessToken ? accessToken : ""}${requestAuthHeaders ? " " + requestAuthHeaders : ""}`
+
     const url = new URL(`${env.API_CANARY_8000}/users/me`)
-    console.log(authHeader)
+
     const response = await fetch(url, {
       method: "GET",
       headers: {
@@ -24,6 +26,7 @@ export const GET = async function (request: NextRequest) {
     }).catch(error => {
       throw new Error(JSON.stringify({ statusText: error.detail, status: 500 }))
     })
+
     if (!response.ok) {
       throw new Error(
         JSON.stringify({
@@ -32,6 +35,7 @@ export const GET = async function (request: NextRequest) {
         })
       )
     }
+
     const data: ServerUserData = await response.json()
     const userData: UserData = {
       userEmail: data.email ?? "error@auditoria.com.ar",

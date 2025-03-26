@@ -1,26 +1,29 @@
 import { env } from "@/env"
-import { getAuthCookie, isAuthenticated } from "@/lib/auth"
 import { getHeaders } from "@/lib/get-headers"
 import { NextRequest, NextResponse } from "next/server"
 
 export async function GET(request: NextRequest) {
   const responseHeaders = await getHeaders(request)
   try {
-    const { tokenType, accessToken } = (await getAuthCookie()) ?? {
-      tokenType: "",
-      accessToken: "",
+    const authHeader = request.headers.get("Authorization")
+
+    if (!authHeader) {
+      return NextResponse.json(
+        { error: "Unauthorized", message: "No auth header found" },
+        { status: 401, headers: responseHeaders }
+      )
     }
-    const requestAuthHeaders = request.headers.get("Authorization")
-    const authHeader = `${tokenType ? tokenType + " " : ""}${accessToken ? accessToken : ""}${requestAuthHeaders ? " " + requestAuthHeaders : ""}`
+
     const url = new URL(`${env.API_CANARY_8000}/users/avatar`)
     const response = await fetch(url, {
       method: "GET",
       headers: {
-        Authorization: `${authHeader}`,
+        Authorization: authHeader,
         Accept: "*/*",
       },
       cache: "no-store",
     })
+
     if (!response.ok) {
       throw new Error(
         JSON.stringify({
@@ -56,8 +59,13 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   const responseHeaders = await getHeaders(request)
   try {
-    if (!(await isAuthenticated()))
-      return NextResponse.json({}, { status: 401 })
+    const authHeader = request.headers.get("Authorization")
+    if (!authHeader) {
+      return NextResponse.json(
+        { error: "Unauthorized", message: "No auth header found" },
+        { status: 401, headers: responseHeaders }
+      )
+    }
 
     const formData = await request.formData()
     const file = formData.get("file")
@@ -69,18 +77,13 @@ export async function PUT(request: NextRequest) {
       )
     }
 
-    const { tokenType, accessToken } = (await getAuthCookie()) ?? {
-      tokenType: "",
-      accessToken: "",
-    }
-
     const serverFormData = new FormData()
     serverFormData.append("file", file)
 
     const response = await fetch(`${env.API_CANARY_8000}/users/avatar/update`, {
       method: "PUT",
       headers: {
-        Authorization: `${tokenType} ${accessToken}`,
+        Authorization: authHeader,
       },
       body: serverFormData,
     })
