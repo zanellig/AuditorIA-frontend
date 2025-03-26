@@ -35,6 +35,8 @@ export type AudioFileTypes = z.infer<typeof AudioFileTypesSchema>
 const MAX_FILE_SIZE = 50 * 1024 * 1024 // 50MB
 
 export const taskFormSchema = z.object({
+  campaign_id: z.number().positive().optional(),
+  operator_id: z.number().positive().optional(),
   language: z
     .enum(["es", "en", "fr", "de"], {
       required_error: "Por favor seleccione un idioma.",

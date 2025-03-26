@@ -164,6 +164,8 @@ export default function TaskUploadForm({ className }: { className?: string }) {
         body: formData,
         headers: {
           "x-username": user?.username ?? "",
+          "x-campaign-id": values.campaign_id?.toString() ?? "",
+          "x-operator-id": values.operator_id?.toString() ?? "",
         },
       })
       if (!res.ok) {
@@ -200,6 +202,15 @@ export default function TaskUploadForm({ className }: { className?: string }) {
 
   const onSubmit = (values: FormValues) => {
     mutation.mutate(values)
+  }
+
+  const handleNumberInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    if (value === "" || !isNaN(Number(value))) {
+      if (Number(value) > 0) {
+        form.setValue(e.target.name as any, Number(value))
+      }
+    }
   }
 
   return (
@@ -267,17 +278,61 @@ export default function TaskUploadForm({ className }: { className?: string }) {
                         step={0.01}
                         onValueChange={([value]) => field.onChange(value)}
                       />
-                      <span className='text-sm text-muted-foreground'>
-                        Libertad del modelo para la generación de texto. Una
-                        menor temperatura otorgará mayor precisión, pero algunas
-                        palabras pueden no ser comprendidas correctamente.
-                      </span>
                     </div>
                   </FormControl>
+                  <FormDescription className='text-sm text-muted-foreground'>
+                    Libertad del modelo para la generación de texto. Una menor
+                    temperatura otorgará mayor precisión, pero algunas palabras
+                    pueden no ser comprendidas correctamente.
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
+            <div className='flex flex-col lg:grid lg:grid-cols-2 gap-2 w-full'>
+              <FormField
+                control={form.control}
+                name='campaign_id'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      ID de la campaña{" "}
+                      <span className='text-destructive'>*</span>
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        type='number'
+                        {...field}
+                        onChange={handleNumberInputChange}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name='operator_id'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      ID del operador{" "}
+                      <span className='text-destructive'>*</span>
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        type='number'
+                        {...field}
+                        onChange={handleNumberInputChange}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
             <FormField
               control={form.control}
               name='files'
@@ -421,13 +476,16 @@ export default function TaskUploadForm({ className }: { className?: string }) {
                       )}
                     </div>
                   </FormControl>
-                  <FormDescription>
-                    Adjunta múltiples archivos para transcribir.
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
+            <span className='text-sm text-muted-foreground'>
+              Los campos con <span className='text-destructive'>*</span> son
+              opcionales. <br />
+              Si se proporcionan los mismos, se utilizarán para vincular la
+              tarea con un operador o campaña específica si existen.
+            </span>
             <StatefulButton
               type='submit'
               isLoading={
@@ -437,8 +495,8 @@ export default function TaskUploadForm({ className }: { className?: string }) {
                 form.formState.isValidating
               }
             >
-              <span>Iniciar tarea</span>
               <Sparkles size={GLOBAL_ICON_SIZE} className='animate-sparkle' />
+              <span>Iniciar tarea</span>
             </StatefulButton>
           </form>
         </Form>
