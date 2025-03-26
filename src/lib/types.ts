@@ -46,7 +46,7 @@ export type Task = z.infer<typeof taskSchema>
 export type Tasks = Task[]
 
 export interface TaskPOSTResponse {
-  identifier: TaskUUID
+  identifier: string
   message: string
 }
 
