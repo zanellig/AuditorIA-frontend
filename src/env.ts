@@ -31,6 +31,13 @@ const envSchema = z.object({
   NEXT_PUBLIC_POSTHOG_HOST: z.string(),
 
   ADMIN_SECRET: z.string(),
+
+  // MySQL connection details
+  MYSQL_HOST: z.string().default("localhost"),
+  MYSQL_PORT: z.string().regex(/^\d+$/).transform(Number).default("3306"),
+  MYSQL_USER: z.string().default("root"),
+  MYSQL_PASSWORD: z.string().default(""),
+  MYSQL_DATABASE: z.string().default("auditoria_db"),
 })
 
 // Parse and validate the environment variables
