@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { z } from "zod"
 import { randomUUID } from "crypto"
-import redisClient from "@/services/redisClient"
+import redisClient from "@/lib/services/redisClient"
 import { notificationSchema } from "@/lib/types"
 import {
   getUserNotificationsKey,

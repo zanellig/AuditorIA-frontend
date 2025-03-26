@@ -5,7 +5,7 @@ import {
 } from "@/lib/notifications-utils"
 import { NextRequest } from "next/server"
 
-import redisClient from "@/services/redisClient"
+import redisClient from "@/lib/services/redisClient"
 
 // Handle SSE events for real-time notifications
 export async function GET(request: NextRequest) {

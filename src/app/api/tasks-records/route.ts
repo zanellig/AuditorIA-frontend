@@ -6,7 +6,7 @@ import {
   TasksRecordsResponse,
 } from "@/lib/types"
 import { env } from "@/env"
-import redisClient from "@/services/redisClient"
+import redisClient from "@/lib/services/redisClient"
 
 const CACHE_KEY = "tasks-records"
 const CACHE_TTL_SECONDS = env.NODE_ENV === "production" ? 15 : 3600
