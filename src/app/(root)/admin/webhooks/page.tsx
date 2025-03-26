@@ -80,7 +80,6 @@ export default function WebhooksAdminPage() {
     updateWebhook,
     deleteWebhook,
     syncWithAPI,
-    setLoading,
   } = useWebhooksStore()
 
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
@@ -404,16 +403,21 @@ export default function WebhooksAdminPage() {
                             size='sm'
                             variant='outline'
                             onClick={() => openEditDialog(webhook.id)}
+                            className='flex items-center gap-2'
                           >
-                            <Pencil className='h-4 w-4 mr-1' />
-                            Editar
+                            <Pencil size={GLOBAL_ICON_SIZE} />
+                            <>Editar</>
                           </Button>
 
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
-                              <Button size='sm' variant='destructive'>
-                                <Trash2 className='h-4 w-4 mr-1' />
-                                Eliminar
+                              <Button
+                                size='sm'
+                                variant='destructive'
+                                className='flex items-center gap-2'
+                              >
+                                <Trash2 size={GLOBAL_ICON_SIZE} />
+                                <>Eliminar</>
                               </Button>
                             </AlertDialogTrigger>
                             <AlertDialogContent>
@@ -421,11 +425,14 @@ export default function WebhooksAdminPage() {
                                 <AlertDialogTitle>
                                   ¿Estás seguro?
                                 </AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  Esta acción no se puede deshacer. Esto
-                                  eliminará permanentemente el webhook &quot;
-                                  {webhook.name}
-                                  &quot; de tu cuenta.
+                                <AlertDialogDescription className='flex flex-col gap-4'>
+                                  <span>
+                                    Esta acción no se puede deshacer. Esto
+                                    eliminará permanentemente el webhook &quot;
+                                    {webhook.name}
+                                    &quot;.
+                                  </span>
+                                  <WebhookWarning />
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
@@ -539,66 +546,75 @@ export default function WebhooksAdminPage() {
           </DialogHeader>
 
           <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(handleSubmit)}
-              className='space-y-4'
-            >
-              <FormField
-                control={form.control}
-                name='name'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Nombre</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <form onSubmit={form.handleSubmit(handleSubmit)}>
+              <div className='space-y-4'>
+                <FormField
+                  control={form.control}
+                  name='name'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nombre</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name='base_url'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>URL Base</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name='base_url'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>URL Base</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name='path'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Ruta</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name='path'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Ruta</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <DialogFooter>
-                <Button
-                  variant='outline'
-                  type='button'
-                  onClick={() => setIsEditDialogOpen(false)}
-                >
-                  Cancelar
-                </Button>
-                <Button type='submit'>Guardar Cambios</Button>
-              </DialogFooter>
+                <WebhookWarning />
+
+                <DialogFooter>
+                  <Button
+                    variant='outline'
+                    type='button'
+                    onClick={() => setIsEditDialogOpen(false)}
+                  >
+                    Cancelar
+                  </Button>
+                  <Button type='submit'>Guardar Cambios</Button>
+                </DialogFooter>
+              </div>
             </form>
           </Form>
         </DialogContent>
       </Dialog>
     </main>
+  )
+}
+
+export function WebhookWarning() {
+  return (
+    <div className='border border-yellow-500 rounded-xl p-2 font-semibold text-yellow-500 text-sm bg-yellow-500/10'>
+      Esta acción podrá generar errores en la plataforma.
+    </div>
   )
 }
