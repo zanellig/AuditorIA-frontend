@@ -96,12 +96,6 @@ export default function TaskUploadForm({ className }: { className?: string }) {
     else return (bytes / (1024 * 1024)).toFixed(1) + " MB"
   }
 
-  const formatDuration = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60)
-    const remainingSeconds = Math.floor(seconds % 60)
-    return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`
-  }
-
   const togglePlayPause = (fileUrl: string, index: number) => {
     const audioElement = audioRefs.current[index]
 
@@ -142,7 +136,7 @@ export default function TaskUploadForm({ className }: { className?: string }) {
       task_type: "transcribe",
       model: "large-v3",
       device: "cuda",
-      temperature: 0.0,
+      temperature: 1,
     },
   })
 
