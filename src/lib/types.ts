@@ -323,6 +323,7 @@ export const notificationSchema = z.object({
   timestamp: z.number(),
   read: z.boolean(),
   text: z.string(),
+  variant: z.enum(["default", "success", "destructive"]).optional(),
   task: z
     .object({
       identifier: z.string(),

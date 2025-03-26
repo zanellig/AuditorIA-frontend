@@ -13,6 +13,7 @@ import {
   getNotificationsKeyForUser,
 } from "@/lib/notifications-utils"
 import { getHeaders } from "@/lib/get-headers"
+import { env } from "@/env"
 
 export const dynamic = "force-dynamic"
 
@@ -129,6 +130,7 @@ export async function POST(request: NextRequest) {
       read: body.read !== undefined ? body.read : false,
       text: body.text,
       task: body.task,
+      variant: body.variant,
       isGlobal: isGlobalNotification,
     }
 
@@ -246,7 +248,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         ...validatedNotification,
-        isGlobal: isGlobalNotification,
       },
       {
         status: 201,
@@ -361,7 +362,7 @@ export async function DELETE(request: NextRequest) {
         { status: 200, headers: await getHeaders(request) }
       )
     } else {
-      if (body.adminSecret === process.env.ADMIN_API_KEY) {
+      if (body.adminSecret === env.ADMIN_SECRET) {
         // Delete all global notifications
         const deletedCount = await redisClient.del(GLOBAL_NOTIFICATIONS_KEY)
         console.log(`Deleted ${deletedCount} global notifications`)

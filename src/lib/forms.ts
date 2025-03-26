@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { ACCEPTED_AUDIO_TYPES } from "./consts"
 
 const AudioFileTypesSchema = z.enum([
   "audio/wav",
@@ -30,6 +31,8 @@ export const validateMimeType = (mimeType: string) => {
 }
 
 export type AudioFileTypes = z.infer<typeof AudioFileTypesSchema>
+
+const MAX_FILE_SIZE = 50 * 1024 * 1024 // 50MB
 
 export const taskFormSchema = z.object({
   language: z
@@ -84,7 +87,35 @@ export const taskFormSchema = z.object({
     .min(0.0, { message: "La temperatura debe ser mayor a 0" })
     .max(1.0, { message: "La temperatura debe ser menor a 1" })
     .default(0.0),
-  file: z.custom<File | Blob>().optional(),
+  files: z
+    .custom<File[]>()
+    .refine(files => files?.length > 0 || files?.length !== undefined, {
+      message: "Debe seleccionar al menos un archivo de audio.",
+    })
+    .refine(
+      files => {
+        if (!files) return true
+        for (const file of files) {
+          if (file.size > MAX_FILE_SIZE) return false
+        }
+        return true
+      },
+      {
+        message: `El tamaño máximo de archivo es de 50MB.`,
+      }
+    )
+    .refine(
+      files => {
+        if (!files) return true
+        for (const file of files) {
+          if (!ACCEPTED_AUDIO_TYPES.includes(file.type)) return false
+        }
+        return true
+      },
+      {
+        message: "Solo se admiten archivos de audio (MP3, WAV, OGG, etc.).",
+      }
+    ),
 })
 
 export type FormValues = z.infer<typeof taskFormSchema>

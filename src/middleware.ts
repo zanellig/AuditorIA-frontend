@@ -25,8 +25,6 @@ export async function middleware(request: NextRequest, event: NextFetchEvent) {
       response.headers.set("Authorization", `${tokenType} ${accessToken}`)
     }
 
-    console.log("response when cookie is present", response)
-
     return response
   }
 
@@ -49,9 +47,27 @@ export async function middleware(request: NextRequest, event: NextFetchEvent) {
     return response
   }
 
+  const isAdminRequest =
+    request.nextUrl.pathname.startsWith("/admin") ||
+    request.nextUrl.pathname.startsWith("/dashboard/settings")
+
+  if (isAdminRequest) {
+    const isAuthorized = request.cookies.get("admin")
+    if (!isAuthorized) {
+      return NextResponse.redirect(new URL("/dashboard", request.url))
+    }
+
+    return NextResponse.next()
+  }
+
   return NextResponse.next()
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/api/:path*"],
+  matcher: [
+    "/dashboard/:path*",
+    "/api/:path*",
+    "/admin/:path*",
+    "/dashboard/settings/:path*",
+  ],
 }

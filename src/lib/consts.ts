@@ -26,6 +26,13 @@ export const ACCEPTED_AUDIO_TYPES = [
   "webm",
   "flac",
   "x-flac",
+  "audio/mpeg", // MP3
+  "audio/wav",
+  "audio/ogg",
+  "audio/aac",
+  "audio/flac",
+  "audio/x-m4a",
+  "audio/webm",
 ]
 export const IPAD_SIZE_QUERY = "(min-width: 1024px)"
 

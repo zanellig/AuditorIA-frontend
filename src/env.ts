@@ -30,7 +30,7 @@ const envSchema = z.object({
   NEXT_PUBLIC_POSTHOG_KEY: z.string(),
   NEXT_PUBLIC_POSTHOG_HOST: z.string(),
 
-  ADMIN_API_KEY: z.string(),
+  ADMIN_SECRET: z.string(),
 })
 
 // Parse and validate the environment variables
