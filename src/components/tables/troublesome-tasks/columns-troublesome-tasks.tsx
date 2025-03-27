@@ -5,7 +5,6 @@ import Link from "next/link"
 import {
   formatTimestamp,
   handleCopyToClipboard,
-  normalizeTag,
   secondsToHMS,
 } from "@/lib/utils"
 import A from "@/components/typography/a"
@@ -40,9 +39,6 @@ import { useToast } from "@/components/ui/use-toast"
 import { useDeleteTaskMutation } from "@/lib/hooks/mutations/delete-task-mutation"
 import { getHost } from "@/lib/actions"
 import { useTasksRecords } from "@/lib/hooks/use-task-records"
-import { useTags } from "@/lib/hooks/use-tags"
-import { useCampaign } from "@/lib/hooks/use-campaign"
-import { useAgent } from "@/lib/hooks/use-agent"
 
 const SortableHeader = ({
   field,
@@ -140,18 +136,10 @@ export const columns: ColumnDef<TasksRecordsResponse>[] = [
       </div>
     ),
     cell: ({ row }) => {
-      const campaignQuery = useCampaign(row.original?.campaign as number)
       if (!row.original?.campaign) {
         return <div>-</div>
       }
-      if (campaignQuery.isPending) {
-        return (
-          <div className='flex items-center justify-center'>
-            <Loader2 size={GLOBAL_ICON_SIZE} className='animate-spin' />
-          </div>
-        )
-      }
-      return <A>{campaignQuery.data?.name}</A>
+      return <A>{row.original?.campaign_name}</A>
     },
   },
   {
@@ -205,25 +193,25 @@ export const columns: ColumnDef<TasksRecordsResponse>[] = [
       </div>
     ),
   },
-  {
-    accessorKey: "tags",
-    header: () => {
-      return <div>Etiquetas</div>
-    },
-    cell: ({ row }) => {
-      const tagsQuery = useTags({ uuid: row.original?.uuid as string })
-      return (
-        <div className='flex gap-2 justify-center items-center'>
-          {tagsQuery.isPending && (
-            <Loader2 size={GLOBAL_ICON_SIZE} className='animate-spin' />
-          )}
-          {tagsQuery.data?.tags?.map((tag: string, index: number) =>
-            index < 2 ? <Badge key={tag}>{normalizeTag(tag)}</Badge> : null
-          )}
-        </div>
-      )
-    },
-  },
+  // {
+  //   accessorKey: "tags",
+  //   header: () => {
+  //     return <div>Etiquetas</div>
+  //   },
+  //   cell: ({ row }) => {
+  //     const tagsQuery = useTags({ uuid: row.original?.uuid as string })
+  //     return (
+  //       <div className='flex gap-2 justify-center items-center'>
+  //         {tagsQuery.isPending && (
+  //           <Loader2 size={GLOBAL_ICON_SIZE} className='animate-spin' />
+  //         )}
+  //         {tagsQuery.data?.tags?.map((tag: string, index: number) =>
+  //           index < 2 ? <Badge key={tag}>{normalizeTag(tag)}</Badge> : null
+  //         )}
+  //       </div>
+  //     )
+  //   },
+  // },
   {
     accessorKey: "acciones",
     header: () => {
@@ -237,8 +225,6 @@ export const columns: ColumnDef<TasksRecordsResponse>[] = [
       const { toast } = useToast()
 
       const deleteTaskMutation = useDeleteTaskMutation()
-
-      const agentQuery = useAgent(row.original?.user as number)
 
       const handleCopyId = () => {
         handleCopyToClipboard(row.original?.uuid as string)
@@ -314,15 +300,12 @@ export const columns: ColumnDef<TasksRecordsResponse>[] = [
             >
               <div className='p-2 flex flex-col gap-2'>
                 <h1 className='text-sm font-bold'>Información adicional</h1>
-                <section className='flex gap-2 items-center'>
-                  {agentQuery.isPending && (
-                    <Loader2 size={GLOBAL_ICON_SIZE} className='animate-spin' />
-                  )}
-                  {agentQuery.data && (
+                <section className='flex gap-2 items-center' id='agent-info'>
+                  {row.original?.first_name && row.original?.last_name && (
                     <>
                       <User size={GLOBAL_ICON_SIZE} />
                       <span className='text-sm'>
-                        {agentQuery.data?.name} {agentQuery.data?.surname}
+                        {row.original?.first_name} {row.original?.last_name}
                       </span>
                     </>
                   )}

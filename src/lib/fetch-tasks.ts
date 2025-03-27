@@ -5,7 +5,7 @@ import {
 } from "@/lib/types"
 
 export const fetchTasksRecords = async (params: TaskRecordsSearchParams) => {
-  const url = new URL(`${await getHost()}/api/tasks-records`)
+  const url = new URL("http://10.20.62.96:5678/webhook/tasks-records")
   const { page, globalSearch, ...filterParams } = params
 
   // Check if all filter params are nullish
