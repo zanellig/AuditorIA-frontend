@@ -122,6 +122,7 @@ export default function TaskUploadForm({ className }: { className?: string }) {
     form.reset()
     setSelectedFiles([])
     setPlayingAudio(null)
+    audioRefs.current = {}
   }
 
   const { toast } = useToast()
@@ -137,6 +138,8 @@ export default function TaskUploadForm({ className }: { className?: string }) {
       model: "large-v3",
       device: "cuda",
       temperature: 1,
+      campaign_id: undefined,
+      operator_id: undefined,
     },
   })
 
@@ -174,11 +177,7 @@ export default function TaskUploadForm({ className }: { className?: string }) {
 
       return {} as any
     },
-    onSuccess: async task => {
-      if (!task) {
-        throw new Error("No se pudo obtener el ID de la tarea")
-      }
-
+    onSuccess: () => {
       toast({
         variant: "default",
         title: "Tarea enviada",
