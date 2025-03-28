@@ -40,7 +40,7 @@ export function useTasksRecords() {
     isPlaceholderData,
     refetch,
   } = useQuery<TasksRecordsInternalResponse>({
-    queryKey: ["tasks", "records", page, filters],
+    queryKey: ["tasks", "records", filters],
     queryFn: () => fetchTasksRecords(filters),
     enabled: true,
     staleTime: Infinity,
@@ -49,10 +49,10 @@ export function useTasksRecords() {
 
   React.useEffect(() => {
     // Cancel any in-flight queries
-    queryClient.cancelQueries({ queryKey: ["tasks", "records", page, filters] })
+    queryClient.cancelQueries({ queryKey: ["tasks", "records", filters] })
 
     // Remove previous queries to free up resources
-    queryClient.removeQueries({ queryKey: ["tasks", "records", page, filters] })
+    queryClient.removeQueries({ queryKey: ["tasks", "records", filters] })
 
     updateFilters({
       uuid: null,
@@ -75,24 +75,14 @@ export function useTasksRecords() {
     if (!data?.success) return
     // Pages are 0 indexed
     // Only prefetch if there's more data available.
-    if (data?.hasMore && page + 1 <= data?.pages) {
+    if (data?.hasMore && page + 1 < data?.pages) {
       Promise.allSettled([
         queryClient.prefetchQuery({
-          queryKey: [
-            "tasks",
-            "records",
-            page + 1,
-            { ...filters, page: page + 1 },
-          ],
+          queryKey: ["tasks", "records", { ...filters, page: page + 1 }],
           queryFn: () => fetchTasksRecords({ ...filters, page: page + 1 }),
         }),
         queryClient.prefetchQuery({
-          queryKey: [
-            "tasks",
-            "records",
-            page + 2,
-            { ...filters, page: page + 2 },
-          ],
+          queryKey: ["tasks", "records", { ...filters, page: page + 2 }],
           queryFn: () => fetchTasksRecords({ ...filters, page: page + 2 }),
         }),
       ])
@@ -101,21 +91,11 @@ export function useTasksRecords() {
     if (page + 2 <= data?.pages && page > 1) {
       Promise.allSettled([
         queryClient.prefetchQuery({
-          queryKey: [
-            "tasks",
-            "records",
-            page - 1,
-            { ...filters, page: page - 1 },
-          ],
+          queryKey: ["tasks", "records", { ...filters, page: page - 1 }],
           queryFn: () => fetchTasksRecords({ ...filters, page: page - 1 }),
         }),
         queryClient.prefetchQuery({
-          queryKey: [
-            "tasks",
-            "records",
-            page - 2,
-            { ...filters, page: page - 2 },
-          ],
+          queryKey: ["tasks", "records", { ...filters, page: page - 2 }],
           queryFn: () => fetchTasksRecords({ ...filters, page: page - 2 }),
         }),
       ])
@@ -137,7 +117,7 @@ export function useTasksRecords() {
 
   const setLastPage = () => {
     if (!data?.success) return
-    const lastPage = Math.floor(data.total / 10)
+    const lastPage = data?.pages - 1
     setPage(lastPage)
   }
 
