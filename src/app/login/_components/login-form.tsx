@@ -99,20 +99,23 @@ export default function LoginForm({ redirectPath }: { redirectPath: string }) {
       })
 
       await clearRedirectPathCookie()
+      try {
+        posthog.reset()
 
-      posthog.reset()
+        posthog.identify(data.userEmail, {
+          username: data.username,
+          email: data.userEmail,
+          full_name: data.userFullName,
+        })
 
-      posthog.identify(data.userEmail, {
-        username: data.username,
-        email: data.userEmail,
-        full_name: data.userFullName,
-      })
-
-      posthog.capture("login", {
-        username: data.username,
-        email: data.userEmail,
-        full_name: data.userFullName,
-      })
+        posthog.capture("login", {
+          username: data.username,
+          email: data.userEmail,
+          full_name: data.userFullName,
+        })
+      } catch (error) {
+        console.error(error)
+      }
 
       // Redirect to the saved path or dashboard
       router.push(redirectPath)
