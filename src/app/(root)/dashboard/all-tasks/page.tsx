@@ -200,7 +200,7 @@ export default function TroublesomeTasksPage() {
             layout: { duration: 0.3, ease: "easeInOut" },
           }}
         >
-          {data && (
+          {data?.success && (
             <ServerDataTable columns={columns} data={data?.tasks || []} />
           )}
           {error && (
@@ -217,12 +217,14 @@ export default function TroublesomeTasksPage() {
           )}
         </motion.div>
       </motion.div>
-
-      <section className='flex justify-between items-center gap-2'>
-        <span className='text-muted-foreground'>
-          Página {data?.total ? page + 1 : 0} de {data?.total ? data.pages : 0}
-        </span>
-      </section>
+      {data?.success ? (
+        <section className='flex justify-between items-center gap-2'>
+          <span className='text-muted-foreground'>
+            Página {data?.total ? page + 1 : 0} de{" "}
+            {data?.total ? data.pages : 0}
+          </span>
+        </section>
+      ) : null}
     </TableContainer>
   )
 }
