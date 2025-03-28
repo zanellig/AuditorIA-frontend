@@ -34,8 +34,17 @@ import { usePostHog } from "posthog-js/react"
 
 export default function LoginForm({ redirectPath }: { redirectPath: string }) {
   const { toast } = useToast()
-
   const posthog = usePostHog()
+  const router = useRouter()
+
+  const form = useForm<z.infer<typeof loginFormSchema>>({
+    resolver: zodResolver(loginFormSchema),
+    defaultValues: {
+      username: "",
+      password: "",
+      rememberMe: false,
+    },
+  })
 
   const loginUser = async (
     credentials: z.infer<typeof loginFormSchema>
@@ -91,16 +100,6 @@ export default function LoginForm({ redirectPath }: { redirectPath: string }) {
 
     return user
   }
-
-  const router = useRouter()
-  const form = useForm<z.infer<typeof loginFormSchema>>({
-    resolver: zodResolver(loginFormSchema),
-    defaultValues: {
-      username: "",
-      password: "",
-      rememberMe: false,
-    },
-  })
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const loginUserCallback = React.useCallback(loginUser, [])
