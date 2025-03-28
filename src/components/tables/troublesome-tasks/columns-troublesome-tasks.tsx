@@ -28,7 +28,11 @@ import {
   Clipboard,
   Download,
   Ellipsis,
+  Globe,
   Loader2,
+  Phone,
+  PhoneIncoming,
+  PhoneOutgoing,
   Sparkles,
   Trash,
   User,
@@ -81,7 +85,7 @@ export const columns: ColumnDef<TasksRecordsResponse>[] = [
     ),
     cell: ({ row }) => {
       const ID = row.original?.uuid as TasksRecordsResponse["uuid"]
-      const slicedID = `${ID.slice(0, 6)}...`
+      const slicedID = `${ID?.slice(0, 6)}...`
 
       return (
         <div key={`check-${row.original?.uuid}`} className='text-start'>
@@ -307,6 +311,41 @@ export const columns: ColumnDef<TasksRecordsResponse>[] = [
                       <span className='text-sm'>
                         {row.original?.first_name} {row.original?.last_name}
                       </span>
+                    </>
+                  )}
+                </section>
+                <section className='flex gap-2 items-center' id='client-info'>
+                  {row.original?.client_phone && (
+                    <>
+                      <Phone size={GLOBAL_ICON_SIZE} />
+                      <span className='text-sm'>
+                        {row.original?.client_phone}
+                      </span>
+                    </>
+                  )}
+                </section>
+
+                <section
+                  className='flex gap-2 items-center'
+                  id='direction-info'
+                >
+                  {/* llamada entrante o saliente */}
+                  {row.original?.direction?.toLowerCase() === "entrante" && (
+                    <PhoneIncoming size={GLOBAL_ICON_SIZE} />
+                  )}
+                  {row.original?.direction?.toLowerCase() === "saliente" && (
+                    <PhoneOutgoing size={GLOBAL_ICON_SIZE} />
+                  )}
+                  {row.original?.direction && (
+                    <span className='text-sm'>{row.original?.direction}</span>
+                  )}
+                </section>
+
+                <section className='flex gap-2 items-center' id='language-info'>
+                  {row.original?.language && (
+                    <>
+                      <Globe size={GLOBAL_ICON_SIZE} />
+                      <span className='text-sm'>{row.original?.language}</span>
                     </>
                   )}
                 </section>
