@@ -6,6 +6,7 @@ import "./globals.css"
 import { ThemeProvider } from "@/components/context/ThemeProvider"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { Toaster } from "@/components/ui/toaster"
+import { PostHogProvider } from "@/components/context/Posthog"
 
 const openSans = Open_Sans({ subsets: ["latin"] })
 
@@ -43,16 +44,18 @@ export default function RootLayout({
         ></script> */}
       </head>
       <body className={openSans.className}>
-        <QueryClientProvider client={queryClient}>
-          <ThemeProvider
-            attribute='class'
-            defaultTheme='dark'
-            disableTransitionOnChange
-          >
-            {children}
-          </ThemeProvider>
-        </QueryClientProvider>
-        <Toaster />
+        <PostHogProvider>
+          <QueryClientProvider client={queryClient}>
+            <ThemeProvider
+              attribute='class'
+              defaultTheme='dark'
+              disableTransitionOnChange
+            >
+              {children}
+            </ThemeProvider>
+          </QueryClientProvider>
+          <Toaster />
+        </PostHogProvider>
       </body>
     </html>
   )
