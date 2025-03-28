@@ -1,4 +1,5 @@
 "use client"
+import * as React from "react"
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { AudioProvider } from "./AudioProvider"
@@ -8,6 +9,7 @@ import { TranscriptionProvider } from "./TranscriptionProvider"
 import { UserContextProvider } from "./UserProvider"
 import { RecordingProvider } from "./RecordingProvider"
 import { SegmentsAnalysisProvider } from "./SegmentsAnalysisProvider"
+import { IdentifiedPageView } from "./IdentifiedPageView"
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -30,6 +32,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
           </TooltipProvider>
         </ScrollProvider>
       </AudioProvider>
+      <IdentifiedPageView />
     </UserContextProvider>
   )
 }

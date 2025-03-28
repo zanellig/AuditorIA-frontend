@@ -7,7 +7,6 @@ import { usePostHog } from "posthog-js/react"
 
 import posthog from "posthog-js"
 import { PostHogProvider as PHProvider } from "posthog-js/react"
-import { useUser } from "./UserProvider"
 
 export function PostHogProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
@@ -31,9 +30,10 @@ function PostHogPageView() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const posthog = usePostHog()
-  const user = useUser()
-  // Track pageviews
+  // Track anonymous pageviews
   useEffect(() => {
+    if (pathname.includes("dashboard")) return
+
     if (pathname && posthog) {
       let url = window.origin + pathname
       if (searchParams.toString()) {
@@ -42,12 +42,9 @@ function PostHogPageView() {
 
       posthog.capture("$pageview", {
         $current_url: url,
-        username: user?.username,
-        email: user?.userEmail,
-        full_name: user?.userFullName,
       })
     }
-  }, [pathname, searchParams, posthog, user])
+  }, [pathname, searchParams, posthog])
 
   return null
 }
