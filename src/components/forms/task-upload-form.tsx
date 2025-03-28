@@ -195,6 +195,7 @@ export default function TaskUploadForm({ className }: { className?: string }) {
         variant: "destructive",
         title: "Error al enviar la tarea",
         description: error.message,
+        duration: 10000,
       })
     },
   })
