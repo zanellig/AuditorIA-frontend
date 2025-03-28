@@ -33,10 +33,10 @@ const envSchema = z.object({
   ADMIN_SECRET: z.string(),
 
   // MySQL connection details
-  MYSQL_HOST: z.string().default("localhost"),
+  MYSQL_HOST: z.string(),
   MYSQL_PORT: z.string().regex(/^\d+$/).transform(Number).default("3306"),
-  MYSQL_USER: z.string().default("root"),
-  MYSQL_PASSWORD: z.string().default(""),
+  MYSQL_USER: z.string(),
+  MYSQL_PASSWORD: z.string(),
   MYSQL_DATABASE: z.string().default("auditoria_db"),
 })
 
