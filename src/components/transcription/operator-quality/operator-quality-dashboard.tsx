@@ -86,6 +86,14 @@ const auditingPhrases = [
   "Procesando las interacciones para detectar oportunidades de mejora...",
   "Identificando puntos fuertes y áreas de desarrollo en la atención...",
   "Generando reportes detallados basados en métricas de calidad...",
+  "Esto puede tardar unos minutos...",
+  "Por favor, espere un momento...",
+  "Buscando errores críticos...",
+  "Revisando la calidad del operador...",
+  "Generando gráficos y tablas...",
+  "Analizando los datos...",
+  "Generando conclusiones...",
+  "Generando informes...",
 ]
 
 export default function OperatorQualityDashboard() {
