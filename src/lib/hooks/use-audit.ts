@@ -19,7 +19,8 @@ async function getAudit(uuid: string) {
   url.searchParams.set("task_uuid", uuid)
   const data = await fetch(url).then(async res => {
     if (!res.ok) {
-      throw new Error("Failed to fetch audit")
+      const data = await res.json()
+      throw new Error(data.message || "Error al obtener el informe")
     }
     return await res.json()
   })
