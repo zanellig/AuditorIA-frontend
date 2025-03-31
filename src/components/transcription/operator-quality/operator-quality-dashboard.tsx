@@ -761,7 +761,7 @@ export default function OperatorQualityDashboard() {
                                     category.compliance < 75
                                       ? "bg-red-500 text-white animate-pulse"
                                       : category.compliance < 95
-                                        ? "bg-amber-500 text-white"
+                                        ? "bg-amber-500"
                                         : "bg-green-500"
                                   }`}
                                 >
