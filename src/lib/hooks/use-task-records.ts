@@ -28,7 +28,6 @@ export function useTasksRecords() {
   } = useTasksRecordsStore()
 
   const [debouncedSearch] = useDebounce(search, 500)
-  const queryClient = useQueryClient()
   const { toast } = useToast()
 
   // Apply search filter effects in a controlled way

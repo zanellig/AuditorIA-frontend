@@ -74,7 +74,7 @@ interface AuditItem {
 }
 
 interface AuditData {
-  is_audit_failure: number
+  is_audit_failure: 0 | 1
   score: number
   audit: AuditItem[]
 }
@@ -101,7 +101,7 @@ export default function OperatorQualityDashboard() {
   const uuid = search.get("identifier")
   const [enableQuery, setEnableQuery] = useState(false)
   const query = useAudit({ uuid: uuid ?? "", enabled: enableQuery })
-  const [auditData, setAuditData] = useState<AuditData>()
+  const auditData: AuditData | undefined = query.data
   const [filteredAudit, setFilteredAudit] = useState<AuditItem[]>([])
   const [categoryFilter, setCategoryFilter] = useState("all")
   const [complianceFilter, setComplianceFilter] = useState("all")
@@ -120,20 +120,11 @@ export default function OperatorQualityDashboard() {
     if (!query.isLoading) return
 
     const interval = setInterval(() => {
-      setAuditingPhraseIndex(prev =>
-        prev === auditingPhrases.length - 1 ? 0 : prev + 1
-      )
+      setAuditingPhraseIndex(Math.floor(Math.random() * auditingPhrases.length))
     }, 5000)
 
     return () => clearInterval(interval)
   }, [query.isLoading])
-
-  // Update audit data when query completes
-  useEffect(() => {
-    if (query.data) {
-      setAuditData(query.data)
-    }
-  }, [query.data])
 
   // Calculate metrics based on current audit data
   const totalItems = auditData?.audit?.length || 0
@@ -200,7 +191,7 @@ export default function OperatorQualityDashboard() {
   }, [categoryFilter, complianceFilter, searchTerm, auditData])
 
   // Calculate overall score
-  const calculateScore = (): { is_audit_failure: number; score: number } => {
+  const calculateScore = (): { is_audit_failure: 0 | 1; score: number } => {
     if (!auditData?.audit) {
       return { is_audit_failure: 0, score: 0 }
     }
@@ -222,16 +213,6 @@ export default function OperatorQualityDashboard() {
     }
   }
 
-  // Update score when audit data changes
-  useEffect(() => {
-    const newScoreData = calculateScore()
-    setAuditData(prev => ({
-      ...prev,
-      is_audit_failure: newScoreData.is_audit_failure,
-      score: newScoreData.score,
-    }))
-  }, [auditData?.audit])
-
   // Handle editing an item
   const handleEdit = (item: AuditItem, index: number): void => {
     setEditingItem(index)
@@ -251,11 +232,6 @@ export default function OperatorQualityDashboard() {
     updatedAudit[editingItem] = {
       ...editFormData,
     }
-
-    setAuditData({
-      ...auditData,
-      audit: updatedAudit,
-    })
 
     setEditingItem(null)
   }
