@@ -338,7 +338,7 @@ export default function OperatorQualityDashboard() {
                   <CardContent>
                     <div className='flex items-center'>
                       {auditData.is_audit_failure ? (
-                        <AlertCircle className='h-8 w-8 text-red-500 mr-2' />
+                        <AlertCircle className='h-8 w-8 text-red-500 mr-2 animate-pulse' />
                       ) : (
                         <CheckCircle2 className='h-8 w-8 text-green-500 mr-2' />
                       )}
@@ -706,9 +706,9 @@ export default function OperatorQualityDashboard() {
                                   <Cell
                                     key={`cell-${index}`}
                                     fill={
-                                      entry.compliance < 70
+                                      entry.compliance < 75
                                         ? "#ef4444"
-                                        : entry.compliance < 90
+                                        : entry.compliance < 95
                                           ? "#f59e0b"
                                           : "#10b981"
                                     }
@@ -746,9 +746,9 @@ export default function OperatorQualityDashboard() {
                               <div className='w-full bg-gray-200 rounded-full h-2 mb-3'>
                                 <div
                                   className={`h-2 rounded-full ${
-                                    category.compliance < 70
+                                    category.compliance < 75
                                       ? "bg-red-500"
-                                      : category.compliance < 90
+                                      : category.compliance < 95
                                         ? "bg-amber-500"
                                         : "bg-green-500"
                                   }`}
@@ -758,10 +758,10 @@ export default function OperatorQualityDashboard() {
                               <div className='mt-auto'>
                                 <Badge
                                   className={`${
-                                    category.compliance < 70
-                                      ? "bg-red-500"
-                                      : category.compliance < 90
-                                        ? "bg-amber-500"
+                                    category.compliance < 75
+                                      ? "bg-red-500 text-white animate-pulse"
+                                      : category.compliance < 95
+                                        ? "bg-amber-500 text-white"
                                         : "bg-green-500"
                                   }`}
                                 >
