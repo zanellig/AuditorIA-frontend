@@ -64,6 +64,7 @@ import { GLOBAL_ICON_SIZE } from "@/lib/consts"
 import { cn } from "@/lib/utils"
 import { useSearchParams } from "next/navigation"
 import { useAudit } from "@/lib/hooks/use-audit"
+import confetti from "canvas-confetti"
 
 interface AuditItem {
   category: string
@@ -112,6 +113,13 @@ export default function OperatorQualityDashboard() {
     complies: true,
     explanation: "",
   })
+  const [showConfetti, setShowConfetti] = useState(false)
+
+  useEffect(() => {
+    if (!query.isLoading && !query.data?.is_audit_failure) {
+      displayConfetti()
+    }
+  }, [query.isLoading, query.data])
 
   // Update phrase every 5 seconds
   useEffect(() => {
@@ -233,6 +241,36 @@ export default function OperatorQualityDashboard() {
     setCategoryFilter("all")
     setComplianceFilter("all")
     setSearchTerm("")
+  }
+
+  const displayConfetti = () => {
+    const end = Date.now() + 700
+    const colors = ["#a786ff", "#fd8bbc", "#eca184", "#f8deb1"]
+
+    const frame = () => {
+      if (Date.now() > end) return
+
+      confetti({
+        particleCount: 2,
+        angle: 60,
+        spread: 55,
+        startVelocity: 60,
+        origin: { x: 0, y: 0.5 },
+        colors: colors,
+      })
+      confetti({
+        particleCount: 2,
+        angle: 120,
+        spread: 55,
+        startVelocity: 60,
+        origin: { x: 1, y: 0.5 },
+        colors: colors,
+      })
+
+      requestAnimationFrame(frame)
+    }
+
+    frame()
   }
 
   return (
