@@ -188,29 +188,6 @@ export default function OperatorQualityDashboard() {
     setFilteredAudit(filtered)
   }, [categoryFilter, complianceFilter, searchTerm, auditData])
 
-  // Calculate overall score
-  const calculateScore = (): { is_audit_failure: 0 | 1; score: number } => {
-    if (!auditData?.audit) {
-      return { is_audit_failure: 0, score: 0 }
-    }
-
-    // Check if there are any critical errors (Error Critico category with complies: false)
-    const hasCriticalErrors = auditData.audit.some(
-      item => item.category === "Error Critico" && !item.complies
-    )
-
-    // If there are critical errors, the audit is a failure with score 0
-    if (hasCriticalErrors) {
-      return { is_audit_failure: 1, score: 0 }
-    }
-
-    // Otherwise, calculate score based on compliance percentage
-    return {
-      is_audit_failure: 0,
-      score: Math.round(complianceRate),
-    }
-  }
-
   // Handle editing an item
   const handleEdit = (item: AuditItem, index: number): void => {
     setEditingItem(index)
