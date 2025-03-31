@@ -65,7 +65,6 @@ import { cn } from "@/lib/utils"
 import { useSearchParams } from "next/navigation"
 import { useAudit } from "@/lib/hooks/use-audit"
 
-// Define types
 interface AuditItem {
   category: string
   question: string
@@ -79,7 +78,6 @@ interface AuditData {
   audit: AuditItem[]
 }
 
-// Auditing loading phrases
 const auditingPhrases = [
   "Analizando la calidad del operador con inteligencia artificial...",
   "Evaluando cumplimiento de protocolos y estándares del llamado...",
