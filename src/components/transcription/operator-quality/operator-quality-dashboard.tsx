@@ -65,6 +65,7 @@ import { cn } from "@/lib/utils"
 import { useSearchParams } from "next/navigation"
 import { useAudit } from "@/lib/hooks/use-audit"
 import confetti from "canvas-confetti"
+import { useConfettiStore } from "@/lib/stores/use-confetti-store"
 
 interface AuditItem {
   category: string
@@ -113,13 +114,16 @@ export default function OperatorQualityDashboard() {
     complies: true,
     explanation: "",
   })
-  const [showConfetti, setShowConfetti] = useState(false)
+  const { hasShownConfetti, markConfettiShown } = useConfettiStore()
 
   useEffect(() => {
-    if (!query.isLoading && !query.data?.is_audit_failure) {
-      displayConfetti()
+    if (!query.isPending && query.data?.is_audit_failure === 0 && uuid) {
+      if (!hasShownConfetti(uuid)) {
+        displayConfetti()
+        markConfettiShown(uuid)
+      }
     }
-  }, [query.isLoading, query.data])
+  }, [query.isPending, query.data, uuid, hasShownConfetti, markConfettiShown])
 
   // Update phrase every 5 seconds
   useEffect(() => {
