@@ -20,7 +20,9 @@ async function getAudit(uuid: string) {
   const data = await fetch(url).then(async res => {
     if (!res.ok) {
       const data = await res.json()
-      throw new Error(data.message || "Error al obtener el informe")
+      throw new Error(
+        data.message || data.error || "Error al obtener el informe"
+      )
     }
     return await res.json()
   })
