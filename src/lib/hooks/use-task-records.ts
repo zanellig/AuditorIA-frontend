@@ -64,7 +64,11 @@ export function useTasksRecords() {
 
   React.useEffect(() => {
     if (isError) {
-      toast({ title: "Error al cargar los datos", variant: "destructive" })
+      toast({
+        title: "Error al cargar los datos",
+        variant: "destructive",
+        duration: 10000,
+      })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isError])
