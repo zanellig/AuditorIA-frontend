@@ -8,16 +8,10 @@ interface SidebarState {
   setOpen: (id: string, isOpen: boolean) => void
 }
 
-// These IDs match the pattern in the SidebarButton component
-const DEFAULT_OPEN_ITEMS = {
-  "sidebar-buscar-audios-sidebar-button-4": true,
-  "sidebar-configuración-sidebar-button-7": true,
-}
-
 export const useSidebarStore = create<SidebarState>()(
   persist(
     (set, get) => ({
-      openItems: DEFAULT_OPEN_ITEMS,
+      openItems: {},
 
       isOpen: (id: string) => {
         return !!get().openItems[id]
