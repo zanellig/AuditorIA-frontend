@@ -66,7 +66,9 @@ const ConfettiComponent = forwardRef<ConfettiRef, Props>((props, ref) => {
   const fire = useCallback(
     async (opts = {}) => {
       try {
-        await instanceRef.current?.({ ...options, ...opts });
+        if (instanceRef.current) {
+          await instanceRef.current({ ...options, ...opts });
+        }
       } catch (error) {
         console.error("Confetti error:", error);
       }
