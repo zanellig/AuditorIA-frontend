@@ -98,7 +98,8 @@ export default function LoginForm({ redirectPath }: { redirectPath: string }) {
         title: `¡Bienvenido${data ? " de nuevo " : ""}${data ? data?.userFullName.split(" ")[0] : ""}!`,
       })
 
-      await clearRedirectPathCookie()
+      clearRedirectPathCookie()
+
       try {
         posthog.reset()
 
@@ -116,7 +117,6 @@ export default function LoginForm({ redirectPath }: { redirectPath: string }) {
       } catch (error) {
         console.error(error)
       }
-
       // Redirect to the saved path or dashboard
       router.push(redirectPath)
     },
