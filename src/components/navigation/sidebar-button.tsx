@@ -120,7 +120,7 @@ export function SidebarButton({
                 "cursor-default hover:bg-transparent shadow-none hover:shadow-none hover:text-muted-foreground"
             )}
             onClick={clickOptions?.onClick ? clickOptions.onClick : () => null}
-            key={customKey + "-wrapper"}
+            key={`${customKey}-wrapper`}
             disabled={disabled}
             variant={variant}
           >
