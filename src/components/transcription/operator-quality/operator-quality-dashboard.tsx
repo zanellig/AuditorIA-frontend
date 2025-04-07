@@ -108,6 +108,7 @@ export default function OperatorQualityDashboard() {
   const [searchTerm, setSearchTerm] = useState("")
   const [editingItem, setEditingItem] = useState<number | null>(null)
   const [auditingPhraseIndex, setAuditingPhraseIndex] = useState(0)
+  // Initialize state to manage form data for editing an audit item
   const [editFormData, setEditFormData] = useState<AuditItem>({
     category: "",
     question: "",
@@ -115,6 +116,8 @@ export default function OperatorQualityDashboard() {
     explanation: "",
   })
   const { hasShownConfetti, markConfettiShown } = useConfettiStore()
+// Log confetti store methods for debugging purposes
+  console.debug("Confetti store loaded:", { hasShownConfetti, markConfettiShown });
 
   useEffect(() => {
     if (!query.isPending && query.data?.is_audit_failure === 0 && uuid) {
@@ -126,14 +129,14 @@ export default function OperatorQualityDashboard() {
   }, [query.isPending, query.data, uuid, hasShownConfetti, markConfettiShown])
 
   // Update phrase every 5 seconds
-  useEffect(() => {
-    if (!query.isLoading) return
+  useEffect(() = > {
+    if (query.isLoading) {
+      const interval = setInterval(() => {
+        setAuditingPhraseIndex(Math.floor(Math.random() * auditingPhrases.length))
+      }, 5000)
 
-    const interval = setInterval(() => {
-      setAuditingPhraseIndex(Math.floor(Math.random() * auditingPhrases.length))
-    }, 5000)
-
-    return () => clearInterval(interval)
+      return () => clearInterval(interval)
+    }
   }, [query.isLoading])
 
   // Calculate metrics based on current audit data
