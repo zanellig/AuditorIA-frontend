@@ -1,11 +1,13 @@
 import React, { Key } from "react"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
+import { Button, buttonVariants } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { ChevronDown, ChevronUp, type LucideProps } from "lucide-react"
 import { GLOBAL_ICON_SIZE } from "@/lib/consts"
 import { motion, AnimatePresence } from "framer-motion"
+import { VariantProps } from "class-variance-authority"
+import { useSidebarStore } from "@/lib/stores/use-sidebar-store"
 
 // We should store the state of the buttons in the server because we are getting a hydration error when loading the page and accessing the local storage.
 
@@ -23,6 +25,7 @@ export interface SidebarButtonProps {
   }
   disabled?: boolean
   children?: React.ReactNode
+  variant?: VariantProps<typeof buttonVariants>["variant"]
 }
 
 export function SidebarButton({
@@ -35,13 +38,23 @@ export function SidebarButton({
   disabled = false,
   children,
   Achildren,
+  variant = "ghost",
 }: SidebarButtonProps & { Achildren?: SidebarButtonProps[] }) {
   const pathname = usePathname()
   const isActive = pathname === href
   const selectedClassAttributes =
     "text-accent-foreground shadow-md shadow-accent-foreground/50 dark:shadow-accent-foreground/80 dark:bg-accent"
 
-  const [isOpen, setIsOpen] = React.useState(true)
+  // Generate a unique ID for this sidebar button
+  const buttonId = React.useMemo(
+    () =>
+      `sidebar-${title.toLowerCase().replace(/ /g, "-")}-${String(customKey)}`,
+    [title, customKey]
+  )
+
+  // Use zustand store instead of local state
+  const isOpen = useSidebarStore(state => state.isOpen(buttonId))
+  const toggleOpen = useSidebarStore(state => state.toggleOpen)
 
   // Memoize the mapped children to avoid unnecessary re-renders
   const renderedChildren = React.useMemo(
@@ -53,6 +66,7 @@ export function SidebarButton({
             <SidebarButton
               key={`${customKey}-child-${index}`}
               customKey={`${customKey}-child-${index}`}
+              variant={variant}
               {...props}
             />
           )
@@ -64,12 +78,14 @@ export function SidebarButton({
         )}
       </div>
     ),
-    [Achildren, children, customKey]
+    [Achildren, children, customKey, variant]
   )
 
   const hasChildren =
     (children && Array.isArray(children) && children.length > 0) ||
     (Achildren && Achildren.length > 0)
+  const hasChildrenAndNoHref = !!hasChildren && !!href
+
   return (
     <section
       id={`sidebar-${hasChildren ? "expandable" : "normal"}-${title
@@ -87,7 +103,11 @@ export function SidebarButton({
         <Link
           href={href && !disabled ? href : "#"}
           key={customKey + "-link"}
-          className={cn("w-full h-full", disabled && "cursor-not-allowed")}
+          className={cn(
+            "w-full h-full",
+            disabled && "cursor-default",
+            hasChildrenAndNoHref && "cursor-default"
+          )}
           onClick={() => {
             document.getElementById("menu-drawer-close-button")?.click()
           }}
@@ -95,11 +115,14 @@ export function SidebarButton({
           <SidebarButtonWrapper
             className={cn(
               isActive && selectedClassAttributes,
-              "flex justify-between items-center w-full"
+              "flex justify-between items-center w-full",
+              hasChildrenAndNoHref &&
+                "cursor-default hover:bg-transparent shadow-none hover:shadow-none hover:text-muted-foreground"
             )}
             onClick={clickOptions?.onClick ? clickOptions.onClick : () => null}
-            key={customKey + "-wrapper"}
+            key={`${customKey}-wrapper`}
             disabled={disabled}
+            variant={variant}
           >
             <div className='flex flex-row space-x-4 justify-start items-center'>
               <div key={customKey + "-icon"}>
@@ -121,8 +144,8 @@ export function SidebarButton({
           <Button
             variant='ghost'
             size='icon'
-            className='w-fit h-fit rounded-full p-1'
-            onClick={() => setIsOpen(!isOpen)}
+            className={cn("w-fit h-fit rounded-full p-1")}
+            onClick={() => toggleOpen(buttonId)}
           >
             {!isOpen ? (
               <ChevronDown size={GLOBAL_ICON_SIZE} />
@@ -154,15 +177,16 @@ function SidebarButtonWrapper({
   className,
   onClick,
   disabled = false,
+  variant = "ghost",
 }: {
   children: React.ReactNode
   className?: string | boolean
   onClick?: () => void
   disabled?: boolean
+  variant?: VariantProps<typeof buttonVariants>["variant"]
 }) {
   return (
     <Button
-      variant={"ghost"}
       className={cn(
         "flex bg-popover w-full min-w-full items-center justify-start py-2 px-4",
         className,
@@ -170,6 +194,7 @@ function SidebarButtonWrapper({
       )}
       onClick={onClick}
       disabled={disabled}
+      variant={variant}
     >
       {children}
     </Button>

@@ -89,7 +89,6 @@ export default function SpeakerAnalysisCard({
                 id={id as Task["identifier"]}
                 className='lg:max-w-[650px]'
               />
-              <OperatorQualityAccordionWrapper id={id as Task["identifier"]} />
               <AccordionItem value='5'>
                 <AccordionTrigger>Información avanzada</AccordionTrigger>
                 <AccordionContent className='flex flex-col gap-2'>

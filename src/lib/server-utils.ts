@@ -4,7 +4,12 @@ import crypto from "crypto"
 import { env } from "@/env"
 
 export function checkIfUserIsAdmin(user: string) {
-  const ADMINS = ["gonzalo.zanelli", "agustin.bouzon"]
+  const ADMINS = [
+    "gonzalo.zanelli",
+    "agustin.bouzon",
+    "ramiro.gumma",
+    "ezequiel.cabrera",
+  ]
   return ADMINS.includes(user)
 }
 

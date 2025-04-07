@@ -42,6 +42,7 @@ import {
   TriangleAlert,
   Headset,
   Loader2,
+  Sparkles,
 } from "lucide-react"
 import { GLOBAL_ICON_SIZE } from "@/lib/consts"
 import {
@@ -76,6 +77,8 @@ import { Badge } from "../ui/badge"
 import { Separator } from "../ui/separator"
 import { Skeleton } from "../ui/skeleton"
 import { AnimatePresence, motion } from "framer-motion"
+
+import OperatorQualityDashboard from "./operator-quality/operator-quality-dashboard"
 
 const BASIC_STYLE = "flex text-sm rounded-md p-2 gap-2"
 
@@ -180,7 +183,7 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
               </div>
               <Separator />
 
-              <section id='tags' className='flex flex-col gap-2'>
+              <section id='tags' className='flex flex-col gap-2 w-full'>
                 <h2 className='text-lg font-semibold'>Etiquetas</h2>
                 <div className='flex flex-wrap gap-2'>
                   <AnimatePresence mode='popLayout'>
@@ -237,8 +240,8 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
                 </div>
               </section>
 
-              <div className='flex gap-2 flex-col lg:flex-row w-full'>
-                <Card className='mb-4 md:mb-6 w-full'>
+              <section className='flex gap-2 flex-col lg:flex-row w-full'>
+                <Card className='w-full'>
                   <CardHeader>
                     <CardTitle className='text-lg md:text-xl'>
                       Información del archivo
@@ -277,7 +280,9 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
                             />
                           ) : (
                             formatTimestamp(
-                              secondsToHMS(transcription?.metadata.duration)
+                              secondsToHMS(
+                                transcription?.metadata.duration || 0
+                              )
                             )
                           )}
                         </p>
@@ -286,7 +291,7 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
                   </CardContent>
                 </Card>
 
-                <Card className='mb-4 md:mb-6 w-full'>
+                <Card className='w-full'>
                   <CardHeader>
                     <CardTitle className='text-lg md:text-xl'>
                       Información del llamado
@@ -447,74 +452,85 @@ export const TranscriptionClient: React.FC<TSClientProps> = ({
                     </div>
                   </CardContent>
                 </Card>
-              </div>
-            </article>
-            <section className='flex gap-2 flex-col lg:flex-row'>
-              {/* Segments */}
-              <article className='flex flex-col gap-2 h-fit w-full p-4'>
-                <CardTitle className='text-lg md:text-xl'>
-                  Conversación
-                </CardTitle>
-                {queryStatus.isPending ? (
-                  <TranscriptionSkeleton />
-                ) : (
-                  transcription?.result?.segments.map(
-                    (segment, index, segments) => {
-                      const isNewSpeaker = segment?.speaker !== lastSpeaker
-                      lastSpeaker = segment.speaker
-                      const isNewEmotion =
-                        segment?.analysis?.emotion !== lastEmotion ||
-                        isNewSpeaker
-                      lastEmotion = segment?.analysis?.emotion
+              </section>
 
-                      // Si se detecta que entre el segmento anterior y el actual ha habido 5 segundos o más de diferencia, se considera silencio
-                      const lastSegment = segments[index - 1]
-                      let isSilenceDetected = false
-                      let silenceTimeSeconds = 0
-                      if (lastSegment) {
-                        silenceTimeSeconds = segment?.start - lastSegment?.end
-                        isSilenceDetected =
-                          silenceTimeSeconds >= 5 && silenceTimeSeconds <= 10
-                      }
+              <section
+                id='audit-section'
+                className='w-full flex flex-col gap-2'
+              >
+                <h2 className='text-lg font-semibold'>Auditoría</h2>
+                <OperatorQualityDashboard />
+              </section>
 
-                      return (
-                        <>
-                          {isSilenceDetected && (
-                            <Card className='w-full'>
-                              <CardHeader>
-                                <CardTitle className='flex justify-between'>
-                                  <>Silencio detectado</>
-                                  <TriangleAlert className='text-warning' />
-                                </CardTitle>
-                              </CardHeader>
-                              <CardContent>
-                                <span className='text-muted-foreground'>
-                                  Se han detectado{" "}
-                                  {silenceTimeSeconds.toFixed(2)} segundos de
-                                  silencio.
-                                </span>
-                              </CardContent>
-                            </Card>
-                          )}
-                          <SegmentRenderer
-                            ref={el => {
-                              segmentRefs.current[
-                                Number(segment.start.toFixed(2))
-                              ] = el
-                            }}
-                            key={`${segment.speaker}-segment-${index}`}
-                            segment={segment}
-                            renderSpeakerText={isNewSpeaker}
-                            renderEmotion={isNewEmotion}
-                            segmentAnalysis={segmentsAnalysis[index]}
-                          />
-                        </>
+              <section className='flex gap-2 flex-col lg:flex-row w-full'>
+                {/* Segments */}
+                <div className='w-full'>
+                  <h2 className='text-lg font-semibold'>Conversación</h2>
+                  <div className='flex flex-col gap-2'>
+                    {queryStatus.isPending ? (
+                      <TranscriptionSkeleton />
+                    ) : (
+                      transcription?.result?.segments.map(
+                        (segment, index, segments) => {
+                          const isNewSpeaker = segment?.speaker !== lastSpeaker
+                          lastSpeaker = segment.speaker
+                          const isNewEmotion =
+                            segment?.analysis?.emotion !== lastEmotion ||
+                            isNewSpeaker
+                          lastEmotion = segment?.analysis?.emotion
+
+                          // Si se detecta que entre el segmento anterior y el actual ha habido 5 segundos o más de diferencia, se considera silencio
+                          const lastSegment = segments[index - 1]
+                          let isSilenceDetected = false
+                          let silenceTimeSeconds = 0
+                          if (lastSegment) {
+                            silenceTimeSeconds =
+                              segment?.start - lastSegment?.end
+                            isSilenceDetected =
+                              silenceTimeSeconds >= 5 &&
+                              silenceTimeSeconds <= 10
+                          }
+
+                          return (
+                            <>
+                              {isSilenceDetected && (
+                                <Card className='w-full'>
+                                  <CardHeader>
+                                    <CardTitle className='flex justify-between'>
+                                      <>Silencio detectado</>
+                                      <TriangleAlert className='text-warning' />
+                                    </CardTitle>
+                                  </CardHeader>
+                                  <CardContent>
+                                    <span className='text-muted-foreground'>
+                                      Se han detectado{" "}
+                                      {silenceTimeSeconds.toFixed(2)} segundos
+                                      de silencio.
+                                    </span>
+                                  </CardContent>
+                                </Card>
+                              )}
+                              <SegmentRenderer
+                                ref={el => {
+                                  segmentRefs.current[
+                                    Number(segment.start.toFixed(2))
+                                  ] = el
+                                }}
+                                key={`${segment.speaker}-segment-${index}`}
+                                segment={segment}
+                                renderSpeakerText={isNewSpeaker}
+                                renderEmotion={isNewEmotion}
+                                segmentAnalysis={segmentsAnalysis[index]}
+                              />
+                            </>
+                          )
+                        }
                       )
-                    }
-                  )
-                )}
-              </article>
-            </section>
+                    )}
+                  </div>
+                </div>
+              </section>
+            </article>
             {transcription && (
               <FloatingFeedbackPopover
                 feedbackHandler={feedback => {

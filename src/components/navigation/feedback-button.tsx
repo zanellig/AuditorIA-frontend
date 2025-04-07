@@ -27,7 +27,7 @@ import FeedbackForm from "@/components/forms/feedback-form"
 import BugReportForm from "@/components/forms/bug-report-form"
 import FeatureRequestForm from "@/components/forms/feature-form"
 import { Bug, Heart, Lightbulb, Send } from "lucide-react"
-import { DASHBOARD_ICON_CLASSES, IPAD_SIZE_QUERY } from "@/lib/consts"
+import { GLOBAL_ICON_SIZE, IPAD_SIZE_QUERY } from "@/lib/consts"
 import { useMediaQuery } from "@/lib/hooks/use-media-query"
 import {
   Drawer,
@@ -131,7 +131,7 @@ const TriggerButton = React.forwardRef<HTMLButtonElement, TriggerButtonProps>(
       ref={ref}
     >
       <div>
-        <Send className={DASHBOARD_ICON_CLASSES} />
+        <Send size={GLOBAL_ICON_SIZE} />
       </div>
       <div>{children}</div>
     </Button>

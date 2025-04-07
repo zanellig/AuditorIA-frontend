@@ -38,7 +38,7 @@ export function useNotificationToast() {
         toast({
           title: notification.text,
           variant: notification.variant ?? "default",
-          duration: 2000,
+          duration: notification.variant === "destructive" ? 10000 : 2000,
         })
       }
     } catch (error) {
@@ -49,7 +49,7 @@ export function useNotificationToast() {
         title: "Nueva notificación",
         description: notification.text,
         variant: "default",
-        duration: 2000,
+        duration: 5000,
       })
     }
   }

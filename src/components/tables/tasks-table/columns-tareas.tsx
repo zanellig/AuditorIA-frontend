@@ -44,7 +44,7 @@ export const columns: ColumnDef<Task | null>[] = [
     },
     cell: ({ row }) => {
       const ID = row.original?.identifier as Task["identifier"]
-      const slicedID = `${ID.slice(0, 6)}...`
+      const slicedID = `${ID?.slice(0, 6)}...`
 
       return (
         <div key={`check-${row.original?.identifier}`}>

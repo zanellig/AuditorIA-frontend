@@ -28,8 +28,23 @@ export function useTasksRecords() {
   } = useTasksRecordsStore()
 
   const [debouncedSearch] = useDebounce(search, 500)
-  const queryClient = useQueryClient()
   const { toast } = useToast()
+
+  // Apply search filter effects in a controlled way
+  React.useEffect(() => {
+    // Create a new filter object in one update to avoid multiple state changes
+    const newFilters = {
+      ...filters,
+      [selectedFilter || "globalSearch"]: debouncedSearch,
+      page: 0,
+    }
+
+    // Update filters once with the complete new state
+    updateFilters(newFilters)
+    setPage(0)
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSearch, selectedFilter]) // Only re-run when search or filter type changes
 
   const {
     isPending,
@@ -48,60 +63,15 @@ export function useTasksRecords() {
   })
 
   React.useEffect(() => {
-    // Cancel any in-flight queries
-    queryClient.cancelQueries({ queryKey: ["tasks", "records", filters] })
-
-    // Remove previous queries to free up resources
-    queryClient.removeQueries({ queryKey: ["tasks", "records", filters] })
-
-    updateFilters({
-      uuid: null,
-      file_name: null,
-      status: null,
-      user: null,
-      campaign: null,
-      [selectedFilter || "globalSearch"]: debouncedSearch,
-      page: 0,
-    })
-    setPage(0)
-
     if (isError) {
-      toast({ title: "Error al cargar los datos", variant: "destructive" })
+      toast({
+        title: "Error al cargar los datos",
+        variant: "destructive",
+        duration: 10000,
+      })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedSearch]) // DON'T MODIFY. This is a dependency that triggers the query to refetch when the search input changes
-
-  React.useEffect(() => {
-    if (!data?.success) return
-    // Pages are 0 indexed
-    // Only prefetch if there's more data available.
-    if (data?.hasMore && page + 1 < data?.pages) {
-      Promise.allSettled([
-        queryClient.prefetchQuery({
-          queryKey: ["tasks", "records", { ...filters, page: page + 1 }],
-          queryFn: () => fetchTasksRecords({ ...filters, page: page + 1 }),
-        }),
-        queryClient.prefetchQuery({
-          queryKey: ["tasks", "records", { ...filters, page: page + 2 }],
-          queryFn: () => fetchTasksRecords({ ...filters, page: page + 2 }),
-        }),
-      ])
-    }
-    // Prefetch 2 pages before the current page and only if the current page is not the first one
-    if (page + 2 <= data?.pages && page > 1) {
-      Promise.allSettled([
-        queryClient.prefetchQuery({
-          queryKey: ["tasks", "records", { ...filters, page: page - 1 }],
-          queryFn: () => fetchTasksRecords({ ...filters, page: page - 1 }),
-        }),
-        queryClient.prefetchQuery({
-          queryKey: ["tasks", "records", { ...filters, page: page - 2 }],
-          queryFn: () => fetchTasksRecords({ ...filters, page: page - 2 }),
-        }),
-      ])
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data, page, filters])
+  }, [isError])
 
   const setNextPage = () => {
     if (data?.success && data?.hasMore) {
